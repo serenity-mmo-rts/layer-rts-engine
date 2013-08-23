@@ -3,8 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Tilemap</title>
-<script type="text/javascript" src="lib\easeljs-0.6.1.min.js"></script>
-<script type="text/javascript" src="jquery-1.10.1.js"></script>
+<script type="text/javascript" src="../easeljs/lib/easeljs-0.6.1.min.js"></script>
+<script type="text/javascript" src="../externals/jquery-1.10.1.js"></script>
 <script>
 
 
@@ -43,7 +43,7 @@ function init() {
 	stage.addChild(container);
 	
 	// button menu (still bitmap)
-	var button = new createjs.Bitmap("button.gif");
+	var button = new createjs.Bitmap("../resources/button.gif");
 		button.x = 1;	
 		button.y = canvas_height - button_height;	
 		
@@ -91,7 +91,7 @@ function init() {
 	function buildhouse(evt1) {
 		build = true
 		img = new Image();
-		img.src = "bank1.png";		
+		img.src = "../resources/bank1.png";		
 		burger = new createjs.Bitmap(img);
 		burger.mouseMoveOutside = true;
 		global_buildXpos = - global_offsetX + local_buildXpos;
@@ -249,7 +249,7 @@ function httpGetData(theUrl) {
  "tilesets":[
         {
          "firstgid":1,
-         "image":"forest.png",
+         "image":"../resources/forest.png",
          "imageheight":1024,
          "imagewidth":640,
          "margin":0,
@@ -264,7 +264,7 @@ function httpGetData(theUrl) {
         }, 
         {
          "firstgid":161,
-         "image":"burgerShop1.png",
+         "image":"../resources/burgerShop1.png",
          "imageheight":152,
          "imagewidth":200,
          "margin":0,
