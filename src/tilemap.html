@@ -3,8 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Tilemap</title>
-<script type="text/javascript" src="../easeljs/lib/easeljs-0.6.1.min.js"></script>
-<script type="text/javascript" src="../externals/jquery-1.10.1.js"></script>
+<script type="text/javascript" src="..\easeljs\easeljs-0.6.1.min.js"></script>
+<script type="text/javascript" src="..\externals\jquery-1.10.1.js"></script>
 <script>
 
 
@@ -23,14 +23,25 @@ var global_buildXpos;
 var global_buildYpos;
 var local_buildXpos = 100;
 var local_buildYpos = canvas_height-200;
+var idx = ["1","2","3","4","5"];
+var counter = 0;
 
+// Init function (main loop more or less)
 function init() {
 
-	// initialize stage and upper container
+	// initialize stage and containers
 	stage = new createjs.Stage("canvas");
-	container = new createjs.Container();
+	main_container = new createjs.Container();
+	map_container = new createjs.Container();
+	obj_container = new createjs.Container();
+	menu_container = new createjs.Container();
+	button_container = new createjs.Container();
+	
 	stage.mouseMoveOutside = true;
-	container.mouseMoveOutside = true;
+	main_container.mouseMoveOutside = true;
+	map_container.mouseMoveOutside = true;
+	obj_container.mouseMoveOutside = true;
+	stage.enableMouseOver(20);
 	
 	// initialize image data
 	mapData = mapDataJson;		
@@ -40,10 +51,34 @@ function init() {
 	objectset = new Image();	
 	objectset.src = mapData.tilesets[1].image;
 	objectset.onLoad = initObjects();
-	stage.addChild(container);
 	
+	// initialize menu
+	initMenu(button_container);
+		
+	// inherit
+	main_container.addChild(map_container,obj_container);
+	menu_container.addChild(button_container);
+	stage.addChild(main_container,menu_container);
+	
+					
+	// event listener for dragging map
+	main_container.addEventListener("mousedown", handleMousedownMap);
+		
+	// button Event Listener
+	button_container.addEventListener("click", buildhouse);		
+	
+	// set FPS and call tick 
+	createjs.Ticker.setFPS(60);
+	createjs.Ticker.addEventListener("tick", tick);		
+}
+
+
+
+
+// make button and add it to button container
+function initMenu(button_container){
 	// button menu (still bitmap)
-	var button = new createjs.Bitmap("../resources/button.gif");
+	var button = new createjs.Bitmap("button.gif");
 		button.x = 1;	
 		button.y = canvas_height - button_height;	
 		
@@ -52,61 +87,13 @@ function init() {
 		label.x = 20;
 		label.y = canvas_height - button_height +20;	
 				
-	//button Containter	
-	var buttonContainer = new createjs.Container();
-			buttonContainer.name = "build_button";
-			buttonContainer.x = 1;
-			buttonContainer.y = 1;
-			buttonContainer.addChild(button, label);
-			stage.addChild(buttonContainer);
-					
-	// event listener for dragging map
-	container.addEventListener("mousedown", function(evt) {
-	
-			if (build) {
-			build = false;
-			burger.alpha = 1;
-			}		
-			
-			offset = {
-			x:evt.target.x-evt.stageX,
-			y:evt.target.y-evt.stageY			
-			};			
-			
-			evt.addEventListener("mousemove",function(ev) {
-				ev.target.x = ev.stageX+offset.x;
-				ev.target.y = ev.stageY+offset.y;
-				global_offsetX = ev.target.x;		
-				global_offsetY = ev.target.y;				
-								  
-			});	
-	});
-	
-	// button Event Listener
-		button.addEventListener("click", buildhouse);
-		label.addEventListener("click", buildhouse);
-		buttonContainer.addEventListener("click", buildhouse);	
-	
-	// build houses		
-	function buildhouse(evt1) {
-		build = true
-		img = new Image();
-		img.src = "../resources/bank1.png";		
-		burger = new createjs.Bitmap(img);
-		burger.mouseMoveOutside = true;
-		global_buildXpos = - global_offsetX + local_buildXpos;
-		global_buildYpos = - global_offsetY + local_buildYpos;
-		burger.x = global_buildXpos;
-		burger.y = global_buildYpos;
-		burger.alpha = 0.5;
-		container.addChild(burger);			
-	
-	}
-	
-	// set FPS and call tick 
-	createjs.Ticker.setFPS(60);
-	createjs.Ticker.addEventListener("tick", tick);		
+	//button Containter		
+	button_container.name = "build_button";
+	button_container.x = 1;
+	button_container.y = 1;
+	button_container.addChild(button, label);
 }
+
 
  
 // loading layers
@@ -164,10 +151,54 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 			cellBitmap.x = x * tilewidth/2 - y * tilewidth/2 -32; // center X
 			cellBitmap.y = y * tileheight/2 + x * tileheight/2 -32 - 1440;  // center Y
 			// add bitmap to container
-			container.addChild(cellBitmap);
+			map_container.addChild(cellBitmap);
 			
 		}
 	}		
+}
+
+// event Listener for dragging map
+function handleMousedownMap(evt) {
+	
+	if (build) {
+	build = false;
+	burger.alpha = 1;
+	}		
+	
+	offset = {
+	x:evt.target.x-evt.stageX,
+	y:evt.target.y-evt.stageY			
+	};			
+	
+	evt.addEventListener("mousemove",function(ev) {
+		ev.target.x = ev.stageX+offset.x;
+		ev.target.y = ev.stageY+offset.y;
+		global_offsetX = ev.target.x;		
+		global_offsetY = ev.target.y;				
+						  
+	});	
+}
+
+// event Listener for building houses
+function buildhouse(evt1) {
+			
+		build = true
+		img = new Image();
+		img.src = "bank1.png";	
+		
+		burger = new createjs.Bitmap(img);		
+		burger.mouseMoveOutside = true;		
+		burger.name = ["buger" + idx[counter]];
+		burger.alpha = 0.5;
+		
+		global_buildXpos = - global_offsetX + local_buildXpos;
+		global_buildYpos = - global_offsetY + local_buildYpos;
+		burger.x = global_buildXpos;
+		burger.y = global_buildYpos;
+				
+		main_container.addChild(burger);	
+		counter = counter +1;		
+		
 }
 
 
@@ -179,6 +210,11 @@ function tick(event) {
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			//}		
 		}
+		//else { 
+			//if (hans.hitTest(stage.mouseX, stage.mouseY)) {
+			//	burger.alpha = burger.alpha - 0.1; 
+		//	}
+		//}
 	// update canvas  
 	stage.update(event);
 }
@@ -249,7 +285,7 @@ function httpGetData(theUrl) {
  "tilesets":[
         {
          "firstgid":1,
-         "image":"../resources/forest.png",
+         "image":"forest.png",
          "imageheight":1024,
          "imagewidth":640,
          "margin":0,
@@ -264,7 +300,7 @@ function httpGetData(theUrl) {
         }, 
         {
          "firstgid":161,
-         "image":"../resources/burgerShop1.png",
+         "image":"burgerShop1.png",
          "imageheight":152,
          "imagewidth":200,
          "margin":0,
