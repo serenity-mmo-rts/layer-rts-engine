@@ -17,6 +17,7 @@ var canvas_width = 1200;
 var button_height = 63;
 var button_width = 250;
 var build = false;
+var hit_object = false;
 var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
@@ -165,18 +166,26 @@ function handleMousedownMap(evt) {
 	burger.alpha = 1;
 	}		
 	
-	offset = {
-	x:evt.target.x-evt.stageX,
-	y:evt.target.y-evt.stageY			
-	};			
 	
-	evt.addEventListener("mousemove",function(ev) {
-		ev.target.x = ev.stageX+offset.x;
-		ev.target.y = ev.stageY+offset.y;
-		global_offsetX = ev.target.x;		
-		global_offsetY = ev.target.y;				
-						  
-	});	
+	if (hit_object) {
+	// move object only
+	}
+	
+	else { // move whole map with objects
+		offset = {
+		x:evt.target.x-evt.stageX,
+		y:evt.target.y-evt.stageY			
+		};			
+		
+		evt.addEventListener("mousemove",function(ev) {
+			ev.target.x = ev.stageX+offset.x;
+			ev.target.y = ev.stageY+offset.y;
+			global_offsetX = ev.target.x;		
+			global_offsetY = ev.target.y;				
+							  
+		});	
+	
+	}
 }
 
 // event Listener for building houses
@@ -196,7 +205,7 @@ function buildhouse(evt1) {
 		burger.x = global_buildXpos;
 		burger.y = global_buildYpos;
 				
-		main_container.addChild(burger);	
+		obj_container.addChild(burger);	
 		counter = counter +1;		
 		
 }
@@ -210,11 +219,20 @@ function tick(event) {
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			//}		
 		}
-		//else { 
-			//if (hans.hitTest(stage.mouseX, stage.mouseY)) {
-			//	burger.alpha = burger.alpha - 0.1; 
-		//	}
-		//}
+		else { 
+			var l = obj_container.getNumChildren();
+			for (var i=0; i<l; i++) {
+				var child = obj_container.getChildAt(i);
+					child.rotation = 0; // just to see that we hit it:-)
+					hit_object = false;
+				var pt = child.globalToLocal(stage.mouseX, stage.mouseY);
+				if (child.hitTest(pt.x, pt.y)) { 
+					child.rotation = 10; // just to see that we hit it:-)
+					hit_object = true;
+					current_hit = child.name;
+				}
+			}
+		}
 	// update canvas  
 	stage.update(event);
 }
