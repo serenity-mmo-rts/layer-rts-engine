@@ -18,25 +18,34 @@ var button_height = 63;
 var button_width = 250;
 var build = false;
 var hit_object = false;
+var destroy = false;
+var move = false;
 var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
 var global_buildYpos;
 var local_buildXpos = 100;
 var local_buildYpos = canvas_height-200;
-var idx = ["1","2","3","4","5"];
 var counter = 0;
+var current_object;
+
 
 // Init function (main loop more or less)
 function init() {
 
 	// initialize stage and containers
 	stage = new createjs.Stage("canvas");
+	
 	main_container = new createjs.Container();
+	menu_container = new createjs.Container();
+	
 	map_container = new createjs.Container();
 	obj_container = new createjs.Container();
-	menu_container = new createjs.Container();
-	button_container = new createjs.Container();
+		
+	button_container = new createjs.Container();	
+	build_button_container = new createjs.Container();
+	delete_button_container = new createjs.Container();
+	move_button_container = new createjs.Container();
 	
 	stage.mouseMoveOutside = true;
 	main_container.mouseMoveOutside = true;
@@ -54,20 +63,22 @@ function init() {
 	objectset.onLoad = initObjects();
 	
 	// initialize menu
-	initMenu(button_container);
+	initMenu();
 		
 	// inherit
-	main_container.addChild(map_container,obj_container);
+	button_container.addChild(build_button_container,delete_button_container,move_button_container);
 	menu_container.addChild(button_container);
+	main_container.addChild(map_container,obj_container);	
 	stage.addChild(main_container,menu_container);
 	
 					
 	// event listener for dragging map
 	main_container.addEventListener("mousedown", handleMousedownMap);
 		
-	// button Event Listener
-	button_container.addEventListener("click", buildhouse);		
-	
+	// button Event Listeners
+	build_button_container.addEventListener("click", buildhouse);
+	delete_button_container.addEventListener("click", deletehouse);	
+	move_button_container.addEventListener("click", movehouse);		
 	// set FPS and call tick 
 	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", tick);		
@@ -77,22 +88,34 @@ function init() {
 
 
 // make button and add it to button container
-function initMenu(button_container){
+function initMenu(){
 	// button menu (still bitmap)
-	var button = new createjs.Bitmap("../resources/button.gif");
-		button.x = 1;	
-		button.y = canvas_height - button_height;	
-		
+	var build_button = new createjs.Bitmap("../resources/button.gif");
+		build_button.x = 1;	
+		build_button.y = canvas_height - button_height;			
 	// text menu
-	var label = new createjs.Text("Build Houses here", "bold 24px Arial", "#FFFFFF");
-		label.x = 20;
-		label.y = canvas_height - button_height +20;	
-				
-	//button Containter		
-	button_container.name = "build_button";
-	button_container.x = 1;
-	button_container.y = 1;
-	button_container.addChild(button, label);
+	var build_label = new createjs.Text("Build House here", "bold 24px Arial", "#FFFFFF");
+		build_label.x = 20;
+		build_label.y = canvas_height - button_height +20;		
+		build_button_container.addChild(build_button,build_label);
+		
+	var delete_button = new createjs.Bitmap("../resources/button.gif");
+		delete_button.x = 1;	
+		delete_button.y = build_button.y - button_height;			
+	// text menu
+	var delete_label = new createjs.Text("Delete House here", "bold 24px Arial", "#FFFFFF");
+		delete_label.x = 20;
+		delete_label.y = build_button.y - button_height +20;
+		delete_button_container.addChild(delete_button,delete_label);
+		
+	var move_button = new createjs.Bitmap("../resources/button.gif");
+		move_button.x = 1;	
+		move_button.y = delete_button.y  - button_height;			
+	// text menu
+	var move_label = new createjs.Text("Move House here", "bold 24px Arial", "#FFFFFF");
+		move_label.x = 20;
+		move_label.y = delete_button.y - button_height +20;
+		move_button_container.addChild(move_button,move_label);
 }
 
 
@@ -161,17 +184,25 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 // event Listener for dragging map
 function handleMousedownMap(evt) {
 	
-	if (build) {
-	build = false;
-	burger.alpha = 1;
-	}		
-	
-	
-	if (hit_object) {
-	// move object only
+	if (build) { // build the house 
+		build = false;
+		burger.alpha = 1;
+	}	
+
+	if (destroy) { // delete object		
+		if (hit_object){
+			var pt = current_object.globalToLocal(stage.mouseX, stage.mouseY);
+			if (current_object.hitTest(pt.x, pt.y)) { 		
+				obj_container.removeChild(current_object);	
+				stage.update();	
+				destroy= false;					
+			}			
+		}
 	}
 	
-	else { // move whole map with objects
+		
+	// move whole map with objects
+	if (!build && !destroy && !move) {
 		offset = {
 		x:evt.target.x-evt.stageX,
 		y:evt.target.y-evt.stageY			
@@ -184,20 +215,25 @@ function handleMousedownMap(evt) {
 			global_offsetY = ev.target.y;				
 							  
 		});	
-	
 	}
 }
+
+
+
 
 // event Listener for building houses
 function buildhouse(evt1) {
 			
-		build = true
+		build = true;
+		destroy = false;
+		move = false;
 		img = new Image();
 		img.src = "../resources/bank1.png";	
 		
 		burger = new createjs.Bitmap(img);		
-		burger.mouseMoveOutside = true;		
-		burger.name = ["buger" + idx[counter]];
+		burger.mouseMoveOutside = true;	
+		count = counter.toString();
+		burger.name = ["buger" + count];
 		burger.alpha = 0.5;
 		
 		global_buildXpos = - global_offsetX + local_buildXpos;
@@ -210,6 +246,22 @@ function buildhouse(evt1) {
 		
 }
 
+// event Listener for deleting houses
+function deletehouse(evt1) {			
+		build = false;
+		destroy = true;
+		move = false;
+		
+}
+
+
+// event Listener for building houses
+function movehouse(evt1) {			
+		build = false;
+		destroy = false;
+		move = true;		
+}
+
 
 // tick funtion called every frame
 function tick(event) {
@@ -220,16 +272,15 @@ function tick(event) {
 			//}		
 		}
 		else { 
-			var l = obj_container.getNumChildren();
-			for (var i=0; i<l; i++) {
-				var child = obj_container.getChildAt(i);
-					child.rotation = 0; // just to see that we hit it:-)
-					hit_object = false;
+			l = obj_container.getNumChildren();
+			hit_object = false;
+			for(var i = 0; i<l; i++){
+				child = obj_container.getChildAt(i);				
 				var pt = child.globalToLocal(stage.mouseX, stage.mouseY);
 				if (child.hitTest(pt.x, pt.y)) { 
-					child.rotation = 10; // just to see that we hit it:-)
-					hit_object = true;
-					current_hit = child.name;
+					hit_object = true;					
+					current_object = obj_container.getChildAt(i);
+
 				}
 			}
 		}
