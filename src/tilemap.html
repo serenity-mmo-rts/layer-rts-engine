@@ -20,6 +20,7 @@ var build = false;
 var hit_object = false;
 var destroy = false;
 var move = false;
+var moving = false;
 var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
@@ -28,6 +29,9 @@ var local_buildXpos = 100;
 var local_buildYpos = canvas_height-200;
 var counter = 0;
 var current_object;
+var truthArr = [false,true];
+var del_count = 1;
+var move_count = 1;
 
 
 // Init function (main loop more or less)
@@ -183,26 +187,47 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 
 // event Listener for dragging map
 function handleMousedownMap(evt) {
+
+	moving = false;
 	
 	if (build) { // build the house 
 		build = false;
 		burger.alpha = 1;
 	}	
 
-	if (destroy) { // delete object		
-		if (hit_object){
-			var pt = current_object.globalToLocal(stage.mouseX, stage.mouseY);
-			if (current_object.hitTest(pt.x, pt.y)) { 		
-				obj_container.removeChild(current_object);	
-				stage.update();	
-				destroy= false;					
-			}			
+	else if (destroy) { // delete object		
+		if (hit_object){	
+			obj_container.removeChild(current_object);	
+			stage.update();						
 		}
 	}
 	
+	else if (move) { // move objects
+		if (hit_object){
+			move = false;
+			move_count = 1;
+			moving = true;
+			offset = {
+			x:evt.target.x-evt.stageX,
+			y:evt.target.y-evt.stageY			
+			};			
+			
+			evt.addEventListener("mousemove",function(ev) {
+				ev.target.x = ev.stageX+offset.x;
+				ev.target.y = ev.stageY+offset.y;
+				global_offsetX = ev.target.x;		
+				global_offsetY = ev.target.y;					
+				
+			});	
+			
+			
+		}
+	}
 		
+			
 	// move whole map with objects
-	if (!build && !destroy && !move) {
+	else if (!build && !move) {
+		
 		offset = {
 		x:evt.target.x-evt.stageX,
 		y:evt.target.y-evt.stageY			
@@ -219,14 +244,14 @@ function handleMousedownMap(evt) {
 }
 
 
-
-
 // event Listener for building houses
 function buildhouse(evt1) {
 			
 		build = true;
 		destroy = false;
+		del_count =1;		
 		move = false;
+		move_count = 1;
 		img = new Image();
 		img.src = "../resources/bank1.png";	
 		
@@ -249,8 +274,15 @@ function buildhouse(evt1) {
 // event Listener for deleting houses
 function deletehouse(evt1) {			
 		build = false;
-		destroy = true;
+		destroy = truthArr[del_count];
 		move = false;
+		move_count = 1;
+
+		del_count += 1;
+		if (del_count >1) {
+			del_count = 0;
+		}
+		
 		
 }
 
@@ -259,7 +291,14 @@ function deletehouse(evt1) {
 function movehouse(evt1) {			
 		build = false;
 		destroy = false;
-		move = true;		
+		del_count =1;
+		move = truthArr[move_count];
+		move_count += 1;
+		if (move_count >1) {
+			move_count = 0;
+		}
+
+		
 }
 
 
@@ -271,6 +310,14 @@ function tick(event) {
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			//}		
 		}
+		
+		else if (moving) { // move building
+			current_object.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
+			current_object.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
+			//}		
+		}
+		
+		
 		else { 
 			l = obj_container.getNumChildren();
 			hit_object = false;
@@ -284,6 +331,9 @@ function tick(event) {
 				}
 			}
 		}
+		
+		
+		
 	// update canvas  
 	stage.update(event);
 }
