@@ -34,6 +34,7 @@ var del_count = 1;
 var move_count = 1;
 
 
+
 // Init function (main loop more or less)
 function init() {
 
@@ -188,7 +189,6 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 // event Listener for dragging map
 function handleMousedownMap(evt) {
 
-	moving = false;
 	
 	if (build) { // build the house 
 		build = false;
@@ -203,10 +203,10 @@ function handleMousedownMap(evt) {
 	}
 	
 	else if (move) { // move objects
-		if (hit_object){
-			move = false;
-			move_count = 1;
+		if (hit_object && visit ==0){
 			moving = true;
+			visit = 1;	
+			
 			offset = {
 			x:evt.target.x-evt.stageX,
 			y:evt.target.y-evt.stageY			
@@ -216,89 +216,165 @@ function handleMousedownMap(evt) {
 				ev.target.x = ev.stageX+offset.x;
 				ev.target.y = ev.stageY+offset.y;
 				global_offsetX = ev.target.x;		
-				global_offsetY = ev.target.y;	
-
-				
+				global_offsetY = ev.target.y;										  
 			});	
 			
-			
 		}
+		else if (hit_object && visit ==1) {
+		moving = false;
+		}	
 	}
 		
 			
 	// move whole map with objects
 	else if (!build && !move) {
 		
-		offset = {
-		x:evt.target.x-evt.stageX,
-		y:evt.target.y-evt.stageY			
-		};			
+		if (hit_object) { // open window
 		
-		evt.addEventListener("mousemove",function(ev) {
-			ev.target.x = ev.stageX+offset.x;
-			ev.target.y = ev.stageY+offset.y;
-			global_offsetX = ev.target.x;		
-			global_offsetY = ev.target.y;				
-							  
-		});	
+		stage.removeAllChildren();
+		stage.update();
+		
+		drawCapitol();
+		}
+		
+		else { // drag map
+			offset = {
+			x:evt.target.x-evt.stageX,
+			y:evt.target.y-evt.stageY			
+			};			
+			
+			evt.addEventListener("mousemove",function(ev) {
+				ev.target.x = ev.stageX+offset.x;
+				ev.target.y = ev.stageY+offset.y;
+				global_offsetX = ev.target.x;		
+				global_offsetY = ev.target.y;										  
+			});			
+		}
 	}
+	
+	
 }
 
+
+
+function drawCapitol() {
+	
+	capitol_container = new createjs.Container();
+	capitol_menu_container = new createjs.Container();		
+	capitol_button_container = new createjs.Container();	
+	capitol_back_button_container = new createjs.Container();
+	
+	capitol_button_container.addChild(capitol_back_button_container);
+	capitol_menu_container.addChild(capitol_button_container);
+	capitol_container.addChild(capitol_menu_container);	
+	stage.addChild(capitol_container);
+		
+	ciz= new Image();
+	ciz.src = "../resources/Cicero.jpg";	
+		
+	cicero = new createjs.Bitmap(ciz);
+	
+	var capitol_title = new createjs.Text("This is the Capitol!", "bold 24px Arial", "#FFFFFF");
+		capitol_title.x = 480;
+		capitol_title.y = 20;
+	
+	capitol_container.addChild(cicero,capitol_title);	
+	
+	var back_button = new createjs.Bitmap("../resources/button.gif");
+		back_button.x = 1;	
+		back_button.y = canvas_height - button_height;			
+	// text menu
+	var back_label = new createjs.Text("Back to WorldMap", "bold 24px Arial", "#FFFFFF");
+		back_label.x = 20;
+		back_label.y = canvas_height - button_height +20;		
+		capitol_back_button_container.addChild(back_button,back_label);
+		
+		capitol_back_button_container.addEventListener("click", backToMap);
+}
+
+function backToMap() {
+		stage.removeAllChildren();
+		stage.addChild(main_container,menu_container);
+		stage.update();
+}
+
+
+
+
+
+	
 
 
 // event Listener for building houses
 function buildhouse(evt1) {
+
+	if (build) {
+	build = false;
+	burger.alpha = 1;
+	}
+		
+	build = true;
+	destroy = false;
+	del_count =1;		
+	move = false;
+	move_count = 1;
+	img = new Image();
+	img.src = "../resources/bank1.png";	
+	
+	burger = new createjs.Bitmap(img);		
+	burger.mouseMoveOutside = true;	
+	count = counter.toString();
+	burger.name = ["buger" + count];
+	burger.alpha = 0.5;
+	
+	global_buildXpos = - global_offsetX + local_buildXpos;
+	global_buildYpos = - global_offsetY + local_buildYpos;
+	burger.x = global_buildXpos;
+	burger.y = global_buildYpos;
 			
-		build = true;
-		destroy = false;
-		del_count =1;		
-		move = false;
-		move_count = 1;
-		img = new Image();
-		img.src = "../resources/bank1.png";	
-		
-		burger = new createjs.Bitmap(img);		
-		burger.mouseMoveOutside = true;	
-		count = counter.toString();
-		burger.name = ["buger" + count];
-		burger.alpha = 0.5;
-		
-		global_buildXpos = - global_offsetX + local_buildXpos;
-		global_buildYpos = - global_offsetY + local_buildYpos;
-		burger.x = global_buildXpos;
-		burger.y = global_buildYpos;
-				
-		obj_container.addChild(burger);	
-		counter = counter +1;		
+	obj_container.addChild(burger);	
+	counter = counter +1;		
 		
 }
 
 // event Listener for deleting houses
-function deletehouse(evt1) {			
-		build = false;
-		destroy = truthArr[del_count];
-		move = false;
-		move_count = 1;
+function deletehouse(evt1) {
 
-		del_count += 1;
-		if (del_count >1) {
-			del_count = 0;
-		}
+	if (build) {
+	build = false;
+	burger.alpha = 1;
+	}
+	
+	build = false;
+	destroy = truthArr[del_count];
+	move = false;
+	move_count = 1;
+
+	del_count += 1;
+	if (del_count >1) {
+		del_count = 0;
+	}
 		
 		
 }
 
 
 // event Listener for building houses
-function movehouse(evt1) {			
-		build = false;
-		destroy = false;
-		del_count =1;
-		move = truthArr[move_count];
-		move_count += 1;
-		if (move_count >1) {
-			move_count = 0;
-		}
+function movehouse(evt1) {
+
+	if (build) {
+	build = false;
+	burger.alpha = 1;
+	}
+	
+	build = false;
+	destroy = false;
+	del_count =1;
+	move = truthArr[move_count];
+	move_count += 1;
+	if (move_count >1) {
+		move_count = 0;
+	}
 
 		
 }
@@ -314,9 +390,8 @@ function tick(event) {
 		}
 		
 		else if (moving) { // move building
-			current_object.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
-			current_object.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
-			//}		
+			current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x -100;
+			current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y -100;
 		}
 		
 		
@@ -329,7 +404,10 @@ function tick(event) {
 				if (child.hitTest(pt.x, pt.y)) { 
 					hit_object = true;					
 					current_object = obj_container.getChildAt(i);
-
+				}
+				
+				else {
+					visit = 0;
 				}
 			}
 		}
