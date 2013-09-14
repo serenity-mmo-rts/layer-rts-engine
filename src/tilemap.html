@@ -35,7 +35,7 @@ var truthArr = [false,true];
 var del_count = 1;
 var move_count = 1;
 var ground;
-var border = 0;
+var border = 32;
 var edges;
 var x_edge = [];
 var y_edge = [];
@@ -44,6 +44,9 @@ var Matrix = [];
 var differX= [];
 var Xlane =[];
 var Ylane =[];	
+var allowedToBuild = false;
+var Out = [];
+
 
 
 // Init function (main loop more or less)
@@ -202,8 +205,10 @@ function handleMousedownMap(evt) {
 
 	
 	if (build) { // build the house 
-		build = false;
-		burger.alpha = 1;
+		if (allowedToBuild) {
+			build = false;
+			burger.alpha = 1;
+		}
 	}	
 
 	else if (destroy) { // delete object		
@@ -310,29 +315,6 @@ function backToMap() {
 }
 
 
-
-function makeground(h,w) {
-
-	ground = {
-		leftX : 0, 
-		leftY : h*(3/4),
-		rightX : w,
-		rightY : h*(3/4),	
-		upperX : (w/2),
-		upperY: (h/2),
-		lowerX: (w/2),
-		lowerY: h
-	}	
-	
-	return ground;
-//var ground_with_border = [0,149,192,146,101,98,90,192];
-}
-
-
-
-	
-
-
 // event Listener for building houses
 function buildhouse(evt1) {
 
@@ -411,6 +393,25 @@ function movehouse(evt1) {
 		
 }
 
+
+function makeground(h,w) {
+
+	ground = {
+		leftX : 0, 
+		leftY : h*(3/4),
+		rightX : w,
+		rightY : h*(3/4),	
+		upperX : (w/2),
+		upperY: (h/2),
+		lowerX: (w/2),
+		lowerY: h
+	}	
+	
+	return ground;
+//var ground_with_border = [0,149,192,146,101,98,90,192];
+}
+
+
 function calc_edges_in_wolrd_coords_with_border(x,y,b) {
 
 	edges = {
@@ -456,11 +457,9 @@ function get_tiles_from_world_coords(points) {
 		}
 	}
 	for (var i= 0; i<x_edge.length; i++) { 
-	Xlane[i] = 45 - (x_edge[i] -y_edge[i]);
-	Ylane[i] =  (x_edge[i] +y_edge[i]) -45;
+		Xlane[i] = 45 - (x_edge[i] -y_edge[i]);
+		Ylane[i] = (x_edge[i] +y_edge[i]) -45;
 	}
-	
-	return [Xlane[i],Ylane[i]];
 }
 
 
@@ -469,16 +468,33 @@ function getMatrix() {
 	for (var row = 0; row<tile_size; row++) {
 		Matrix[row] = [];	
 		for (var col = 0; col<tile_size; col++) {				
-			Matrix[row][col]  = collitionData[col] + (row *tile_size);
+			Matrix[row][col]  = collitionData[col+(row *tile_size)] ;
 		}
 	}
-	return Matrix;
-	
+	return Matrix;	
 }
 
-function calculateCollition() {
-	var Matrix = getMatrix();
 
+function calculateCollition(X,Y) {
+	var Matrix = getMatrix();
+	var total = 0;
+	
+	for (var i = 0;i <X.length; i++) {
+		 a= X[i];
+		 b =Y[i];
+		 Out[i] = Matrix[a][b]; 
+		 total += Out[i];
+	}
+		
+	if (total > 0) {
+		allowedToBuild = false;
+	}
+	
+	else {
+		allowedToBuild = true;
+	}	
+	
+	return allowedToBuild;
 
 }
 	
@@ -492,10 +508,8 @@ function tick(event) {
 			burger.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			var edges = calc_edges_in_wolrd_coords_with_border(burger.x,burger.y,border);
-			var tile_points = get_tiles_from_world_coords(edges);
-			
-			
-			//}		
+			get_tiles_from_world_coords(edges);
+			var allowedToBuild = calculateCollition(Xlane,Ylane);	
 		}
 		
 		else if (moving) { // move building
