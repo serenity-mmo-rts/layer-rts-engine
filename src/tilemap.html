@@ -46,9 +46,10 @@ var Xlane =[];
 var Ylane =[];	
 var allowedToBuild = false;
 var Out = [];
-
-
-
+var Col_ArrX = [];
+var Col_ArrY = [];
+var iter;
+var kaka;
 // Init function (main loop more or less)
 function init() {
 
@@ -207,7 +208,6 @@ function handleMousedownMap(evt) {
 	if (build) { // build the house 
 		if (allowedToBuild) {
 			build = false;
-			burger.alpha = 1;
 		}
 	}	
 
@@ -236,8 +236,9 @@ function handleMousedownMap(evt) {
 			});	
 			
 		}
-		else if (hit_object && visit ==1) {
+		else if (hit_object && visit ==1 && allowedToBuild) {
 		moving = false;
+		//current_object.alpha = 1;
 		}	
 	}
 		
@@ -318,36 +319,40 @@ function backToMap() {
 // event Listener for building houses
 function buildhouse(evt1) {
 
-	if (build) {
-	build = false;
-	burger.alpha = 1;
+	if (build) {	
+		obname = burger.name
+		var del_child = obj_container.getChildByName(obname); 
+		obj_container.removeChild(del_child); 
+		build = false;
 	}
+	else {
 		
-	build = true;
-	destroy = false;
-	del_count =1;		
-	move = false;
-	move_count = 1;
-	img = new Image();
-	img.src = "../resources/bank1.png";	
-	
-	img_height = img.height;
-	img_width = img.width;
-	var ground = makeground(img_height,img_width);
-	
-	burger = new createjs.Bitmap(img);		
-	burger.mouseMoveOutside = true;	
-	build_count = building_counter.toString();
-	burger.name = ["buger" + build_count];
-	burger.alpha = 0.5;
-	
-	global_buildXpos = - global_offsetX + local_buildXpos;
-	global_buildYpos = - global_offsetY + local_buildYpos;
-	burger.x = global_buildXpos;
-	burger.y = global_buildYpos;
-			
-	obj_container.addChild(burger);	
-	building_counter = building_counter +1;		
+		build = true;
+		destroy = false;
+		del_count =1;		
+		move = false;
+		move_count = 1;
+		img = new Image();
+		img.src = "../resources/bank1.png";	
+		
+		img_height = img.height;
+		img_width = img.width;
+		var ground = makeground(img_height,img_width);
+		
+		burger = new createjs.Bitmap(img);		
+		burger.mouseMoveOutside = true;	
+		build_count = building_counter.toString();
+		burger.name = ["buger" + build_count];
+		burger.alpha = 0.5;
+		
+		global_buildXpos = - global_offsetX + local_buildXpos;
+		global_buildYpos = - global_offsetY + local_buildYpos;
+		burger.x = global_buildXpos;
+		burger.y = global_buildYpos;
+				
+		obj_container.addChild(burger);	
+		building_counter = building_counter +1;		
+	}
 		
 }
 
@@ -355,8 +360,10 @@ function buildhouse(evt1) {
 function deletehouse(evt1) {
 
 	if (build) {
-	build = false;
-	burger.alpha = 1;
+		obname = burger.name
+		var del_child = obj_container.getChildByName(obname); 
+		obj_container.removeChild(del_child); 
+		build = false;
 	}
 	
 	build = false;
@@ -377,8 +384,10 @@ function deletehouse(evt1) {
 function movehouse(evt1) {
 
 	if (build) {
-	build = false;
-	burger.alpha = 1;
+		obname = burger.name
+		var del_child = obj_container.getChildByName(obname); 
+		obj_container.removeChild(del_child); 
+		build = false;
 	}
 	
 	build = false;
@@ -475,6 +484,32 @@ function getMatrix() {
 }
 
 
+function get_all_coll_points(X1,Y1) {
+		
+	// start and end points
+	//var Xstart = Math.min.apply(null, X)
+	xp1 = X1[0]; xp2 = X1[1]; xp3 = X1[2]; xp4 = X1[3];
+	yp1 = Y1[0]; yp2 = Y1[1]; yp3 = Y1[2]; yp4 = Y1[3];
+	
+	Xstart =  Math.min(xp2,xp3);
+	Xende = Math.max(xp1,xp4);
+	
+	Ystart = Math.min(yp1,yp3);
+	Yende = Math.max(yp2,yp4);
+	
+	Col_ArrX = [];
+	Col_ArrY = [];
+	
+	//go through raster from top left to buttom right
+	for (var i = Ystart; i <=Yende; i++ ) {
+		for(var k= Xstart; k <=Xende; k++) {			
+			Col_ArrX.push(k);
+			Col_ArrY.push(i);
+		}
+	}	
+}
+
+
 function calculateCollition(X,Y) {
 	var Matrix = getMatrix();
 	var total = 0;
@@ -482,8 +517,12 @@ function calculateCollition(X,Y) {
 	for (var i = 0;i <X.length; i++) {
 		 a= X[i];
 		 b =Y[i];
-		 Out[i] = Matrix[a][b]; 
-		 total += Out[i];
+		 if (a < 1 || a > 90 || b < 1 || b > 90) { // out of map
+		 total = 10000;
+		 }
+		 else {
+			total += Matrix[a][b]; 
+		 }
 	}
 		
 	if (total > 0) {
@@ -509,12 +548,32 @@ function tick(event) {
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			var edges = calc_edges_in_wolrd_coords_with_border(burger.x,burger.y,border);
 			get_tiles_from_world_coords(edges);
-			var allowedToBuild = calculateCollition(Xlane,Ylane);	
+			get_all_coll_points(Xlane,Ylane);
+			var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
+			if  (allowedToBuild) {
+				burger.alpha = 1;
+			}
+			else {
+				burger.alpha = 0.5;
+			}
 		}
 		
 		else if (moving) { // move building
 			current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x -100;
 			current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y -100;
+			
+			var edges = calc_edges_in_wolrd_coords_with_border(current_object.x,current_object.y,border);
+			get_tiles_from_world_coords(edges);
+			get_all_coll_points(Xlane,Ylane);
+			var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
+			if  (allowedToBuild) {
+				burger.alpha = 1;
+			}
+			else {
+				burger.alpha = 0.5;
+			}
+			
+			
 		}
 		
 		
