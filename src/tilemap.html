@@ -9,47 +9,55 @@
 <script>
 
 
-// global variables
-var tileset;
+//// global variables
 var stage;
 var mapData;
-var tile_size = 90;
+
+///// PARAMETERS /////
+// Canvas
 var canvas_height = 600; 
 var canvas_width = 1200; 
+//Buttons
 var button_height = 63;
 var button_width = 250;
-var build = false;
-var hit_object = false;
-var destroy = false;
-var move = false;
-var moving = false;
+// Position
 var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
 var global_buildYpos;
 var local_buildXpos = 100;
 var local_buildYpos = canvas_height-200;
+// Others
+var border = 0;
 var building_counter = 0;
+var tile_size = 90;
+
+///// BOOLEANS /////
+var build = false;
+var allowedToBuild = false;
+var hit_object = false;
+var destroy = false;
+var move = false;
+var moving = false;
+var destroyed = false;
+
+///// OBJECTS /////
 var current_object;
-var truthArr = [false,true];
-var del_count = 1;
-var move_count = 1;
-var ground;
-var border = 32;
-var edges;
+
+///// ARRAYS /////
+var collitionData = [];
 var x_edge = [];
 var y_edge = [];
-var collitionData;
 var Matrix = [];
-var differX= [];
 var Xlane =[];
 var Ylane =[];	
-var allowedToBuild = false;
-var Out = [];
 var Col_ArrX = [];
 var Col_ArrY = [];
-var iter;
-var kaka;
+var truthArr = [false,true];
+
+var edges2 = [];
+
+
 // Init function (main loop more or less)
 function init() {
 
@@ -84,6 +92,8 @@ function init() {
 	
 	// initialize menu
 	initMenu();
+	// get collition data
+	Matrix = getMatrix();
 	
 	// inherit
 	button_container.addChild(build_button_container,delete_button_container,move_button_container);
@@ -208,18 +218,42 @@ function handleMousedownMap(evt) {
 	if (build) { // build the house 
 		if (allowedToBuild) {
 			build = false;
+			for (var i = 0; i<Col_ArrX.length; i++ ){
+				//   put Object into collition matrix
+				putx = Col_ArrX[i];
+				puty = Col_ArrY[i];				
+				Matrix[putx][puty] = 101;
+			} 
 		}
 	}	
 
 	else if (destroy) { // delete object		
-		if (hit_object){	
-			obj_container.removeChild(current_object);	
+		if (hit_object){
+			// delte from collition matrix
+			for (var i = 0; i<Col_ArrX.length; i++ ){
+				//   put Object into collition matrix
+				putx = Col_ArrX[i];
+				puty = Col_ArrY[i];				
+				Matrix[putx][puty] = 0;
+			} 
+		
+			obj_container.removeChild(current_object);
 			stage.update();						
 		}
 	}
 	
 	else if (move) { // move objects
 		if (hit_object && visit ==0){
+		
+			current_object.alpha = 0.5;
+			// delete object from collition matrix
+			for (var i = 0; i<Col_ArrX.length; i++ ){
+				//   put Object into collition matrix
+				putx = Col_ArrX[i];
+				puty = Col_ArrY[i];				
+				Matrix[putx][puty] = 0;
+			} 
+			
 			moving = true;
 			visit = 1;	
 			
@@ -237,7 +271,17 @@ function handleMousedownMap(evt) {
 			
 		}
 		else if (hit_object && visit ==1 && allowedToBuild) {
+		
 		moving = false;
+		
+			for (var i = 0; i<Col_ArrX.length; i++ ){
+				//   put Object into collition matrix
+				putx = Col_ArrX[i];
+				puty = Col_ArrY[i];				
+				Matrix[putx][puty] = 101;
+			}
+			
+		
 		//current_object.alpha = 1;
 		}	
 	}
@@ -421,7 +465,7 @@ function makeground(h,w) {
 }
 
 
-function calc_edges_in_wolrd_coords_with_border(x,y,b) {
+function calc_edges(x,y,b) {
 
 	edges = {
 	leX: burger.x + (ground.leftX - (2*b)),	
@@ -433,8 +477,23 @@ function calc_edges_in_wolrd_coords_with_border(x,y,b) {
 	loX: burger.x + ground.lowerX,
 	loY: burger.y + (ground.lowerY+b)
 	};
-
 }
+
+function calc_edges_current(x,y,b) {
+
+	edges = {
+	leX: current_object.x + (ground.leftX - (2*b)),	
+	leY: current_object.y + ground.leftY,
+	reX: current_object.x + (ground.rightX + (2*b)),
+	reY: current_object.y  + ground.rightY,
+	upX: current_object.x + ground.upperX,
+	upY: current_object.y  + (ground.upperY-b),
+	loX: current_object.x + ground.lowerX,
+	loY: current_object.y  + (ground.lowerY+b)
+	};
+}
+
+
 
 function get_tiles_from_world_coords(points) {
 
@@ -473,7 +532,7 @@ function get_tiles_from_world_coords(points) {
 
 
 function getMatrix() {	
-	collitionData = mapDataJson.layers[1].data;
+	collitionData = mapData.layers[1].data; 
 	for (var row = 0; row<tile_size; row++) {
 		Matrix[row] = [];	
 		for (var col = 0; col<tile_size; col++) {				
@@ -506,12 +565,11 @@ function get_all_coll_points(X1,Y1) {
 			Col_ArrX.push(k);
 			Col_ArrY.push(i);
 		}
-	}	
+	}
 }
 
 
 function calculateCollition(X,Y) {
-	var Matrix = getMatrix();
 	var total = 0;
 	
 	for (var i = 0;i <X.length; i++) {
@@ -531,11 +589,11 @@ function calculateCollition(X,Y) {
 	
 	else {
 		allowedToBuild = true;
-	}	
-	
+	}		
 	return allowedToBuild;
-
 }
+	
+	
 	
 
 
@@ -546,10 +604,11 @@ function tick(event) {
 		if (build) { // move building
 			burger.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
-			var edges = calc_edges_in_wolrd_coords_with_border(burger.x,burger.y,border);
+			var edges = calc_edges(burger.x,burger.y,border);
 			get_tiles_from_world_coords(edges);
 			get_all_coll_points(Xlane,Ylane);
 			var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
+			
 			if  (allowedToBuild) {
 				burger.alpha = 1;
 			}
@@ -562,15 +621,15 @@ function tick(event) {
 			current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x -100;
 			current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y -100;
 			
-			var edges = calc_edges_in_wolrd_coords_with_border(current_object.x,current_object.y,border);
+			var edges = calc_edges_current(current_object.x,current_object.y,border);
 			get_tiles_from_world_coords(edges);
 			get_all_coll_points(Xlane,Ylane);
 			var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
 			if  (allowedToBuild) {
-				burger.alpha = 1;
+				current_object.alpha = 1;
 			}
 			else {
-				burger.alpha = 0.5;
+				current_object.alpha = 0.5;
 			}
 			
 			
@@ -586,6 +645,10 @@ function tick(event) {
 				if (child.hitTest(pt.x, pt.y)) { 
 					hit_object = true;					
 					current_object = obj_container.getChildAt(i);
+					
+					var edges = calc_edges_current(current_object.x,current_object.y,border);
+					get_tiles_from_world_coords(edges);
+					get_all_coll_points(Xlane,Ylane);
 				}
 				
 				else {
