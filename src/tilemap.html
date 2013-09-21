@@ -17,6 +17,8 @@ var mapData;
 // Canvas
 var canvas_height = 600; 
 var canvas_width = 1200; 
+var tile_height = 32;
+var tile_width = 64;
 //Buttons
 var button_height = 63;
 var button_width = 250;
@@ -28,7 +30,7 @@ var global_buildYpos;
 var local_buildXpos = 100;
 var local_buildYpos = canvas_height-200;
 // Others
-var border = 0;
+var border = 16;
 var building_counter = 0;
 var tile_size = 90;
 
@@ -43,6 +45,7 @@ var destroyed = false;
 
 ///// OBJECTS /////
 var current_object;
+var grid_con;
 
 ///// ARRAYS /////
 var collitionData = [];
@@ -69,6 +72,7 @@ function init() {
 	
 	map_container = new createjs.Container();
 	obj_container = new createjs.Container();
+	grid_container = new createjs.Container();
 		
 	button_container = new createjs.Container();	
 	build_button_container = new createjs.Container();
@@ -80,15 +84,20 @@ function init() {
 	map_container.mouseMoveOutside = true;
 	obj_container.mouseMoveOutside = true;
 	stage.enableMouseOver(20);
-	
+		
 	// initialize image data
 	mapData = mapDataJson;		
 	tileset = new Image();	
 	tileset.src = mapData.tilesets[0].image;
 	tileset.onLoad = initLayers();
-	objectset = new Image();	
-	objectset.src = mapData.tilesets[1].image;
-	objectset.onLoad = initObjects();
+	
+	// init Grid	
+	initGrid();
+	
+	//var grid = new createjs.Shape();
+	//grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(0,- 1440).lineTo(32,16- 1440).lineTo(0,32- 1440).lineTo(-32,16- 1440).lineTo(0,- 1440);			
+	//grid_container.addChild(grid);
+
 	
 	// initialize menu
 	initMenu();
@@ -111,7 +120,8 @@ function init() {
 	move_button_container.addEventListener("click", movehouse);		
 	// set FPS and call tick 
 	createjs.Ticker.setFPS(60);
-	createjs.Ticker.addEventListener("tick", tick);		
+	createjs.Ticker.addEventListener("tick", tick);	
+	//stage.update();	
 }
 
 
@@ -171,32 +181,12 @@ function initLayers() {
 }
 
 
-// loading objects
-function initObjects() {
-	// compose EaselJS tileset from image (fixed 64x64 now, but can be parametized)
-	var imageData = {
-		images : [ objectset ],
-		frames : {
-			width : 200,//in pixel
-			height : 152,//in pixel
-		}
-	};
-	// create spritesheet and initialize layer data
-	var tilesetSheet = new createjs.SpriteSheet(imageData);
-	var idx = 2; // 3 layer
-	var layerData = mapData.layers[idx];
-		initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
-}
-
-
-
 // drawing layer data
 function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
-	stage.mouseMoveOutside = true; 
 	for ( var y = 0; y < layerData.height; y++) {
 		for ( var x = 0; x < layerData.width; x++) {
 			// create a new Bitmap for each cell
-			var cellBitmap = new createjs.BitmapAnimation(tilesetSheet);
+			var cellBitmap = new createjs.BitmapAnimation(tilesetSheet);			
 			// layer data has single dimension array
 			var idx = x + y * layerData.width;
 			// tilemap data uses 1 as first value, EaselJS uses 0 (sub 1 to load correct tile)
@@ -211,6 +201,63 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 	}		
 }
 
+
+function initGrid() {
+
+	for ( var y = 0; y < 90; y++) {	
+	
+	diamond = {
+		upX : 0,
+		upY : -1440,
+		riX : 32,
+		riY : -1424,
+		loX : 0,
+		loY : -1408,
+		leX : -32, 
+		leY : -1424
+	}
+	
+		diamond.upX = diamond.leX - (y*32);
+		diamond.upY = diamond.leY + (y*16);
+		diamond.riX = diamond.riX - (y*32);
+		diamond.riY = diamond.riY + (y*16);
+		diamond.loX = diamond.loX - (y*32)
+		diamond.loY = diamond.loY + (y*16);	
+		diamond.leX = diamond.leX - (y*32)
+		diamond.leY = diamond.leY + (y*16);
+	
+	
+		for ( var x = 0; x < 90; x++) {			
+			
+			
+		// wired exeption for first row
+		if (x == 0) {		
+			var grid = new createjs.Shape();
+			grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(0- (y*32),- 1440 + (y*16)).lineTo(32 - (y*32),16- 1440 + (y*16)).lineTo(0 - (y*32),32- 1440 + (y*16)).lineTo(-32 - (y*32),16- 1440 + (y*16)).lineTo(0 - (y*32),- 1440 + (y*16));	
+			grid.alpha = 0.25;
+			grid_container.addChild(grid);
+		}	
+		else {
+		// add grid
+			var grid = new createjs.Shape();
+			grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(diamond.upX,diamond.upY).lineTo(diamond.riX,diamond.riY).lineTo(diamond.loX,diamond.loY).lineTo(diamond.leX,diamond.leY).lineTo(diamond.upX,diamond.upY);			
+			grid.alpha = 0.25;
+			grid_container.addChild(grid);		
+		}
+			
+			diamond.upX = diamond.riX;
+			diamond.upY = diamond.riY;
+			diamond.leX = diamond.loX;
+			diamond.leY = diamond.loY;
+			diamond.riX = diamond.riX +32;
+			diamond.riY = diamond.riY +16;
+			diamond.loX = diamond.loX +32;
+			diamond.loY = diamond.loY +16;
+		}
+	}		
+}
+
+
 // event Listener for dragging map
 function handleMousedownMap(evt) {
 
@@ -218,7 +265,10 @@ function handleMousedownMap(evt) {
 	if (build) { // build the house 
 		if (allowedToBuild) {
 			build = false;
-			for (var i = 0; i<Col_ArrX.length; i++ ){
+			document.body.style.cursor='default';
+			grid_con = main_container.getChildAt(2);			
+			main_container.removeChild(grid_con);			
+		for (var i = 0; i<Col_ArrX.length; i++ ){
 				//   put Object into collition matrix
 				putx = Col_ArrX[i];
 				puty = Col_ArrY[i];				
@@ -368,9 +418,13 @@ function buildhouse(evt1) {
 		var del_child = obj_container.getChildByName(obname); 
 		obj_container.removeChild(del_child); 
 		build = false;
+		document.body.style.cursor='default';
+		grid_con = main_container.getChildAt(2);			
+		main_container.removeChild(grid_con);
 	}
 	else {
-		
+		main_container.addChild(grid_container);
+		document.body.style.cursor='pointer';
 		build = true;
 		destroy = false;
 		del_count =1;		
@@ -406,11 +460,14 @@ function deletehouse(evt1) {
 	if (build) {
 		obname = burger.name
 		var del_child = obj_container.getChildByName(obname); 
-		obj_container.removeChild(del_child); 
-		build = false;
+		obj_container.removeChild(del_child);
+		document.body.style.cursor='default';
+		grid_con = main_container.getChildAt(2);			
+		main_container.removeChild(grid_con);		
 	}
 	
 	build = false;
+	document.body.style.cursor='default';
 	destroy = truthArr[del_count];
 	move = false;
 	move_count = 1;
@@ -430,11 +487,14 @@ function movehouse(evt1) {
 	if (build) {
 		obname = burger.name
 		var del_child = obj_container.getChildByName(obname); 
-		obj_container.removeChild(del_child); 
-		build = false;
+		obj_container.removeChild(del_child);
+		document.body.style.cursor='default';
+		grid_con = main_container.getChildAt(2);			
+		main_container.removeChild(grid_con);		
 	}
 	
 	build = false;
+	document.body.style.cursor='default';
 	destroy = false;
 	del_count =1;
 	move = truthArr[move_count];
@@ -448,7 +508,7 @@ function movehouse(evt1) {
 
 
 function makeground(h,w) {
-
+	// dynamic but not precise
 	ground = {
 		leftX : 0, 
 		leftY : h*(3/4),
@@ -460,8 +520,19 @@ function makeground(h,w) {
 		lowerY: h
 	}	
 	
+	// specific but precise (maybe)
+	//ground = {
+	//	leftX : 0, 
+	//	leftY : 149,
+	//	rightX : 213,
+	//	rightY : 152,	
+	//	upperX : 102,
+	//	upperY: 98,
+	//	lowerX: 115,
+	//	lowerY: 206
+	//}
+	
 	return ground;
-//var ground_with_border = [0,149,192,146,101,98,90,192];
 }
 
 
@@ -550,11 +621,11 @@ function get_all_coll_points(X1,Y1) {
 	xp1 = X1[0]; xp2 = X1[1]; xp3 = X1[2]; xp4 = X1[3];
 	yp1 = Y1[0]; yp2 = Y1[1]; yp3 = Y1[2]; yp4 = Y1[3];
 	
-	Xstart =  Math.min(xp2,xp3);
-	Xende = Math.max(xp1,xp4);
-	
-	Ystart = Math.min(yp1,yp3);
+	Xstart =  Math.min(xp2,xp3)-1;
+	Xende = Math.max(xp1,xp4);	
+	Ystart = Math.min(yp1,yp3)-1;
 	Yende = Math.max(yp2,yp4);
+
 	
 	Col_ArrX = [];
 	Col_ArrY = [];
@@ -601,7 +672,7 @@ function calculateCollition(X,Y) {
 // tick funtion called every frame
 function tick(event) {
 
-		if (build) { // move building
+		if (build) { // move building	
 			burger.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
 			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
 			var edges = calc_edges(burger.x,burger.y,border);
@@ -644,7 +715,7 @@ function tick(event) {
 				var pt = child.globalToLocal(stage.mouseX, stage.mouseY);
 				if (child.hitTest(pt.x, pt.y)) { 
 					hit_object = true;					
-					current_object = obj_container.getChildAt(i);
+					current_object = obj_container.getChildAt(i);					
 					
 					var edges = calc_edges_current(current_object.x,current_object.y,border);
 					get_tiles_from_world_coords(edges);
