@@ -27,10 +27,13 @@ var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
 var global_buildYpos;
-var local_buildXpos = 100;
-var local_buildYpos = canvas_height-200;
+var local_buildXpos = 1*64;
+var local_buildYpos = canvas_height-(4*32);
+var local_buildXpos2;
+var local_buildYpos2;
+
 // Others
-var border = 16;
+var border = 0;
 var building_counter = 0;
 var tile_size = 90;
 
@@ -46,6 +49,7 @@ var destroyed = false;
 ///// OBJECTS /////
 var current_object;
 var grid_con;
+var ground;
 
 ///// ARRAYS /////
 var collitionData = [];
@@ -58,8 +62,11 @@ var Col_ArrX = [];
 var Col_ArrY = [];
 var truthArr = [false,true];
 
-var edges2 = [];
-
+// for debuging
+var xoffinPx; 
+var yoffinPx; 
+var moveY;
+var moveX
 
 // Init function (main loop more or less)
 function init() {
@@ -234,14 +241,14 @@ function initGrid() {
 		if (x == 0) {		
 			var grid = new createjs.Shape();
 			grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(0- (y*32),- 1440 + (y*16)).lineTo(32 - (y*32),16- 1440 + (y*16)).lineTo(0 - (y*32),32- 1440 + (y*16)).lineTo(-32 - (y*32),16- 1440 + (y*16)).lineTo(0 - (y*32),- 1440 + (y*16));	
-			grid.alpha = 0.25;
+			grid.alpha = 0.1;
 			grid_container.addChild(grid);
 		}	
 		else {
 		// add grid
 			var grid = new createjs.Shape();
 			grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(diamond.upX,diamond.upY).lineTo(diamond.riX,diamond.riY).lineTo(diamond.loX,diamond.loY).lineTo(diamond.leX,diamond.leY).lineTo(diamond.upX,diamond.upY);			
-			grid.alpha = 0.25;
+			grid.alpha = 0.1;
 			grid_container.addChild(grid);		
 		}
 			
@@ -267,7 +274,9 @@ function handleMousedownMap(evt) {
 			build = false;
 			document.body.style.cursor='default';
 			grid_con = main_container.getChildAt(2);			
-			main_container.removeChild(grid_con);			
+			main_container.removeChild(grid_con);
+			burger.localBuildPosX = local_buildXpos2;
+			burger.localBuildPosY = local_buildYpos2;
 		for (var i = 0; i<Col_ArrX.length; i++ ){
 				//   put Object into collition matrix
 				putx = Col_ArrX[i];
@@ -294,8 +303,7 @@ function handleMousedownMap(evt) {
 	
 	else if (move) { // move objects
 		if (hit_object && visit ==0){
-		
-			current_object.alpha = 0.5;
+			current_object.alpha = 0.5;			
 			// delete object from collition matrix
 			for (var i = 0; i<Col_ArrX.length; i++ ){
 				//   put Object into collition matrix
@@ -425,7 +433,7 @@ function buildhouse(evt1) {
 	else {
 		main_container.addChild(grid_container);
 		document.body.style.cursor='pointer';
-		build = true;
+		
 		destroy = false;
 		del_count =1;		
 		move = false;
@@ -435,7 +443,7 @@ function buildhouse(evt1) {
 		
 		img_height = img.height;
 		img_width = img.width;
-		var ground = makeground(img_height,img_width);
+		ground = makeground(img_height,img_width);
 		
 		burger = new createjs.Bitmap(img);		
 		burger.mouseMoveOutside = true;	
@@ -445,14 +453,24 @@ function buildhouse(evt1) {
 		
 		global_buildXpos = - global_offsetX + local_buildXpos;
 		global_buildYpos = - global_offsetY + local_buildYpos;
-		burger.x = global_buildXpos;
-		burger.y = global_buildYpos;
-				
+		
+		bx = global_buildXpos;
+		by = global_buildYpos;
+		x_tile = Math.floor(bx /64);
+	    y_tile = Math.floor(by /32);
+		x_int_pos = x_tile * 64;
+		y_int_pos = y_tile * 32;
+		
+		burger.x = x_int_pos;
+		burger.y = y_int_pos;
+		
+		just_start = true;	
+		build = true;			
 		obj_container.addChild(burger);	
 		building_counter = building_counter +1;		
-	}
-		
+	}		
 }
+
 
 // event Listener for deleting houses
 function deletehouse(evt1) {
@@ -493,15 +511,24 @@ function movehouse(evt1) {
 		main_container.removeChild(grid_con);		
 	}
 	
+	main_container.addChild(grid_container);
 	build = false;
 	document.body.style.cursor='default';
 	destroy = false;
 	del_count =1;
 	move = truthArr[move_count];
+	if (!move) {
+		grid_con = main_container.getChildAt(2);			
+		main_container.removeChild(grid_con);
+	}
+	
 	move_count += 1;
 	if (move_count >1) {
 		move_count = 0;
+		
 	}
+	
+	
 
 		
 }
@@ -672,25 +699,72 @@ function calculateCollition(X,Y) {
 // tick funtion called every frame
 function tick(event) {
 
-		if (build) { // move building	
-			burger.x = (stage.mouseX -local_buildXpos) + global_buildXpos-100;
-			burger.y = (stage.mouseY -local_buildYpos) + global_buildYpos-100;	
-			var edges = calc_edges(burger.x,burger.y,border);
-			get_tiles_from_world_coords(edges);
-			get_all_coll_points(Xlane,Ylane);
-			var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
+		if (build) { 
+			if (just_start)	{
+				
+				// after hit building
+				l = obj_container.getNumChildren();
+				start_movement = false;			
+				child = obj_container.getChildAt(l-1);				
+				var pt = child.globalToLocal(stage.mouseX, stage.mouseY);
+				if (child.hitTest(pt.x, pt.y)) { 
+					start_movement = true;
+					just_start = false;	
+					local_buildXpos2 = local_buildXpos;
+					local_buildYpos2 = local_buildYpos;					
+					local_buildYpos2 = local_buildYpos2+ 100;			
+				}
+			}
 			
-			if  (allowedToBuild) {
+			else if (start_movement) {
+			
+				// get offset	
+				
+				xoffinPx = Math.floor((stage.mouseX -local_buildXpos2)/32);
+				yoffinPx = Math.floor((stage.mouseY -local_buildYpos2)/16);
+				// move building
+				moveX = xoffinPx *32;
+				moveY = yoffinPx *16;
+				burger.x = burger.x + moveX;
+				burger.y = burger.y + moveY;
+				local_buildXpos2 = local_buildXpos2 + moveX;
+				local_buildYpos2 = local_buildYpos2 + moveY;
+				xoffinPx = 0;
+				yoffinPx = 0;	
+				moveX = 0;
+				moveY = 0;
+				
+				var edges = calc_edges(burger.x,burger.y,border);
+				get_tiles_from_world_coords(edges);
+				get_all_coll_points(Xlane,Ylane);
+				var allowedToBuild = calculateCollition(Col_ArrX,Col_ArrY);	
+			
+				if  (allowedToBuild) {
 				burger.alpha = 1;
-			}
-			else {
+				}
+				else {
 				burger.alpha = 0.5;
-			}
+				}								
+			}						
 		}
 		
 		else if (moving) { // move building
-			current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x -100;
-			current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y -100;
+			//current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x; //-100
+			//current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y; //-100
+			
+			xoffinPx = Math.floor((stage.mouseX - current_object.localBuildPosX)/32);
+			yoffinPx = Math.floor((stage.mouseY - current_object.localBuildPosY)/16);
+			// move building
+			moveX = xoffinPx *32;
+			moveY = yoffinPx *16;
+			current_object.x = current_object.x + moveX;
+			current_object.y = current_object.y + moveY;
+			current_object.localBuildPosX = current_object.localBuildPosX + moveX;
+			current_object.localBuildPosY = current_object.localBuildPosY + moveY;
+			xoffinPx = 0;
+			yoffinPx = 0;	
+			moveX = 0;
+			moveY = 0;
 			
 			var edges = calc_edges_current(current_object.x,current_object.y,border);
 			get_tiles_from_world_coords(edges);
