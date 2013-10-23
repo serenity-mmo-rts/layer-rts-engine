@@ -9,6 +9,25 @@
 <script src="http://localhost:8000/socket.io/socket.io.js"></script>
 <script>
 
+// resize the canvas
+window.addEventListener('resize', reresize, false);
+
+function setup() {
+	stage.canvas.height = window.innerHeight;    
+    stage.canvas.width = window.innerWidth;  
+	canvas_height = window.innerHeight; 
+	canvas_width = window.innerWidth; 	
+}
+
+function reresize() {
+	stage.canvas.height = window.innerHeight;    
+    stage.canvas.width = window.innerWidth;  
+	canvas_height = window.innerHeight; 
+	canvas_width = window.innerWidth; 
+	kill_child = menu_container.removeAllChildren();
+	initHeader();
+	initMenu(); 		
+}
 
 //// global variables
 var stage;
@@ -17,20 +36,19 @@ var socket;
 
 ///// PARAMETERS /////
 // Canvas
-var canvas_height = 600; 
-var canvas_width = 1200; 
+var canvas_height; 
+var canvas_width; 
 var tile_height = 32;
 var tile_width = 64;
-//Buttons
-var button_height = 63;
-var button_width = 250;
+
 // Position
 var global_offsetX = 0;
 var global_offsetY = 0;
 var global_buildXpos;
 var global_buildYpos;
-var local_buildXpos = 1*64;
-var local_buildYpos = canvas_height-(4*32);
+var local_buildXpos = (Math.floor(360/64))*64;
+var local_buildYpos = (Math.floor(161/32))*32;
+
 var local_buildXpos2;
 var local_buildYpos2;
 
@@ -38,6 +56,11 @@ var local_buildYpos2;
 var border = 0;
 var building_counter = 0;
 var tile_size = 90;
+var nr_menu_child;
+
+// Ressources
+var amount_of_wood = 20;
+var tick_counter = 0;
 
 ///// BOOLEANS /////
 var build = false;
@@ -52,6 +75,8 @@ var destroyed = false;
 var current_object;
 var grid_con;
 var ground;
+var menu_buttons;
+
 
 ///// ARRAYS /////
 var collitionData = [];
@@ -64,11 +89,7 @@ var Col_ArrX = [];
 var Col_ArrY = [];
 var truthArr = [false,true];
 
-// for debuging
-var xoffinPx; 
-var yoffinPx; 
-var moveY;
-var moveX
+
 
 // Init function (main loop more or less)
 function init() {
@@ -76,23 +97,22 @@ function init() {
 	// initialize stage and containers
 	stage = new createjs.Stage("canvas");
 	
+	// resize
+	setup();
+	
 	main_container = new createjs.Container();
 	menu_container = new createjs.Container();
 	
+	
 	map_container = new createjs.Container();
 	obj_container = new createjs.Container();
-	grid_container = new createjs.Container();
-		
-	button_container = new createjs.Container();	
-	build_button_container = new createjs.Container();
-	delete_button_container = new createjs.Container();
-	move_button_container = new createjs.Container();
+	grid_container = new createjs.Container();		
 	
 	stage.mouseMoveOutside = true;
 	main_container.mouseMoveOutside = true;
 	map_container.mouseMoveOutside = true;
 	obj_container.mouseMoveOutside = true;
-	stage.enableMouseOver(20);
+	//stage.enableMouseOver(10);
 		
 	// initialize image data
 	//mapData = mapDataJson;	
@@ -110,67 +130,190 @@ function onMapDataReceived(data){
 	
 	// init Grid	
 	initGrid();
-	
-	//var grid = new createjs.Shape();
-	//grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(0,- 1440).lineTo(32,16- 1440).lineTo(0,32- 1440).lineTo(-32,16- 1440).lineTo(0,- 1440);			
-	//grid_container.addChild(grid);
-
-	
-	// initialize menu
-	initMenu();
-	// get collition data
+	menu_buttons = initMenu();
+	initHeader();
 	Matrix = getMatrix();
 	
 	// inherit
-	button_container.addChild(build_button_container,delete_button_container,move_button_container);
-	menu_container.addChild(button_container);
 	main_container.addChild(map_container,obj_container);	
 	stage.addChild(main_container,menu_container);
 	
 					
 	// event listener for dragging map
 	main_container.addEventListener("mousedown", handleMousedownMap);
-		
-	// button Event Listeners
-	build_button_container.addEventListener("click", buildhouse);
-	delete_button_container.addEventListener("click", deletehouse);	
-	move_button_container.addEventListener("click", movehouse);		
+
+	
 	// set FPS and call tick 
-	createjs.Ticker.setFPS(60);
-	createjs.Ticker.addEventListener("tick", tick);	
-	//stage.update();	
+	createjs.Ticker.setFPS(24);
+	createjs.Ticker.addEventListener("tick", tick);		
+
+	
 }
 
 
 // make button and add it to button container
 function initMenu(){
-	// button menu (still bitmap)
-	var build_button = new createjs.Bitmap("../resources/button.gif");
-		build_button.x = 1;	
-		build_button.y = canvas_height - button_height;			
-	// text menu
-	var build_label = new createjs.Text("Build House here", "bold 24px Arial", "#FFFFFF");
-		build_label.x = 20;
-		build_label.y = canvas_height - button_height +20;		
-		build_button_container.addChild(build_button,build_label);
+	baseMenu_container = new createjs.Container();
+	baseMenu_container.name = "menu";
+	
+	build_button_container = new createjs.Container();
+	build_menu_container = new createjs.Container();
+	build_menu_grid_container = new createjs.Container();
+	
+
+	// base menu	
+	var base_menu_img = new createjs.Bitmap("../resources/icons/Globe.png");
+	base_menu_img.x = 0;
+	base_menu_img.y = canvas_height - 128;		
+	var base_menu_form = new createjs.Shape();
+	base_menu_form.graphics.drawCircle(64, canvas_height - 64,64);
+	
+	// delete button
+	var delete_button_img = new createjs.Bitmap("../resources/icons/destroy.png");
+	delete_button_img.x = 5;
+	delete_button_img.y = canvas_height - 128 -64 -20;
+	delete_button_img.scaleX = 0.5;
+	delete_button_img.scaleY = 0.5;	
+	
+	// move button
+	var move_button_img = new createjs.Bitmap("../resources/icons/move.png");
+	move_button_img.x = 5 + 64;
+	move_button_img.y = canvas_height - 128 -64;	
+	move_button_img.scaleX = 0.5;
+	move_button_img.scaleY = 0.5;	
+	
+	// build button
+	
+	var build_button_img = new createjs.Bitmap("../resources/icons/build.png");
+	build_button_img.x = 5 + 64 +64;
+	build_button_img.y = canvas_height - 128 - 64 +40;
+	build_button_img.scaleX = 0.5;
+	build_button_img.scaleY = 0.5;		
+	
+	// build menu	
+	var build_menu_main_rect = new createjs.Shape();
+	build_menu_main_rect.graphics.beginFill("#F5F7C4").drawRoundRect(220,120,665,437,30);
+
+	var build_menu_header_rect1 = new createjs.Shape();	
+	build_menu_header_rect1.graphics.beginFill("#eee081").drawRoundRectComplex(220,120,280,30,30,0,0,0);
+	
+	var build_menu_header_rect2 = new createjs.Shape();
+	build_menu_header_rect2.graphics.beginFill("#eed781").drawRoundRectComplex(410,120,280,30,0,0,0,0);
+	
+	var build_menu_header_rect3 = new createjs.Shape();
+	build_menu_header_rect3.graphics.beginFill("#eece81").drawRoundRectComplex(600,120,285,30,0,30,0,0);
+	
+	// grid	
+		// horizontal
+		xstart = 230; ystart = 160; yend = 547; 
+	for (var x = 0; x<6; x++ ){	
+		var menu_grid = new createjs.Shape();	
+		menu_grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(xstart,ystart).lineTo(xstart,yend);	
+		xstart += 129;
+		menu_grid.alpha = 0.75;
+		build_menu_grid_container.addChild(menu_grid);
+	}
+		// vertical
+	xstart = 230; xend = 875; ystart = 160;  
+	for (var x = 0; x<4; x++ ){	
+		var menu_grid = new createjs.Shape();	
+		menu_grid.graphics.setStrokeStyle(1, "butt", "miter").beginStroke("#000000").moveTo(xstart,ystart).lineTo(xend,ystart);	
+		ystart += 129;
+		menu_grid.alpha = 0.75;
+		build_menu_grid_container.addChild(menu_grid);
+	}
+	
+	// images 	
+	var bakery_preview = new createjs.Bitmap("../resources/bakery1.png");
+		bakery_preview.x = 231;
+		bakery_preview.y = 161;	
+
+	var bank_preview = new createjs.Bitmap("../resources/bank1.png");
+		bank_preview.x = 231 + 129;
+		bank_preview.y = 161;
+		bank_preview.scaleX = (2/3);
+		bank_preview.scaleY = (2/3);
 		
-	var delete_button = new createjs.Bitmap("../resources/button.gif");
-		delete_button.x = 1;	
-		delete_button.y = build_button.y - button_height;			
-	// text menu
-	var delete_label = new createjs.Text("Delete House here", "bold 24px Arial", "#FFFFFF");
-		delete_label.x = 20;
-		delete_label.y = build_button.y - button_height +20;
-		delete_button_container.addChild(delete_button,delete_label);
-		
-	var move_button = new createjs.Bitmap("../resources/button.gif");
-		move_button.x = 1;	
-		move_button.y = delete_button.y  - button_height;			
-	// text menu
-	var move_label = new createjs.Text("Move House here", "bold 24px Arial", "#FFFFFF");
-		move_label.x = 20;
-		move_label.y = delete_button.y - button_height +20;
-		move_button_container.addChild(move_button,move_label);
+	var burger_preview = new createjs.Bitmap("../resources/burger1.png");
+		burger_preview.x = 231 + (2*129);
+		burger_preview.y = 161;
+	
+	var butcher_preview = new createjs.Bitmap("../resources/butcher1.png");
+		butcher_preview.x = 231 + (3*129);
+		butcher_preview.y = 161;
+	
+	build_menu_container.addChild(build_menu_main_rect,build_menu_header_rect3,build_menu_header_rect2,build_menu_header_rect1,build_menu_grid_container,bakery_preview,bank_preview,burger_preview,butcher_preview);
+	build_button_container.addChild(build_button_img);	
+	baseMenu_container.addChild(base_menu_img,base_menu_form);
+	menu_container.addChild(baseMenu_container);
+	
+	// event listener for main menu
+	baseMenu_container.addEventListener("click",click_main_menu);	
+	
+	
+	return [delete_button_img,move_button_img,build_button_container,build_menu_container];
+	
+}
+
+
+function click_main_menu() { 
+	nr_child = menu_container.getNumChildren();
+	if (nr_child < 3){
+	menu_container.addChild(menu_buttons[0],menu_buttons[1],menu_buttons[2]);
+	menu_buttons[0].addEventListener("click", deletehouse);
+	menu_buttons[1].addEventListener("click", movehouse);	
+	menu_buttons[2].addEventListener("click",click_build_menu);
+	stage.update();
+	}
+	else {
+		for (var c = 2; c<5; c++) {
+		kill_child = menu_container.getChildAt(2);
+		menu_container.removeChild(kill_child);
+		}
+	
+	}
+}
+
+
+function click_build_menu() { 
+	nr_child = menu_container.getNumChildren();
+	if (nr_child < 6){
+	menu_container.addChild(menu_buttons[3]);
+	menu_buttons[3].children[6].addEventListener("click",buildhouse);	
+	stage.update();
+	}
+	else {
+	kill_child = menu_container.getChildAt(5);
+	menu_container.removeChild(kill_child);
+	}
+}
+
+
+
+function initHeader(){
+	// headermenu
+	header_container = new createjs.Container();
+	header_container.name = "header";
+	var header_rect = new createjs.Shape();
+	header_rect.graphics.beginFill("#F5F7C4").drawRoundRect((canvas_width/2) -400,0,800,32,16);
+	
+	;
+	
+	woodi = new Image();
+	woodi.src = "../resources/icons/Wood_02.png";	
+	wood = new createjs.Bitmap(woodi);		
+	wood.x = (canvas_width/2) -400 +10;
+	wood.y = 0;
+	wood.scaleX = 0.5;
+	wood.scaleY = 0.5;
+	
+	wood_amount = amount_of_wood.toString();
+	var wood_label = new createjs.Text(wood_amount, "bold 16px Arial", "#000000");
+	wood_label.x = (canvas_width/2) -400 +50;
+	wood_label.y = 10;			
+	
+	header_container.addChild(header_rect,wood,wood_label);
+	menu_container.addChild(header_container);
 }
 
 
@@ -189,7 +332,7 @@ function initLayers() {
 	var tilesetSheet = new createjs.SpriteSheet(imageData);
 	
 	// loading layer 1 and 2
-	for (var idx = 0; idx < mapData.layers.length-1; idx++) {
+	for (var idx = 0; idx < mapData.layers.length; idx++) {
 		var layerData = mapData.layers[idx];
 		initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
 	}
@@ -286,13 +429,11 @@ function handleMousedownMap(evt) {
 			burger.localBuildPosX = local_buildXpos2;
 			burger.localBuildPosY = local_buildYpos2;
             socket.emit('buildHouse', { buildXpos2: local_buildXpos2, local_buildYpos2: local_buildYpos2 } );
-            for (var i = 0; i<Col_ArrX.length; i++ ){
-				//   put Object into collition matrix
+			amount_of_wood -=10;				//   put Object into collition matrix
 				putx = Col_ArrX[i];
 				puty = Col_ArrY[i];				
 				Matrix[putx][puty] = 101;
-			} 
-		}
+		} 
 	}	
 
 	else if (destroy) { // delete object		
@@ -408,6 +549,8 @@ function drawCapitol() {
 	
 	capitol_container.addChild(cicero,capitol_title);	
 	
+	var button_height = 63;
+	
 	var back_button = new createjs.Bitmap("../resources/button.gif");
 		back_button.x = 1;	
 		back_button.y = canvas_height - button_height;			
@@ -443,6 +586,10 @@ function buildhouse(evt1) {
 		main_container.addChild(grid_container);
 		document.body.style.cursor='pointer';
 		
+		kill_child = menu_container.getChildAt(5);
+		menu_container.removeChild(kill_child);
+
+
 		destroy = false;
 		del_count =1;		
 		move = false;
@@ -721,27 +868,21 @@ function tick(event) {
 					just_start = false;	
 					local_buildXpos2 = local_buildXpos;
 					local_buildYpos2 = local_buildYpos;					
-					local_buildYpos2 = local_buildYpos2+ 100;			
+					local_buildYpos2 = local_buildYpos2;			
 				}
 			}
 			
 			else if (start_movement) {
 			
 				// get offset	
+				xoffinreal = (stage.mouseX - (burger.x+global_offsetX)) + burger.x -100;
+				yoffinreal = (stage.mouseY - (burger.y+global_offsetY)) + burger.y -100;
+			
+				burger.x =(Math.floor(xoffinreal / 32))*32;
+				burger.y =(Math.floor(yoffinreal / 16))*16;
 				
-				xoffinPx = Math.floor((stage.mouseX -local_buildXpos2)/32);
-				yoffinPx = Math.floor((stage.mouseY -local_buildYpos2)/16);
-				// move building
-				moveX = xoffinPx *32;
-				moveY = yoffinPx *16;
-				burger.x = burger.x + moveX;
-				burger.y = burger.y + moveY;
-				local_buildXpos2 = local_buildXpos2 + moveX;
-				local_buildYpos2 = local_buildYpos2 + moveY;
-				xoffinPx = 0;
-				yoffinPx = 0;	
-				moveX = 0;
-				moveY = 0;
+				
+
 				
 				var edges = calc_edges(burger.x,burger.y,border);
 				get_tiles_from_world_coords(edges);
@@ -758,22 +899,12 @@ function tick(event) {
 		}
 		
 		else if (moving) { // move building
-			//current_object.x = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x; //-100
-			//current_object.y = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y; //-100
+			xoffinreal = (stage.mouseX - (current_object.x+global_offsetX)) + current_object.x -100;
+			yoffinreal = (stage.mouseY - (current_object.y+global_offsetY)) + current_object.y -100;
 			
-			xoffinPx = Math.floor((stage.mouseX - current_object.localBuildPosX)/32);
-			yoffinPx = Math.floor((stage.mouseY - current_object.localBuildPosY)/16);
-			// move building
-			moveX = xoffinPx *32;
-			moveY = yoffinPx *16;
-			current_object.x = current_object.x + moveX;
-			current_object.y = current_object.y + moveY;
-			current_object.localBuildPosX = current_object.localBuildPosX + moveX;
-			current_object.localBuildPosY = current_object.localBuildPosY + moveY;
-			xoffinPx = 0;
-			yoffinPx = 0;	
-			moveX = 0;
-			moveY = 0;
+			current_object.x =(Math.floor(xoffinreal / 32))*32;
+			current_object.y =(Math.floor(yoffinreal / 16))*16;
+			
 			
 			var edges = calc_edges_current(current_object.x,current_object.y,border);
 			get_tiles_from_world_coords(edges);
@@ -811,8 +942,23 @@ function tick(event) {
 			}
 		}
 		
+		if (tick_counter == 30) { // after 1 Seconds
+		
+			last = header_container.getChildAt(2);			
+			header_container.removeChild(last);
+			
+			tick_counter = 0;
+			amount_of_wood += 1;
+			wood_amount = amount_of_wood.toString();
+					
+			var wood_label = new createjs.Text(wood_amount, "bold 16px Arial", "#000000");
+			wood_label.x = (canvas_width/2) -400 +50;
+			wood_label.y = 10;				
+			header_container.addChild(wood_label);
+		} 
 		
 		
+	tick_counter += 1;	
 	// update canvas  
 	stage.update(event);
 }
@@ -833,9 +979,6 @@ background-color: rgba(200,200,200,1);
 #canvas
 {
 background-color: rgba(235,217,118,0.3);
-border-color:rgba(200,146,95,1);
-border-style: solid;
-border-width: 1px;
 }
 </style>
 
@@ -843,9 +986,9 @@ border-width: 1px;
 
 </head>
 <body bgcolor="black" onLoad="init();">
-<div class="contain" style="width:1200px; 
-                             height: 600px; 							
-                             position: absolute; left: 200px; top: 50px;
+<div class="contain" style="width:0px; 
+                             height: 0px; 							
+                             position: absolute; left: 0px; top: 0px;
                              border: none">
 <canvas style="position: relative" id="canvas"  width="1200" height="600"> Canvas not supported. Please update your browser. </canvas>
 </div>
