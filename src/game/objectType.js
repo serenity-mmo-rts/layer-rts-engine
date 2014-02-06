@@ -1,12 +1,14 @@
-var ObjectType = function(typeid,width,height) {
-    this.typeid = typeid;
-    this.width = width;
-    this.height= height;
+var ObjectType = function() {
+    this._id;
+    this.width;
+    this.height;
     this.allowOnMapTypeId = [];
     this.hasChildMapTypeId;
     this.name;
+    this.spritesheetId;
+    this.spriteFrame;
+}
 
-    this.getArea = function () {
-        return this.width*this.height;
-    }
+ObjectType.prototype.getArea = function () {
+    return this.width * this.height;
 }
