@@ -15,7 +15,7 @@ var MapData = function(objDesc) {
                         this.mapObjects = objDesc.mapObjects;
                     }
                     else {
-                        this.mapObjects = new GameList(MapObject.prototype,objDesc.mapObjects);
+                        this.mapObjects = new GameList(MapObject,objDesc.mapObjects);
                     }
                     for (obj in this.mapObjects) {
                         addObjectToTree(obj);
@@ -28,7 +28,7 @@ var MapData = function(objDesc) {
         }
     }
     else {
-        this.mapObjects = new GameList(MapObject.prototype);
+        this.mapObjects = new GameList(MapObject);
     }
 
     function addObjectToTree(mapObject) {
