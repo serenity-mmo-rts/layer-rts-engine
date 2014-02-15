@@ -1,11 +1,10 @@
-var MapObject = function(objDesc) {
+var Spritesheet = function(objDesc) {
     this._id;
-    this.x;
-    this.y;
-    this.objTypeId;
-    this.userId;
+    this.images;
+    this.frames;
+    //this.animations;
 
-    if (MapObject.arguments.length == 1) {
+    if (Spritesheet.arguments.length == 1) {
         for(var key in objDesc) {
             if(objDesc.hasOwnProperty(key)) {
                 this[key] = objDesc[key];
@@ -13,4 +12,3 @@ var MapObject = function(objDesc) {
         }
     }
 }
-
