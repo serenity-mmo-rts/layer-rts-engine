@@ -2,6 +2,7 @@ var MapType = function(objDesc) {
     this._id;
     this.name;
     this.scale;
+    this.ratioWidthHeight; // 2 is standard
     this.bgColor;
     this.groundImage;
     this.groundImageScaling;

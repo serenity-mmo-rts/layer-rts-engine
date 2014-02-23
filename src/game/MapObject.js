@@ -2,6 +2,8 @@ var MapObject = function(objDesc) {
     this._id;
     this.x;
     this.y;
+    this.width;
+    this.height;
     this.objTypeId;
     this.userId;
 
