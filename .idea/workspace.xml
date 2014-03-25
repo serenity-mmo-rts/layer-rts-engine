@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2825c791-d1f1-40f7-861c-ab91ed67cfe9" name="Default" comment="" />
+    <list default="true" id="2825c791-d1f1-40f7-861c-ab91ed67cfe9" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/client/BuildMenu.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/LayerRenderer.js" afterPath="$PROJECT_DIR$/src/client/LayerRenderer.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/buildMenuRenderer.js" afterPath="$PROJECT_DIR$/src/client/buildMenuRenderer.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/index.html" afterPath="$PROJECT_DIR$/src/client/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css" afterPath="$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="serenity.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376244637640" ignored="false" />
+    <file path="/Dummy.txt" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376327156640" ignored="false" />
     <file path="/client.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1374864150125" ignored="false" />
-    <file path="/buildMenuRenderer.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376243592359" ignored="false" />
+    <file path="/buildMenuRenderer.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376336312281" ignored="false" />
     <file path="/LayerRenderer.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1375009696531" ignored="false" />
-    <file path="/index.html" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376243257046" ignored="false" />
+    <file path="/index.html" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376332785390" ignored="false" />
     <file path="/test.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1374401078078" ignored="false" />
     <file path="/mapRenderer.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1374661761393" ignored="false" />
     <file path="/headerRenderer.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1374844246034" ignored="false" />
@@ -20,6 +27,7 @@
     <file path="/button.js" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1375010127843" ignored="false" />
     <file path="/jquery.ui.accordion.css" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376162738390" ignored="false" />
     <file path="/buildMenu.html" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376153914421" ignored="false" />
+    <file path="/BuildMenu.css" changelist="2825c791-d1f1-40f7-861c-ab91ed67cfe9" time="1376336464781" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,88 +50,43 @@
       <file leaf-file-name="buildMenuRenderer.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/client/buildMenuRenderer.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="65" column="33" selection-start="2219" selection-end="2219" vertical-scroll-proportion="0.0">
+            <state line="92" column="0" selection-start="3432" selection-end="3432" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="client.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/client.js">
+      <file leaf-file-name="jquery.ui.accordion.css" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="34" selection-start="587" selection-end="587" vertical-scroll-proportion="0.0">
+            <state line="34" column="23" selection-start="807" selection-end="807" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GameData.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/game/GameData.js">
+      <file leaf-file-name="jquery-ui.css" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery-ui.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="1151" column="57" selection-start="31620" selection-end="31620" vertical-scroll-proportion="-10.24">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Spritesheet.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/game/Spritesheet.js">
+      <file leaf-file-name="BuildMenu.css" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/client/BuildMenu.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="88" column="109" selection-start="1309" selection-end="1309" vertical-scroll-proportion="0.62222224">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="objectType.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/game/objectType.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="92" selection-start="337" selection-end="337" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/client/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="126" column="43" selection-start="4957" selection-end="4957" vertical-scroll-proportion="0.63829786">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="register.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/register.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="menu.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/menu.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="56" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="login.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/login.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="0" selection-start="1134" selection-end="1134" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="buildMenu.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/buildMenu.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="90" selection-start="618" selection-end="618" vertical-scroll-proportion="0.0">
+            <state line="6" column="69" selection-start="292" selection-end="292" vertical-scroll-proportion="-3.9230769">
               <folding />
             </state>
           </provider>
@@ -147,7 +110,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/client/Button.js" />
         <option value="$PROJECT_DIR$/src/client/headerRenderer.js" />
         <option value="code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
         <option value="s.ytimg.com/yts/jsbin/www-embed-player-vflbQbk8H.js" />
@@ -155,14 +117,15 @@
         <option value="$PROJECT_DIR$/src/client/mapRenderer.js" />
         <option value="$PROJECT_DIR$/src/client/buttonMenu.js" />
         <option value="$PROJECT_DIR$/src/client/button.js" />
-        <option value="$PROJECT_DIR$/src/client/LayerRenderer.js" />
         <option value="$PROJECT_DIR$/src/game/GameData.js" />
         <option value="$PROJECT_DIR$/src/server/initDb.js" />
         <option value="$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.all.css" />
         <option value="$PROJECT_DIR$/src/client/buildMenu.html" />
-        <option value="$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css" />
+        <option value="$PROJECT_DIR$/src/client/LayerRenderer.js" />
         <option value="$PROJECT_DIR$/src/client/index.html" />
+        <option value="$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css" />
         <option value="$PROJECT_DIR$/src/client/buildMenuRenderer.js" />
+        <option value="$PROJECT_DIR$/src/client/BuildMenu.css" />
       </list>
     </option>
   </component>
@@ -295,6 +258,118 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="development-bundle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="development-bundle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="themes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cupertino" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="development-bundle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="themes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serenity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="easeljs" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -306,13 +381,13 @@
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="recentsLimit" value="5" />
     <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
-    <property name="restartRequiresConfirmation" value="true" />
+    <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/server/server.js" />
+    <property name="restartRequiresConfirmation" value="true" />
     <property name="FullScreen" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="PublishConfig" serverName="Serenity" serverId="5867b0b4-6f75-41a7-a1a9-8c535cf0d9f2">
     <servers>
@@ -449,16 +524,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-4" y="-4" width="1608" height="878" extended-state="7" />
-    <editor active="true" />
+    <frame x="-4" y="-4" width="1608" height="878" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.49968293" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31034482" sideWeight="0.49968293" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3089655" sideWeight="0.49968293" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21179454" sideWeight="0.6551724" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3448276" sideWeight="0.9042486" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.214331" sideWeight="0.6565517" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34344828" sideWeight="0.9042486" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3448276" sideWeight="0.09575143" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34344828" sideWeight="0.09575143" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32" sideWeight="0.49904883" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.49968293" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -532,64 +607,73 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="321" />
+      <option name="time" value="334" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="http://jsfiddle.net/js/LayoutCM.js?jobboard_b">
-      <provider selected="true" editor-type-id="httpFileEditor">
-        <state />
+    <entry file="file://$PROJECT_DIR$/src/client/login.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="0" selection-start="1134" selection-end="1134" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.theme.css">
+    <entry file="file://$PROJECT_DIR$/src/client/register.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="403" column="0" selection-start="17157" selection-end="17157" vertical-scroll-proportion="0.0" />
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css">
+    <entry file="file://$PROJECT_DIR$/src/client/LayerRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="14" selection-start="925" selection-end="925" vertical-scroll-proportion="0.0">
+        <state line="65" column="6" selection-start="2109" selection-end="2109" vertical-scroll-proportion="-0.1556064">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/client/mapRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="86" selection-start="3075" selection-end="3075" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/lib/easeljs-0.6.1.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="0" selection-start="38000" selection-end="38000" vertical-scroll-proportion="0.3325688" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/LayerRenderer.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="0" selection-start="1711" selection-end="1711" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="78" column="86" selection-start="3075" selection-end="3075" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/client/menu.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="56" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
+        <state line="9" column="18" selection-start="146" selection-end="146" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.progressbar.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="0" selection-start="491" selection-end="491" vertical-scroll-proportion="0.5244755">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/client.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="34" selection-start="587" selection-end="587" vertical-scroll-proportion="0.037777778">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/client/buildMenu.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="90" selection-start="618" selection-end="618" vertical-scroll-proportion="0.0">
+        <state line="24" column="23" selection-start="679" selection-end="679" vertical-scroll-proportion="0.8820755">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/game/Spritesheet.js">
+    <entry file="file://$PROJECT_DIR$/src/client/lib/jquery-1.10.1.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="68" column="14" selection-start="1866" selection-end="1866" vertical-scroll-proportion="0.5652174">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/ui/jquery.ui.accordion.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.46681923">
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -600,44 +684,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/game/objectType.js">
+    <entry file="file://$PROJECT_DIR$/src/client/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="92" selection-start="337" selection-end="337" vertical-scroll-proportion="0.0">
+        <state line="6" column="69" selection-start="292" selection-end="292" vertical-scroll-proportion="-3.9230769">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/client.js">
+    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery.ui.accordion.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="34" selection-start="587" selection-end="587" vertical-scroll-proportion="0.0">
+        <state line="34" column="23" selection-start="807" selection-end="807" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/login.js">
+    <entry file="file://$PROJECT_DIR$/src/client/lib/development-bundle/themes/cupertino/jquery-ui.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1134" selection-end="1134" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/register.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="1151" column="57" selection-start="31620" selection-end="31620" vertical-scroll-proportion="-10.24">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/client/buildMenuRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="33" selection-start="2219" selection-end="2219" vertical-scroll-proportion="0.0">
+        <state line="92" column="0" selection-start="3432" selection-end="3432" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/index.html">
+    <entry file="file://$PROJECT_DIR$/src/client/BuildMenu.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="126" column="43" selection-start="4957" selection-end="4957" vertical-scroll-proportion="0.63829786">
+        <state line="88" column="109" selection-start="1309" selection-end="1309" vertical-scroll-proportion="0.62222224">
           <folding />
         </state>
       </provider>
