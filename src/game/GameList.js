@@ -37,3 +37,11 @@ GameList.prototype.add = function(objDesc) {
         return this.hashList[objInstance._id];
     }
 }
+
+GameList.prototype.getArray = function() {
+    var asArray = [];
+    for( var k in this.hashList ) {
+        asArray.push(this.hashList[k]);
+    }
+    return asArray;
+}

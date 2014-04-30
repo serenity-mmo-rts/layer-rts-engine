@@ -2,10 +2,10 @@ var MapObject = function(objDesc) {
     this._id;
     this.x;
     this.y;
-    this.width;
-    this.height;
+    this.width;   // optional
+    this.height;   // optional
     this.objTypeId;
-    this.userId;
+    this.userId;      // optional
 
     if (MapObject.arguments.length == 1) {
         for(var key in objDesc) {
