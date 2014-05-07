@@ -7,6 +7,8 @@ var ObjectType = function(objDesc) {
     this.name;
     this.spritesheetId;
     this.spriteFrame;
+    this.spriteFrameIcon;
+    this.buildMenuTooltip;
 
     if (ObjectType.arguments.length == 1) {
         for(var key in objDesc) {

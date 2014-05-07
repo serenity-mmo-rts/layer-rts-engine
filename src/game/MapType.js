@@ -6,6 +6,7 @@ var MapType = function(objDesc) {
     this.bgColor;
     this.groundImage;
     this.groundImageScaling;
+    this.buildCategories;  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
 
     if (MapType.arguments.length == 1) {
         for(var key in objDesc) {

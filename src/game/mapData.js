@@ -2,10 +2,9 @@ var MapData = function(objDesc) {
     this._id;
     this.width = objDesc.width;
     this.height = objDesc.height;
-    this.mapId;
     this.mapTypeId;
     var quadTree = new window.QuadTree({x:-this.width/2, y:-this.height/2, width:this.width, height:this.height},false); //private variable
-    this.mapObjects = {};
+    this.mapObjects = new GameList(MapObject);
 
     ////////////////////////////////////////////////////////////////
     // Privileged Member Functions: (they need to access quadTree)
@@ -55,9 +54,9 @@ var MapData = function(objDesc) {
             }
         }
     }
-    else {
-        this.mapObjects = new GameList(MapObject);
-    }
+    //else {
+    //    this.mapObjects = new GameList(MapObject);
+    //}
 
 
 
