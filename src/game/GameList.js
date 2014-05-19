@@ -1,47 +1,76 @@
 // ClassType should be a class with field _id which is used as key in the list
 
-var GameList = function(ClassType, objDesc) {
-    this.hashList = {};
-    this.ClassType = ClassType;
+(function (exports) {
 
-    if (GameList.arguments.length == 2) {
-        if ( objDesc instanceof Array ) { // objDesc is an Array of <ClassType> or an Array of JsonFormated <ClassType>
-            for (var i = 0, length = objDesc.length; i<length; i++) {
-                var objInstance = new this.ClassType(objDesc[i]);
-                this.hashList[objInstance._id] = objInstance;
-            }
+    var GameList = function (gameData,ClassType,initObj) {
+        // serialized:
+        this.hashList = {};
+
+        // not serialized:
+        this.ClassType = ClassType;
+        this.gameData = gameData;
+
+        // init:
+        if (GameList.arguments.length == 3) {
+            this.load(initObj);
         }
-        else { // objDesc is a GameList but in jsonFormat
-            if (objDesc.hasOwnProperty('hashList')) {
-                for(var propt in objDesc.hashList){
-                    this.hashList[propt] = new this.ClassType(objDesc.hashList[propt]);
-                }
+    }
+
+    GameList.prototype = {
+        add: function(o) {
+            if (o instanceof this.ClassType) {
+                //console.log("adding to GameList by appending object")
+                this.hashList[o._id] = o;
+                return this.hashList[o._id];
             }
             else {
-                for(var propt in objDesc){
-                    this.hashList[propt] = new this.ClassType(objDesc[propt]);
+                //console.log("adding to GameList with copying")
+                var objInstance = new this.ClassType(this.gameData,o);
+                this.hashList[objInstance._id] = objInstance;
+                return this.hashList[objInstance._id];
+            }
+        },
+
+        get: function(id) {
+            return this.hashList[id];
+        },
+
+        each: function(func) {
+            for (var k in this.hashList) {
+                func(this.hashList[k]);
+            }
+        },
+
+        save: function () {
+            var asArray = [];
+            for (var k in this.hashList) {
+                asArray.push(this.hashList[k].save());
+            }
+            return asArray;
+        },
+
+        load: function (o) {
+            if (o instanceof Array) { // o is an Array of <ClassType> or an Array of JsonFormated <ClassType>
+                for (var i = 0, length = o.length; i < length; i++) {
+                    var objInstance = new this.ClassType(this.gameData,o[i]);
+                    this.hashList[objInstance._id] = objInstance;
+                }
+            }
+            else { // o is a GameList but in jsonFormat
+                if (o.hasOwnProperty('hashList')) {
+                    for (var propt in o.hashList) {
+                        this.hashList[propt] = new this.ClassType(this.gameData,o.hashList[propt]);
+                    }
+                }
+                else {
+                    for (var propt in o) {
+                        this.hashList[propt] = new this.ClassType(this.gameData,o[propt]);
+                    }
                 }
             }
         }
     }
-}
 
-GameList.prototype.add = function(objDesc) {
-    if ( objDesc instanceof this.ClassType.constructor ) {
-        this.hashList[objDesc._id] = objDesc;
-        return this.hashList[objDesc._id];
-    }
-    else {
-        var objInstance = new this.ClassType(objDesc);
-        this.hashList[objInstance._id] = objInstance;
-        return this.hashList[objInstance._id];
-    }
-}
+    exports.GameList = GameList;
 
-GameList.prototype.getArray = function() {
-    var asArray = [];
-    for( var k in this.hashList ) {
-        asArray.push(this.hashList[k]);
-    }
-    return asArray;
-}
+})(typeof exports === 'undefined' ? window : exports);

@@ -1,5 +1,3 @@
-some text
-
 How to install the server:
 1) install node.js with npm
 2) In windows socket.io depends on node-gyp which depends on several other stuff:
@@ -11,3 +9,9 @@ see https://github.com/TooTallNate/node-gyp for the requirements before the inst
 How to start the server:
 1) open a terminal and change to the directory ../serenity/src/server
 2) execute "node server.js"
+
+
+Development:
+
+javascript modules should be written as described at:
+http://caolanmcmahon.com/posts/writing_for_node_and_the_browser/
