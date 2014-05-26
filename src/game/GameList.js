@@ -22,13 +22,16 @@
                 //console.log("adding to GameList by appending object")
                 this.hashList[o._id] = o;
                 return this.hashList[o._id];
+                return o;
             }
             else {
                 //console.log("adding to GameList with copying")
                 var objInstance = new this.ClassType(this.gameData,o);
                 this.hashList[objInstance._id] = objInstance;
                 return this.hashList[objInstance._id];
+                return objInstance;
             }
+
         },
 
         get: function(id) {
