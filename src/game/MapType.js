@@ -9,7 +9,7 @@
         this.bgColor = null;
         this.groundImage = null;
         this.groundImageScaling = null;
-        this.buildCategories = null;  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
+        this.buildCategories = [];  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
 
         // not serialized:
         this.gameData = gameData;
