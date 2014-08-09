@@ -1,3 +1,4 @@
+
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
