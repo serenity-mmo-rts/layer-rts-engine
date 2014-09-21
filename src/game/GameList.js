@@ -38,6 +38,16 @@
             return this.hashList[id];
         },
 
+        length: function() {
+            // TODO: implement browser check or use underscore and _.size(object) or _.keys(object).length
+            // for all old browsers:
+            var count = 0;
+            for (k in this.hashList) if (this.hashList.hasOwnProperty(k)) count++;
+            return count;
+            // faster version, but only working in Node, Chrome, IE 9+, FF 4+, or Safari 5+:
+            //return Object.keys(this.hashList).length;
+        },
+
         each: function(func) {
             for (var k in this.hashList) {
                 func(this.hashList[k]);
