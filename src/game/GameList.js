@@ -34,6 +34,16 @@
 
         },
 
+        delete: function(o) {
+            if (o instanceof this.ClassType) {
+
+            }
+            else {
+
+            }
+
+        },
+
         get: function(id) {
             return this.hashList[id];
         },

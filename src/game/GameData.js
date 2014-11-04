@@ -3,7 +3,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
     var MapType = require('./MapType').MapType;
-    var ObjectType = require('./ObjectType').ObjectType;
+    var ObjectType = require('./objectType').ObjectType;
     var Spritesheet = require('./Spritesheet').Spritesheet;
     var MapData = require('./MapData').MapData;
     var User = require('./User').User;
