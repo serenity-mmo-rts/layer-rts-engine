@@ -1,4 +1,4 @@
-var BuildObjectEvent = function (map){
+var BuildObjectEvent = function BuildObjectEvent(map){
 
     this.map = map;
     this.object = this.map.tempObj;
@@ -6,7 +6,6 @@ var BuildObjectEvent = function (map){
     this.userId = this.object.userId;
     this.x = this.object.x;
     this.y = this.object.y;
-    this.type = 'buildObject';
 
 }
 
