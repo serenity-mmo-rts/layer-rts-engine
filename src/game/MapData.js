@@ -16,6 +16,7 @@ if (node) {
         // not serialized:
         this.quadTree = null;
         this.gameData = gameData;
+        this.objectChangedCallback = null
 
         // init:
         if (MapData.arguments.length == 2) {
@@ -26,30 +27,25 @@ if (node) {
 
     MapData.prototype = {
 
-
-        setMapSize: function (width, height) {
-            this.quadTree = new window.QuadTree({x: -this.width / 2, y: -this.height / 2, width: this.width, height: this.height}, false);
-        },
-
         createTreeObject: function (mapObject) {
             var width;
             var height;
-            if (mapObject.hasOwnProperty('width')) {
+            if (mapObject.hasOwnProperty('width') && mapObject.width != null) {
                 width = mapObject.width;
             }
             else {
-                width = this.gameData.objectTypes[mapObject.objTypeId].width;
+                width = this.gameData.objectTypes.get(mapObject.objTypeId).initWidth;
             }
-            if (mapObject.hasOwnProperty('height')) {
-                width = mapObject.height;
+            if (mapObject.hasOwnProperty('height') && mapObject.height != null) {
+                height = mapObject.height;
             }
             else {
-                width = this.gameData.objectTypes[mapObject.objTypeId].height;
+                height = this.gameData.objectTypes.get(mapObject.objTypeId).initHeight;
             }
 
             var treeItem = {
-                x: mapObject.x - mapObject.width / 2,
-                y: mapObject.y - mapObject.height / 2,
+                x: mapObject.x - width / 2,
+                y: mapObject.y - height / 2,
                 width: width,
                 height: height,
                 obj: mapObject
@@ -57,35 +53,71 @@ if (node) {
             return treeItem;
         },
 
-        addObjectToTree: function (mapObject) {
-            var treeItem = createTreeObject(mapObject);
-            quadTree.insert(treeItem);
-        },
-
-        addObjectToMapData: function (mapObject) {
-            this.mapObjects.hashList[mapObject._id] = mapObject;
-        },
-
         addObject: function (mapObject) {
-            this.addObjectToTree(mapObject);
-            this.addObjectToMapData(mapObject);
+            //check if object is already in list:
+            if (this.mapObjects.hashList.hasOwnProperty(mapObject._id)) {
+                console.log("map object was already in list.")
+            }
+            else {
+                //addObjectToMapData:
+                this.mapObjects.hashList[mapObject._id] = mapObject;
+
+                //addObjectToTree:
+                var treeItem = this.createTreeObject(mapObject);
+                this.quadTree.insert(treeItem);
+            }
+
+            if (this.objectChangedCallback) {
+                this.objectChangedCallback(mapObject);
+            }
+        },
+
+        rebuildQuadTree: function() {
+            this.quadTree = new window.QuadTree({x: -this.width / 2, y: -this.height / 2, width: this.width, height: this.height}, false);
+
+            for (var id in this.mapObjects.hashList) {
+                var treeItem = this.createTreeObject(this.mapObjects.hashList[id]);
+                this.quadTree.insert(treeItem);
+            }
+
         },
 
         collisionDetection: function (mapObject) {
+
+            function boundsToRect(b) {
+                return {
+                    left:   b.x,
+                    top:    b.y,
+                    right:  b.x+b.width,
+                    bottom: b.y+b.height
+                };
+            }
+
+            function intersectBounds(r1, r2) {
+
+                return !(r2.left > r1.right ||
+                    r2.right < r1.left ||
+                    r2.top > r1.bottom ||
+                    r2.bottom < r1.top);
+            }
+
             var testItem = this.createTreeObject(mapObject);
-            var items = quadTree.retrieve(testItem);
+            var testItemRect=boundsToRect(testItem);
+
+            var items = this.quadTree.retrieve(testItem);
 
             var collidingItems = [];
 
             // detect collision:
 
             for (var i = 0, l = items.length; i < l; i++) {
-                var item = items[i].obj;
+                var item = items[i];
 
                 // TODO: collisionType = 0; // 0=NoCollision, 1=overlapping, 2=item in testItem, 3=testItem in item
 
-                if (item.x < testItem.x + testItem.width && item.x + item.width > testItem.x &&
-                    item.y < testItem.y + testItem.height && item.y + item.height > testItem.y) {
+                if (intersectBounds(testItemRect, boundsToRect(item))) {
+                //if (item.x < testItem.x + testItem.width && item.x + item.width > testItem.x &&
+                //    item.y < testItem.y + testItem.height && item.y + item.height > testItem.y) {
                     collidingItems.push(item.obj);
                 }
 
@@ -99,8 +131,7 @@ if (node) {
             var o = {_id: this._id,
                 a: [this.width,
                     this.height,
-                    this.mapTypeId,
-                    this.mapObjects.save()]};
+                    this.mapTypeId]};
             return o;
         },
 
@@ -111,7 +142,6 @@ if (node) {
                 this.width = o.a[0];
                 this.height = o.a[1];
                 this.mapTypeId = o.a[2];
-                this.mapObjects.load(o.a[3]);
             }
             else {
                 for (var key in o) {
@@ -120,6 +150,7 @@ if (node) {
                     }
                 }
             }
+            this.rebuildQuadTree();
         }
     }
 
