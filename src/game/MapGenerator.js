@@ -31,7 +31,8 @@ MapGenerator.prototype.genRes = function () {
         {id: 10, name: 'Lithium', minV: 0.2, maxV: 0.5, minR: 0.02, maxR: 0.1, num: 100},
         {id: 11, name: 'Feldspar', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.05, num: 300},
         {id: 12, name: 'Olivine', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.03, num: 20},
-        {id: 13, name: 'Pyroxene', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.01, num: 50}
+        {id: 13, name: 'Pyroxene', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.01, num: 50},
+        {id: 14, name: 'Height', minV: 0.2, maxV: 0.7, minR: 0.02, maxR: 0.15, num: 600}
     ];
 
     for(var typeId in this.resTypes) {
