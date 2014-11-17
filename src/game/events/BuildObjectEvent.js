@@ -49,7 +49,7 @@ if (node) {
                 }
             }
 
-            this._mapObj.state = mapObjectStates.FINISHED;
+            this._mapObj.state = mapObjectStates.WORKING;
             if (node) {
                 this._mapObj._id = new mongodb.ObjectID();
                 dbConn.get('mapObjects', function (err, collMapObjects) {

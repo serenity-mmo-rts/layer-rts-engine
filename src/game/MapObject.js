@@ -18,6 +18,17 @@
         this.userId = 0; // optional
         this.state = mapObjectStates.FINISHED;
 
+        // new member variables
+        this.level= 0;
+        this.healthPoints = 0;
+        this.units = [];
+        this.items = [];
+        this.features = [];
+        this.resources = [];
+        this.owners = [];
+        this.name = null;
+        //
+
         // not serialized:
         this.gameData = gameData;
 
