@@ -72,6 +72,18 @@ if (node) {
             }
         },
 
+        removeObject: function (mapObject) {
+            //check if object is already in list:
+            if (this.mapObjects.hashList.hasOwnProperty(mapObject._id)) {
+                delete this.mapObjects.hashList[mapObject._id];
+                //var treeItem = this.createTreeObject(mapObject);
+                //this.quadTree.remove(treeItem);
+            }
+            if (this.objectChangedCallback) {
+                this.objectChangedCallback(mapObject);
+            }
+        },
+
         rebuildQuadTree: function() {
             this.quadTree = new window.QuadTree({x: -this.width / 2, y: -this.height / 2, width: this.width, height: this.height}, false);
 

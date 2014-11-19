@@ -86,6 +86,10 @@ if (node) {
 
         applyToGame: function() {
             //overwrite
+        },
+
+        revert: function() {
+            //overwrite
         }
 
     });
