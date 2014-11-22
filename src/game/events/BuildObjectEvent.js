@@ -102,6 +102,11 @@ if (node) {
         applyToGame: function() {
             // make sure that the object is in gameData:
             this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+        },
+
+        revert: function() {
+            this._gameData.maps.get(this._mapId).removeObject(this._mapObj);
+            return true;
         }
     });
 
