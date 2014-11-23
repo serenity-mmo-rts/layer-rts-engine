@@ -32,7 +32,7 @@ MapGenerator.prototype.genRes = function () {
         {id: 11, name: 'Feldspar', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.05, num: 300},
         {id: 12, name: 'Olivine', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.03, num: 20},
         {id: 13, name: 'Pyroxene', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.01, num: 50},
-        {id: 14, name: 'Height', minV: 0.2, maxV: 0.7, minR: 0.02, maxR: 0.15, num: 600}
+        {id: 14, name: 'Height', minV: 0.1, maxV: 0.3, minR: 0.02, maxR: 0.15, num: 300}
     ];
 
     for(var typeId in this.resTypes) {
@@ -45,10 +45,12 @@ MapGenerator.prototype.genRes = function () {
 
         for (var i = 0; i < num; i++) {
             var r = minR + (maxR - minR) * Math.random();
+            var r1 = r * (Math.random()/2); // r1 is the radius of the inner plateau and must be smaller than the outer radius r
+            var s = 0.5+Math.random()/2; // s defines the smoothness and should be between 0 and 1
             var x = (this.mapWidth-r) * (Math.random() - 0.5);
             var y = (this.mapHeight-r) * (Math.random() - 0.5);
             var v = minV + (maxV - minV) * Math.random();
-            this.sources.push({x:x, y:y, r:r, v:v, type:type})
+            this.sources.push({x:x, y:y, r:r, r1:r1, s:s, v:v, type:type})
         }
 
     }
