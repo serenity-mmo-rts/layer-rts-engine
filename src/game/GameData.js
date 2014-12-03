@@ -4,6 +4,7 @@ if (node) {
     var GameList = require('./GameList').GameList;
     var MapType = require('./MapType').MapType;
     var ObjectType = require('./objectType').ObjectType;
+    var RessourceType = require('./RessourceType').RessourceType;
     var Spritesheet = require('./Spritesheet').Spritesheet;
     var MapData = require('./MapData').MapData;
     var User = require('./User').User;
@@ -13,6 +14,7 @@ if (node) {
     function GameData(initObj) {
         this.mapTypes = new GameList(this,MapType);
         this.objectTypes = new GameList(this,ObjectType);
+        this.RessourceTypes = new GameList(this,RessourceType);
         this.spritesheets = new GameList(this,Spritesheet);
         this.maps = new GameList(this,MapData);
         this.users = new GameList(this,User);
@@ -26,6 +28,7 @@ if (node) {
             var a = [
                 this.mapTypes.save(),
                 this.objectTypes.save(),
+                this.RessourceTypes.save(),
                 this.spritesheets.save(),
                 this.maps.save(),
                 this.users.save()
@@ -36,6 +39,7 @@ if (node) {
         load: function (a) {
             this.mapTypes.load(a[0]);
             this.objectTypes.load(a[1]);
+            this.RessourceTypes.load(a[1]);
             this.spritesheets.load(a[2]);
             this.maps.load(a[3]);
             this.users.load(a[4]);

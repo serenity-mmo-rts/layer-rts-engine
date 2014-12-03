@@ -19,14 +19,16 @@
         this.state = mapObjectStates.FINISHED;
 
         // new member variables
+        this.name = null;
         this.level= 0;
         this.healthPoints = 0;
-        this.units = [];
-        this.items = [];
-        this.features = [];
-        this.resources = [];
-        this.owners = [];
-        this.name = null;
+        this.units = {};
+        this.items = {};
+        this.features = {};
+        this.resourcesAmounts = {};
+        this.ressourceFactors = {};
+        this.owners = {};
+
         //
 
         // not serialized:
