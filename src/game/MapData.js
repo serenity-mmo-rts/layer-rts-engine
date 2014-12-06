@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapObject = require('./MapObject').MapObject;
+    var MapObject = require('./mapObjects/MapObject').MapObject;
 }
 
 (function (exports) {
@@ -52,6 +52,9 @@ if (node) {
             }
             return treeItem;
         },
+
+
+
 
         addObject: function (mapObject) {
             //check if object is already in list:
