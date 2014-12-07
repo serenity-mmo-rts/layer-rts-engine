@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var AbstractType= require('./AbstractType').AbstractType;
+    var AbstractType = require('./AbstractType').AbstractType;
 }
 
 
@@ -16,16 +16,17 @@ if (node) {
         _requiredTechnologies: null,
         _requiredRessources: null,
 
-         // Object specific
+        // Object specific
         _initWidth: null,
         _initHeight: null,
+        _spritesheetId: null,
         _spriteFrame: null,
         _hasChildMapTypeId: null,
 
 
-        init: function(gameData, initObj){
+        init: function (gameData, initObj) {
 
-            this._super( gameData, initObj );
+            this._super(gameData, initObj);
 
         },
 
@@ -36,12 +37,13 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this._allowOnMapTypeId,
-                    this._requiredTechnologies,
-                    this._requiredRessources,
-                    this._initWidth,
-                    this._initHeight,
-                    this._spriteFrame,
-                    this._hasChildMapTypeId];
+                this._requiredTechnologies,
+                this._requiredRessources,
+                this._initWidth,
+                this._initHeight,
+                this._spritesheetId,
+                this._spriteFrame,
+                this._hasChildMapTypeId];
             return o;
 
         },
@@ -54,8 +56,9 @@ if (node) {
                 this._requiredRessources = o.a2[2];
                 this._initWidth = o.a2[3];
                 this._initHeight = o.a2[4];
-                this._spriteFrame = o.a2[5];
-                this._hasChildMapTypeId = o.a2[6];
+                this._spritesheetId = o.a2[5];
+                this._spriteFrame = o.a2[6];
+                this._hasChildMapTypeId = o.a2[7];
             }
             else {
                 for (var key in o) {
@@ -65,7 +68,7 @@ if (node) {
                 }
             }
         }
-});
+    });
 
     exports.ObjectType = ObjectType;
 

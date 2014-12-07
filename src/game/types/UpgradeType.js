@@ -7,7 +7,7 @@ if (node) {
 
 (function (exports) {
 
-    var UpgradeType = AbstractType.extends({
+    var UpgradeType = AbstractType.extend({
         // serialized:
        _type: "UpgradeType",
         // requirements

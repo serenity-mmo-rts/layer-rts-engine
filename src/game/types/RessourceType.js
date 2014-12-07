@@ -1,7 +1,8 @@
+
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var AbstractType= require('./AbstractType').AbstractType;
+    var AbstractType = require('./AbstractType').AbstractType;
 }
 
 (function (exports) {
@@ -26,7 +27,7 @@ if (node) {
         }
 
 
-});
+    });
 
     exports.RessourceType = RessourceType;
 
