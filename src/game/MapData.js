@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapObject = require('./MapObject').MapObject;
+    var MapObject = require('./mapObjects/MapObject').MapObject;
 }
 
 (function (exports) {
@@ -34,13 +34,13 @@ if (node) {
                 width = mapObject.width;
             }
             else {
-                width = this.gameData.objectTypes.get(mapObject.objTypeId).initWidth;
+                width = this.gameData.objectTypes.get(mapObject.objTypeId)._initWidth;
             }
             if (mapObject.hasOwnProperty('height') && mapObject.height != null) {
                 height = mapObject.height;
             }
             else {
-                height = this.gameData.objectTypes.get(mapObject.objTypeId).initHeight;
+                height = this.gameData.objectTypes.get(mapObject.objTypeId)._initHeight;
             }
 
             var treeItem = {
@@ -52,6 +52,9 @@ if (node) {
             }
             return treeItem;
         },
+
+
+
 
         addObject: function (mapObject) {
             //check if object is already in list:
