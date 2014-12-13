@@ -32,7 +32,7 @@ MapGenerator.prototype.genRes = function () {
         {id: 11, name: 'Feldspar', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.05, num: 300},
         {id: 12, name: 'Olivine', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.03, num: 20},
         {id: 13, name: 'Pyroxene', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.01, num: 50},
-        {id: 14, name: 'Height', minV: 0.1, maxV: 0.3, minR: 0.02, maxR: 0.15, num: 300}
+        {id: 14, name: 'Height', minV: 0.03, maxV: 0.3, minR: 0.01, maxR: 0.06, num: 900}
     ];
 
     for(var typeId in this.resTypes) {
