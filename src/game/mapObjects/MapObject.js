@@ -5,6 +5,7 @@ if (node) {
 }
 
 
+
 (function (exports) {
 
     var mapObjectStates = {};
@@ -14,7 +15,16 @@ if (node) {
 
 
     var MapObject = Class.extend({
-
+    /**
+     * Creates an instance of a MapObject.
+     *
+     * @constructor (init)
+     * @this {MapObject}
+     * @param
+     * gameData includes the whole data of the game
+     * initObj object includes the properties for a new map Object
+     * @return {none}
+     */
     init: function MapObject(gameData,initObj) {
         // serialized:
         this._id = 0;
@@ -51,6 +61,14 @@ if (node) {
         }
     },
 
+    /**
+     * Saves a MapObject.
+     *
+     * @constructor (init)
+     * @this {MapObject}
+     * @param (none)
+     * @return {MapObject}
+     */
     save: function () {
         var o = {_id: this._id,
             mapId: this.mapId,
@@ -63,8 +81,15 @@ if (node) {
                 this.state]};
         return o;
     },
-
-    load: function (o) {
+        /**
+         * Saves a MapObject.
+         *
+         * @constructor (init)
+         * @this {MapObject}
+         * @param (MapObejct)
+         * @return {one}
+         */
+        load: function (o) {
         if (o.hasOwnProperty("a")) {
             this._id = o._id;
             this.mapId = o.mapId;

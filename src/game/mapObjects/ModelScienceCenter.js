@@ -1,15 +1,15 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
+
+    var UserObject = require('./UserObject').UserObject;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../MapObject').MapObject;
-    var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection');
+
+
 }
 
 (function (exports) {
 
-    var ModelScienceCenter = MapObject.extend({
+    var ModelScienceCenter = UserObject.extend({
 
         _type: "ModelScienceCenter",
         _mapObj : null

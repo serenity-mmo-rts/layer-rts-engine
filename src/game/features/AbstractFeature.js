@@ -2,8 +2,8 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var DefenseEnhancer = require('./AdditiveFeature');
-    var ProductivityEnhancer = require('./MultiplierFeature');
+    var DefenseEnhancer = require('./AdditiveFeature').AdditiveFeature;
+    var ProductivityEnhancer = require('./MultiplierFeature').MultiplierFeature;
 }
 
 

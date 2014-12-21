@@ -1,15 +1,16 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
+
+    var UserObject = require('./UserObject').UserObject;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../MapObject').MapObject;
-    var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection');
+
+
+
 }
 
 (function (exports) {
 
-    var ModelUnitFactory = MapObject.extend({
+    var ModelUnitFactory = UserObject.extend({
 
         _type: "ModelUnitFactory",
         _mapObj : null

@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../MapObject').MapObject;
+    var MapObject = require('./MapObject').MapObject;
 }
 
 
