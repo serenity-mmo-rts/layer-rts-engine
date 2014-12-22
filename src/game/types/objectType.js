@@ -11,6 +11,7 @@ if (node) {
 
         // serialized:
         _type: "ObjectType",
+        _className: null,
         // requirements
         _allowOnMapTypeId: null,
         _requiredTechnologies: null,
@@ -36,7 +37,8 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._allowOnMapTypeId,
+            o.a2 = [this._className,
+                this._allowOnMapTypeId,
                 this._requiredTechnologies,
                 this._requiredRessources,
                 this._initWidth,
@@ -51,14 +53,15 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._allowOnMapTypeId = o.a2[0];
-                this._requiredTechnologies = o.a2[1];
-                this._requiredRessources = o.a2[2];
-                this._initWidth = o.a2[3];
-                this._initHeight = o.a2[4];
-                this._spritesheetId = o.a2[5];
-                this._spriteFrame = o.a2[6];
-                this._hasChildMapTypeId = o.a2[7];
+                this._className = o.a2[0];
+                this._allowOnMapTypeId = o.a2[1];
+                this._requiredTechnologies = o.a2[2];
+                this._requiredRessources = o.a2[3];
+                this._initWidth = o.a2[4];
+                this._initHeight = o.a2[5];
+                this._spritesheetId = o.a2[6];
+                this._spriteFrame = o.a2[7];
+                this._hasChildMapTypeId = o.a2[8];
             }
             else {
                 for (var key in o) {

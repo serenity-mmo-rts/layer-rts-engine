@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-
+    var Class = require('../Class').Class;
     var UserObject = require('./UserObject').UserObject;
     var GameData = require('../GameData').GameData;
 
@@ -9,13 +9,13 @@ if (node) {
 
 (function (exports) {
 
-    var ModelScienceCenter = UserObject.extend({
+    var ModelSublayer = UserObject.extend({
 
-        _type: "ModelScienceCenter",
+        _type: "ModelSublayer",
         _mapObj : null
     });
 
-    exports.ModelFactory= ModelScienceCenter ;
+    exports.ModelSublayer= ModelSublayer;
 
 })(node ? exports : window);
 

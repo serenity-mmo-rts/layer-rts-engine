@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-
+    var Class = require('../Class').Class;
     var UserObject = require('./UserObject').UserObject;
     var GameData = require('../GameData').GameData;
 
@@ -15,6 +15,6 @@ if (node) {
         _mapObj : null
     });
 
-    exports.ModelFactory= ModelScienceCenter ;
+    exports.ModelScienceCenter= ModelScienceCenter ;
 
 })(node ? exports : window);
