@@ -12,8 +12,41 @@ if (node) {
 
     var ModelUnitFactory = UserObject.extend({
 
-        _type: "ModelUnitFactory",
-        _mapObj : null
+        init: function ModelUnitFactory(gameData,initObj) {
+            this.unitsInProduction = [];
+            // not serialized:
+            this.gameData = gameData;
+
+            // init:
+            if (ModelUnitFactory.arguments.length == 2) {
+                this.load(initObj);
+            }
+        },
+
+        save: function () {
+            var o = this._super();
+            o.a3 = [this._type];
+            return o;
+        },
+
+        load: function (o) {
+            if (o.hasOwnProperty("a2"))
+            {
+                this._super(o);
+                if (o.hasOwnProperty("a3"))
+                {
+                    this.unitsInProduction = o.a3[0];
+                }
+            }
+            else {
+                for (var key in o) {
+                    if (o.hasOwnProperty(key)) {
+                        this[key] = o[key];
+                    }
+                }
+            }
+        }
+
     });
 
     exports.ModelUnitFactory = ModelUnitFactory;

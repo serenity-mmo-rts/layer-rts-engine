@@ -60,9 +60,7 @@ if (node) {
                 this.x,
                 this.y,
                 this.width,
-                this.height,
-                this.userId,
-                this.state]};
+                this.height]};
         return o;
     },
         /**
@@ -82,8 +80,6 @@ if (node) {
                 this.y = o.a[2];
                 this.width = o.a[3];
                 this.height = o.a[4];
-                this.userId = o.a[5];
-                this.state = o.a[6];
             }
             else {
                 for (var key in o) {

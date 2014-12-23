@@ -4,17 +4,51 @@ if (node) {
     var UserObject = require('./UserObject').UserObject;
     var GameData = require('../GameData').GameData;
 
+
+
 }
 
 (function (exports) {
 
-    var ModelHub= UserObject.extend({
+    var ModelHub = UserObject.extend({
 
-        _type: "ModelHub",
-        _mapObj : null
+        init: function ModelHub(gameData,initObj) {
+            this.objectsConnected = 5;
+            // not serialized:
+            this.gameData = gameData;
+
+            // init:
+            if (ModelHub.arguments.length == 2) {
+                this.load(initObj);
+            }
+        },
+
+        save: function () {
+            var o = this._super();
+            o.a3 = [this._type];
+            return o;
+        },
+
+        load: function (o) {
+            if (o.hasOwnProperty("a2"))
+            {
+                this._super(o);
+                if (o.hasOwnProperty("a3"))
+                {
+                    this.objectsConnected = o.a3[0];
+                }
+            }
+            else {
+                for (var key in o) {
+                    if (o.hasOwnProperty(key)) {
+                        this[key] = o[key];
+                    }
+                }
+            }
+        }
+
     });
 
-    exports.ModelHub= ModelHub;
+    exports.ModelHub = ModelHub;
 
 })(node ? exports : window);
-

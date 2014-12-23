@@ -84,16 +84,14 @@ if (node) {
         },
 
         load: function (o) {
-            if (o.hasOwnProperty("a")) {
-                this._id = o._id;
-                this.mapId = o.mapId;
-                this.objTypeId = o.a[0];
-                this.x = o.a[1];
-                this.y = o.a[2];
-                this.width = o.a[3];
-                this.height = o.a[4];
-                this.userId = o.a[5];
-                this.state = o.a[6];
+            if (o.hasOwnProperty("a"))
+            {
+                this._super(o);
+                if (o.hasOwnProperty("a2"))
+                {
+                    this.userId = o.a2[0];
+                    this.state = o.a2[1];
+                }
             }
             else {
                 for (var key in o) {
