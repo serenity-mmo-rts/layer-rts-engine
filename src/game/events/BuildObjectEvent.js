@@ -38,36 +38,49 @@ if (node) {
             }
         },
 
-        execute: function (callback) {
-            var self = this;
-
-            function reallyExecute(err) {
-                self._gameData.maps.get(self._mapId).addObject(self._mapObj);
-                console.log("a user build a " + self._mapObj.objTypeId + " at coordinates ("+ self._mapObj.x+","+self._mapObj.y+")");
-                if (callback) {
-                    callback(err);
-                }
-            }
-
+        execute: function () {
             this._mapObj.state = mapObjectStates.WORKING;
+            this._mapObj._id = 'tmpId'+Math.random();
+            this.applyToGame();
+            console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
+        },
 
-            if (node) {
-                this._mapObj._id = new mongodb.ObjectID();
-                dbConn.get('mapObjects', function (err, collMapObjects) {
-                    if (err) throw err;
-                    collMapObjects.insert(self._mapObj.save(), function(err,docs) {
-                        reallyExecute(err);
-                    });
+        executeOnServer: function (callback) {
+            var self = this;
+            this._mapObj._id = new mongodb.ObjectID();
+            dbConn.get('mapObjects', function (err, collMapObjects) {
+                if (err) callback(err);
+                collMapObjects.insert(self._mapObj.save(), function(err,docs) {
+                    if (err) callback(err);
+                    self.applyToGame();
+                    console.log("a user build a " + self._mapObj.objTypeId + " at coordinates ("+ self._mapObj.x+","+self._mapObj.y+")");
+                    callback(null);
                 });
-            }
-            else {
-                this._mapObj._id = 'tmpId'+Math.random();
-                reallyExecute(null);
-            }
+            });
+        },
+
+        updateFromServer: function (event) {
+            // update ID:
+            console.log("replace tmp Object ID: "+this._mapObj._id+" by new id from server: "+event._mapObj._id);
+            this._gameData.maps.get(this._mapId).mapObjects.updateId(this._mapObj._id,event._mapObj._id);
+            this._mapObj.notifyChange();
+
+            // Update other properties:
+            this._id = event._id;
+            this._dueTime = event._dueTime;
+        },
+
+        applyToGame: function() {
+
+            var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+            this._dueTime = Date.now() + buildTime;
+
+            // make sure that the object is in gameData:
+            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
         },
 
         finish: function () {
-
+            this._mapObj.setState(mapObjectStates.FINISHED);
         },
 
         save: function () {
@@ -79,7 +92,14 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._mapObj = new MapObject(this._gameData,o.a2[0]);
+                var mapObjId = o.a2[0]._id;
+                if(this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId)) {
+                    this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId).load(o.a2[0]);
+                    this._mapObj = this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId);
+                }
+                else {
+                    this._mapObj = new MapObject(this._gameData,o.a2[0]);
+                }
             }
             else {
                 for (var key in o) {
@@ -88,21 +108,6 @@ if (node) {
                     }
                 }
             }
-        },
-
-        updateFromServer: function (event) {
-
-            var tmpMapObj = this._mapObj;
-            tmpMapObj.load(event._mapObj);
-            this.load(event);
-            this._mapObj = tmpMapObj;
-
-            this.applyToGame();
-        },
-
-        applyToGame: function() {
-            // make sure that the object is in gameData:
-            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
         },
 
         revert: function() {

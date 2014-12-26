@@ -2,7 +2,6 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var BuildObjectEvent = require('./BuildObjectEvent');
 }
 
 (function (exports) {
@@ -18,8 +17,10 @@ if (node) {
 
         _gameData: null,
         _id: null,
+        _type: "AbstractEvent",
         _mapId: null,
         _nextEvent: null,
+        _startedTime: null,
         _dueTime: null,
         _state: null,
         _userId: null,
@@ -46,7 +47,11 @@ if (node) {
             //overwrite
         },
 
-        execute: function (callback) {
+        execute: function () {
+            //overwrite
+        },
+
+        executeOnServer: function(callback) {
             //overwrite
         },
 
@@ -57,9 +62,12 @@ if (node) {
         save: function () {
             var o = {_id: this._id,
                 _type: this._type,
-                a: [this._mapId,
-                    this._nextEvent,
-                    this._state]
+                _mapId: this._mapId,
+                a: [this._nextEvent,
+                    this._startedTime,
+                    this._dueTime,
+                    this._state,
+                    this._userId]
             };
             return o;
         },
@@ -67,9 +75,13 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                this._mapId = o.a[0];
-                this._nextEvent = o.a[1];
-                this._state = o.a[2];
+                this._type = o._type;
+                this._mapId = o._mapId;
+                this._nextEvent = o.a[0];
+                this._startedTime = o.a[1];
+                this._dueTime = o.a[2];
+                this._state = o.a[3];
+                this._userId = o.a[4];
             }
             else {
                 for (var key in o) {
@@ -93,19 +105,6 @@ if (node) {
         }
 
     });
-
-    exports.createGameEvent = function(gameData,initObj) {
-        var event = null;
-        if (initObj._type == "BuildObjectEvent") {
-            if (node) {
-                event = new BuildObjectEvent.BuildObjectEvent(gameData,initObj);
-            }
-            else {
-                event = new BuildObjectEvent(gameData,initObj);
-            }
-        }
-        return event;
-    };
 
     exports.eventStates = eventStates;
     exports.AbstractEvent = AbstractEvent;

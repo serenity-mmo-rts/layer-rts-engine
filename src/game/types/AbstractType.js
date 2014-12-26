@@ -15,6 +15,7 @@ if (node) {
         _iconSpritesheetId : null,
         _iconSpriteFrame : null,
         _buildMenuTooltip : null,
+        _buildTime : null,
 
 
         init: function(gameData, initObj) {
@@ -30,7 +31,8 @@ if (node) {
                 a: [this._name,
                     this._iconSpritesheetId,
                     this._iconSpriteFrame,
-                    this._buildMenuTooltip]
+                    this._buildMenuTooltip,
+                    this._buildTime]
 
             };
             return o;
@@ -43,6 +45,7 @@ if (node) {
                 this._iconSpritesheetId = o.a[1];
                 this._iconSpriteFrame = o.a[2];
                 this._buildMenuTooltip  = o.a[3];
+                this._buildTime = o.a[4];
 
             }
             else {

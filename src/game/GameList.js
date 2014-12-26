@@ -1,37 +1,60 @@
+var node = !(typeof exports === 'undefined');
+if (node) {
+    var Class = require('./Class').Class;
+}
+
+
 // ClassType should be a class with field _id which is used as key in the list
 
 (function (exports) {
 
-    var GameList = function (gameData,ClassType,initObj) {
+    var GameList = function (gameData,ClassType,initObj,factoryMethod) {
+
+
         // serialized:
         this.hashList = {};
 
         // not serialized:
+        this.factoryMethod = factoryMethod || false;
         this.ClassType = ClassType;
         this.gameData = gameData;
 
         // init:
-        if (GameList.arguments.length == 3) {
+        if (initObj) {
             this.load(initObj);
         }
     }
 
     GameList.prototype = {
         add: function(o) {
-            if (o instanceof this.ClassType) {
+            if (o instanceof Class || o instanceof this.ClassType) {
                 //console.log("adding to GameList by appending object")
                 this.hashList[o._id] = o;
                 return this.hashList[o._id];
-                return o;
             }
             else {
                 //console.log("adding to GameList with copying")
-                var objInstance = new this.ClassType(this.gameData,o);
+                if (this.factoryMethod) {
+                    var objInstance = this.factoryMethod(this.gameData,o);
+                }
+                else {
+                    var objInstance = new this.ClassType(this.gameData,o);
+                }
                 this.hashList[objInstance._id] = objInstance;
                 return this.hashList[objInstance._id];
-                return objInstance;
             }
 
+        },
+
+        updateId: function(oldId, newId) {
+            var tmpObj = this.hashList[oldId];
+            this.deleteById(oldId)
+            tmpObj._id = newId;
+            return this.add(tmpObj);
+        },
+
+        deleteById: function(id) {
+            delete this.hashList[id];
         },
 
         delete: function(o) {
@@ -75,19 +98,34 @@
         load: function (o) {
             if (o instanceof Array) { // o is an Array of <ClassType> or an Array of JsonFormated <ClassType>
                 for (var i = 0, length = o.length; i < length; i++) {
-                    var objInstance = new this.ClassType(this.gameData,o[i]);
+                    if(this.factoryMethod) {
+                        var objInstance = this.factoryMethod(this.gameData,o[i]);
+                    }
+                    else {
+                        var objInstance = new this.ClassType(this.gameData,o[i]);
+                    }
                     this.hashList[objInstance._id] = objInstance;
                 }
             }
             else { // o is a GameList but in jsonFormat
                 if (o.hasOwnProperty('hashList')) {
                     for (var propt in o.hashList) {
-                        this.hashList[propt] = new this.ClassType(this.gameData,o.hashList[propt]);
+                        if(this.factoryMethod) {
+                            this.hashList[propt] = this.factoryMethod(this.gameData,o.hashList[propt]);
+                        }
+                        else {
+                            this.hashList[propt] = new this.ClassType(this.gameData,o.hashList[propt]);
+                        }
                     }
                 }
                 else {
                     for (var propt in o) {
-                        this.hashList[propt] = new this.ClassType(this.gameData,o[propt]);
+                        if(this.factoryMethod) {
+                            this.hashList[propt] = this.factoryMethod(this.gameData,o[propt]);
+                        }
+                        else {
+                            this.hashList[propt] = new this.ClassType(this.gameData,o[propt]);
+                        }
                     }
                 }
             }

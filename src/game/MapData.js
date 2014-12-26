@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
     var MapObject = require('./mapObjects/MapObject').MapObject;
+    var EventScheduler = require('./events/EventScheduler').EventScheduler;
 }
 
 (function (exports) {
@@ -11,12 +12,14 @@ if (node) {
         this.width = 0;
         this.height = 0;
         this.mapTypeId = null;
-        this.mapObjects = new GameList(gameData,MapObject);
 
         // not serialized:
+        this.mapObjects = new GameList(gameData,MapObject);
+        this.eventScheduler = new EventScheduler(gameData);
         this.quadTree = null;
         this.gameData = gameData;
         this.objectChangedCallback = null
+
 
         // init:
         if (MapData.arguments.length == 2) {
@@ -153,7 +156,6 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                var a = o.a;
                 this.width = o.a[0];
                 this.height = o.a[1];
                 this.mapTypeId = o.a[2];

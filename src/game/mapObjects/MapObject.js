@@ -38,12 +38,22 @@ if (node) {
 
         // not serialized:
         this.gameData = gameData;
+        this.onChangeCallback;
 
         // init:
         if (MapObject.arguments.length == 2) {
             this.load(initObj);
         }
     },
+
+        setState: function(state) {
+            this.state = state;
+            this.notifyChange();
+        },
+
+        notifyChange: function() {
+            if (this.onChangeCallback) this.onChangeCallback();
+        },
 
     /**
      * Saves a MapObject.
