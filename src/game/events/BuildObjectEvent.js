@@ -8,6 +8,7 @@ if (node) {
     var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
+    var createMapObject = require('../mapObjects/createMapObject').createMapObject;
 }
 
 (function (exports) {
@@ -98,7 +99,7 @@ if (node) {
                     this._mapObj = this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId);
                 }
                 else {
-                    this._mapObj = new MapObject(this._gameData,o.a2[0]);
+                    this._mapObj = createMapObject(this._gameData,o.a2[0]);
                 }
             }
             else {

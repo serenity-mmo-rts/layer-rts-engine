@@ -66,8 +66,8 @@ if (node) {
     save: function () {
         var o = {_id: this._id,
             mapId: this.mapId,
-            a: [this.objTypeId,
-                this.x,
+            objTypeId: this.objTypeId,
+            a: [this.x,
                 this.y,
                 this.width,
                 this.height]};
@@ -85,11 +85,11 @@ if (node) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
                 this.mapId = o.mapId;
-                this.objTypeId = o.a[0];
-                this.x = o.a[1];
-                this.y = o.a[2];
-                this.width = o.a[3];
-                this.height = o.a[4];
+                this.objTypeId = o.objTypeId;
+                this.x = o.a[0];
+                this.y = o.a[1];
+                this.width = o.a[2];
+                this.height = o.a[3];
             }
             else {
                 for (var key in o) {
