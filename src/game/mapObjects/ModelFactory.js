@@ -25,7 +25,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a3 = [this._type];
+            o.a3 = [this.productionSpeed];
             return o;
         },
 

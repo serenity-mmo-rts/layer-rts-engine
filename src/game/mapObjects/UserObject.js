@@ -20,24 +20,65 @@ if (node) {
         init: function UserObject(gameData,initObj) {
             // serialized:
             this.userId = 0; // optional
-            this.state = userObjectStates.FINISHED;
+            this.state = userObjectStates.TEMP;
 
-            // new member variables
-            this.level= 0;
-            this.range = 0;
+            // member functions
+            this.getLevel = function(){
+                //do X
+                var level = 1;
+                return level;
+            };
 
-            this.freeItemSlots = 0;
-            this.freeUnitSlots = 0;
-            this.freeUpgradeSlots = 0;
+            this.getMaxHealthPoints = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
 
-            this.totalHealthPoints = 0;
-            this.totalDefensePoints = 0;
-            this.totalOffensePoints = 0;
+            this.getDefensePoints = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
 
+            this.getOffensePoints = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getFreeItemSlots = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getFreeUpgradeSlots = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getFreeUnitSlots = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getRange = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.healthPoints = 0;
             this.ownerIds = []; // String List of owner Ids
+            this.units = []; // get example: carbonAmount = this.units['user5467']['supertank'];
+            this.items = [];
+            this.upgrades = [];
 
-            this.ressources = {}
-
+            this.upgrade = [];
+            this.ressources = {};
             // this.ressources['user5467']['carbon'] =  {
             //    stored: 0,
             //    inOutPerSecEff : 0,
@@ -45,17 +86,7 @@ if (node) {
             //    capacity :0
             // }
 
-
-            this.units = []; // get example: carbonAmount = this.units['user5467']['supertank'];
-            this.items = [];
-            this.upgrade = [];
-
-            this.playerMoneyInOutPerSec = 0;
-            this.populationLoan =0;
-            this.populationPayments = 0;
-
             this.activities = [];
-
             // this.activities[activityID]=  {
             //    attractivity : 0,
             //    currentPopulation : 0,
@@ -64,6 +95,26 @@ if (node) {
             //    occupationRate : 0
             //    }
 
+
+
+
+            this.getPlayerMoneyInOutPerSec = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getPopulationLoan = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
+
+            this.getPopulationPayments = function(){
+                //do X
+                var MaxHealthPoints = 1;
+                return MaxHealthPoints;
+            };
 
 
 
