@@ -46,22 +46,23 @@ if (node) {
             //overwrite
         },
 
-        applyToObject: function(){
+        applyToObject: function(targetKey,formerValue){
              var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures;
-
-
+             var newValue = formerValue;
              for (var i = 0;i<features[this.level].length;i++){
                  var key = features[[this.level][i]].key;
-                 var operation = features[[this.level][i]].operation;
-                 var value = features[[this.level][i]].value;
+                    if (key == targetKey){
+                         var operation = features[[this.level][i]].operator;
+                         var value = features[[this.level][i]].value;
 
-                 if (operation ==1) { // +
-                     this.gameData.mapObjects.get(this._objectId)[key] += value;
-                 }
+                         if (operation ==1) { // +
+                             newValue += value;
+                         }
 
-                 else if(operation==2){ // *
-                     this.gameData.mapObjects.get(this._objectId)[key] *= value;
-                 }
+                         else if(operation==2){ // *
+                             newValue *= value;
+                         }
+                    }
 
              }
 

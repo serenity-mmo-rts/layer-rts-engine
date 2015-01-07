@@ -18,21 +18,75 @@ if (node) {
     var UserObject = MapObject.extend({
 
         init: function UserObject(gameData,initObj) {
+
             // serialized:
             this.userId = 0; // optional
             this.state = userObjectStates.TEMP;
+            this.healthPoints = 0;
+            this.ownerIds = []; // String List of owner Ids
+            this.items = [];// get example: LaserTrooper = this.items['userId']['Index'];
+
+            this.ressources = {};
+            // this.ressources['user5467']['carbon'] =  {
+            //    stored: 0,
+            //    inOutPerSecEff : 0,
+            //    inOutPerSecREq :0,
+            //    capacity :0
+            // }
+
+            this.activities = [];
+            // this.activities[activityID]=  {
+            //    attractivity : 0,
+            //    currentPopulation : 0,
+            //    peopleInOutPerSec : 0,
+            //    capacity : 0,
+            //    occupationRate : 0
+            //
+
+            this.getPoints = function(){
+                var totalPoints = this.gameData.objectTypes.get(this.objTypeId)._points;
+                for (var i =0;i<this.items.length;i++){
+                    var item = this.items['userId'][i];
+                    var points = this.gameData.itemTypes.get(item._itemTypeId)._points[item._level];
+                    totalPoints+=points;
+                }
+                return totalPoints;
+            };
 
             // member functions
-            this.getLevel = function(){
-                //do X
-                var level = 1;
-                return level;
+            this.getLevel = function(points){
+                var level =0;
+                switch(points){
+                    case points > 0 && points <100:
+                        level= 1;
+                    break;
+                    case points >= 100 && points <300:
+                        level= 2;
+                    break;
+                    case points >= 300 && points <500:
+                        level= 3;
+                    break;
+                    case points >= 500 && points <1000:
+                        level= 4;
+                    break;
+                    case points >= 1000 && points <2000:
+                        level= 5;
+                    break;
+                }
+                return level
             };
 
             this.getMaxHealthPoints = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
+                var startHP = this.gameData.objectTypes.get(this.objTypeId)._maxHealthPoints;
+                var itemHP=startHP;
+                var newHP = 0;
+                for (var i =0;i<this.items.length;i++){
+                    var item = this.items['userId'][i];
+                    newHP =item.applyToObject("_maxHealthPoints",itemHP);
+                    itemHP += newHP;
+                }
+                var totalHP = itemHP;
+                return totalHP;
             };
 
             this.getDefensePoints = function(){
@@ -70,33 +124,6 @@ if (node) {
                 var MaxHealthPoints = 1;
                 return MaxHealthPoints;
             };
-
-            this.healthPoints = 0;
-            this.ownerIds = []; // String List of owner Ids
-            this.units = []; // get example: carbonAmount = this.units['user5467']['supertank'];
-            this.items = [];
-            this.upgrades = [];
-
-            this.upgrade = [];
-            this.ressources = {};
-            // this.ressources['user5467']['carbon'] =  {
-            //    stored: 0,
-            //    inOutPerSecEff : 0,
-            //    inOutPerSecREq :0,
-            //    capacity :0
-            // }
-
-            this.activities = [];
-            // this.activities[activityID]=  {
-            //    attractivity : 0,
-            //    currentPopulation : 0,
-            //    peopleInOutPerSec : 0,
-            //    capacity : 0,
-            //    occupationRate : 0
-            //    }
-
-
-
 
             this.getPlayerMoneyInOutPerSec = function(){
                 //do X

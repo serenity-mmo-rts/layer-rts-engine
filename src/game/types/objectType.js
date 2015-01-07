@@ -23,7 +23,8 @@ if (node) {
         _spritesheetId: null,
         _spriteFrame: null,
         _hasChildMapTypeId: null,
-
+        _points: null,
+        _maxHealthPoints:null,
 
         init: function (gameData, initObj) {
 
@@ -38,14 +39,17 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this._className,
-                this._allowOnMapTypeId,
-                this._requiredTechnologies,
-                this._requiredRessources,
-                this._initWidth,
-                this._initHeight,
-                this._spritesheetId,
-                this._spriteFrame,
-                this._hasChildMapTypeId];
+                    this._allowOnMapTypeId,
+                    this._requiredTechnologies,
+                    this._requiredRessources,
+                    this._initWidth,
+                    this._initHeight,
+                    this._spritesheetId,
+                    this._spriteFrame,
+                    this._hasChildMapTypeId,
+                    this._points,
+                    this._maxHealthPoints
+                    ];
             return o;
 
         },
@@ -62,6 +66,8 @@ if (node) {
                 this._spritesheetId = o.a2[6];
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
+                this._points = o.a2[9];
+                this._maxHealthPoints = o.a2[10];
             }
             else {
                 for (var key in o) {
