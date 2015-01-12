@@ -14,6 +14,8 @@ if (node) {
 
         init: function ModelSublayer(gameData,initObj) {
             this.publicArea = null;
+            this.sublayerMapId = null;
+
             // not serialized:
             this.gameData = gameData;
 
@@ -25,7 +27,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a3 = [this._type];
+            o.a3 = [this._type, this.sublayerMapId];
             return o;
         },
 
@@ -36,6 +38,7 @@ if (node) {
                 if (o.hasOwnProperty("a3"))
                 {
                     this.publicArea = o.a3[0];
+                    this.sublayerMapId = o.a3[1];
                 }
             }
             else {

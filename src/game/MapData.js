@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
     var MapObject = require('./mapObjects/MapObject').MapObject;
+    var createMapObject = require('./mapObjects/createMapObject');
     var EventScheduler = require('./events/EventScheduler').EventScheduler;
 }
 
@@ -14,7 +15,7 @@ if (node) {
         this.mapTypeId = null;
 
         // not serialized:
-        this.mapObjects = new GameList(gameData,MapObject);
+        this.mapObjects = new GameList(gameData,MapObject,false,createMapObject);
         this.eventScheduler = new EventScheduler(gameData);
         this.quadTree = null;
         this.gameData = gameData;

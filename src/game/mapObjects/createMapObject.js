@@ -2,6 +2,8 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
+    var MapObject = require('./MapObject').MapObject;
+    var UserObject = require('./UserObject').UserObject;
     var ModelFactory = require('./ModelFactory').ModelFactory;
     var ModelHub = require('./ModelHub').ModelHub ;
     var ModelScienceCenter = require('./ModelScienceCenter').ModelScienceCenter;
@@ -18,8 +20,14 @@ if (node) {
     exports.createMapObject= function(gameData,initObj) {
         var object = null;
         var className = gameData.objectTypes.get(initObj.objTypeId)._className;
-        if (className == "Factory") {
-                object = new ModelFactory(gameData,initObj);
+        if (className == "MapObject") {
+            object = new MapObject(gameData,initObj);
+        }
+        else if (className == "UserObject") {
+            object = new UserObject(gameData,initObj);
+        }
+        else if (className == "Factory") {
+            object = new ModelFactory(gameData,initObj);
         }
         else if (className ==  "Hub") {
                 object = new ModelHub(gameData,initObj);

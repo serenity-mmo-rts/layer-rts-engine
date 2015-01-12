@@ -21,7 +21,6 @@ if (node) {
      *
      * @constructor (init)
      * @this {MapObject}
-     * @param
      * gameData includes the whole data of the game
      * initObj object includes the properties for a new map Object
      * @return {none}
