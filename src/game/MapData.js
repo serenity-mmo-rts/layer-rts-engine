@@ -13,6 +13,7 @@ if (node) {
         this.width = 0;
         this.height = 0;
         this.mapTypeId = null;
+        this.parentMapId = null;
 
         // not serialized:
         this.mapObjects = new GameList(gameData,MapObject,false,createMapObject);
@@ -150,7 +151,8 @@ if (node) {
             var o = {_id: this._id,
                 a: [this.width,
                     this.height,
-                    this.mapTypeId]};
+                    this.mapTypeId,
+                    this.parentMapId]};
             return o;
         },
 
@@ -160,6 +162,7 @@ if (node) {
                 this.width = o.a[0];
                 this.height = o.a[1];
                 this.mapTypeId = o.a[2];
+                this.parentMapId = o.a[3];
             }
             else {
                 for (var key in o) {
