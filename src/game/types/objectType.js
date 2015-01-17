@@ -9,24 +9,29 @@ if (node) {
 
     var ObjectType = AbstractType.extend({
 
-        // serialized:
+        // basics:
         _type: "ObjectType",
         _className: null,
         // requirements
         _allowOnMapTypeId: null,
         _requiredTechnologies: null,
         _requiredRessources: null,
-
-        // Object specific
+        // graphics
         _initWidth: null,
         _initHeight: null,
         _spritesheetId: null,
         _spriteFrame: null,
+        // child
         _hasChildMapTypeId: null,
-        _points: null,
-        _maxHealthPoints:null,
 
-        init: function (gameData, initObj) {
+        // object Properties not serilized
+        _initProperties : {},
+
+
+
+
+
+    init: function (gameData, initObj) {
 
             this._super(gameData, initObj);
 
@@ -47,8 +52,7 @@ if (node) {
                     this._spritesheetId,
                     this._spriteFrame,
                     this._hasChildMapTypeId,
-                    this._points,
-                    this._maxHealthPoints
+                    this._initProperties
                     ];
             return o;
 
@@ -66,8 +70,7 @@ if (node) {
                 this._spritesheetId = o.a2[6];
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
-                this._points = o.a2[9];
-                this._maxHealthPoints = o.a2[10];
+                this._initProperties = o.a2[8];
             }
             else {
                 for (var key in o) {

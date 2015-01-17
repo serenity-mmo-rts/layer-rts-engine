@@ -2,59 +2,49 @@ var node = !(typeof exports === 'undefined');
 
 if (node) {
     var Class= require('./Class').Class;
-    var FeatureModel = FeatureModel('./FeatureModel').FeatureModel;
 }
 
 (function (exports) {
 
-    var itemStates = {};
-    itemStates.INITIALIZED = 0;
-    itemStates.INVALID = 1;
-    itemStates.VALID = 2;
-    itemStates.EXECUTING = 3;
-    itemStates.FINISHED = 4;
 
-    var ItemModel= Class.extend( {
+    var FeatureModel= Class.extend( {
 
 
         _gameData: null,
-        _id: null,
-        _objectId: null,
-        _itemTypeId: null,
-        _state:null,
-
-        _level:null,
-        _healthPoints: null,
-        _armor: null,
-
-        _initProperties: null,
-        _features: null,
+        _featureTypeId: null,
+        _properties: null,
+        _effects: null,
+        _currentTarget:null,
 
 
-        //_appliedFeatures: null,
-        //_targetCoordinates: null,
-        //_targetItemIds : null,
-        //_targetObjectIds : null,
+        init: function(gameData, typeId){
 
-        init: function(gameData, initObj){
+            this._featureTypeId = typeId;
+            this._properties = this.gameData.featureTypes.get(this._featureTypeId);
+            //this._properties._effects.apply(this);
 
-            var maxLevel= this.gameData.itemTypes.get(this._itemTypeId)._maxLevel;
-            var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
-
-            for(var key in initProp) {
-               this._initProperties[key] = initProp[key];
-            }
-
-            var featureTypeIds= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeIds[this._level];
-
-            for (var i = 0; i< featureTypeIds.length;i++){
-                this._features.push(new FeatureModel(gameData,featureTypeIds[i]));
-            }
 
 
             this._gameData = gameData;
             // deserialize event from json object
             this.load(initObj);
+        },
+
+
+        applyToItem: function (initProp,newProp) {
+
+
+            for (var i = 0;i<this._childFeatures.length;i++){
+                newProp = this._childFeatures[i].applyToObject(initProp,newProp)
+            }
+            return initProp
+
+        },
+
+
+        setItemTarget: function(itemId) {
+            this._targetItemId = itemId
+
         },
 
         canSelectObject: function(){ // apply to different map Object
@@ -144,26 +134,26 @@ if (node) {
 
         applyToObject: function(initProp,newProp){
 
-             var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
+            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
 
-             for (var i = 0;i<features.length;i++){
-                 newProp = features[i].applyToObject(initProp,newProp)
-             }
+            for (var i = 0;i<features.length;i++){
+                newProp = features[i].applyToObject(initProp,newProp)
+            }
             return initProp
 
         },
 
         save: function () {
 
-           var o = {_id: this._id,
-                      a:[this._objectId,
-                         this._ItemTypeId,
-                         this._level,
-                         this._healthPoints,
-                         this._armor
-                        ]
-                   };
-        return o;
+            var o = {_id: this._id,
+                a:[this._objectId,
+                    this._ItemTypeId,
+                    this._level,
+                    this._healthPoints,
+                    this._armor
+                ]
+            };
+            return o;
         },
 
         load: function (o) {
@@ -187,6 +177,6 @@ if (node) {
     });
 
 
-    exports.ItemModel = ItemModel;
+    exports.FeatureModel = FeatureModel;
 
 })(typeof exports === 'undefined' ? window : exports);

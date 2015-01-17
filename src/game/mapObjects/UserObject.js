@@ -24,8 +24,13 @@ if (node) {
             this.state = userObjectStates.TEMP;
             this.healthPoints = 0;
             this.ownerIds = []; // String List of owner Ids
+            this.objectProperties = {};
             this.items = [];// get example: LaserTrooper = this.items['userId']['Index'];
+            this.appliedFeatures = [];
+            this.playerMoneyInOutPerSec =0;
 
+            this.populationLoan = 0;
+            this.populationCosts = 0;
             this.ressources = {};
             // this.ressources['user5467']['carbon'] =  {
             //    stored: 0,
@@ -42,116 +47,42 @@ if (node) {
             //    capacity : 0,
             //    occupationRate : 0
             //
-
-            this.getPoints = function(){
-                var totalPoints = this.gameData.objectTypes.get(this.objTypeId)._points;
-                for (var i =0;i<this.items.length;i++){
-                    var item = this.items['userId'][i];
-                    var points = this.gameData.itemTypes.get(item._itemTypeId)._points[item._level];
-                    totalPoints+=points;
-                }
-                return totalPoints;
-            };
+            this._super( gameData, initObj );
+        },
 
             // member functions
-            this.getLevel = function(points){
+       getLevel: function (points){
                 var level =0;
                 switch(points){
                     case points > 0 && points <100:
                         level= 1;
-                    break;
+                        break;
                     case points >= 100 && points <300:
                         level= 2;
-                    break;
+                        break;
                     case points >= 300 && points <500:
                         level= 3;
-                    break;
+                        break;
                     case points >= 500 && points <1000:
                         level= 4;
-                    break;
+                        break;
                     case points >= 1000 && points <2000:
                         level= 5;
-                    break;
+                        break;
                 }
                 return level
-            };
+        },
 
-            this.getMaxHealthPoints = function(){
-                var startHP = this.gameData.objectTypes.get(this.objTypeId)._maxHealthPoints;
-                var itemHP=startHP;
-                var newHP = 0;
-                for (var i =0;i<this.items.length;i++){
-                    var item = this.items['userId'][i];
-                    newHP =item.applyToObject("_maxHealthPoints",itemHP);
-                    itemHP += newHP;
+
+        updateObjectProperties: function () {
+
+                var initProp = this.gameData.objectTypes.get(this.objTypeId)._initProperties;
+                var newProp = initProp;
+                for (var i =0;i<this.items[this.userId].length;i++){
+                    var item = this.items[this.userId][i];
+                    newProp = item.applyToObject(initProp,newProp);
                 }
-                var totalHP = itemHP;
-                return totalHP;
-            };
-
-            this.getDefensePoints = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getOffensePoints = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getFreeItemSlots = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getFreeUpgradeSlots = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getFreeUnitSlots = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getRange = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getPlayerMoneyInOutPerSec = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getPopulationLoan = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-            this.getPopulationPayments = function(){
-                //do X
-                var MaxHealthPoints = 1;
-                return MaxHealthPoints;
-            };
-
-
-
-            // not serialized:
-            this.gameData = gameData;
-
-            // init:
-            if (UserObject.arguments.length == 2) {
-                this.load(initObj);
-            }
+                this.objectProperties = newProp;
         },
 
         save: function () {

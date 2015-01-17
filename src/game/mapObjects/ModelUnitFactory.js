@@ -13,14 +13,7 @@ if (node) {
     var ModelUnitFactory = UserObject.extend({
 
         init: function ModelUnitFactory(gameData,initObj) {
-            this.unitsInProduction = [];
-            // not serialized:
-            this.gameData = gameData;
-
-            // init:
-            if (ModelUnitFactory.arguments.length == 2) {
-                this.load(initObj);
-            }
+            this._super( gameData, initObj );
         },
 
         save: function () {

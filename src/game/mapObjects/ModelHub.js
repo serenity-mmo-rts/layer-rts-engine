@@ -13,14 +13,7 @@ if (node) {
     var ModelHub = UserObject.extend({
 
         init: function ModelHub(gameData,initObj) {
-            this.objectsConnected = 5;
-            // not serialized:
-            this.gameData = gameData;
-
-            // init:
-            if (ModelHub.arguments.length == 2) {
-                this.load(initObj);
-            }
+            this._super( gameData, initObj );
         },
 
         save: function () {

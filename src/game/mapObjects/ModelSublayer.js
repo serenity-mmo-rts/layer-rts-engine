@@ -15,14 +15,7 @@ if (node) {
         init: function ModelSublayer(gameData,initObj) {
             this.publicArea = null;
             this.sublayerMapId = null;
-
-            // not serialized:
-            this.gameData = gameData;
-
-            // init:
-            if (ModelSublayer.arguments.length == 2) {
-                this.load(initObj);
-            }
+            this._super( gameData, initObj );
         },
 
         save: function () {

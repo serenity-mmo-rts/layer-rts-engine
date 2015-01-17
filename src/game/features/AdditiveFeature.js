@@ -1,11 +1,7 @@
 
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var MapObject = require('../mapObjects/MapObject').MapObject;
-    var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection');
+    var AbstractFeature = require('./AbstractFeature').AbstractFeature;
 }
 
 (function (exports) {
@@ -16,6 +12,7 @@ if (node) {
         _type: "AdditiveFeature",
         _key: null,
         _value: null,
+        _modus: null,
 
         init: function(gameData, initObj){
 
@@ -23,15 +20,32 @@ if (node) {
 
         },
 
-        execute: function (key,_value) {
 
-            this._mapObj[this._key] += this._value;
+        applyToObject: function (initProp,newProp) {
+          if (this.isValid(this._key,initProp)){
+
+              if(this._modus ==1){ // apply to base value
+                  var change = initProp[this._key] + this._value;
+                  newProp[this._key] += change;
+                  return newProp;
+              }
+              else if (this._modus==2) { // apply to total value
+                  newProp[this._key] += this._value;
+                  return newProp;
+              }
+          }
+
         },
 
 
-        save: function () {
+
+    save: function () {
             var o = this._super();
-            o.a2 = [this._key,this._value];
+            o.a2 = [
+                    this._key,
+                    this._value,
+                    this._modus
+                    ];
             return o;
         },
 
@@ -40,6 +54,7 @@ if (node) {
             if (o.hasOwnProperty("a2")) {
                 this._key = o.a2[0];
                 this._value = o.a2[1];
+                this._modus = o.a2[2];
             }
             else {
                 for (var key in o) {

@@ -13,14 +13,7 @@ if (node) {
     var ModelScienceCenter = UserObject.extend({
 
         init: function ModelScienceCenter(gameData,initObj) {
-            this.currentResearch = null;
-            // not serialized:
-            this.gameData = gameData;
-
-            // init:
-            if (ModelScienceCenter.arguments.length == 2) {
-                this.load(initObj);
-            }
+            this._super( gameData, initObj );
         },
 
         save: function () {

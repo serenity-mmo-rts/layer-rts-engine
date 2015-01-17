@@ -33,20 +33,34 @@ if (node) {
                 this.load(initObj);
         },
 
-        setInvalid: function () {
-            this._state = featureStates.INVALID;
+        applyToObject: function (initProp) {
+
+            return initProp
         },
 
-        isValid: function () {
-            //overwrite
+
+        canSelectObject: function(){
+
+            return false;
         },
 
-        execute: function (callback) {
-            //overwrite
+        canSelectItem: function(){
+
+            return false;
         },
 
-        apply: function () {
-            //overwrite
+        canBeActivated: function(){
+
+            return false;
+        },
+
+
+        isValid: function(key,initProp){
+            var check  = false;
+            if(initProp.hasOwnProperty(key)){
+                check = true;
+            };
+            return check
         },
 
 

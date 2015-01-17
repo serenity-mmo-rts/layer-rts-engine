@@ -1,11 +1,7 @@
 
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var MapObject = require('../mapObjects/MapObject').MapObject;
-    var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection');
+    var AbstractFeature = require('./AbstractFeature').AbstractFeature;
 }
 
 (function (exports) {
@@ -23,10 +19,17 @@ if (node) {
 
         },
 
-        execute: function (key,_value) {
+        applyToObject: function (initProp,newProp) {
 
-             this._mapObj[this._key] *= this._value;
-
+            if(this._modus ==1){ // apply to base value
+                var change = initProp[this.key] * this._value;
+                newProp[this._key] += change;
+                return newProp;
+            }
+            else if (this._modus==2) { // apply to total value
+                newProp[this._key] *= this._value;
+                return newProp;
+            }
         },
 
 
