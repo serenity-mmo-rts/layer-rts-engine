@@ -17,7 +17,7 @@ if (node) {
         _canBeDepleted:  null,
         _canSelect:  null,
         _canRecharge:  null,
-        _numberOfTargets:  null,
+        _NumberOfSelections: null,
         _range:  null,
         _objectSelectionRadius:  null,
         _activationTime:  null,
@@ -41,7 +41,7 @@ if (node) {
                     this._canBeDepleted,
                     this._canSelect,
                     this._canRecharge,
-                    this._numberOfTargets,
+                    this._NumberOfSelections,
                     this._range,
                     this._objectSelectionRadius,
                     this._activationTime,
@@ -56,16 +56,17 @@ if (node) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
                 this._name = o.a[0];
-                this._infinite = o.a[1];
-                this._canBeActivated = o.a[2];
-                this._canBeDepleted = o.a[3];
-                this._canSelect = o.a[4];
-                this._canRecharge = o.a[5];
-                this._numberOfTargets = o.a[6];
-                this._range = o.a[7];
-                this._objectSelectionRadius = o.a[8];
-                this._activationTime = o.a[9];
-                this._effects = o.a[10];
+                this._appliedOn = o.a[1];
+                this._infinite = o.a[2];
+                this._canBeActivated = o.a[3];
+                this._canBeDepleted = o.a[4];
+                this._canSelect = o.a[5];
+                this._canRecharge = o.a[6];
+                this._NumberOfSelections = o.a[7];
+                this._range = o.a[8];
+                this._objectSelectionRadius = o.a[9];
+                this._activationTime = o.a[10];
+                this._effects = o.a[11];
 
 
             }

@@ -20,7 +20,7 @@ if (node) {
         this.eventScheduler = new EventScheduler(gameData);
         this.quadTree = null;
         this.gameData = gameData;
-        this.objectChangedCallback = null
+        this.objectChangedCallback = null;
 
 
         // init:
@@ -145,6 +145,26 @@ if (node) {
             //TODO: detect orientations etc.
 
             return collidingItems;
+        },
+
+        getObjectsInRange: function (coord,range) {
+            var mapObj = {
+                x: coord.x,
+                y: coord.y,
+                width: range*2,
+                height: range*2
+            }
+            var inRange = [];
+            collidingMapObjects = collisionDetection(mapObj);
+            for (var i= 1; i<collidingMapObjects._length; i++) {
+                var dx = collidingMapObjects[i].x - mapObj.x;
+                var dy = collidingMapObjects[i].y - mapObj.y;
+                if( dx*dx + dy*dy < range*range) {
+                    inRange.push(collidingMapObjects[i]);
+                }
+
+            }
+            return inRange;
         },
 
         save: function () {

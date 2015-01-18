@@ -17,7 +17,8 @@ if (node) {
     var ItemModel= Class.extend( {
 
 
-        _gameData: null,
+
+        // serialized
         _id: null,
         _objectId: null,
         _itemTypeId: null,
@@ -26,9 +27,14 @@ if (node) {
         _level:null,
         _healthPoints: null,
         _armor: null,
+        _onChangeCallback: null,
+        _mapId: null,
 
+         //not serialized
+        _gameData: null,
         _initProperties: null,
         _features: null,
+
 
 
         //_appliedFeatures: null,
@@ -38,7 +44,6 @@ if (node) {
 
         init: function(gameData, initObj){
 
-            var maxLevel= this.gameData.itemTypes.get(this._itemTypeId)._maxLevel;
             var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
 
             for(var key in initProp) {
@@ -48,7 +53,8 @@ if (node) {
             var featureTypeIds= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeIds[this._level];
 
             for (var i = 0; i< featureTypeIds.length;i++){
-                this._features.push(new FeatureModel(gameData,featureTypeIds[i]));
+                this._features.push(new FeatureModel(gameData,{featureTypeIds: featureTypeIds[i],
+                    _itemId: this._id,_mapId: this._mapId}));
             }
 
 
@@ -57,62 +63,15 @@ if (node) {
             this.load(initObj);
         },
 
-        canSelectObject: function(){ // apply to different map Object
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-            for (var i = 0;i<features.length;i++){
-                if (features[i].canSelectObject()){
-                    return true;
-                }
-            }
-            return false;
+        setState: function(state) {
+            this._state = state;
+            this.notifyChange();
         },
 
-        canSelectCoordinates: function(){ // apply to coordinates
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-            for (var i = 0;i<features.length;i++){
-                if (features[i].canSelectCoordinates()){
-                    return true;
-                }
-            }
-            return false;
+        notifyChange: function() {
+            if (this._onChangeCallback) this._onChangeCallback();
         },
 
-        canSelectItem: function(){ // choose item in current object
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-            for (var i = 0;i<features.length;i++){
-                if (features[i].canSelectItem()){
-                    return true;
-                }
-            }
-            return false;
-
-        },
-
-        canBeActivated: function(){ // activiated in current object
-
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-            for (var i = 0;i<features.length;i++){
-                if (features[i].canBeActivated()){
-                    return true;
-                }
-            }
-            return false;
-        },
-
-        setTargetObject: function(objId){ // apply to different map Object
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-            for (var i = 0;i<features.length;i++){
-                if (features[i].canSelectObject()){
-                    return true;
-                }
-            }
-            return false;
-        },
 
         applyToItem: function() {
 
@@ -124,11 +83,17 @@ if (node) {
             return initProp
         },
 
+        applyToObject: function(initProp,newProp){
 
-        setTargetItemId : function(Id){
+            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
 
+            for (var i = 0;i<features.length;i++){
+                newProp = features[i].applyToObject(initProp,newProp)
+            }
+            return initProp
 
         },
+
 
         setInvalid: function () {
             this._state = itemStates.INVALID;
@@ -142,38 +107,33 @@ if (node) {
             //overwrite
         },
 
-        applyToObject: function(initProp,newProp){
 
-             var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
-
-             for (var i = 0;i<features.length;i++){
-                 newProp = features[i].applyToObject(initProp,newProp)
-             }
-            return initProp
-
-        },
 
         save: function () {
-
            var o = {_id: this._id,
-                      a:[this._objectId,
+                      a:[this._state,
+                         this._objectId,
                          this._ItemTypeId,
                          this._level,
                          this._healthPoints,
-                         this._armor
+                         this._armor,
+                         this._mapId
                         ]
                    };
         return o;
         },
 
+
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                this._objectId = o.a[0];
-                this._ItemTypeId = o.a[1];
-                this._level = o.a[2];
-                this._healthPoints = o.a[3];
-                this._armor = o.a[4];
+                this._state = o.a[0];
+                this._objectId = o.a[1];
+                this._ItemTypeId = o.a[2];
+                this._level = o.a[3];
+                this._healthPoints = o.a[4];
+                this._armor = o.a[5];
+                this._mapId = o.a[6];
             }
             else {
                 for (var key in o) {
@@ -182,11 +142,12 @@ if (node) {
                     }
                 }
             }
+
         }
 
     });
 
-
+    exports.itemStates = itemStates;
     exports.ItemModel = ItemModel;
 
 })(typeof exports === 'undefined' ? window : exports);

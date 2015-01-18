@@ -2,7 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-
+    var ItemModel = require('./ItemModel').ItemModel;
 }
 
 
@@ -13,6 +13,7 @@ if (node) {
     mapObjectStates.TEMP = 0;
     mapObjectStates.WORKING = 1;
     mapObjectStates.FINISHED = 2;
+    mapObjectStates.UPDATING =3;
 
 
     var MapObject = Class.extend({
@@ -36,6 +37,7 @@ if (node) {
         this.height = null; // optional
 
         // not serialized:
+        this.items= new GameList(gameData,ItemModel,false,false);
         this.gameData = gameData;
         this.onChangeCallback;
 
