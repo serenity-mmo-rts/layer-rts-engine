@@ -2,7 +2,7 @@ var node = !(typeof exports === 'undefined');
 
 if (node) {
     var Class= require('./Class').Class;
-    var FeatureModel = FeatureModel('./FeatureModel').FeatureModel;
+    var FeatureModel = require('./FeatureModel').FeatureModel;
 }
 
 (function (exports) {
