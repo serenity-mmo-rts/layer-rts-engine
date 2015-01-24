@@ -54,6 +54,10 @@ if (node) {
                     this._hasChildMapTypeId,
                     this._initProperties
                     ];
+
+
+
+
             return o;
 
         },
@@ -70,8 +74,11 @@ if (node) {
                 this._spritesheetId = o.a2[6];
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
-                this._initProperties = o.a2[8];
+                this._initProperties = o.a2[9];
+
+
             }
+
             else {
                 for (var key in o) {
                     if (o.hasOwnProperty(key)) {

@@ -3,16 +3,12 @@ if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
     var MapObject = require('./MapObject').MapObject;
-
+    var eventStates = require('../events/AbstractEvent').eventStates;
 }
 
 
 (function (exports) {
 
-    var userObjectStates = {};
-    userObjectStates.TEMP = 0;
-    userObjectStates.WORKING = 1;
-    userObjectStates.FINISHED = 2;
 
 
     var UserObject = MapObject.extend({
@@ -21,10 +17,10 @@ if (node) {
 
             // serialized:
             this.userId = 0; // optional
-            this.state = userObjectStates.TEMP;
             this.healthPoints = 0;
             this.ownerIds = []; // String List of owner Ids
             this.objectProperties = {};
+            this.buildQueue = [];
             this.items = [];// get example: LaserTrooper = this.items['userId']['Index'];
             this.appliedFeatures = [];
             this.playerMoneyInOutPerSec =0;
@@ -73,6 +69,23 @@ if (node) {
                 return level
         },
 
+        addItemToQueue: function(item){
+            this.buildQueue.push(item);
+        },
+
+        removeItemFromQueue: function(idx){
+            this.buildQueue.splice(idx,1);
+        },
+
+        checkQueue: function(currentTime) {
+           if (this.buildQueue.length>0){
+               if(this.buildQueue[0]._state == eventStates.VALID) {
+                    this.buildQueue[0].start(currentTime);
+               }
+           }
+
+        },
+
 
         updateObjectProperties: function () {
 
@@ -87,8 +100,13 @@ if (node) {
 
         save: function () {
             var o = this._super();
+            var buildQueueIds = [];
+            for (var i=0; i<this.buildQueue.length ; i++) {
+                buildQueueIds.push(this.buildQueue[i]._id);
+            }
+
             o.a2 =  [this.userId,
-                    this.state];
+                    buildQueueIds];
             return o;
         },
 
@@ -99,7 +117,11 @@ if (node) {
                 if (o.hasOwnProperty("a2"))
                 {
                     this.userId = o.a2[0];
-                    this.state = o.a2[1];
+                    var buildQueueIds = o.a2[1];
+                    this.buildQueue = [];
+                    for (var i=0; i<buildQueueIds.length ; i++) {
+                        this.buildQueue.push(this.gameData.maps.get(this.mapId).events.get(buildQueueIds[i]));
+                    }
                 }
             }
             else {
@@ -113,7 +135,6 @@ if (node) {
 
     });
 
-    exports.userObjectStates = userObjectStates;
     exports.UserObject = UserObject;
 
 })(typeof exports === 'undefined' ? window : exports);

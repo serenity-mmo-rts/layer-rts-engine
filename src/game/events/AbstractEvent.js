@@ -9,7 +9,7 @@ if (node) {
     var eventStates = {};
     eventStates.INITIALIZED = 0;
     eventStates.INVALID = 1;
-    eventStates.VALID = 2;
+    eventStates.VALID = 2; //PENDING
     eventStates.EXECUTING = 3;
     eventStates.FINISHED = 4;
 
@@ -19,7 +19,7 @@ if (node) {
         _id: null,
         _type: "AbstractEvent",
         _mapId: null,
-        _nextEvent: null,
+        _nextEvents: [],
         _startedTime: null,
         _dueTime: null,
         _state: null,
@@ -43,6 +43,10 @@ if (node) {
             this._state = eventStates.INVALID;
         },
 
+        setValid: function(){
+            this._state = eventStates.VALID;
+        },
+
         isValid: function () {
             //overwrite
         },
@@ -55,8 +59,29 @@ if (node) {
             //overwrite
         },
 
-        finish: function () {
+        updateFromServer: function (event) {
+            this._id = event._id;
+            this._startedTime = event._startedTime;
+            this._dueTime = event._dueTime;
+        },
+
+        applyToGame: function() {
             //overwrite
+        },
+
+        start: function(curTime){
+            this._state = eventStates.EXECUTING;
+            this._startedTime = curTime;
+        },
+
+        updateDueTime: function(curTime) {
+            //overwrite
+        },
+
+        finish: function () {
+          //  if (this._nextEvents.length > 0) {
+          //      this._nextEvents[0].start(this._dueTime);
+          //  }
         },
 
         save: function () {
@@ -92,13 +117,6 @@ if (node) {
             }
         },
 
-        updateFromServer: function (event) {
-            //overwrite with method to bring this event up to date
-        },
-
-        applyToGame: function() {
-            //overwrite
-        },
 
         revert: function() {
             //overwrite

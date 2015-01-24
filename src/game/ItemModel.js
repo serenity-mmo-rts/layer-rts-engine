@@ -8,11 +8,10 @@ if (node) {
 (function (exports) {
 
     var itemStates = {};
-    itemStates.INITIALIZED = 0;
-    itemStates.INVALID = 1;
-    itemStates.VALID = 2;
-    itemStates.EXECUTING = 3;
-    itemStates.FINISHED = 4;
+    itemStates.TEMP = 0;
+    itemStates.WORKING= 1;
+    itemStates.FINSEHD = 2;
+
 
     var ItemModel= Class.extend( {
 
@@ -22,44 +21,23 @@ if (node) {
         _id: null,
         _objectId: null,
         _itemTypeId: null,
-        _state:null,
-
-        _level:null,
-        _healthPoints: null,
-        _armor: null,
-        _onChangeCallback: null,
         _mapId: null,
+        _state:itemStates.TEMP,
+        _level:0,
+        _onChangeCallback: null,
+
 
          //not serialized
         _gameData: null,
         _initProperties: null,
         _features: null,
+        _mapObj: null,
 
-
-
-        //_appliedFeatures: null,
-        //_targetCoordinates: null,
-        //_targetItemIds : null,
-        //_targetObjectIds : null,
 
         init: function(gameData, initObj){
+            this.gameData = gameData;
 
-            var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
-
-            for(var key in initProp) {
-               this._initProperties[key] = initProp[key];
-            }
-
-            var featureTypeIds= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeIds[this._level];
-
-            for (var i = 0; i< featureTypeIds.length;i++){
-                this._features.push(new FeatureModel(gameData,{featureTypeIds: featureTypeIds[i],
-                    _itemId: this._id,_mapId: this._mapId}));
-            }
-
-
-            this._gameData = gameData;
-            // deserialize event from json object
+            // deserialize event from json objectet
             this.load(initObj);
         },
 
@@ -68,8 +46,29 @@ if (node) {
             this.notifyChange();
         },
 
+        setLevel: function(lvl) {
+            this._level = lvl;
+            this.notifyChange();
+        },
+
         notifyChange: function() {
             if (this._onChangeCallback) this._onChangeCallback();
+        },
+
+
+        applyToGame: function() {
+
+            var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
+            for(var key in initProp) {
+                this._initProperties[key] = initProp[key];
+            }
+
+            // do this on execute
+            var featureTypeIds= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeIds[0];
+            for (var i = 0; i< featureTypeIds.length;i++){
+                this._features.push(new FeatureModel(this.gameData,{featureTypeIds: featureTypeIds[i],
+                    _itemId: this._id,_mapId: this._mapId}));
+            }
         },
 
 
@@ -95,30 +94,14 @@ if (node) {
         },
 
 
-        setInvalid: function () {
-            this._state = itemStates.INVALID;
-        },
-
-        isValid: function () {
-            //overwrite
-        },
-
-        execute: function (callback) {
-            //overwrite
-        },
-
-
-
         save: function () {
            var o = {_id: this._id,
-                      a:[this._state,
-                         this._objectId,
-                         this._ItemTypeId,
-                         this._level,
-                         this._healthPoints,
-                         this._armor,
-                         this._mapId
-                        ]
+                    _itemTypeId: this._itemTypeId,
+                    _objectId: this._objectId,
+                    _mapId: this._mapId,
+                    a:[this._level,
+                       this._state
+                      ]
                    };
         return o;
         },
@@ -127,13 +110,12 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                this._state = o.a[0];
-                this._objectId = o.a[1];
-                this._ItemTypeId = o.a[2];
-                this._level = o.a[3];
-                this._healthPoints = o.a[4];
-                this._armor = o.a[5];
-                this._mapId = o.a[6];
+                this._itemTypeId = o._itemTypeId;
+                this._objectId = o._objectId;
+                this._mapId = o._mapId;
+                this._level = o.a[0];
+                this._state = o.a[1];
+
             }
             else {
                 for (var key in o) {
@@ -142,6 +124,7 @@ if (node) {
                     }
                 }
             }
+            this._mapObj=  this.gameData.maps.get(this._mapId).mapObjects.get(this._objectId);
 
         }
 

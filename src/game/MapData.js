@@ -4,6 +4,7 @@ if (node) {
     var MapObject = require('./mapObjects/MapObject').MapObject;
     var createMapObject = require('./mapObjects/createMapObject');
     var EventScheduler = require('./events/EventScheduler').EventScheduler;
+    var ItemModel = require('./ItemModel').ItemModel;
 }
 
 (function (exports) {
@@ -17,11 +18,12 @@ if (node) {
 
         // not serialized:
         this.mapObjects = new GameList(gameData,MapObject,false,createMapObject);
+        this.items = new GameList(gameData,ItemModel,false,false);
         this.eventScheduler = new EventScheduler(gameData);
         this.quadTree = null;
         this.gameData = gameData;
         this.objectChangedCallback = null;
-
+        this.itemChangedCallback = null;
 
         // init:
         if (MapData.arguments.length == 2) {
@@ -90,6 +92,28 @@ if (node) {
             if (this.objectChangedCallback) {
                 this.objectChangedCallback(mapObject);
             }
+        },
+
+
+        addItem: function (item) {
+            //check if item is already in list:
+            if (this.items.hashList.hasOwnProperty(item._id)) {
+                console.log("item was already in list.")
+            }
+            else {
+                //addObjectToMapData:
+                this.items.hashList[item._id] = item;
+            }
+
+        },
+
+        removeItem: function (item) {
+            //check if object is already in list:
+            if (this.items.hashList.hasOwnProperty(item._id)) {
+                delete this.items.hashList[item._id];
+
+            }
+
         },
 
         rebuildQuadTree: function() {

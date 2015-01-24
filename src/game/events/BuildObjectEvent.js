@@ -40,8 +40,8 @@ if (node) {
         },
 
         execute: function () {
-            this._mapObj.state = mapObjectStates.WORKING;
             this._mapObj._id = 'tmpId'+Math.random();
+            this.start(Date.now());
             this.applyToGame();
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
         },
@@ -53,6 +53,7 @@ if (node) {
                 if (err) callback(err);
                 collMapObjects.insert(self._mapObj.save(), function(err,docs) {
                     if (err) callback(err);
+                    self.start(Date.now());
                     self.applyToGame();
                     console.log("a user build a " + self._mapObj.objTypeId + " at coordinates ("+ self._mapObj.x+","+self._mapObj.y+")");
                     callback(null);
@@ -67,17 +68,23 @@ if (node) {
             this._mapObj.notifyChange();
 
             // Update other properties:
-            this._id = event._id;
-            this._dueTime = event._dueTime;
+            this._super(event);
         },
 
         applyToGame: function() {
-
-            var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
-            this._dueTime = Date.now() + buildTime;
-
             // make sure that the object is in gameData:
             this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+        },
+
+        start: function(startTime){
+            this._super(startTime);
+            this.setDueTime();
+            this._mapObj.state = mapObjectStates.WORKING;
+        },
+
+        setDueTime: function(){
+            var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+            this._dueTime = this._startedTime + buildTime;
         },
 
         finish: function () {

@@ -32,7 +32,8 @@ if (node) {
                     this._iconSpritesheetId,
                     this._iconSpriteFrame,
                     this._buildMenuTooltip,
-                    this._buildTime]
+                    this._buildTime
+                    ]
 
             };
             return o;

@@ -36,9 +36,10 @@ if (node) {
         this.y = null;
         this.width = null; // optional
         this.height = null; // optional
+        this.state =  mapObjectStates.TEMP;
 
         // not serialized:
-        this.items= new GameList(gameData,ItemModel,false,false);
+        this.items= [];//new GameList(gameData,ItemModel,false,false);
         this.gameData = gameData;
         this.onChangeCallback;
 
@@ -57,6 +58,10 @@ if (node) {
             if (this.onChangeCallback) this.onChangeCallback();
         },
 
+        addItem: function (item){
+            this.items.push(item);
+        },
+
     /**
      * Saves a MapObject.
      *
@@ -72,7 +77,8 @@ if (node) {
             a: [this.x,
                 this.y,
                 this.width,
-                this.height]};
+                this.height,
+                this.state]};
         return o;
     },
         /**
@@ -92,6 +98,7 @@ if (node) {
                 this.y = o.a[1];
                 this.width = o.a[2];
                 this.height = o.a[3];
+                this.state = o.a[4];
             }
             else {
                 for (var key in o) {

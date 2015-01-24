@@ -29,6 +29,7 @@ if (node) {
             this.events.each(function(evt){self.addEventToSortedList(evt)});
         },
 
+
         addEventToSortedList: function(event) {
             var addAtLocation = this.quicksortLocationOf(event._dueTime) + 1;
             this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
@@ -52,6 +53,7 @@ if (node) {
         finishAllTillTime: function(time) {
 
             for(var index = this.sortedEvents.length-1; index>=0 && this.sortedDueTimes[index] <= time; index--) {
+                //TODO: this.updateDueTime(curTime);
                 this.sortedEvents[index].finish();
                 this.eventsFinished.add(this.sortedEvents[index]);
                 this.sortedDueTimes.pop();
