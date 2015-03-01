@@ -107,6 +107,11 @@ if (node) {
                     }
                 }
             }
+        },
+
+
+        setPointers : function(){
+
         }
     });
 

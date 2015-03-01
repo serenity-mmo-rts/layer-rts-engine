@@ -86,6 +86,15 @@ if (node) {
 
         },
 
+        setPointers : function(){
+            this._super();
+            var buildQueueIds = this.buildQueue;
+            this.buildQueue = [];
+            for (var i=0; i<buildQueueIds.length ; i++) {
+                this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
+            }
+        },
+
 
         updateObjectProperties: function () {
 
@@ -117,11 +126,7 @@ if (node) {
                 if (o.hasOwnProperty("a2"))
                 {
                     this.userId = o.a2[0];
-                    var buildQueueIds = o.a2[1];
-                    this.buildQueue = [];
-                    for (var i=0; i<buildQueueIds.length ; i++) {
-                        this.buildQueue.push(this.gameData.maps.get(this.mapId).events.get(buildQueueIds[i]));
-                    }
+                    this.buildQueue = o.a2[1];
                 }
             }
             else {

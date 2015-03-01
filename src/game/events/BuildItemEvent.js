@@ -68,7 +68,7 @@ if (node) {
            // this._super(event);
 
             console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
-            this._gameData.maps.get(this._mapId).items.updateId(this._item._id,event._item._id);
+            this._item._id = event._item._id;
            // this.map = this._gameData.maps.get(this._mapId);
            // this.map.items.updateId(this._item._id,event._item._id);
 
@@ -77,13 +77,22 @@ if (node) {
         applyToGame: function() {
             // make sure that the item is in gameData:
             this._item._mapObj.addItemToQueue(this);
-            this._gameData.maps.get(this._mapId).addItem(this._item);
+
         },
 
         start: function(startTime){
             this._super(startTime);
             this.setDueTime();
             this._item._mapObj.state = mapObjectStates.WORKING;
+            this._state = eventStates.EXECUTING;
+        },
+
+        progress: function(){
+           var totalTimeNeeded = this._dueTime -this._startedTime;
+           var currentTime  = Date.now();
+           var timeLeft =  this._dueTime-currentTime;
+           var percent = (timeLeft/totalTimeNeeded)*100;
+           return 100-percent
         },
 
 
@@ -96,11 +105,12 @@ if (node) {
 
         finish: function () {
             this._item._mapObj.state = mapObjectStates.FINISHED;
+            this._state = eventStates.FINISHED;
             console.log("item: "+this._item._id+" production completed");
            // this._item.setState(itemStates.FINISHED);
             this._item._mapObj.removeItemFromQueue(0);
             this._item._mapObj.items.push(this._item);
-           // this._gameData.maps.get(this._mapId).addItem(this._item);
+            this._gameData.maps.get(this._mapId).addItem(this._item);
             this._item._mapObj.checkQueue(this._dueTime);
             this._super();
         },

@@ -56,6 +56,7 @@ if (node) {
                 //TODO: this.updateDueTime(curTime);
                 this.sortedEvents[index].finish();
                 this.eventsFinished.add(this.sortedEvents[index]);
+                this.events.deleteById(this.sortedEvents[index]._id);
                 this.sortedDueTimes.pop();
                 this.sortedEvents.pop();
             }
