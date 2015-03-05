@@ -52,7 +52,9 @@ if (node) {
         finishAllTillTime: function(time) {
 
             for(var index = this.sortedEvents.length-1; index>=0 && this.sortedDueTimes[index] <= time; index--) {
+                console.log("finished event...")
                 this.sortedEvents[index].finish();
+                this.events.deleteById(this.sortedEvents[index]._id);
                 this.eventsFinished.add(this.sortedEvents[index]);
                 this.sortedDueTimes.pop();
                 this.sortedEvents.pop();
