@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
+    var dbConn = require('../../server/dbConnection');
 }
 
 (function (exports) {
@@ -48,15 +49,49 @@ if (node) {
         },
 
         execute: function () {
-            //overwrite
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
         },
 
-        executeOnServer: function(callback) {
-            //overwrite
+        executeOnServer: function() {
+
+            // add event to db:
+            var self = this;
+            dbConn.get('mapEvents', function (err, collMapEvents) {
+                if (err) throw err;
+                collMapEvents.insert(self.save(), function(err,docs) {
+                    if (err) throw err;
+                });
+            });
+
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
+
+        },
+
+        executeOnOthers: function() {
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
         },
 
         finish: function () {
-            //overwrite
+
+            this._state = eventStates.FINISHED;
+
+            if (node) {
+                // change event in db:
+                var self = this;
+                dbConn.get('mapEvents', function (err, collMapEvents) {
+                    if (err) throw err;
+                    collMapEvents.save(self.save(), {safe:true}, function(err,docs) {
+                        if (err) throw err;
+                        else {
+                            console.log("updated event in db to finished status");
+                        }
+                    });
+                });
+            }
+
         },
 
         save: function () {
@@ -94,11 +129,11 @@ if (node) {
 
         updateFromServer: function (event) {
             //overwrite with method to bring this event up to date
+            this._id = event._id;
+            this._dueTime = event._dueTime;
+            this._state = event._state;
         },
 
-        applyToGame: function() {
-            //overwrite
-        },
 
         revert: function() {
             //overwrite
