@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
+    var dbConn = require('../../server/dbConnection');
 }
 
 (function (exports) {
@@ -47,26 +48,58 @@ if (node) {
             this._state = eventStates.VALID;
         },
 
+        setInitialized: function(){
+            this._state = eventStates.INITIALIZED;
+        },
+
         isValid: function () {
             //overwrite
         },
 
         execute: function () {
-            //overwrite
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
         },
 
-        executeOnServer: function(callback) {
-            //overwrite
+        executeOnServer: function() {
+
+            // add event to db:
+            var self = this;
+            dbConn.get('mapEvents', function (err, collMapEvents) {
+                if (err) throw err;
+                collMapEvents.insert(self.save(), function(err,docs) {
+                    if (err) throw err;
+                });
+            });
+
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
+
         },
 
-        updateFromServer: function (event) {
-            this._id = event._id;
-            this._startedTime = event._startedTime;
-            this._dueTime = event._dueTime;
+        executeOnOthers: function() {
+            // add event to scheduler:
+            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
         },
 
-        applyToGame: function() {
-            //overwrite
+        finish: function () {
+
+            this._state = eventStates.FINISHED;
+
+            if (node) {
+                // change event in db:
+                var self = this;
+                dbConn.get('mapEvents', function (err, collMapEvents) {
+                    if (err) throw err;
+                    collMapEvents.save(self.save(), {safe:true}, function(err,docs) {
+                        if (err) throw err;
+                        else {
+                            console.log("updated event in db to finished status");
+                        }
+                    });
+                });
+            }
+
         },
 
         start: function(curTime){
@@ -82,6 +115,7 @@ if (node) {
           //  if (this._nextEvents.length > 0) {
           //      this._nextEvents[0].start(this._dueTime);
           //  }
+            this._state = eventStates.FINISHED;
         },
 
         save: function () {
@@ -115,6 +149,14 @@ if (node) {
                     }
                 }
             }
+        },
+
+        updateFromServer: function (event) {
+            //overwrite with method to bring this event up to date
+            this._gameData.maps.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
+            this._id = event._id;
+            this._dueTime = event._dueTime;
+            this._state = event._state;
         },
 
 

@@ -41,50 +41,51 @@ if (node) {
             this._item._id = 'tmpId'+Math.random();
             this._dueTime = Infinity;
 
-            this.applyToGame();
+            this._item._mapObj.addItemToQueue(this);
             this._item._mapObj.checkQueue(Date.now());
             console.log("I build a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
+
+            this._super();
         },
 
-        executeOnServer: function (callback) {
+        executeOnServer: function () {
+
             var self = this;
             this._item._id = new mongodb.ObjectID();
-            dbConn.get('items', function (err, collItems) {
-                if (err) callback(err);
-                collItems.insert(self._item.save(), function(err,docs) {
-                    if (err) callback(err);
-                    this._dueTime = Infinity;
-                    self.applyToGame();
-                    self._item._mapObj.checkQueue(Date.now());
-                    console.log("a user build a " + self._item._itemTypeId + " in "+ self._item._objectId);
-                    callback(null);
+
+            this._dueTime = Infinity;
+            this._item._mapObj.addItemToQueue(this);
+            this._item._mapObj.checkQueue(Date.now());
+
+            dbConn.get('mapObjects', function (err, collMapObjects) {
+                if (err) throw err;
+                collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
+                    if (err) throw err;
+                    console.log("updated map object in db with new buildQueue");
                 });
             });
+
+            this._super();
+        },
+
+
+        executeOnOthers: function() {
+
+            this._item._mapObj.addItemToQueue(this);
+            this._super();
         },
 
         updateFromServer: function (event) {
-            // update ID:
-            // Update other properties:
-           // this._super(event);
-
-            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
-            this._item._id = event._item._id;
-           // this.map = this._gameData.maps.get(this._mapId);
-           // this.map.items.updateId(this._item._id,event._item._id);
-
-        },
-
-        applyToGame: function() {
-            // make sure that the item is in gameData:
-            this._item._mapObj.addItemToQueue(this);
-
+           this._super(event);
+           console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
+           this._item._id = event._item._id;
         },
 
         start: function(startTime){
             this._super(startTime);
             this.setDueTime();
             this._item._mapObj.state = mapObjectStates.WORKING;
-            this._state = eventStates.EXECUTING;
+
         },
 
         progress: function(){
@@ -95,23 +96,39 @@ if (node) {
            return 100-percent
         },
 
-
         setDueTime: function(){
             var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._initProperties._buildTime[this._item._level];
             this._dueTime = this._startedTime + buildTime;
         },
 
-
-
         finish: function () {
             this._item._mapObj.state = mapObjectStates.FINISHED;
-            this._state = eventStates.FINISHED;
+
             console.log("item: "+this._item._id+" production completed");
            // this._item.setState(itemStates.FINISHED);
             this._item._mapObj.removeItemFromQueue(0);
             this._item._mapObj.items.push(this._item);
             this._gameData.maps.get(this._mapId).addItem(this._item);
             this._item._mapObj.checkQueue(this._dueTime);
+
+            if (node) {
+                var self = this;
+                dbConn.get('items', function (err, collItems) {
+                    if (err) callback(err);
+                    collItems.insert(self._item.save(), function(err,docs) {
+                        if (err) throw(err);
+                        console.log("a user build a " + self._item._itemTypeId + " in "+ self._item._objectId);
+                    });
+                });
+                dbConn.get('mapObjects', function (err, collMapObjects) {
+                    if (err) throw err;
+                    collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
+                        if (err) throw err;
+                        console.log("updated map object in db with new buildQueue");
+                    });
+                });
+            }
+
             this._super();
         },
 

@@ -3,6 +3,7 @@ if (node) {
     var GameList = require('../GameList').GameList;
     var AbstractEvent = require('./AbstractEvent');
     var EventFactory = require('./EventFactory');
+    var dbConn = require('../../server/dbConnection');
 }
 
 (function (exports) {
@@ -30,12 +31,6 @@ if (node) {
         },
 
 
-        addEventToSortedList: function(event) {
-            var addAtLocation = this.quicksortLocationOf(event._dueTime) + 1;
-            this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
-            this.sortedEvents.splice(addAtLocation, 0, event);
-        },
-
         addEvent: function (event) {
             //check if object is already in list:
             if (this.events.hashList.hasOwnProperty(event._id)) {
@@ -53,10 +48,12 @@ if (node) {
         finishAllTillTime: function(time) {
 
             for(var index = this.sortedEvents.length-1; index>=0 && this.sortedDueTimes[index] <= time; index--) {
-                //TODO: this.updateDueTime(curTime);
-                this.sortedEvents[index].finish();
-                this.eventsFinished.add(this.sortedEvents[index]);
-                this.events.deleteById(this.sortedEvents[index]._id);
+
+                var curEvent = this.sortedEvents[index];
+                console.log("finished event...")
+                curEvent.finish();
+                this.events.deleteById(curEvent._id);
+                this.eventsFinished.add(curEvent);
                 this.sortedDueTimes.pop();
                 this.sortedEvents.pop();
             }
@@ -66,6 +63,21 @@ if (node) {
             return this.sortedEvents[1];
         },
 
+
+        addEventToSortedList: function(event) {
+            var addAtLocation = this.quicksortLocationOf(event._dueTime);
+            this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
+            this.sortedEvents.splice(addAtLocation, 0, event);
+
+
+            //for(var i = 0; i<this.sortedDueTimes.length; i++) {
+            //    console.log("this.sortedDueTimes["+i+"] = " + this.sortedDueTimes[i]);
+            //}
+
+        },
+
+        // assume that sortedDueTimes is sorted in descending order!!!
+        // return location where to insert new element
         quicksortLocationOf: function(element, start, end) {
 
             // start with search within the full range if only first parameter is given:
@@ -75,10 +87,16 @@ if (node) {
             // select new pivot
             var pivot = parseInt(start + (end - start) / 2, 10);
 
-            if (end-start <= 1 || this.sortedDueTimes[pivot] === element)
-                return pivot;
+            if (end-start <= 1) {
+                if (this.sortedDueTimes[pivot] > element) {
+                    return pivot+1;
+                }
+                else {
+                    return pivot;
+                }
+            }
 
-            if (this.sortedDueTimes[pivot] < element) {
+            if (this.sortedDueTimes[pivot] > element) {
                 return this.quicksortLocationOf(element, pivot, end);
             } else {
                 return this.quicksortLocationOf(element, start, pivot);

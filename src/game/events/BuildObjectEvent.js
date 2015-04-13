@@ -19,9 +19,7 @@ if (node) {
         _mapObj : null,
 
         init: function(gameData, initObj){
-
-                this._super( gameData, initObj );
-
+            this._super( gameData, initObj );
         },
 
         setMapObject: function (mapObj) {
@@ -40,41 +38,53 @@ if (node) {
         },
 
         execute: function () {
+
+            this._mapObj.state = mapObjectStates.WORKING;
             this._mapObj._id = 'tmpId'+Math.random();
             this.start(Date.now());
-            this.applyToGame();
+            this._dueTime = Date.now() + ntp.offset() + this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+
+            // make sure that the object is in gameData:
+            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
+            this._super();
         },
 
-        executeOnServer: function (callback) {
+        executeOnServer: function () {
             var self = this;
+            this._mapObj.state = mapObjectStates.WORKING;
             this._mapObj._id = new mongodb.ObjectID();
+            this._dueTime = Date.now() + this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+
+            // make sure that the object is in gameData:
+            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+
             dbConn.get('mapObjects', function (err, collMapObjects) {
-                if (err) callback(err);
+                if (err) throw err;
                 collMapObjects.insert(self._mapObj.save(), function(err,docs) {
-                    if (err) callback(err);
-                    self.start(Date.now());
-                    self.applyToGame();
-                    console.log("a user build a " + self._mapObj.objTypeId + " at coordinates ("+ self._mapObj.x+","+self._mapObj.y+")");
-                    callback(null);
+                    if (err) throw err;
                 });
             });
+
+            this._super();
+
+        },
+
+        executeOnOthers: function() {
+            // make sure that the object is in gameData:
+            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+            this._super();
         },
 
         updateFromServer: function (event) {
+            this._super(event);
             // update ID:
             console.log("replace tmp Object ID: "+this._mapObj._id+" by new id from server: "+event._mapObj._id);
             this._gameData.maps.get(this._mapId).mapObjects.updateId(this._mapObj._id,event._mapObj._id);
             this._mapObj.notifyChange();
-
-            // Update other properties:
-            this._super(event);
         },
 
-        applyToGame: function() {
-            // make sure that the object is in gameData:
-            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
-        },
 
         start: function(startTime){
             this._super(startTime);
@@ -88,7 +98,18 @@ if (node) {
         },
 
         finish: function () {
+            var self = this;
             this._mapObj.setState(mapObjectStates.FINISHED);
+            if (node) {
+                dbConn.get('mapObjects', function (err, collMapObjects) {
+                    if (err) throw err;
+                    collMapObjects.save(self._mapObj.save(), function(err,docs) {
+                        if (err) throw err;
+                        console.log("updated map object in db");
+                    });
+                });
+            }
+            this._super();
         },
 
         save: function () {
