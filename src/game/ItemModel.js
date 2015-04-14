@@ -124,7 +124,8 @@ if (node) {
                     }
                 }
             }
-            this._mapObj=  this.gameData.maps.get(this._mapId).mapObjects.get(this._objectId);
+            this._mapObj =  this.gameData.maps.get(this._mapId).mapObjects.get(this._objectId);
+
 
         }
 

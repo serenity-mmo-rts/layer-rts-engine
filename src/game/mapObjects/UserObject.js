@@ -78,6 +78,9 @@ if (node) {
         },
 
         checkQueue: function(currentTime) {
+
+            console.log("checkQueue with currentTime: "+(new Date(currentTime)).toUTCString());
+
            if (this.buildQueue.length>0){
                if(this.buildQueue[0]._state == eventStates.VALID) {
                     this.buildQueue[0].start(currentTime);
@@ -93,6 +96,7 @@ if (node) {
             for (var i=0; i<buildQueueIds.length ; i++) {
                 this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
             }
+
         },
 
 

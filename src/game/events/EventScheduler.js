@@ -1,7 +1,8 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('../GameList').GameList;
-    var AbstractEvent = require('./AbstractEvent');
+    var AbstractEvent = require('./AbstractEvent').AbstractEvent;
+    var eventStates = require('./AbstractEvent').eventStates;
     var EventFactory = require('./EventFactory');
     var dbConn = require('../../server/dbConnection');
 }
@@ -34,46 +35,100 @@ if (node) {
         addEvent: function (event) {
             //check if object is already in list:
             if (this.events.hashList.hasOwnProperty(event._id)) {
-                console.log("map event was already in list.")
+                console.log("map event "+event._id+" was already in list.")
             }
             else {
-                //add Event To MapData:
-                this.events.hashList[event._id] = event;
-
-                //add Event to sorted list:
-                this.addEventToSortedList(event);
+                if (event._state == eventStates.VALID) {
+                    this.events.add(event);
+                }
+                else if (event._state == eventStates.EXECUTING) {
+                    this.events.add(event);
+                    this.addEventToSortedList(event);
+                }
+                else if (event._state == eventStates.FINISHED) {
+                    this.eventsFinished.add(event);
+                }
             }
         },
 
         finishAllTillTime: function(time) {
 
-            for(var index = this.sortedEvents.length-1; index>=0 && this.sortedDueTimes[index] <= time; index--) {
-
+            var index = this.sortedEvents.length-1;
+            while(index>=0 && this.sortedDueTimes[index] <= time) {
                 var curEvent = this.sortedEvents[index];
-                console.log("finished event...")
-                curEvent.finish();
-                this.events.deleteById(curEvent._id);
-                this.eventsFinished.add(curEvent);
-                this.sortedDueTimes.pop();
-                this.sortedEvents.pop();
+
+                // Recalculate the current DuetTime and check if it is really finished:
+                curEvent.updateDueTime();
+                if (curEvent._dueTime <= time) {
+                    console.log("event scheduler finishing event "+curEvent._id);
+                    curEvent.finish();
+                    this.events.deleteById(curEvent._id);
+                    this.eventsFinished.add(curEvent);
+                    this.sortedDueTimes.pop();
+                    this.sortedEvents.pop();
+                }
+
+                // Continue with next Event:
+                var index = this.sortedEvents.length-1;
             }
         },
 
-        getNextEvent: function() {
-            return this.sortedEvents[1];
+        updateEventId: function(oldId, newId) {
+            this.events.updateId(oldId,newId);
         },
 
+        updateEventDueTime: function(eventId, newDueTime) {
+            // this function is doing nothing if the event does not exist in scheduler:
+            var event = this.events.get(eventId);
+            if(event) {
+                if (event._dueTime) {
+                    var loc = this.findEventLocation(eventId);
+                    this.sortedDueTimes[loc] = newDueTime;
+                    event._dueTime = newDueTime;
+                }
+                else {
+                    event._dueTime = newDueTime;
+                    this.addEventToSortedList(event);
+                }
+            }
+        },
+
+        findEventLocation: function(eventId) {
+            var dueTime = this.events.get(eventId)._dueTime;
+            var tmpEventLoc = this.quicksortLocationOf(dueTime);
+            if (this.sortedEvents[tmpEventLoc]._id==eventId) {
+                return tmpEventLoc;
+            }
+
+            // the following search aound the location of the dueTime is just for the rare case if two events with the exact same due time exist. Don't know if we can somehow simplify this???
+            // search downward:
+            var eventLoc = tmpEventLoc;
+            while(this.sortedEvents[eventLoc]._id!=eventId && this.sortedEvents[eventLoc]._dueTime==dueTime) {
+                eventLoc--;
+            }
+            if (this.sortedEvents[eventLoc]._id==eventId) {
+                return eventLoc;
+            }
+
+            // search upward:
+            var eventLoc = tmpEventLoc;
+            while(this.sortedEvents[eventLoc]._id!=eventId && this.sortedEvents[eventLoc]._dueTime==dueTime) {
+                eventLoc++;
+            }
+            if (this.sortedEvents[eventLoc]._id==eventId) {
+                return eventLoc;
+            }
+            else {
+                throw new Error("could not find event in list of sorted due times!");
+            }
+        },
 
         addEventToSortedList: function(event) {
-            var addAtLocation = this.quicksortLocationOf(event._dueTime);
-            this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
-            this.sortedEvents.splice(addAtLocation, 0, event);
-
-
-            //for(var i = 0; i<this.sortedDueTimes.length; i++) {
-            //    console.log("this.sortedDueTimes["+i+"] = " + this.sortedDueTimes[i]);
-            //}
-
+            if (event._dueTime) {
+                var addAtLocation = this.quicksortLocationOf(event._dueTime);
+                this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
+                this.sortedEvents.splice(addAtLocation, 0, event);
+            }
         },
 
         // assume that sortedDueTimes is sorted in descending order!!!
@@ -82,7 +137,7 @@ if (node) {
 
             // start with search within the full range if only first parameter is given:
             start = start || 0;
-            end = end || this.sortedDueTimes.length;
+            end = end || this.sortedDueTimes.length-1;
 
             // select new pivot
             var pivot = parseInt(start + (end - start) / 2, 10);

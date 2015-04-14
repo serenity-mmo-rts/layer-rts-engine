@@ -105,6 +105,8 @@ if (node) {
                 this.items.hashList[item._id] = item;
             }
 
+
+
         },
 
         removeItem: function (item) {

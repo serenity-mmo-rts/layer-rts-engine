@@ -69,6 +69,9 @@ if (node) {
                 if (err) throw err;
                 collMapEvents.insert(self.save(), function(err,docs) {
                     if (err) throw err;
+                    else {
+                        console.log("inserted event "+self._id+" to db");
+                    }
                 });
             });
 
@@ -84,7 +87,12 @@ if (node) {
 
         finish: function () {
 
+            //  if (this._nextEvents.length > 0) {
+            //      this._nextEvents[0].start(this._dueTime);
+            //  }
+
             this._state = eventStates.FINISHED;
+            console.log("finished event "+this._id);
 
             if (node) {
                 // change event in db:
@@ -94,7 +102,7 @@ if (node) {
                     collMapEvents.save(self.save(), {safe:true}, function(err,docs) {
                         if (err) throw err;
                         else {
-                            console.log("updated event in db to finished status");
+                            console.log("updated event "+self._id+" in db to finished status");
                         }
                     });
                 });
@@ -104,18 +112,23 @@ if (node) {
 
         start: function(curTime){
             this._state = eventStates.EXECUTING;
+            console.log("starting event "+this._id);
             this._startedTime = curTime;
+            this.updateDueTime();
         },
 
-        updateDueTime: function(curTime) {
-            //overwrite
+        updateDueTime: function() {
+            //overwrite with a method to setDueTime
+            var myNewDueTime = 0000000;
+            this.setDueTime(myNewDueTime); // this call should be used in the function to set a new dueTime
         },
 
-        finish: function () {
-          //  if (this._nextEvents.length > 0) {
-          //      this._nextEvents[0].start(this._dueTime);
-          //  }
-            this._state = eventStates.FINISHED;
+        setDueTime: function(dueTime){
+            if(dueTime!=this._dueTime) {
+                // notify event scheduler:
+                this._gameData.maps.get(this._mapId).eventScheduler.updateEventDueTime(this._id,dueTime);
+                this._dueTime = dueTime;
+            }
         },
 
         save: function () {
@@ -152,11 +165,17 @@ if (node) {
         },
 
         updateFromServer: function (event) {
+
+            this._gameData.maps.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
+
             //overwrite with method to bring this event up to date
             this._gameData.maps.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
             this._id = event._id;
             this._dueTime = event._dueTime;
             this._state = event._state;
+
+            // notify
+
         },
 
 

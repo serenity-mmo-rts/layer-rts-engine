@@ -41,8 +41,7 @@ if (node) {
 
             this._mapObj.state = mapObjectStates.WORKING;
             this._mapObj._id = 'tmpId'+Math.random();
-            this.start(Date.now());
-            this._dueTime = Date.now() + ntp.offset() + this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+            this.start(Date.now() + ntp.offset() );
 
             // make sure that the object is in gameData:
             this._gameData.maps.get(this._mapId).addObject(this._mapObj);
@@ -55,7 +54,7 @@ if (node) {
             var self = this;
             this._mapObj.state = mapObjectStates.WORKING;
             this._mapObj._id = new mongodb.ObjectID();
-            this._dueTime = Date.now() + this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+            this.start(Date.now());
 
             // make sure that the object is in gameData:
             this._gameData.maps.get(this._mapId).addObject(this._mapObj);
@@ -88,13 +87,12 @@ if (node) {
 
         start: function(startTime){
             this._super(startTime);
-            this.setDueTime();
             this._mapObj.state = mapObjectStates.WORKING;
         },
 
-        setDueTime: function(){
+        updateDueTime: function(){
             var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
-            this._dueTime = this._startedTime + buildTime;
+            this.setDueTime(this._startedTime + buildTime);
         },
 
         finish: function () {

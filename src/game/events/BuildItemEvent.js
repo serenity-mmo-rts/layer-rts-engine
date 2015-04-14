@@ -39,7 +39,6 @@ if (node) {
         execute: function () {
           //  this._item._state = itemStates.WORKING;
             this._item._id = 'tmpId'+Math.random();
-            this._dueTime = Infinity;
 
             this._item._mapObj.addItemToQueue(this);
             this._item._mapObj.checkQueue(Date.now());
@@ -53,7 +52,6 @@ if (node) {
             var self = this;
             this._item._id = new mongodb.ObjectID();
 
-            this._dueTime = Infinity;
             this._item._mapObj.addItemToQueue(this);
             this._item._mapObj.checkQueue(Date.now());
 
@@ -83,9 +81,7 @@ if (node) {
 
         start: function(startTime){
             this._super(startTime);
-            this.setDueTime();
             this._item._mapObj.state = mapObjectStates.WORKING;
-
         },
 
         progress: function(){
@@ -96,9 +92,9 @@ if (node) {
            return 100-percent
         },
 
-        setDueTime: function(){
+        updateDueTime: function(){
             var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._initProperties._buildTime[this._item._level];
-            this._dueTime = this._startedTime + buildTime;
+            this.setDueTime(this._startedTime + buildTime);
         },
 
         finish: function () {
@@ -115,9 +111,11 @@ if (node) {
                 var self = this;
                 dbConn.get('items', function (err, collItems) {
                     if (err) callback(err);
-                    collItems.insert(self._item.save(), function(err,docs) {
+
+                    //TODO: Check if we should use insert or save. The item is already saved to db within the event!
+                    collItems.save(self._item.save(), function(err,docs) {
                         if (err) throw(err);
-                        console.log("a user build a " + self._item._itemTypeId + " in "+ self._item._objectId);
+                        console.log("successfully saved item " + self._item._id + " to db");
                     });
                 });
                 dbConn.get('mapObjects', function (err, collMapObjects) {
@@ -161,7 +159,7 @@ if (node) {
         },
 
         revert: function() {
-            this._gameData.maps.get(this._mapId).removeItem(this._Item);
+            this._gameData.maps.get(this._mapId).removeItem(this._item);
             return true;
         }
     });
