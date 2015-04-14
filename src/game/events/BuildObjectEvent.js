@@ -53,7 +53,7 @@ if (node) {
         executeOnServer: function () {
             var self = this;
             this._mapObj.state = mapObjectStates.WORKING;
-            this._mapObj._id = new mongodb.ObjectID();
+            this._mapObj._id = (new mongodb.ObjectID()).toHexString();
             this.start(Date.now());
 
             // make sure that the object is in gameData:
@@ -88,6 +88,7 @@ if (node) {
         start: function(startTime){
             this._super(startTime);
             this._mapObj.state = mapObjectStates.WORKING;
+            this.saveToDb();
         },
 
         updateDueTime: function(){

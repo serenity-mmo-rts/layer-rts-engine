@@ -125,7 +125,9 @@ if (node) {
                 }
             }
             this._mapObj =  this.gameData.maps.get(this._mapId).mapObjects.get(this._objectId);
-
+            if (typeof this._id != 'string') {
+                this._id = this._id.toHexString();
+            }
 
         }
 

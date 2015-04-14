@@ -79,7 +79,7 @@ if (node) {
 
         checkQueue: function(currentTime) {
 
-            console.log("checkQueue with currentTime: "+(new Date(currentTime)).toUTCString());
+           // console.log("checkQueue with currentTime: "+(new Date(currentTime)).toUTCString());
 
            if (this.buildQueue.length>0){
                if(this.buildQueue[0]._state == eventStates.VALID) {

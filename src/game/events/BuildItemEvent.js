@@ -50,7 +50,7 @@ if (node) {
         executeOnServer: function () {
 
             var self = this;
-            this._item._id = new mongodb.ObjectID();
+            this._item._id = (new mongodb.ObjectID()).toHexString();
 
             this._item._mapObj.addItemToQueue(this);
             this._item._mapObj.checkQueue(Date.now());
@@ -82,6 +82,7 @@ if (node) {
         start: function(startTime){
             this._super(startTime);
             this._item._mapObj.state = mapObjectStates.WORKING;
+            this.saveToDb();
         },
 
         progress: function(){

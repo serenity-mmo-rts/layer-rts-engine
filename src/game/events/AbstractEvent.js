@@ -63,17 +63,7 @@ if (node) {
 
         executeOnServer: function() {
 
-            // add event to db:
-            var self = this;
-            dbConn.get('mapEvents', function (err, collMapEvents) {
-                if (err) throw err;
-                collMapEvents.insert(self.save(), function(err,docs) {
-                    if (err) throw err;
-                    else {
-                        console.log("inserted event "+self._id+" to db");
-                    }
-                });
-            });
+            this.saveToDb();
 
             // add event to scheduler:
             this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
@@ -93,7 +83,18 @@ if (node) {
 
             this._state = eventStates.FINISHED;
             console.log("finished event "+this._id);
+            this.saveToDb();
+        },
 
+        start: function(curTime){
+            this._state = eventStates.EXECUTING;
+            console.log("starting event "+this._id);
+            this._startedTime = curTime;
+            this.updateDueTime();
+
+        },
+
+        saveToDb: function() {
             if (node) {
                 // change event in db:
                 var self = this;
@@ -102,19 +103,11 @@ if (node) {
                     collMapEvents.save(self.save(), {safe:true}, function(err,docs) {
                         if (err) throw err;
                         else {
-                            console.log("updated event "+self._id+" in db to finished status");
+                            console.log("updated event "+self._id+" in db");
                         }
                     });
                 });
             }
-
-        },
-
-        start: function(curTime){
-            this._state = eventStates.EXECUTING;
-            console.log("starting event "+this._id);
-            this._startedTime = curTime;
-            this.updateDueTime();
         },
 
         updateDueTime: function() {
@@ -161,6 +154,9 @@ if (node) {
                         this[key] = o[key];
                     }
                 }
+            }
+            if (typeof this._id != 'string') {
+                this._id = this._id.toHexString();
             }
         },
 
