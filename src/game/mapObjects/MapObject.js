@@ -41,7 +41,7 @@ if (node) {
         // not serialized:
         this.items= [];//new GameList(gameData,ItemModel,false,false);
         this.gameData = gameData;
-        this.onChangeCallback;
+        this.onChangeCallback = {};
 
         // init:
         if (MapObject.arguments.length == 2) {
@@ -49,17 +49,36 @@ if (node) {
         }
     },
 
+        getPoints: function(){
+        },
+
+        getLevel: function (points){
+
+        },
+
+
         setState: function(state) {
             this.state = state;
             this.notifyChange();
         },
 
         notifyChange: function() {
-            if (this.onChangeCallback) this.onChangeCallback();
+           // if (this.onChangeCallback) this.onChangeCallback();
+           for (var key in this.onChangeCallback){
+               this.onChangeCallback[key]();
+           }
         },
 
         addItem: function (item){
-            this.items.push(item);
+            // overwrite
+        },
+
+        addCallback: function(key,callback){
+            this.onChangeCallback[key] = callback;
+        },
+
+        removeCallback: function(key){
+            delete this.onChangeCallback[key];
         },
 
     /**

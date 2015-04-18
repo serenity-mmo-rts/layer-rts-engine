@@ -17,6 +17,7 @@ if (node) {
 
             // serialized:
             this.userId = 0; // optional
+            this.points = 0;
             this.healthPoints = 0;
             this.ownerIds = []; // String List of owner Ids
             this.objectProperties = {};
@@ -43,14 +44,33 @@ if (node) {
             //    capacity : 0,
             //    occupationRate : 0
             //
+
             this._super( gameData, initObj );
+            this.updateObjectProperties();
+        },
+        getMaxHealthPoints: function(){
+            return this._maxHealthPoints;
+        },
+        getHealthPoints: function(){
+            return this.healthPoints;
+        },
+
+        getHealthPointsPercent: function(){
+            var maxHp = this.getMaxHealthPoints();
+            var Hp = this.getHealthPoints();
+            var percent = (Hp/maxHp) *100;
+            return percent;
+        },
+
+        getPoints: function(){
+            return this.points;
         },
 
             // member functions
        getLevel: function (points){
                 var level =0;
                 switch(points){
-                    case points > 0 && points <100:
+                    case points >= 0 && points <100:
                         level= 1;
                         break;
                     case points >= 100 && points <300:
@@ -99,17 +119,29 @@ if (node) {
 
         },
 
+        setHealthPoints: function(){
+            this.healthPoints = this._maxHealthPoints;
+        },
+
 
         updateObjectProperties: function () {
 
-                var initProp = this.gameData.objectTypes.get(this.objTypeId)._initProperties;
-                var newProp = initProp;
-                for (var i =0;i<this.items[this.userId].length;i++){
-                    var item = this.items[this.userId][i];
-                    newProp = item.applyToObject(initProp,newProp);
-                }
-                this.objectProperties = newProp;
+            var initProp = this.gameData.objectTypes.get(this.objTypeId)._initProperties;
+            for(var key in initProp) {
+                this[key] = initProp[key];
+            }
+            this.setHealthPoints();
+                //var newProp = initProp;
+                //for (var i =0;i<this.items[this.userId].length;i++){
+                //    var item = this.items[this.userId][i];
+                //    newProp = item.applyToObject(initProp,newProp);
+                //}
+                //this.objectProperties = newProp;
         },
+
+         addItem: function (item){
+             this.items.push(item);
+         },
 
         save: function () {
             var o = this._super();
@@ -119,7 +151,9 @@ if (node) {
             }
 
             o.a2 =  [this.userId,
-                    buildQueueIds];
+                    buildQueueIds,
+                    this.points,
+                    this.healthPoints];
             return o;
         },
 
@@ -131,6 +165,8 @@ if (node) {
                 {
                     this.userId = o.a2[0];
                     this.buildQueue = o.a2[1];
+                    this.points= o.a2[2];
+                    this.healthPoints= o.a2[3];
                 }
             }
             else {

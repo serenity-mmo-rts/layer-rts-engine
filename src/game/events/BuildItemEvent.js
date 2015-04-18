@@ -36,6 +36,10 @@ if (node) {
             this._mapId = this._item._mapId;
         },
 
+
+
+
+
         execute: function () {
           //  this._item._state = itemStates.WORKING;
             this._item._id = 'tmpId'+Math.random();
@@ -81,7 +85,8 @@ if (node) {
 
         start: function(startTime){
             this._super(startTime);
-            this._item._mapObj.state = mapObjectStates.WORKING;
+            //this._item._mapObj.state = mapObjectStates.WORKING;
+            this._item._mapObj.setState(mapObjectStates.WORKING);
             this.saveToDb();
         },
 
@@ -99,12 +104,12 @@ if (node) {
         },
 
         finish: function () {
-            this._item._mapObj.state = mapObjectStates.FINISHED;
-
+            //this._item._mapObj.state = mapObjectStates.FINISHED;
+            this._item._mapObj.setState(mapObjectStates.FINISHED);
             console.log("item: "+this._item._id+" production completed");
            // this._item.setState(itemStates.FINISHED);
             this._item._mapObj.removeItemFromQueue(0);
-            this._item._mapObj.items.push(this._item);
+            this._item._mapObj.addItem(this._item);
             this._gameData.maps.get(this._mapId).addItem(this._item);
             this._item._mapObj.checkQueue(this._dueTime);
 
