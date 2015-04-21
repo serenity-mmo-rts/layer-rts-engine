@@ -9,7 +9,6 @@ if (node) {
     var ItemType = AbstractType.extend({
 
         _type: null,
-        _class: null,
         _allowOnMapTypeId: null,
         _allowOnObjTypeId: null,
         _canMove: null,
@@ -29,7 +28,6 @@ if (node) {
             var o = this._super();
             o.a2 = [
                     this._type,
-                    this._class,
                     this._allowOnMapTypeId,
                     this._canMove,
                     this._canFight,
@@ -46,13 +44,12 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                     this._type = o.a2[0];
-                    this._class = o.a2[1];
-                    this._allowOnMapTypeId = o.a2[2];
-                    this._canMove = o.a2[3];
-                    this._canFight = o.a2[4];
-                    this._maxLevel = o.a2[5];
-                    this._initProperties = o.a2[6];
-                    this._featureTypeIds = o.a2[7]
+                    this._allowOnMapTypeId = o.a2[1];
+                    this._canMove = o.a2[2];
+                    this._canFight = o.a2[3];
+                    this._maxLevel = o.a2[4];
+                    this._initProperties = o.a2[5];
+                    this._featureTypeIds = o.a2[6]
 
             }
             else {
