@@ -73,6 +73,10 @@ if (node) {
             // overwrite
         },
 
+        getItems: function (){
+            // overwrite
+        },
+
         addCallback: function(key,callback){
             this.onChangeCallback[key] = callback;
         },

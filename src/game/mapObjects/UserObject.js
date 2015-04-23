@@ -143,6 +143,10 @@ if (node) {
              this.items.push(item);
          },
 
+        getItems: function (){
+            return this.items
+        },
+
         save: function () {
             var o = this._super();
             var buildQueueIds = [];

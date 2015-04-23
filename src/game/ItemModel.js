@@ -15,8 +15,6 @@ if (node) {
 
     var ItemModel= Class.extend( {
 
-
-
         // serialized
         _id: null,
         _objectId: null,
@@ -25,6 +23,7 @@ if (node) {
         _state:itemStates.TEMP,
         _level:0,
         _onChangeCallback: null,
+        _position: null,
 
 
          //not serialized
@@ -43,16 +42,21 @@ if (node) {
 
         setState: function(state) {
             this._state = state;
-            this.notifyChange();
+            this._mapObj.notifyChange();
+        },
+
+        setPosition: function(position) {
+            this._position = position;
+            this._mapObj.notifyChange();
+        },
+
+        getPosition: function() {
+            return this._position;
         },
 
         setLevel: function(lvl) {
             this._level = lvl;
-            this.notifyChange();
-        },
-
-        notifyChange: function() {
-            if (this._onChangeCallback) this._onChangeCallback();
+            this._mapObj.notifyChange();
         },
 
 
@@ -100,7 +104,8 @@ if (node) {
                     _objectId: this._objectId,
                     _mapId: this._mapId,
                     a:[this._level,
-                       this._state
+                       this._state,
+                       this._position
                       ]
                    };
         return o;
@@ -115,6 +120,7 @@ if (node) {
                 this._mapId = o._mapId;
                 this._level = o.a[0];
                 this._state = o.a[1];
+                this._position = o.a[2];
 
             }
             else {
