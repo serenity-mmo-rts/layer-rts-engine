@@ -167,11 +167,9 @@ if (node) {
             //overwrite with method to bring this event up to date
             this._gameData.maps.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
             this._id = event._id;
-            this._dueTime = event._dueTime;
             this._state = event._state;
-
-            // notify
-
+            this._startedTime = event._startedTime;
+            this.updateDueTime();
         },
 
 

@@ -28,6 +28,8 @@ if (node) {
             this.sortedDueTimes = [];
             this.sortedEvents = [];
             var self = this;
+
+            // TODO: This could be more efficient if we use another sorting algorithm (i.e. mergesort):
             this.events.each(function(evt){self.addEventToSortedList(evt)});
         },
 
@@ -51,6 +53,18 @@ if (node) {
             }
         },
 
+        removeEvent: function (eventId) {
+            var event = this.events.get(eventId);
+            if(event) {
+                if (event._dueTime) {
+                    var loc = this.findEventLocation(eventId);
+                    this.sortedDueTimes.splice(loc, 1);
+                    this.sortedEvents.splice(loc, 1);
+                }
+                this.events.deleteById(eventId);
+            }
+        },
+
         finishAllTillTime: function(time) {
 
             var index = this.sortedEvents.length-1;
@@ -59,23 +73,13 @@ if (node) {
 
                 // Recalculate the current DuetTime and check if it is really finished:
                 curEvent.updateDueTime();
-                if (curEvent._dueTime <= time) {
+                if (this.sortedEvents[index]._id == curEvent._id && curEvent._dueTime <= time){
                     console.log("event scheduler finishing event "+curEvent._id);
                     curEvent.finish();
-
-                    if (this.sortedEvents[index]._id == curEvent._id ){
-                        this.sortedDueTimes.pop();
-                        this.sortedEvents.pop();
-                    }
-                    else {
-                        index = this.findEventLocation(curEvent._id);
-                        this.sortedDueTimes.splice(index, 1);
-                        this.sortedEvents.splice(index, 1);
-                    }
-
+                    this.sortedDueTimes.pop();
+                    this.sortedEvents.pop();
                     this.events.deleteById(curEvent._id);
                     this.eventsFinished.add(curEvent);
-
                 }
 
                 // Continue with next Event:
@@ -91,15 +95,9 @@ if (node) {
             // this function is doing nothing if the event does not exist in scheduler:
             var event = this.events.get(eventId);
             if(event) {
-                if (event._dueTime) {
-                    var loc = this.findEventLocation(eventId);
-                    this.sortedDueTimes[loc] = newDueTime;
-                    event._dueTime = newDueTime;
-                }
-                else {
-                    event._dueTime = newDueTime;
-                    this.addEventToSortedList(event);
-                }
+                this.removeEvent(eventId);
+                event._dueTime = newDueTime;
+                this.addEvent(event);
             }
         },
 
@@ -153,11 +151,15 @@ if (node) {
             var pivot = parseInt(start + (end - start) / 2, 10);
 
             if (end-start <= 1) {
-                if (this.sortedDueTimes[pivot] > element) {
-                    return pivot+1;
+
+                if (this.sortedDueTimes[start] <= element) {
+                    return start;
+                }
+                else if (this.sortedDueTimes[end] <= element) {
+                    return end;
                 }
                 else {
-                    return pivot;
+                    return end+1;
                 }
             }
 

@@ -59,10 +59,10 @@ if (node) {
 
         delete: function(o) {
             if (o instanceof this.ClassType) {
-
+                delete this.hashList[o._id];
             }
             else {
-
+                delete this.hashList[o._id];
             }
 
         },
