@@ -99,8 +99,13 @@ if (node) {
         },
 
         updateDueTime: function(){
-            var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._initProperties._buildTime[this._item._level];
-            this.setDueTime(this._startedTime + buildTime);
+            if (this._startedTime) {
+                var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._initProperties._buildTime[this._item._level];
+                this.setDueTime(this._startedTime + buildTime);
+            }
+            else {
+                this.setDueTime(0);
+            }
         },
 
         finish: function () {

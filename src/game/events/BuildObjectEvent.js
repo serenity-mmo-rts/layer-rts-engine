@@ -92,8 +92,13 @@ if (node) {
         },
 
         updateDueTime: function(){
-            var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
-            this.setDueTime(this._startedTime + buildTime);
+            if (this._startedTime) {
+                var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
+                this.setDueTime(this._startedTime + buildTime);
+            }
+            else {
+                this.setDueTime(0);
+            }
         },
 
         finish: function () {

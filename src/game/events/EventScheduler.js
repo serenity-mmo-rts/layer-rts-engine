@@ -137,6 +137,11 @@ if (node) {
                 this.sortedDueTimes.splice(addAtLocation, 0, event._dueTime);
                 this.sortedEvents.splice(addAtLocation, 0, event);
             }
+
+            //console.log("this.sortedDueTimes:");
+            //for (var i = 0; i<this.sortedDueTimes.length; i++){
+            //    console.log(this.sortedDueTimes[i]);
+            //}
         },
 
         // assume that sortedDueTimes is sorted in descending order!!!

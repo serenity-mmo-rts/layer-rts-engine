@@ -174,7 +174,7 @@ if (node) {
 
 
         revert: function() {
-            //overwrite
+            this._gameData.maps.get(this._mapId).eventScheduler.removeEvent(this._id);
         }
 
     });
