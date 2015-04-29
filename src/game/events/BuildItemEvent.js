@@ -103,8 +103,16 @@ if (node) {
             this.setDueTime(this._startedTime + buildTime);
         },
 
+        applyFeatures: function(){
+           var features =  this._item._features;
+            for (var i = 0; i<features.length; i++){
+                featureTargets = features[i].selectFeatureTargets;
+            }
+        },
+
         finish: function () {
             //this._item._mapObj.state = mapObjectStates.FINISHED;
+            this._item.initialize();
             this._item.setPosition("Base");
             this._item._mapObj.setState(mapObjectStates.FINISHED);
             console.log("item: "+this._item._id+" production completed");

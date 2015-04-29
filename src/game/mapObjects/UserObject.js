@@ -25,6 +25,7 @@ if (node) {
             this.items = [];// get example: LaserTrooper = this.items['userId']['Index'];
             this.appliedFeatures = [];
             this.playerMoneyInOutPerSec =0;
+            this.initProperties = {};
 
             this.populationLoan = 0;
             this.populationCosts = 0;
@@ -48,6 +49,7 @@ if (node) {
             this._super( gameData, initObj );
             this.updateObjectProperties();
         },
+
         getMaxHealthPoints: function(){
             return this._maxHealthPoints;
         },
@@ -64,6 +66,10 @@ if (node) {
 
         getPoints: function(){
             return this.points;
+        },
+
+        getItems: function (){
+            return this.items
         },
 
             // member functions
@@ -89,8 +95,27 @@ if (node) {
                 return level
         },
 
+        setPointers : function(){
+            this._super();
+            var buildQueueIds = this.buildQueue;
+            this.buildQueue = [];
+            for (var i=0; i<buildQueueIds.length ; i++) {
+                this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
+            }
+
+        },
+
+        setHealthPoints: function(){
+            this.healthPoints = this._maxHealthPoints;
+        },
+
+
         addItemToQueue: function(item){
             this.buildQueue.push(item);
+        },
+
+        addItem: function (item){
+            this.items.push(item);
         },
 
         removeItemFromQueue: function(idx){
@@ -109,43 +134,22 @@ if (node) {
 
         },
 
-        setPointers : function(){
-            this._super();
-            var buildQueueIds = this.buildQueue;
-            this.buildQueue = [];
-            for (var i=0; i<buildQueueIds.length ; i++) {
-                this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
-            }
-
-        },
-
-        setHealthPoints: function(){
-            this.healthPoints = this._maxHealthPoints;
-        },
 
 
         updateObjectProperties: function () {
 
             var initProp = this.gameData.objectTypes.get(this.objTypeId)._initProperties;
             for(var key in initProp) {
-                this[key] = initProp[key];
+                this.initProperties[key] = initProp[key];
+
             }
+            this._properties = this._initProperties;
             this.setHealthPoints();
-                //var newProp = initProp;
-                //for (var i =0;i<this.items[this.userId].length;i++){
-                //    var item = this.items[this.userId][i];
-                //    newProp = item.applyToObject(initProp,newProp);
-                //}
-                //this.objectProperties = newProp;
         },
 
-         addItem: function (item){
-             this.items.push(item);
-         },
 
-        getItems: function (){
-            return this.items
-        },
+
+
 
         save: function () {
             var o = this._super();
