@@ -50,17 +50,19 @@ if (node) {
             this._mapObj.notifyChange();
         },
 
-        getPosition: function() {
-            return this._position;
-        },
-
         setLevel: function(lvl) {
             this._level = lvl;
             this._mapObj.notifyChange();
         },
 
+        getPosition: function() {
+            return this._position;
+        },
 
-        applyToGame: function() {
+
+
+
+        initialize: function() {
 
             var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
             for(var key in initProp) {

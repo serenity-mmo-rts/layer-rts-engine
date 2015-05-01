@@ -52,22 +52,22 @@ if (node) {
         },
 
 
-        selectFeatureTargets: function(currentTarget){ // current Target comes from UI
-            var map = this.gameData.mapObjects.get(this._mapId);
+        apply: function(currentTarget){ // current Target comes from UI
+            this.map = this.gameData.mapObjects.get(this._mapId);
             switch (this._properties._appliedOn){
                 case "Object": // applied on object
                     // apply on selected object
                     if (this._properties._canSelect){
                         // apply on objects with range
                         if (this._properties._range > 0){
-                            if(map.validCoordinate(currentTarget)){
-                                var featureTargets = map.getObjectsInRange(currentTarget,this._properties._range);
+                            if(this.map.validCoordinate(currentTarget)){
+                                var featureTargets = this.map.getObjectsInRange(currentTarget,this._properties._range);
                             }
                         }
                         // apply on selected object only
                         else{
-                            if(map.validMapObject(currentTarget)){
-                                var featureTargets = map.getMapObject(currentTarget);
+                            if(this.map.validMapObject(currentTarget)){
+                                var featureTargets = this.map.getMapObject(currentTarget);
                             }
                         }
                     }
@@ -75,77 +75,94 @@ if (node) {
                     else{
                         //  auto-apply on current object with range
                         if (this._properties._range > 0){
-                            var coords = [map.mapObjects.get(this._itemId._objectId).x,map.mapObjects.get(this._itemId._objectId).y];
-                            var featureTargets = map.getObjectsInRange(coords,this._properties._range);
+                            var coords = [this.map.mapObjects.get(this._itemId._objectId).x,this.map.mapObjects.get(this._itemId._objectId).y];
+                            var featureTargets = this.map.getObjectsInRange(coords,this._properties._range);
                         }
                         // auto-apply on current object
                         else{
-                            var featureTargets = map.mapObjects.get(this._itemId._objectId);
+                            var featureTargets = this.map.mapObjects.get(this._itemId._objectId);
                         }
                     }
+
+                    this.applyToObject(featureTargets);
 
                 case "Item": // apply on items
-                if (this._properties._canSelect){
+                    if (this._properties._canSelect){
 
-                    // apply on items of object with selected range
-                    if (this._properties._range > 0){
-                        if(map.validCoordinate(currentTarget)){
-                            var objects = this.getObjectsInRange(currentTarget,this._properties._range);
-                            var featureTargets =[];
-                            for (var i = 0;i<objects.length;i++){
-                                featureTargets[i]= this.getItemsInObject(objects[i]);
+                        // apply on items of object with selected range
+                        if (this._properties._range > 0){
+                            if(this.map.validCoordinate(currentTarget)){
+                                var objects = this.getObjectsInRange(currentTarget,this._properties._range);
+                                var featureTargets =[];
+                                for (var i = 0;i<objects.length;i++){
+                                    featureTargets[i]= this.getItemsInObject(objects[i]);
+                                }
                             }
                         }
+                        // apply on single item (in current obj)
+                        else{
+                            if(this.map.validItem(currentTarget)){
+                                var objects = this.getObjectsInRange(currentTarget,this._properties._range);
+                                var featureTargets =[];
+                                for (var i = 0;i<objects.length;i++){
+                                    featureTargets[i]= this.getItemsInObject(objects[i]);
+                                }
+                            }
+
+                        }
                     }
-                    // apply on single item (in current obj)
+                   // cannot select item
                     else{
-                        if(map.validItem(currentTarget)){
-                            var objects = this.getObjectsInRange(currentTarget,this._properties._range);
+
+                        // auto-apply on all items in current object
+                        if (this._properties._range ==0) {
+                            var object = this.map.mapObjects.get(this._itemId._objectId);
+                            var featureTargets =[];
+                                featureTargets = this.map.mapObjects.getItemsInObject(object);
+                        }
+
+                        // auto-apply on items in objects in range of current object
+                       else if (this._properties._range > 0){
+                            var coords = [this.map.mapObjects.get(this._itemId._objectId).x,this.map.mapObjects.get(this._itemId._objectId).y];
+                            var objects = this.map.getObjectsInRange(coords,this._properties._range);
                             var featureTargets =[];
                             for (var i = 0;i<objects.length;i++){
-                                featureTargets[i]= this.getItemsInObject(objects[i]);
+                                featureTargets[i]= this.map.mapObjects.getItemsInObject(objects[i]);
                             }
+
                         }
-
                     }
 
-
-                }
-                // cannot select item
-                else{
-
-                    // auto-apply on all items in current object
-                    if (this._properties._range ==0) {
-                        var object = map.mapObjects.get(this._itemId._objectId);
-                        var featureTargets =[];
-                            featureTargets = map.mapObjects.getItemsInObject(object);
-                    }
-
-                    // auto-apply on items in objects in range of current object
-                   else if (this._properties._range > 0){
-                        var coords = [map.mapObjects.get(this._itemId._objectId).x,map.mapObjects.get(this._itemId._objectId).y];
-                        var objects = map.getObjectsInRange(coords,this._properties._range);
-                        var featureTargets =[];
-                        for (var i = 0;i<objects.length;i++){
-                            featureTargets[i]= map.mapObjects.getItemsInObject(objects[i]);
-                        }
-
-                    }
-                }
+                    this.applyToItem(featureTargets);
 
                 case "Map_Coordinate":
                     // apply on Map_Coordiante
                     if(this.validCoordinate(currentTarget)){
                         var featureTargets = currentTarget;
                     }
+                    this.applyToMap(featureTargets);
 
 
                 case "User":
                     // apply on User
                     // var featureTargets = userId;
+                    this.applyToUser(featureTargets);
             }
 
-            return featureTargets
+        },
+
+        applyToObject: function(Objects){
+
+            for (var i = 0;i<Objects.length;i++){
+                var init_properties = Objects[i]._initProperties;
+                var current_properties = Objects[i]._properties;
+                var effects = this._properties._effects;
+                for (var k = 0;i<effects.length;k++){
+                   var effect = effects[k];
+                    newProp = effect.applyToObject(init_properties,current_properties);
+                }
+            }
+
         },
 
 
@@ -160,17 +177,28 @@ if (node) {
             return initProp
         },
 
-
-        applyToObject: function(initProp,newProp){
+        applyToMap: function() {
 
             var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
 
             for (var i = 0;i<features.length;i++){
-                newProp = features[i].applyToObject(initProp,newProp)
+                newProp = features[i].applyToItem(initProp,newProp)
             }
             return initProp
-
         },
+
+        applyToUser: function() {
+
+            var features = this.gameData.itemTypes.get(this._itemTypeId)._objectFeatures[this._level];
+
+            for (var i = 0;i<features.length;i++){
+                newProp = features[i].applyToItem(initProp,newProp)
+            }
+            return initProp
+        },
+
+
+
 
         save: function () {
 
