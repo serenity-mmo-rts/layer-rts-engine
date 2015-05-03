@@ -1,27 +1,23 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var Class= require('./Class').Class;
+
 }
 
 (function (exports) {
 
+    var FeatureModel = function (gameData,initObj){
+        this._gameData= null;
+        this._featureTypeId= null;
+        this._properties= null;
+        this._currentTargetIds=null;
+        this._remainingActivationTime= null;
+        this._gameData = gameData;
+        this.load(initObj);
+    }
 
-    var FeatureModel= Class.extend( {
+    FeatureModel.prototype ={
 
-
-        _gameData: null,
-        _featureTypeId: null,
-        _properties: null,
-
-        _currentTargetIds:null,
-        _remainingActivationTime: null,
-
-
-        init: function(gameData, initObj){
-          this._gameData = gameData;
-            this.load(initObj);
-        },
 
        getObjectsInRange : function(MapCoordinate,range){
            // find objects in game data with coordinate and range
@@ -229,10 +225,10 @@ if (node) {
                 }
             }
             // load properties from type
-            this._properties = this.gameData.featureTypes.get(this._featureTypeId);
+            this._properties = this._gameData.featureTypes.get(this._featureTypeId);
         }
 
-    });
+    }
 
 
     exports.FeatureModel = FeatureModel;

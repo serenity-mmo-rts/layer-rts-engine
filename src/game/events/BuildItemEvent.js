@@ -117,7 +117,7 @@ if (node) {
 
         finish: function () {
             //this._item._mapObj.state = mapObjectStates.FINISHED;
-            this._item.initialize();
+            //this._item.initialize();
             this._item.setPosition("Base");
             this._item._mapObj.setState(mapObjectStates.FINISHED);
             console.log("item: "+this._item._id+" production completed");

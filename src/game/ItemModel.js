@@ -7,38 +7,34 @@ if (node) {
 
 (function (exports) {
 
-    var itemStates = {};
-    itemStates.TEMP = 0;
-    itemStates.WORKING= 1;
-    itemStates.FINSEHD = 2;
 
 
-    var ItemModel= Class.extend( {
+    var ItemModel = function (gameData,initObj){
 
+        var itemStates = {};
+        itemStates.TEMP = 0;
+        itemStates.WORKING= 1;
+        itemStates.FINSEHD = 2;
         // serialized
-        _id: null,
-        _objectId: null,
-        _itemTypeId: null,
-        _mapId: null,
-        _state:itemStates.TEMP,
-        _level:0,
-        _onChangeCallback: null,
-        _position: null,
+        this._id=null;
+        this._objectId= null;
+        this._itemTypeId= null;
+        this._mapId= null;
+        this._state=itemStates.TEMP;
+        this._level=0;
+        this._onChangeCallback= null;
+        this._position= null;
+        this._features=[];
+        //not serialized
+        this._mapObj= null;
+        this.gameData = gameData;
+        this._initProperties= {};
+        // deserialize event from json objectet
+        this.load(initObj);
+        this.updateItemProperties();
+    }
 
-
-         //not serialized
-        _gameData: null,
-        _initProperties: null,
-        _features: null,
-        _mapObj: null,
-
-
-        init: function(gameData, initObj){
-            this.gameData = gameData;
-
-            // deserialize event from json objectet
-            this.load(initObj);
-        },
+    ItemModel.prototype= {
 
         setState: function(state) {
             this._state = state;
@@ -62,13 +58,13 @@ if (node) {
 
 
 
-        initialize: function() {
+        updateItemProperties: function() {
 
             var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
             for(var key in initProp) {
-                this._initProperties[key] = initProp[key];
+                this._initProperties[key] = initProp[key][this._level];
             }
-
+            this._features = [];
             // do this on execute
             var featureTypeIds= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeIds[0];
             for (var i = 0; i< featureTypeIds.length;i++){
@@ -139,9 +135,10 @@ if (node) {
 
         }
 
-    });
+    }
 
-    exports.itemStates = itemStates;
+
+    //exports.itemStates = itemStates;
     exports.ItemModel = ItemModel;
 
 })(typeof exports === 'undefined' ? window : exports);
