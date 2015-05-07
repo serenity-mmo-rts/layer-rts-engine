@@ -15,7 +15,7 @@ if (node) {
         _canFight: null,
         _maxLevel: null,
         _initProperties:{},
-        _featureTypeIds: null,
+        _features: null,
 
 
         init: function(gameData, initObj){
@@ -33,7 +33,7 @@ if (node) {
                     this._canFight,
                     this._maxLevel,
                     this._initProperties,
-                    this._featureTypeIds
+                    this._features
 
 
                     ];
@@ -49,7 +49,7 @@ if (node) {
                     this._canFight = o.a2[3];
                     this._maxLevel = o.a2[4];
                     this._initProperties = o.a2[5];
-                    this._featureTypeIds = o.a2[6]
+                    this._features = o.a2[6]
 
             }
             else {

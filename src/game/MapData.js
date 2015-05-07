@@ -181,7 +181,7 @@ if (node) {
                 height: range*2
             }
             var inRange = [];
-            collidingMapObjects = collisionDetection(mapObj);
+            collidingMapObjects = this.collisionDetection(mapObj);
             for (var i= 1; i<collidingMapObjects._length; i++) {
                 var dx = collidingMapObjects[i].x - mapObj.x;
                 var dy = collidingMapObjects[i].y - mapObj.y;

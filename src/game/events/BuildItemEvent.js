@@ -55,6 +55,7 @@ if (node) {
 
             var self = this;
             this._item._id = (new mongodb.ObjectID()).toHexString();
+            this._item._feature._itemId =  this._item._id;
 
             this._item._mapObj.addItemToQueue(this);
             this._item._mapObj.checkQueue(Date.now());
@@ -81,6 +82,9 @@ if (node) {
            this._super(event);
            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
            this._item._id = event._item._id;
+           this._item._feature._itemId = event._item._id;
+           //this._item.createFeature();
+
         },
 
         start: function(startTime){
@@ -108,12 +112,6 @@ if (node) {
             }
         },
 
-        applyFeatures: function(){
-           var features =  this._item._features;
-            for (var i = 0; i<features.length; i++){
-                featureTargets = features[i].selectFeatureTargets;
-            }
-        },
 
         finish: function () {
             //this._item._mapObj.state = mapObjectStates.FINISHED;
@@ -125,6 +123,8 @@ if (node) {
             this._item._mapObj.removeItemFromQueue(0);
             this._item._mapObj.addItem(this._item);
             this._gameData.maps.get(this._mapId).addItem(this._item);
+          //  this._item._feature.setPointers();
+            this._item._feature.checkStackExecution(false);
             this._item._mapObj.notifyChange();
             this._item._mapObj.checkQueue(this._dueTime);
 

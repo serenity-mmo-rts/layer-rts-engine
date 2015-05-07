@@ -69,6 +69,10 @@ if (node) {
            }
         },
 
+        updateObjectProperties: function () {
+
+        },
+
         addItem: function (item){
             // overwrite
         },
