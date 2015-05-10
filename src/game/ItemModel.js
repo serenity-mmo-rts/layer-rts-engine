@@ -24,7 +24,7 @@ if (node) {
         this._state=itemStates.TEMP;
         this._level=0;
         this._onChangeCallback= null;
-        this._position= null;
+       // this._position= null;
         this._feature=null;
 
         //not serialized
@@ -44,10 +44,6 @@ if (node) {
             this._mapObj.notifyChange();
         },
 
-        setPosition: function(position) {
-            this._position = position;
-            this._mapObj.notifyChange();
-        },
 
         setLevel: function(lvl) {
             if (lvl!=this._level){
@@ -57,9 +53,6 @@ if (node) {
             }
         },
 
-        getPosition: function() {
-            return this._position;
-        },
 
         updateItemProperties: function() {
             var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
@@ -85,7 +78,6 @@ if (node) {
                     _mapId: this._mapId,
                     a:[this._level,
                        this._state,
-                       this._position,
                        feature
                       ]
 
@@ -104,8 +96,7 @@ if (node) {
             if (o.hasOwnProperty("a")) {
                 this._level = o.a[0];
                 this._state = o.a[1];
-                this._position = o.a[2];
-                this._feature = new FeatureModel(this.gameData,o.a[3]);
+                this._feature = new FeatureModel(this.gameData,o.a[2]);
 
             }
 

@@ -59,7 +59,7 @@ if (node) {
 
         setState: function(state) {
             this.state = state;
-            this.notifyChange();
+            //this.notifyChange();
         },
 
         notifyChange: function() {

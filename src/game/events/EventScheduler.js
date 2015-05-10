@@ -75,11 +75,12 @@ if (node) {
                 curEvent.updateDueTime();
                 if (this.sortedEvents[index]._id == curEvent._id && curEvent._dueTime <= time){
                     console.log("event scheduler finishing event "+curEvent._id);
-                    curEvent.finish();
+
                     this.sortedDueTimes.pop();
                     this.sortedEvents.pop();
                     this.events.deleteById(curEvent._id);
                     this.eventsFinished.add(curEvent);
+                    curEvent.finish();
                 }
 
                 // Continue with next Event:

@@ -104,6 +104,7 @@ if (node) {
         finish: function () {
             var self = this;
             this._mapObj.setState(mapObjectStates.FINISHED);
+            this._mapObj.notifyChange();
             if (node) {
                 dbConn.get('mapObjects', function (err, collMapObjects) {
                     if (err) throw err;

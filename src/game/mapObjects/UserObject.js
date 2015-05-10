@@ -28,7 +28,7 @@ if (node) {
 
             // not serialized
             this.properties = {};
-            this.change = false;
+            this.change =false;
 
 
 
@@ -65,6 +65,7 @@ if (node) {
             return this.properties._maxHealthPoints;
         },
         getHealthPoints: function(){
+            this.healthPoints = this.properties._maxHealthPoints;
             if (this.change){
                 this.updateObjectProperties();
                 this.change = false;
@@ -114,12 +115,6 @@ if (node) {
             this.buildQueue = [];
             for (var i=0; i<buildQueueIds.length ; i++) {
                 this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
-            }
-
-            var deployedItemsIds = this.deployedItems;
-            this.deployedItems= [];
-            for (var i=0; i<deployedItemsIds.length ; i++) {
-                this.addItem(this.gameData.maps.get(this.mapId).items.get(deployedItemsIds[i]));
             }
         },
 
@@ -183,15 +178,20 @@ if (node) {
         updateObjectProperties: function () {
             this.properties = {};
             var initProp = {};
+            var prop = {};
             var initProp = this.gameData.objectTypes.get(this.objTypeId)._initProperties;
-            this.properties = initProp;
+
+            for (var attr in initProp) {
+                 prop[attr] = initProp[attr];
+                 this.properties[attr] = initProp[attr];
+            }
             for (var id in this.appliedItems){
                 var item = this.appliedItems[id];
                 for (var i = 0;i<item.length;i++){
                     var feat = item[i];
                     if (feat.operator ==1) { // times
                         if (feat.mode ==1) { // apply to baseline
-                            var change = initProp[feat.property] * feat.change;
+                            var change = prop[feat.property] * feat.change;
                             this.properties[feat.property] += change;
                         }
                         else if (feat.mode==2){ // apply to stack
@@ -200,13 +200,10 @@ if (node) {
                         }
                     }
                     else if (feat.operator ==2) { // plus
-                        var change = initProp[feat.property] + feat.change;
-                        this.properties[feat.property] += change;
+                            this.properties[feat.property] += feat.change;
                     }
-                }
+                }prop[feat.property]
             }
-
-
         },
 
 
@@ -223,29 +220,28 @@ if (node) {
             var appliedItemOperators = [];
             var appliedItemModes = [];
             var count = 0;
-            for (var i=0; i<this.appliedItems.length ; i++)  {
-                var id = this.appliedItems[i].key;
-                for (var k = 0; k<this.appliedItems[i].length;k++){
-                    var feature = this.appliedItems[i][k];
+            for (var id in this.appliedItems)  {
+
+                for (var k = 0; k<this.appliedItems[id].length;k++){
+                    var feature = this.appliedItems[id][k];
                     appliedItemIds[count] = id;
-                    appliedItemProps[count]= [feature.property];
-                    appliedItemValues[count] = [feature.change];
-                    appliedItemOperators[count] = [feature.operator];
-                    appliedItemModes[count] = [feature.mode];
+                    appliedItemProps[count]= feature.property;
+                    appliedItemValues[count] = feature.change;
+                    appliedItemOperators[count] = feature.operator;
+                    appliedItemModes[count] = feature.mode;
                     count++
                 }
             }
 
             var deployedItemIds= [];
             for (var i=0; i<this.deployedItems.length; i++) {
-                deployedItemIds.push(this.deployedItems[i].id);
+                deployedItemIds.push(this.deployedItems[i]._id);
             }
 
 
             o.a2 =  [this.userId,
                      this.healthPoints,
                     buildQueueIds,
-                    deployedItemIds,
                     appliedItemIds,
                     appliedItemProps,
                     appliedItemValues,
@@ -264,11 +260,11 @@ if (node) {
                     this.userId = o.a2[0];
                     this.healthPoints= o.a2[1];
                     this.buildQueue = o.a2[2];
-                    this.deployedItems= o.a2[3];
 
-                    for (var i = 0; i<o.a2[4].length; i++){
-                        this.addFeature(o.a2[4][i],o.a2[5][i],o.a2[6][i],o.a2[7][i],o.a2[8][i])
+                    for (var i = 0; i<o.a2[3].length; i++){
+                        this.addFeature(o.a2[3][i],o.a2[4][i],o.a2[5][i],o.a2[6][i],o.a2[7][i])
                     }
+
                 }
 
 
