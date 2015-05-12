@@ -83,7 +83,7 @@ if (node) {
                     var allow = true;
                     break;
                 case "AddToProp":
-                    this.addToProp([processedStack],currentOperation[1],currentOperation[2],currentOperation[3],currentOperation[4]); // property,change, mode (1= baseline)
+                    this.addToProp(processedStack,currentOperation[1],currentOperation[2],currentOperation[3],currentOperation[4]); // property,change, mode (1= baseline)
                     var newStack = processedStack;
                     var allow = true;
                     break;
@@ -135,13 +135,19 @@ if (node) {
             else{
                var currentLocation= [coordiante.x,coordiante.y];
             }
-            return this.map.getObjectsInRange(currentLocation,range);
+            return this.map.getObjectsInRange(currentLocation,range,1);
+
         },
 
         addToProp: function(itemsOrObjects,property,change,operator,mode){
-            for (var i = 0; i<itemsOrObjects.length; i++){
-                var itemOrObject = itemsOrObjects[i];
-                itemOrObject.addFeature(this._itemId,property,change,operator,mode);
+            if (itemsOrObjects instanceof Array){
+                for (var i = 0; i<itemsOrObjects.length; i++){
+                    var itemOrObject = itemsOrObjects[i];
+                    itemOrObject.addFeature(this._itemId,property,change,operator,mode);
+                }
+            }
+            else{
+                itemsOrObjects.addFeature(this._itemId,property,change,operator,mode);
             }
         },
 

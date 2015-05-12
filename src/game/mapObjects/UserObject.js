@@ -202,7 +202,7 @@ if (node) {
                     else if (feat.operator ==2) { // plus
                             this.properties[feat.property] += feat.change;
                     }
-                }prop[feat.property]
+                }
             }
         },
 

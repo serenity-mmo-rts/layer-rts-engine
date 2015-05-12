@@ -155,7 +155,7 @@ if (node) {
             var collidingItems = [];
 
             // detect collision:
-
+            var ids = {};
             for (var i = 0, l = items.length; i < l; i++) {
                 var item = items[i];
 
@@ -164,7 +164,11 @@ if (node) {
                 if (intersectBounds(testItemRect, boundsToRect(item))) {
                 //if (item.x < testItem.x + testItem.width && item.x + item.width > testItem.x &&
                 //    item.y < testItem.y + testItem.height && item.y + item.height > testItem.y) {
-                    collidingItems.push(item.obj);
+                    if (ids.hasOwnProperty(item.obj._id)){}
+                    else{
+                        collidingItems.push(item.obj);
+                        ids[item.obj._id] = null;
+                    }
                 }
 
             }
@@ -173,20 +177,27 @@ if (node) {
             return collidingItems;
         },
 
-        getObjectsInRange: function (coord,range) {
+        getObjectsInRange: function (coord,range,type) {
             var mapObj = {
-                x: coord.x,
-                y: coord.y,
+                x: coord[0],
+                y: coord[1],
                 width: range*2,
                 height: range*2
             }
             var inRange = [];
-            collidingMapObjects = this.collisionDetection(mapObj);
-            for (var i= 1; i<collidingMapObjects._length; i++) {
-                var dx = collidingMapObjects[i].x - mapObj.x;
-                var dy = collidingMapObjects[i].y - mapObj.y;
-                if( dx*dx + dy*dy < range*range) {
-                    inRange.push(collidingMapObjects[i]);
+            var collidingMapObjects = this.collisionDetection(mapObj);
+            for (var index in collidingMapObjects) {
+                var dx = collidingMapObjects[index].x - mapObj.x;
+                var dy = collidingMapObjects[index].y - mapObj.y;
+                if (type ==0){ // all objects
+                    if( dx*dx + dy*dy < range*range) {
+                        inRange.push(collidingMapObjects[index]);
+                    }
+                }
+                else if (type==1){ // take only user objects
+                    if (collidingMapObjects[index].hasOwnProperty("userId")&& dx*dx + dy*dy < range*range){
+                       inRange.push(collidingMapObjects[index]);
+                    }
                 }
 
             }
