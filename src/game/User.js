@@ -24,8 +24,17 @@
         },
 
         load: function (o) {
-            this._id = o._id;
-            this.name = o.a[0];
+            if (o.hasOwnProperty("a")) {
+                this._id = o._id;
+                this.name = o.a[0];
+            }
+            else {
+                for (var key in o) {
+                    if (o.hasOwnProperty(key)) {
+                        this[key] = o[key];
+                    }
+                }
+            }
         }
     }
 
