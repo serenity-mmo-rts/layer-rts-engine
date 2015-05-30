@@ -6,7 +6,7 @@ if (node) {
 
 (function (exports) {
 
-    var FeatureModel = function (gameData,initObj){
+    var Feature = function (gameData,initObj){
         //this._currentTargetIds=null;
         this._remainingActivationTime= null;
         this._mapId = null;
@@ -20,7 +20,7 @@ if (node) {
     }
 
 
-    FeatureModel.prototype ={
+    Feature.prototype ={
 
         checkStackExecution: function(active){
             var process = true;
@@ -95,6 +95,8 @@ if (node) {
                     var newStack = this.getItemsInObject(processedStack,currentOperation[1]);
                     var allow = true;
                     break;
+
+                // execute on map, build mapObject on execute
             }
              var out = [allow, newStack];
          return out
@@ -251,6 +253,6 @@ if (node) {
     }
 
 
-    exports.FeatureModel = FeatureModel;
+    exports.Feature = Feature;
 
 })(typeof exports === 'undefined' ? window : exports);
