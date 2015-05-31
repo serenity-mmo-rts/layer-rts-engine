@@ -11,7 +11,7 @@ if (node) {
 
         // basics:
         _type: "ObjectType",
-        _className: null,
+        _buildingBlocks: {},
         // requirements
         _allowOnMapTypeId: null,
         _requiredTechnologies: null,
@@ -25,8 +25,6 @@ if (node) {
         _hasChildMapTypeId: null,
 
         // object Properties not serilized
-        _initProperties : {},
-
 
 
 
@@ -43,7 +41,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._className,
+            o.a2 = [this._buildingBlocks,
                     this._allowOnMapTypeId,
                     this._requiredTechnologies,
                     this._requiredRessources,
@@ -52,7 +50,7 @@ if (node) {
                     this._spritesheetId,
                     this._spriteFrame,
                     this._hasChildMapTypeId,
-                    this._initProperties
+
                     ];
 
 
@@ -65,7 +63,7 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._className = o.a2[0];
+                this._buildingBlocks = o.a2[0];
                 this._allowOnMapTypeId = o.a2[1];
                 this._requiredTechnologies = o.a2[2];
                 this._requiredRessources = o.a2[3];
@@ -74,7 +72,7 @@ if (node) {
                 this._spritesheetId = o.a2[6];
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
-                this._initProperties = o.a2[9];
+
 
 
             }

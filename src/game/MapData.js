@@ -4,7 +4,7 @@ if (node) {
     var MapObject = require('./mapObjects/MapObject').MapObject;
     var createMapObject = require('./mapObjects/createMapObject');
     var EventScheduler = require('./events/EventScheduler').EventScheduler;
-    var ItemModel = require('./ItemModel').ItemModel;
+    var ItemModel = require('./items/Item').ItemModel;
 }
 
 (function (exports) {

@@ -2,10 +2,18 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var ItemModel = require('../ItemModel').ItemModel;
+    var ItemModel = require('../items/Item').ItemModel;
     var GameList = require('../GameList').GameList;
-}
 
+    var UserObject = require('./buildingBlocks/UserObject').UserObject;
+    var Environment = require('./buildingBlocks/Environment').Environment;
+    var HubNode = require('./buildingBlocks/HubNode').HubNode ;
+    var TechProduction = require('./buildingBlocks/TechProduction').TechProduction;
+    var Sublayer = require('./buildingBlocks/Sublayer').Sublayer;
+    var SoilPuller = require('./buildingBlocks/SoilProduction').SoilPuller ;
+
+    var ResourceProduction = require('./buildingBlocks/ResourceProduction').ResourceProduction;
+}
 
 
 (function (exports) {
@@ -42,11 +50,49 @@ if (node) {
         this.items= [];//new GameList(gameData,ItemModel,false,false);
         this.gameData = gameData;
         this.onChangeCallback = {};
+        this._blocks = {};
+
+        var Objects = this.gameData.objectTypes.get(initObj.objTypeId)._buildingBlocks;
+        var BuildingBlocks  = Object.keys(Objects);
+
+        for (var i =0;i<BuildingBlocks.length;i++){
+            var name = BuildingBlocks[i];
+            var blockObj = Objects[name];
+            if (name == "UserObject") {
+                this._blocks[name] = new UserObject(gameData,blockObj);
+            }
+            else if (name == "Environment") {
+                this._blocks[name] = new Environment(gameData,blockObj);
+            }
+            else if (name == "SoilPuller") {
+                this._blocks[name] = new SoilPuller(gameData,blockObj);
+            }
+            else if (name == "ResourcePusher") {
+                this._blocks[name] = new ResourcePusher(gameData,blockObj);
+            }
+            else if (name == "ResourcePuller") {
+                this._blocks[name] = new ResourcePuller(gameData,blockObj);
+            }
+            else if (name == "ResourceProduction") {
+                this._blocks[name] = new ResourceProduction(gameData,blockObj);
+            }
+            else if (name ==  "HubNode") {
+                this._blocks[name] = new HubNode(gameData,blockObj);
+            }
+            else if (name ==  "TechProduction") {
+                this._blocks[name] = new TechProduction(gameData,blockObj);
+            }
+            else if (name ==  "Sublayer") {
+                this._blocks[name] = new Sublayer(gameData,blockObj);
+            }
+        }
 
         // init:
         if (MapObject.arguments.length == 2) {
             this.load(initObj);
         }
+
+
     },
 
         getPoints: function(){

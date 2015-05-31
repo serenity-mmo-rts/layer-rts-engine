@@ -1,15 +1,15 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var Class= require('./Class').Class;
-    var FeatureModel = require('./FeatureModel').FeatureModel;
+    var Class= require('./../Class').Class;
+    var Feature = require('./buildingBlocks/Feature').Feature;
 }
 
 (function (exports) {
 
 
 
-    var ItemModel = function (gameData,initObj){
+    var Item = function (gameData,initObj){
 
         var itemStates = {};
         itemStates.TEMP = 0;
@@ -37,7 +37,7 @@ if (node) {
 
     }
 
-    ItemModel.prototype= {
+    Item.prototype= {
 
         setState: function(state) {
             this._state = state;
@@ -65,7 +65,7 @@ if (node) {
             this._feature = null;
             //var featureTypeId= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeId[this._level];
             var features = this.gameData.itemTypes.get(this._itemTypeId)._features;
-            this._feature = new FeatureModel(this.gameData,{_itemId: this._id,_mapId: this._mapId});
+            this._feature = new Feature(this.gameData,{_itemId: this._id,_mapId: this._mapId});
         },
 
 
@@ -123,6 +123,6 @@ if (node) {
 
 
     //exports.itemStates = itemStates;
-    exports.ItemModel = ItemModel;
+    exports.Item = Item;
 
 })(typeof exports === 'undefined' ? window : exports);
