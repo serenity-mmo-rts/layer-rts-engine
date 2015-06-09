@@ -2,13 +2,13 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../mapObjects/MapObject').MapObject;
-    var mapObjectStates = require('../mapObjects/MapObject').mapObjectStates;
+    var MapObject = require('../Building').MapObject;
+    var mapObjectStates = require('../Building').mapObjectStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
-    var createMapObject = require('../mapObjects/createMapObject').createMapObject;
+    var createMapObject = require('./createMapObject').createMapObject;
 }
 
 (function (exports) {

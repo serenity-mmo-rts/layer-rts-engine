@@ -1,8 +1,8 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var Class= require('./../Class').Class;
-    var Feature = require('./buildingBlocks/Feature').Feature;
+    var Class= require('./Class').Class;
+    var Feature = require('./items/Feature').Feature;
 }
 
 (function (exports) {

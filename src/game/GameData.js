@@ -2,16 +2,16 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapType = require('./MapType').MapType;
+    var MapType = require('./types/LayerType').MapType;
 
-    var ObjectType = require('./types/ObjectType').ObjectType;
-    var RessourceType = require('./types/RessourceType').RessourceType;
+    var ObjectType = require('./types/BuildingType').ObjectType;
+    var RessourceType = require('./types/ResourceType').RessourceType;
     var TechnologyType = require('./types/TechnologyType').TechnologyType;
     var ItemType = require('./types/ItemType').ItemType;
     //var FeatureType = require('./types/FeatureType').FeatureType;
 
     var Spritesheet = require('./Spritesheet').Spritesheet;
-    var MapData = require('./MapData').MapData;
+    var MapData = require('./Layer').MapData;
     var User = require('./User').User;
 }
 

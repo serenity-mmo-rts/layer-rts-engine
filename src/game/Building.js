@@ -1,18 +1,18 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var ItemModel = require('../items/Item').ItemModel;
-    var GameList = require('../GameList').GameList;
+    var Class = require('Class').Class;
+    var GameData = require('GameData').GameData;
+    var ItemModel = require('Item').ItemModel;
+    var GameList = require('GameList').GameList;
 
-    var UserObject = require('./buildingBlocks/UserObject').UserObject;
-    var Environment = require('./buildingBlocks/Environment').Environment;
-    var HubNode = require('./buildingBlocks/HubNode').HubNode ;
-    var TechProduction = require('./buildingBlocks/TechProduction').TechProduction;
-    var Sublayer = require('./buildingBlocks/Sublayer').Sublayer;
-    var SoilPuller = require('./buildingBlocks/SoilProduction').SoilPuller ;
+    var UserObject = require('./buildings/UserObject').UserObject;
+    var Environment = require('./buildings/Environment').Environment;
+    var HubNode = require('./buildings/HubNode').HubNode ;
+    var TechProduction = require('./buildings/TechProduction').TechProduction;
+    var Sublayer = require('./buildings/Sublayer').Sublayer;
+    var SoilPuller = require('./buildings/SoilProduction').SoilPuller ;
 
-    var ResourceProduction = require('./buildingBlocks/ResourceProduction').ResourceProduction;
+    var ResourceProduction = require('./buildings/ResourceProduction').ResourceProduction;
 }
 
 

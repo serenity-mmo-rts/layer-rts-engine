@@ -1,8 +1,8 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../../Class').Class;
-    var GameData = require('../../GameData').GameData;
-    var GameList = require('../../GameList').GameList;
+    var Class = require('../Class').Class;
+    var GameData = require('../GameData').GameData;
+    var GameList = require('../GameList').GameList;
 }
 
 (function (exports) {

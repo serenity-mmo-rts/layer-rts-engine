@@ -1,25 +1,25 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../../Class').Class;
-    var GameData = require('../../GameData').GameData;
-    var GameList = require('../../GameList').GameList;
+    var Class = require('../Class').Class;
+    var GameData = require('../GameData').GameData;
+    var GameList = require('../GameList').GameList;
 }
 
 (function (exports) {
 
 
-    var ResourceProduction = function (initObj){
 
-
+    var Sublayer = function (initObj){
+        this.publicArea = null;
+        this.sublayerMapId = null;
     };
 
-    ResourceProduction.prototype= {
-
+    Sublayer.prototype= {
 
 
         save: function () {
             var o = this._super();
-            o.a3 = [this.productionSpeed];
+            o.a3 = [this._type, this.sublayerMapId];
             return o;
         },
 
@@ -29,7 +29,8 @@ if (node) {
                 this._super(o);
                 if (o.hasOwnProperty("a3"))
                 {
-                    this.productionSpeed = o.a3[0];
+                    this.publicArea = o.a3[0];
+                    this.sublayerMapId = o.a3[1];
                 }
             }
             else {
@@ -43,6 +44,7 @@ if (node) {
 
     };
 
-    exports.ResourceProduction = ResourceProduction;
+    exports.Sublayer = Sublayer;
 
 })(typeof exports === 'undefined' ? window : exports);
+

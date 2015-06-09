@@ -1,10 +1,10 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapObject = require('./mapObjects/MapObject').MapObject;
-    var createMapObject = require('./mapObjects/createMapObject');
+    var MapObject = require('./Building').MapObject;
+    var createMapObject = require('./buildings/createMapObject');
     var EventScheduler = require('./events/EventScheduler').EventScheduler;
-    var ItemModel = require('./items/Item').ItemModel;
+    var ItemModel = require('./Item').ItemModel;
 }
 
 (function (exports) {

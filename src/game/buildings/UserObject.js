@@ -1,9 +1,9 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../../Class').Class;
-    var GameData = require('../../GameData').GameData;
-    var MapObject = require('./../MapObject').MapObject;
-    var eventStates = require('../../events/AbstractEvent').eventStates;
+    var Class = require('../Class').Class;
+    var GameData = require('../GameData').GameData;
+    var MapObject = require('./../Building').MapObject;
+    var eventStates = require('../events/AbstractEvent').eventStates;
 }
 
 
