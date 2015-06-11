@@ -2,7 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('./../Building').MapObject;
+    var MapObject = require('./../MapObject').MapObject;
     var eventStates = require('../events/AbstractEvent').eventStates;
 }
 
@@ -11,96 +11,25 @@ if (node) {
 
 
 
-    var UserObject = function (gameData,initObj){
+    var FeatureManager = function (gameData,initObj){
 
-            // serialized:
-            this.userId = 0;
-            this.ownerIds = []; // String List of owner Ids
-            this.healthPoints = 0;
+        // serialized:
 
+        // only ids serialized
+        this.deployedItems = [];// get example: LaserTrooper = this.items['userId']['Index'];
+        this.appliedItems = {};
 
-            // only ids serialized
-            this.deployedItems = [];// get example: LaserTrooper = this.items['userId']['Index'];
-            this.appliedItems = {};
-            this.buildQueue = [];
+        // not serialized
+        this.properties = {};
+        this.change =false;
 
-            // not serialized
-            this.properties = {};
-            this.change =false;
-
-            this.updateObjectProperties();
+        this.updateObjectProperties();
     };
 
-    UserObject.prototype= {
-
-        getMaxHealthPoints: function(){
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-            }
-            return this.properties._maxHealthPoints;
-        },
-        getHealthPoints: function(){
-            this.healthPoints = this.properties._maxHealthPoints;
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-                this.healthPoints = this.properties._maxHealthPoints;
-            }
-            return this.healthPoints;
-        },
-
-        getPoints: function(){
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-            }
-            return this.properties._points;
-        },
+    FeatureManager.prototype= {
 
         getItems: function (){
             return this.deployedItems
-        },
-
-            // member functions
-       getLevel: function (points){
-           var level = 0;
-                    if (points >= 0 && points <10){
-                        level= 1;
-                    }
-                    else if (points >= 10 && points <30){
-                        level= 2;
-                    }
-                    else if(points >= 30 && points <50){
-                        level= 3;
-                    }
-                    else if (points >= 50 && points <100){
-                        level= 4;
-                    }
-                     else if (points >= 100 && points <200){
-                        level= 5;
-                    }
-
-                return level
-        },
-
-        setPointers : function(){
-            this._super();
-
-            var buildQueueIds = this.buildQueue;
-            this.buildQueue = [];
-            for (var i=0; i<buildQueueIds.length ; i++) {
-                this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
-            }
-        },
-
-        setHealthPoints: function(){
-            this.healthPoints = this._maxHealthPoints;
-        },
-
-
-        addItemToQueue: function(item){
-            this.buildQueue.push(item);
         },
 
         addItem: function (item){
@@ -138,18 +67,6 @@ if (node) {
             this.buildQueue.splice(idx,1);
         },
 
-        checkQueue: function(currentTime) {
-
-           // console.log("checkQueue with currentTime: "+(new Date(currentTime)).toUTCString());
-
-           if (this.buildQueue.length>0){
-               if(this.buildQueue[0]._state == eventStates.VALID) {
-                    this.buildQueue[0].start(currentTime);
-               }
-           }
-
-        },
-
 
         updateObjectProperties: function () {
             this.properties = {};
@@ -158,8 +75,8 @@ if (node) {
             var initProp = this.gameData.objectTypes.get(this.objTypeId)._buildingBlocks;
 
             for (var attr in initProp) {
-                 prop[attr] = initProp[attr];
-                 this.properties[attr] = initProp[attr];
+                prop[attr] = initProp[attr];
+                this.properties[attr] = initProp[attr];
             }
             for (var id in this.appliedItems){
                 var item = this.appliedItems[id];
@@ -176,7 +93,7 @@ if (node) {
                         }
                     }
                     else if (feat.operator ==2) { // plus
-                            this.properties[feat.property] += feat.change;
+                        this.properties[feat.property] += feat.change;
                     }
                 }
             }
@@ -216,14 +133,14 @@ if (node) {
 
 
             o.a2 =  [this.userId,
-                     this.healthPoints,
-                    buildQueueIds,
-                    appliedItemIds,
-                    appliedItemProps,
-                    appliedItemValues,
-                    appliedItemOperators,
-                    appliedItemModes
-                    ];
+                this.healthPoints,
+                buildQueueIds,
+                appliedItemIds,
+                appliedItemProps,
+                appliedItemValues,
+                appliedItemOperators,
+                appliedItemModes
+            ];
             return o;
         },
 

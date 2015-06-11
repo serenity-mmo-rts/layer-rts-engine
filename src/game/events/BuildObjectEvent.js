@@ -2,8 +2,8 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../Building').MapObject;
-    var mapObjectStates = require('../Building').mapObjectStates;
+    var MapObject = require('../MapObject').MapObject;
+    var mapObjectStates = require('../MapObject').mapObjectStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');

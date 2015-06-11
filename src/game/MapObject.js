@@ -5,14 +5,14 @@ if (node) {
     var ItemModel = require('Item').ItemModel;
     var GameList = require('GameList').GameList;
 
-    var UserObject = require('./buildings/UserObject').UserObject;
-    var Environment = require('./buildings/Environment').Environment;
-    var HubNode = require('./buildings/HubNode').HubNode ;
-    var TechProduction = require('./buildings/TechProduction').TechProduction;
-    var Sublayer = require('./buildings/Sublayer').Sublayer;
-    var SoilPuller = require('./buildings/SoilProduction').SoilPuller ;
+    var UserObject = require('./mapObjects/UserObject').UserObject;
+    var Environment = require('./mapObjects/Environment').Environment;
+    var HubNode = require('./mapObjects/HubNode').HubNode ;
+    var TechProduction = require('./mapObjects/TechProduction').TechProduction;
+    var Sublayer = require('./mapObjects/Sublayer').Sublayer;
+    var SoilPuller = require('./mapObjects/SoilProduction').SoilPuller ;
 
-    var ResourceProduction = require('./buildings/ResourceProduction').ResourceProduction;
+    var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
 }
 
 
@@ -45,47 +45,13 @@ if (node) {
         this.width = null; // optional
         this.height = null; // optional
         this.state =  mapObjectStates.TEMP;
+        this._blocks = {};
 
         // not serialized:
         this.items= [];//new GameList(gameData,ItemModel,false,false);
         this.gameData = gameData;
         this.onChangeCallback = {};
-        this._blocks = {};
 
-        var Objects = this.gameData.objectTypes.get(initObj.objTypeId)._buildingBlocks;
-        var BuildingBlocks  = Object.keys(Objects);
-
-        for (var i =0;i<BuildingBlocks.length;i++){
-            var name = BuildingBlocks[i];
-            var blockObj = Objects[name];
-            if (name == "UserObject") {
-                this._blocks[name] = new UserObject(gameData,blockObj);
-            }
-            else if (name == "Environment") {
-                this._blocks[name] = new Environment(gameData,blockObj);
-            }
-            else if (name == "SoilPuller") {
-                this._blocks[name] = new SoilPuller(gameData,blockObj);
-            }
-            else if (name == "ResourcePusher") {
-                this._blocks[name] = new ResourcePusher(gameData,blockObj);
-            }
-            else if (name == "ResourcePuller") {
-                this._blocks[name] = new ResourcePuller(gameData,blockObj);
-            }
-            else if (name == "ResourceProduction") {
-                this._blocks[name] = new ResourceProduction(gameData,blockObj);
-            }
-            else if (name ==  "HubNode") {
-                this._blocks[name] = new HubNode(gameData,blockObj);
-            }
-            else if (name ==  "TechProduction") {
-                this._blocks[name] = new TechProduction(gameData,blockObj);
-            }
-            else if (name ==  "Sublayer") {
-                this._blocks[name] = new Sublayer(gameData,blockObj);
-            }
-        }
 
         // init:
         if (MapObject.arguments.length == 2) {
@@ -144,6 +110,14 @@ if (node) {
      * @return {MapObject}
      */
     save: function () {
+
+
+        var blocks = [];
+        for (var i=0; i<this._blocks.length; i++) {
+            blocks.push(this._blocks[i].save());
+        }
+
+
         var o = {_id: this._id,
             mapId: this.mapId,
             objTypeId: this.objTypeId,
@@ -151,9 +125,14 @@ if (node) {
                 this.y,
                 this.width,
                 this.height,
-                this.state]};
+                this.state,
+                blocks]};
+
+
+
         return o;
     },
+
         /**
          * Saves a MapObject.
          *
@@ -163,6 +142,10 @@ if (node) {
          * @return {one}
          */
         load: function (o) {
+
+
+
+
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
                 this.mapId = o.mapId;
@@ -172,6 +155,7 @@ if (node) {
                 this.width = o.a[2];
                 this.height = o.a[3];
                 this.state = o.a[4];
+                this._blocks = o.a[5];
             }
             else {
                 for (var key in o) {
@@ -183,6 +167,44 @@ if (node) {
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
+
+
+            var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
+            var BuildingBlocks  = Object.keys(Objects);
+
+            for (var i =0;i<BuildingBlocks.length;i++){
+                var name = BuildingBlocks[i];
+                var blockObj = Objects[name];
+                if (name == "UserObject") {
+                    this._blocks[name] = new UserObject(this,this._blocks[name]);
+                }
+                else if (name == "Environment") {
+                    this._blocks[name] = new Environment(gameData,blockObj);
+                }
+                else if (name == "SoilPuller") {
+                    this._blocks[name] = new SoilPuller(gameData,blockObj);
+                }
+                else if (name == "ResourcePusher") {
+                    this._blocks[name] = new ResourcePusher(gameData,blockObj);
+                }
+                else if (name == "ResourcePuller") {
+                    this._blocks[name] = new ResourcePuller(gameData,blockObj);
+                }
+                else if (name == "ResourceProduction") {
+                    this._blocks[name] = new ResourceProduction(gameData,blockObj);
+                }
+                else if (name ==  "HubNode") {
+                    this._blocks[name] = new HubNode(gameData,blockObj);
+                }
+                else if (name ==  "TechProduction") {
+                    this._blocks[name] = new TechProduction(gameData,blockObj);
+                }
+                else if (name ==  "Sublayer") {
+                    this._blocks[name] = new Sublayer(gameData,blockObj);
+                }
+            }
+
+
         },
 
 
