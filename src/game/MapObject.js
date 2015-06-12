@@ -10,8 +10,6 @@ if (node) {
     var HubNode = require('./mapObjects/HubNode').HubNode ;
     var TechProduction = require('./mapObjects/TechProduction').TechProduction;
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
-    var SoilPuller = require('./mapObjects/SoilProduction').SoilPuller ;
-
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
 }
 
@@ -61,12 +59,6 @@ if (node) {
 
     },
 
-        getPoints: function(){
-        },
-
-        getLevel: function (points){
-
-        },
 
 
         setState: function(state) {
@@ -81,17 +73,7 @@ if (node) {
            }
         },
 
-        updateObjectProperties: function () {
 
-        },
-
-        addItem: function (item){
-            // overwrite
-        },
-
-        getItems: function (){
-            // overwrite
-        },
 
         addCallback: function(key,callback){
             this.onChangeCallback[key] = callback;
@@ -101,14 +83,7 @@ if (node) {
             delete this.onChangeCallback[key];
         },
 
-    /**
-     * Saves a MapObject.
-     *
-     * @constructor (init)
-     * @this {MapObject}
-     * @param (none)
-     * @return {MapObject}
-     */
+
     save: function () {
 
 

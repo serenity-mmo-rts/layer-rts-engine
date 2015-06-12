@@ -4,7 +4,7 @@ if (node) {
     var GameList = require('./GameList').GameList;
     var MapType = require('./types/LayerType').MapType;
 
-    var ObjectType = require('./types/BuildingType').ObjectType;
+    var ObjectType = require('./types/ObjectType').ObjectType;
     var RessourceType = require('./types/ResourceType').RessourceType;
     var TechnologyType = require('./types/TechnologyType').TechnologyType;
     var ItemType = require('./types/ItemType').ItemType;
