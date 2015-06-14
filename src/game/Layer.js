@@ -1,14 +1,12 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapObject = require('./MapObject').MapObject;
-    var createMapObject = require('./mapObjects/createMapObject');
-    var EventScheduler = require('./events/EventScheduler').EventScheduler;
-    var ItemModel = require('./Item').ItemModel;
+    var EventScheduler = require('./layer/EventScheduler').EventScheduler;
+    var MapData = require('./layer/MapData').MapData;
 }
 
 (function (exports) {
-    var MapData = function (gameData,initObj) {
+    var Layer = function (gameData,initObj) {
         // serialized:
         this._id = 0;
         this.width = 0;
@@ -17,22 +15,21 @@ if (node) {
         this.parentMapId = null;
 
         // not serialized:
-        this.mapObjects = new GameList(gameData,MapObject,false,createMapObject);
-        this.items = new GameList(gameData,ItemModel,false,false);
         this.eventScheduler = new EventScheduler(gameData);
+        this.mapData = new MapData(gameData);
         this.quadTree = null;
         this.gameData = gameData;
         this.objectChangedCallback = null;
         this.itemChangedCallback = null;
 
         // init:
-        if (MapData.arguments.length == 2) {
+        if (Layer.arguments.length == 2) {
             this.load(initObj);
         }
 
     }
 
-    MapData.prototype = {
+    Layer.prototype = {
 
         save: function () {
             var o = {_id: this._id,
@@ -61,10 +58,10 @@ if (node) {
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
-            this.rebuildQuadTree();
+            this.mapData.rebuildQuadTree();
         }
     }
 
-    exports.MapData = MapData;
+    exports.Layer = Layer;
 
 })(node ? exports : window);
