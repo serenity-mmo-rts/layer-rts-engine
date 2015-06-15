@@ -2,7 +2,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var MapType = require('./types/LayerType').MapType;
+    var LayerType = require('./types/LayerType').MapType;
 
     var ObjectType = require('./types/ObjectType').ObjectType;
     var RessourceType = require('./types/ResourceType').RessourceType;
@@ -11,14 +11,14 @@ if (node) {
     //var FeatureType = require('./types/FeatureType').FeatureType;
 
     var Spritesheet = require('./Spritesheet').Spritesheet;
-    var MapData = require('./Layer').MapData;
+    var Layer = require('./Layer').Layer;
     var User = require('./User').User;
 }
 
 
 (function (exports) {
     function GameData(initObj) {
-        this.mapTypes = new GameList(this,MapType);
+        this.mapTypes = new GameList(this,LayerType);
 
         this.objectTypes = new GameList(this,ObjectType);
         this.ressourceTypes = new GameList(this,RessourceType);
@@ -28,7 +28,7 @@ if (node) {
 
 
         this.spritesheets = new GameList(this,Spritesheet);
-        this.maps = new GameList(this,MapData);
+        this.maps = new GameList(this,Layer);
         this.users = new GameList(this,User);
         if (GameData.arguments.length == 1) {
             this.load(initObj);
