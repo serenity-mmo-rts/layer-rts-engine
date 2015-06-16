@@ -8,7 +8,6 @@ if (node) {
     var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
-    var createMapObject = require('./createMapObject').createMapObject;
 }
 
 (function (exports) {
@@ -28,7 +27,7 @@ if (node) {
         },
 
         isValid: function () {
-            var collidingItems = this._gameData.maps.get(this._mapId).collisionDetection(this._mapObj);
+            var collidingItems = this._gameData.layers.get(this._mapId).collisionDetection(this._mapObj);
             if (collidingItems.length > 0) {
                 return false;
             }
@@ -44,7 +43,7 @@ if (node) {
             this.start(Date.now() + ntp.offset() );
 
             // make sure that the object is in gameData:
-            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
 
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
             this._super();
@@ -57,7 +56,7 @@ if (node) {
             this.start(Date.now());
 
             // make sure that the object is in gameData:
-            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
 
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
@@ -72,7 +71,7 @@ if (node) {
 
         executeOnOthers: function() {
             // make sure that the object is in gameData:
-            this._gameData.maps.get(this._mapId).addObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
             this._super();
         },
 
@@ -80,7 +79,7 @@ if (node) {
             this._super(event);
             // update ID:
             console.log("replace tmp Object ID: "+this._mapObj._id+" by new id from server: "+event._mapObj._id);
-            this._gameData.maps.get(this._mapId).mapObjects.updateId(this._mapObj._id,event._mapObj._id);
+            this._gameData.layers.get(this._mapId).mapData.mapObjects.updateId(this._mapObj._id,event._mapObj._id);
             this._mapObj.notifyChange();
         },
 
@@ -127,9 +126,9 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 var mapObjId = o.a2[0]._id;
-                if(this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId)) {
-                    this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId).load(o.a2[0]);
-                    this._mapObj = this._gameData.maps.get(this._mapId).mapObjects.get(mapObjId);
+                if(this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId)) {
+                    this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId).load(o.a2[0]);
+                    this._mapObj = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId);
                 }
                 else {
                     this._mapObj = createMapObject(this._gameData,o.a2[0]);
@@ -145,7 +144,7 @@ if (node) {
         },
 
         revert: function() {
-            this._gameData.maps.get(this._mapId).removeObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).removeObject(this._mapObj);
             return true;
         }
     });

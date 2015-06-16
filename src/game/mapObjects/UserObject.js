@@ -26,9 +26,6 @@ if (node) {
 
             // not serialized
             this.properties = {};
-            this.change =false;
-
-            this.updateObjectProperties();
     };
 
     UserObject.prototype= {
@@ -90,7 +87,7 @@ if (node) {
             var buildQueueIds = this.buildQueue;
             this.buildQueue = [];
             for (var i=0; i<buildQueueIds.length ; i++) {
-                this.buildQueue.push(this.gameData.maps.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
+                this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
             }
         },
 

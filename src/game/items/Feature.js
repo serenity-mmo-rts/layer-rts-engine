@@ -171,7 +171,7 @@ if (node) {
                 }
             }
             else {
-                var coords = [this.map.mapObjects.get(this._itemId._objectId).x,this.map.mapObjects.get(this._itemId._objectId).y];
+                var coords = [this.map.mapData.mapObjects.get(this._itemId._objectId).x,this.map.mapData.mapObjects.get(this._itemId._objectId).y];
             }
         },
 
@@ -186,9 +186,9 @@ if (node) {
 
 
         setPointers : function(){
-            this.map= this.gameData.maps.get(this._mapId);
+            this.map= this.gameData.layers.get(this._mapId);
             this.item = this.map.items.get(this._itemId);
-            this.mapObject = this.map.mapObjects.get(this.item._objectId);
+            this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
             this.setStack();
         },
 

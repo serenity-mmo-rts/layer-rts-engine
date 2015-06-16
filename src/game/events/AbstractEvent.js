@@ -58,7 +58,7 @@ if (node) {
 
         execute: function () {
             // add event to scheduler:
-            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
+            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
         },
 
         executeOnServer: function() {
@@ -66,13 +66,13 @@ if (node) {
             this.saveToDb();
 
             // add event to scheduler:
-            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
+            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
 
         },
 
         executeOnOthers: function() {
             // add event to scheduler:
-            this._gameData.maps.get(this._mapId).eventScheduler.addEvent(this);
+            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
         },
 
         finish: function () {
@@ -119,7 +119,7 @@ if (node) {
         setDueTime: function(dueTime){
             if(dueTime!=this._dueTime) {
                 // notify event scheduler:
-                this._gameData.maps.get(this._mapId).eventScheduler.updateEventDueTime(this._id,dueTime);
+                this._gameData.layers.get(this._mapId).eventScheduler.updateEventDueTime(this._id,dueTime);
                 this._dueTime = dueTime;
             }
         },
@@ -162,10 +162,10 @@ if (node) {
 
         updateFromServer: function (event) {
 
-            this._gameData.maps.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
+            this._gameData.layers.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
 
             //overwrite with method to bring this event up to date
-            this._gameData.maps.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
+            this._gameData.layers.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
             this._id = event._id;
             this._state = event._state;
             this._startedTime = event._startedTime;
@@ -174,7 +174,7 @@ if (node) {
 
 
         revert: function() {
-            this._gameData.maps.get(this._mapId).eventScheduler.removeEvent(this._id);
+            this._gameData.layers.get(this._mapId).eventScheduler.removeEvent(this._id);
         }
 
     });
