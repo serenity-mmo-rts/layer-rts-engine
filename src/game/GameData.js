@@ -28,7 +28,7 @@ if (node) {
 
 
         this.spritesheets = new GameList(this,Spritesheet);
-        this.maps = new GameList(this,Layer);
+        this.layers = new GameList(this,Layer);
         this.users = new GameList(this,User);
         if (GameData.arguments.length == 1) {
             this.load(initObj);
@@ -45,7 +45,7 @@ if (node) {
                 this.itemTypes.save(),
              //   this.featureTypes.save(),
                 this.spritesheets.save(),
-                this.maps.save(),
+                this.layers.save(),
                 this.users.save()
             ];
             return a;
@@ -59,7 +59,7 @@ if (node) {
             this.itemTypes.load(a[4]);
           //  this.featureTypes.load(a[5]);
             this.spritesheets.load(a[5]);
-            this.maps.load(a[6]);
+            this.layers.load(a[6]);
             this.users.load(a[7]);
         }
     }

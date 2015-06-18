@@ -120,7 +120,7 @@ if (node) {
 
             this._item._mapObj.removeItemFromQueue(0);
             this._item._mapObj.addItem(this._item);
-            this._gameData.maps.get(this._mapId).addItem(this._item);
+            this._gameData.layers.get(this._mapId).addItem(this._item);
 
 
             //this._item._mapObj.notifyChange();
@@ -164,9 +164,9 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 var itemId = o.a2[0]._id;
-                if(this._gameData.maps.get(this._mapId).items.get(itemId)) {
-                    this._gameData.maps.get(this._mapId).items.get(this._item._id).load(o.a2[0]);
-                    this._item = this._gameData.maps.get(this._mapId).items.get(this._item._id);
+                if(this._gameData.layers.get(this._mapId).items.get(itemId)) {
+                    this._gameData.layers.get(this._mapId).items.get(this._item._id).load(o.a2[0]);
+                    this._item = this._gameData.layers.get(this._mapId).items.get(this._item._id);
                 }
                 else {
                     this._item = new ItemModel(this._gameData,o.a2[0]);
@@ -183,7 +183,7 @@ if (node) {
         },
 
         revert: function() {
-            this._gameData.maps.get(this._mapId).removeItem(this._item);
+            this._gameData.layers.get(this._mapId).removeItem(this._item);
             return true;
         }
     });

@@ -1,9 +1,9 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('Class').Class;
-    var GameData = require('GameData').GameData;
-    var ItemModel = require('Item').ItemModel;
-    var GameList = require('GameList').GameList;
+    var Class = require('./Class').Class;
+    var GameData = require('./GameData').GameData;
+    var ItemModel = require('./Item').ItemModel;
+    var GameList = require('./GameList').GameList;
 
     var UserObject = require('./mapObjects/UserObject').UserObject;
     var Environment = require('./mapObjects/Environment').Environment;
@@ -154,28 +154,28 @@ if (node) {
                     this._blocks[name] = new UserObject(this,this._blocks[name]);
                 }
                 else if (name == "Environment") {
-                    this._blocks[name] = new Environment(gameData,blockObj);
+                    this._blocks[name] = new Environment(this,blockObj);
                 }
                 else if (name == "SoilPuller") {
-                    this._blocks[name] = new SoilPuller(gameData,blockObj);
+                    this._blocks[name] = new SoilPuller(this,blockObj);
                 }
                 else if (name == "ResourcePusher") {
-                    this._blocks[name] = new ResourcePusher(gameData,blockObj);
+                    this._blocks[name] = new ResourcePusher(this,blockObj);
                 }
                 else if (name == "ResourcePuller") {
-                    this._blocks[name] = new ResourcePuller(gameData,blockObj);
+                    this._blocks[name] = new ResourcePuller(this,blockObj);
                 }
                 else if (name == "ResourceProduction") {
-                    this._blocks[name] = new ResourceProduction(gameData,blockObj);
+                    this._blocks[name] = new ResourceProduction(this,blockObj);
                 }
                 else if (name ==  "HubNode") {
-                    this._blocks[name] = new HubNode(gameData,blockObj);
+                    this._blocks[name] = new HubNode(this,blockObj);
                 }
                 else if (name ==  "TechProduction") {
-                    this._blocks[name] = new TechProduction(gameData,blockObj);
+                    this._blocks[name] = new TechProduction(this,blockObj);
                 }
                 else if (name ==  "Sublayer") {
-                    this._blocks[name] = new Sublayer(gameData,blockObj);
+                    this._blocks[name] = new Sublayer(this,blockObj);
                 }
             }
 
