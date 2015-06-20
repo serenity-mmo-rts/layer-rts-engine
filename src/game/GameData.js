@@ -2,7 +2,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
-    var LayerType = require('./types/LayerType').MapType;
+    var LayerType = require('./types/LayerType').LayerType;
 
     var ObjectType = require('./types/ObjectType').ObjectType;
     var RessourceType = require('./types/ResourceType').RessourceType;
@@ -18,7 +18,7 @@ if (node) {
 
 (function (exports) {
     function GameData(initObj) {
-        this.mapTypes = new GameList(this,LayerType);
+        this.layerTypes = new GameList(this,LayerType);
 
         this.objectTypes = new GameList(this,ObjectType);
         this.ressourceTypes = new GameList(this,RessourceType);
@@ -38,7 +38,7 @@ if (node) {
     GameData.prototype = {
         save: function () {
             var a = [
-                this.mapTypes.save(),
+                this.layerTypes.save(),
                 this.objectTypes.save(),
                 this.ressourceTypes.save(),
                 this.technologyTypes.save(),
@@ -52,7 +52,7 @@ if (node) {
         },
 
         load: function (a) {
-            this.mapTypes.load(a[0]);
+            this.layerTypes.load(a[0]);
             this.objectTypes.load(a[1]);
             this.ressourceTypes.load(a[2]);
             this.technologyTypes.load(a[3]);

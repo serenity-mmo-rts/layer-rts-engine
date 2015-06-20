@@ -1,6 +1,6 @@
 (function (exports) {
 
-    var MapType = function (gameData,initObj) {
+    var LayerType = function (gameData,initObj) {
         // serialized:
         this._id = 0;
         this._name = null;
@@ -15,12 +15,12 @@
         this._gameData = gameData;
 
         // init:
-        if (MapType.arguments.length == 2) {
+        if (LayerType.arguments.length == 2) {
             this.load(initObj);
         }
     }
 
-    MapType.prototype = {
+    LayerType.prototype = {
 
         save: function () {
             var o = {_id: this._id,
@@ -56,6 +56,6 @@
         }
     }
 
-    exports.MapType = MapType;
+    exports.LayerType = LayerType;
 
 })(typeof exports === 'undefined' ? window : exports);

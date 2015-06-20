@@ -173,7 +173,7 @@ if (node) {
 
     };
 
-    exports.UserObject = UserObject;
+    exports.FeatureManager = FeatureManager;
 
 })(typeof exports === 'undefined' ? window : exports);
 
