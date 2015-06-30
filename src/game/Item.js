@@ -2,7 +2,12 @@ var node = !(typeof exports === 'undefined');
 
 if (node) {
     var Class= require('./Class').Class;
+    var Combat = require('./items/Combat').Combat;
+    var Commander = require('./items/Commander').Commander;
     var Feature = require('./items/Feature').Feature;
+    var InventoryItem = require('./items/InventoryItem').InventoryItem;
+    var Movable = require('./items/Movable').Movable;
+    var SubObject = require('./items/SubObject').SubObject;
 }
 
 (function (exports) {
@@ -24,18 +29,17 @@ if (node) {
         this._state=itemStates.TEMP;
         this._level=0;
         this._onChangeCallback= null;
-       // this._position= null;
-        this._feature=null;
 
         //not serialized
         this._mapObj= null;
-        this.gameData = gameData;
         this._initProperties= {};
+        this.gameData = gameData;
+
         // deserialize event from json objectet
         this.load(initObj);
-        this.updateItemProperties();
+        //this.updateItemProperties();
 
-    }
+    };
 
     Item.prototype= {
 
@@ -49,7 +53,6 @@ if (node) {
             if (lvl!=this._level){
                 this._level = lvl;
                 this._mapObj.notifyChange();
-                this.createFeature();
             }
         },
 
@@ -61,24 +64,56 @@ if (node) {
             }
         },
 
-        createFeature: function(){
-            this._feature = null;
-            //var featureTypeId= this.gameData.itemTypes.get(this._itemTypeId)._featureTypeId[this._level];
-            var features = this.gameData.itemTypes.get(this._itemTypeId)._features;
-            this._feature = new Feature(this.gameData,{_itemId: this._id,_mapId: this._mapId});
+
+        setPointers : function(){
+           this._mapObj =  this.gameData.layers.get(this._mapId).mapObjects.get(this._objectId);
+        },
+
+
+        createBuildingBlocks: function(blocks){
+
+            var Objects = this.gameData.itemTypes.get(blocks.objTypeId)._buildingBlocks;
+            var BuildingBlocks  = Object.keys(Objects);
+
+            for (var i =0;i<BuildingBlocks.length;i++){
+                var name = BuildingBlocks[i];
+                var blockObj = Objects[name];
+                if (name == "Combat") {
+                    this._blocks[name] = new Combat(this,this._blocks[name]);
+                }
+                else if (name == "Commander") {
+                    this._blocks[name] = new Commander(this,blockObj);
+                }
+                else if (name == "Feature") {
+                    this._blocks[name] = new Feature(this,blockObj);
+                }
+                else if (name == "InventoryItem") {
+                    this._blocks[name] = new InventoryItem(this,blockObj);
+                }
+                else if (name == "Movable") {
+                    this._blocks[name] = new Movable(this,blockObj);
+                }
+                else if (name == "SubObject") {
+                    this._blocks[name] = new SubObject(this,blockObj);
+                }
+            }
+
         },
 
 
         save: function () {
 
-           var feature= this._feature.save();
+            var blocks = [];
+            for (var i=0; i<this._blocks.length; i++) {
+                blocks.push(this._blocks[i].save());
+            }
            var o = {_id: this._id,
                     _itemTypeId: this._itemTypeId,
                     _objectId: this._objectId,
                     _mapId: this._mapId,
                     a:[this._level,
                        this._state,
-                       feature
+                        blocks
                       ]
 
                    };
@@ -96,8 +131,7 @@ if (node) {
             if (o.hasOwnProperty("a")) {
                 this._level = o.a[0];
                 this._state = o.a[1];
-                this._feature = new FeatureModel(this.gameData,o.a[2]);
-
+                this._blocks = o.a[2];
             }
 
 
@@ -110,19 +144,22 @@ if (node) {
                 if (this._feature == null){
                     this.createFeature();
                 }
-
             }
-            this._mapObj =  this.gameData.layers.get(this._mapId).mapObjects.get(this._objectId);
+
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
 
+            this.createBuildingBlocks(this._blocks);
+            this.setPointers();
+
         }
 
-    }
+    };
 
 
     //exports.itemStates = itemStates;
     exports.Item = Item;
+    exports.itemStates = itemStates;
 
 })(typeof exports === 'undefined' ? window : exports);

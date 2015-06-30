@@ -11,6 +11,7 @@ if (node) {
     var TechProduction = require('./mapObjects/TechProduction').TechProduction;
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
+    var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
 }
 
 
@@ -44,11 +45,15 @@ if (node) {
         this.height = null; // optional
         this.state =  mapObjectStates.TEMP;
         this._blocks = {};
+        this._deployedItems= [];
+
 
         // not serialized:
-        this.items= [];//new GameList(gameData,ItemModel,false,false);
+
         this.gameData = gameData;
         this.onChangeCallback = {};
+
+
 
 
         // init:
@@ -58,7 +63,6 @@ if (node) {
 
 
     },
-
 
 
         setState: function(state) {
@@ -73,7 +77,17 @@ if (node) {
            }
         },
 
+        addItem: function (item){
+            this._deployedItems.push(item);
+        },
 
+        addFeature: function (feature){
+            this._appliedFeatures.push(feature);
+        },
+
+        getItems: function (){
+            return this._deployedItems;
+        },
 
         addCallback: function(key,callback){
             this.onChangeCallback[key] = callback;
@@ -83,90 +97,34 @@ if (node) {
             delete this.onChangeCallback[key];
         },
 
+        setPointers : function(items){
 
-    save: function () {
-
-
-        var blocks = [];
-        for (var i=0; i<this._blocks.length; i++) {
-            blocks.push(this._blocks[i].save());
-        }
-
-
-        var o = {_id: this._id,
-            mapId: this.mapId,
-            objTypeId: this.objTypeId,
-            a: [this.x,
-                this.y,
-                this.width,
-                this.height,
-                this.state,
-                blocks]};
-
-
-
-        return o;
-    },
-
-        /**
-         * Saves a MapObject.
-         *
-         * @constructor (init)
-         * @this {MapObject}
-         * @param (MapObejct)
-         * @return {one}
-         */
-        load: function (o) {
-
-
-
-
-            if (o.hasOwnProperty("a")) {
-                this._id = o._id;
-                this.mapId = o.mapId;
-                this.objTypeId = o.objTypeId;
-                this.x = o.a[0];
-                this.y = o.a[1];
-                this.width = o.a[2];
-                this.height = o.a[3];
-                this.state = o.a[4];
-                this._blocks = o.a[5];
+            this.map= this.gameData.layers.get(this._mapId);
+            for (var i =1; i<items.length; i++){
+               this.addItem(items[i])
             }
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
-            }
+        },
 
 
-            var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
+        createBuildingBlocks: function(blocks){
+
+            var Objects = this.gameData.objectTypes.get(blocks.objTypeId)._buildingBlocks;
             var BuildingBlocks  = Object.keys(Objects);
 
             for (var i =0;i<BuildingBlocks.length;i++){
                 var name = BuildingBlocks[i];
                 var blockObj = Objects[name];
                 if (name == "UserObject") {
-                    this._blocks[name] = new UserObject(this,this._blocks[name]);
+                    this._blocks[name] = new UserObject(this,blockObj);
                 }
                 else if (name == "Environment") {
                     this._blocks[name] = new Environment(this,blockObj);
                 }
-                else if (name == "SoilPuller") {
-                    this._blocks[name] = new SoilPuller(this,blockObj);
-                }
-                else if (name == "ResourcePusher") {
-                    this._blocks[name] = new ResourcePusher(this,blockObj);
-                }
-                else if (name == "ResourcePuller") {
-                    this._blocks[name] = new ResourcePuller(this,blockObj);
-                }
                 else if (name == "ResourceProduction") {
                     this._blocks[name] = new ResourceProduction(this,blockObj);
+                }
+                else if (name == "SoilProduction") {
+                    this._blocks[name] = new SoilProduction(this,blockObj);
                 }
                 else if (name ==  "HubNode") {
                     this._blocks[name] = new HubNode(this,blockObj);
@@ -179,13 +137,69 @@ if (node) {
                 }
             }
 
-
         },
 
 
-        setPointers : function(){
+        save: function () {
+
+            var blocks = [];
+            for (var i=0; i<this._blocks.length; i++) {
+                blocks.push(this._blocks[i].save());
+            }
+
+            var items= [];
+            for (var i=0; i<this._deployedItems.length; i++) {
+                items.push(this._deployedItems[i]._id);
+            }
+
+
+
+            var o = {_id: this._id,
+                mapId: this.mapId,
+                objTypeId: this.objTypeId,
+                a: [this.x,
+                    this.y,
+                    this.width,
+                    this.height,
+                    this.state,
+                    blocks,
+                    items
+                ]};
+
+            return o;
+        },
+
+
+        load: function (o) {
+
+            if (o.hasOwnProperty("a")) {
+                this._id = o._id;
+                this.mapId = o.mapId;
+                this.objTypeId = o.objTypeId;
+                this.x = o.a[0];
+                this.y = o.a[1];
+                this.width = o.a[2];
+                this.height = o.a[3];
+                this.state = o.a[4];
+                this._blocks = o.a[5];
+                var items = o.a[6];
+            }
+            else {
+                for (var key in o) {
+                    if (o.hasOwnProperty(key)) {
+                        this[key] = o[key];
+                    }
+                }
+            }
+            if (typeof this._id != 'string') {
+                this._id = this._id.toHexString();
+            }
+
+            this.createBuildingBlocks(this._blocks);
+            this.setPointers(items);
 
         }
+
     });
 
 

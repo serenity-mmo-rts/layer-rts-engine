@@ -6,25 +6,31 @@ if (node) {
 
 (function (exports) {
 
-    var Feature = function (gameData,initObj){
-        //this._currentTargetIds=null;
+    var Feature = function (item,initObj){
+
         this._remainingActivationTime= null;
         this._mapId = null;
         this._itemId = null;
         this._executeIndex =0;
-
-        //this._properties= null;
-        this.gameData = gameData;
         this._stack = [];
         this.load(initObj);
+
     }
+
+
 
 
     Feature.prototype ={
 
+
+
+        setStack: function(){
+
+
+        },
+
         checkStackExecution: function(active){
             var process = true;
-            this.setPointers();
             this._executeIndex = this.getExecutionIdx();
             while (process == true && this._executeIndex<= this._stack.length){
                 if (this._executeIndex ==0){
@@ -185,17 +191,7 @@ if (node) {
         },
 
 
-        setPointers : function(){
-            this.map= this.gameData.layers.get(this._mapId);
-            this.item = this.map.items.get(this._itemId);
-            this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
-            this.setStack();
-        },
 
-        setStack: function(){
-            var level = this.item._level
-            this._stack = this.gameData.itemTypes.get(this.item._itemTypeId)._features[level];
-        },
 
 
         getMapObject : function(MapCoordinate){
@@ -217,6 +213,15 @@ if (node) {
         validItem: function (currentTarget){
             // check whether use has mouse over Item (current Target = Item)
         },
+
+
+        setPointers : function(){
+            this.map= this.gameData.layers.get(this._mapId);
+            this.item = this.map.items.get(this._itemId);
+            this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
+            this._stack = this.item._buildingBlocks.Feature.command[this.item._level];
+        },
+
 
         save: function () {
 
@@ -248,6 +253,9 @@ if (node) {
                     }
                 }
             }
+
+            this.setPointers();
+
         }
 
     }

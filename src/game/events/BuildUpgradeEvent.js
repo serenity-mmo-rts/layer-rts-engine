@@ -3,7 +3,7 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
     var mapObjectStates = require('../MapObject').mapObjectStates;
-    var ItemModel =require('../Item').ItemModel;
+    var Item =require('../Item').Item;
     var itemStates =require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var eventStates = require('./AbstractEvent').eventStates;
@@ -18,17 +18,13 @@ if (node) {
         _type: "BuildItemEvent",
         _item: null,
 
-
         init: function(gameData, initObj){
-
             this._super( gameData, initObj );
-
         },
 
 
         isValid: function () {
             return true;
-
         },
 
         setItem: function (item) {
@@ -37,17 +33,12 @@ if (node) {
         },
 
 
-
-
-
         execute: function () {
           //  this._item._state = itemStates.WORKING;
             this._item._id = 'tmpId'+Math.random();
-
-            this._item._mapObj.addItemToQueue(this);
-            this._item._mapObj.checkQueue(Date.now());
+            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
             console.log("I build a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
-
             this._super();
         },
 
@@ -57,8 +48,8 @@ if (node) {
             this._item._id = (new mongodb.ObjectID()).toHexString();
             this._item._feature._itemId =  this._item._id;
 
-            this._item._mapObj.addItemToQueue(this);
-            this._item._mapObj.checkQueue(Date.now());
+            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
@@ -74,7 +65,7 @@ if (node) {
 
         executeOnOthers: function() {
 
-            this._item._mapObj.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
             this._super();
         },
 
@@ -104,7 +95,7 @@ if (node) {
 
         updateDueTime: function(){
             if (this._startedTime) {
-                var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._initProperties._buildTime[this._item._level];
+                var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._buildTime[this._item._level];
                 this.setDueTime(this._startedTime + buildTime);
             }
             else {
@@ -118,7 +109,7 @@ if (node) {
 
             console.log("item: "+this._item._id+" production completed");
 
-            this._item._mapObj.removeItemFromQueue(0);
+            this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
             this._item._mapObj.addItem(this._item);
             this._gameData.layers.get(this._mapId).addItem(this._item);
 
@@ -126,7 +117,7 @@ if (node) {
             //this._item._mapObj.notifyChange();
 
             this._item._feature.checkStackExecution(false);
-            this._item._mapObj.checkQueue(this._dueTime);
+            this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 
             this._item._mapObj.setState(mapObjectStates.FINISHED);
             this._item._mapObj.notifyChange();
@@ -169,7 +160,7 @@ if (node) {
                     this._item = this._gameData.layers.get(this._mapId).items.get(this._item._id);
                 }
                 else {
-                    this._item = new ItemModel(this._gameData,o.a2[0]);
+                    this._item = new Item(this._gameData,o.a2[0]);
                 }
             }
             else {

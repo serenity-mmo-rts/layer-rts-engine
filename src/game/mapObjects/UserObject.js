@@ -14,52 +14,34 @@ if (node) {
     var UserObject = function (gameData,initObj){
 
             // serialized:
-            this.userId = 0;
-            this.ownerIds = []; // String List of owner Ids
-            this.healthPoints = 0;
-
-
-            // only ids serialized
-            this.deployedItems = [];// get example: LaserTrooper = this.items['userId']['Index'];
-            this.appliedItems = {};
-            this.buildQueue = [];
+            this._userId = 0;
+            this._ownerIds = []; // String List of owner Ids
+            this._healthPoints = this.setHealthPointsToMax();
 
             // not serialized
-            this.properties = {};
+            this._properties = {};
     };
+
 
     UserObject.prototype= {
 
         getMaxHealthPoints: function(){
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-            }
-            return this.properties._maxHealthPoints;
+            return this._properties._maxHealthPoints;
         },
+
         getHealthPoints: function(){
-            this.healthPoints = this.properties._maxHealthPoints;
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-                this.healthPoints = this.properties._maxHealthPoints;
-            }
-            return this.healthPoints;
+            return this._healthPoints;
+        },
+
+        setHealthPointsToMax: function(){
+            this._healthPoints = this.getMaxHealthPoints;
         },
 
         getPoints: function(){
-            if (this.change){
-                this.updateObjectProperties();
-                this.change = false;
-            }
-            return this.properties._points;
+            return this._properties._points;
         },
 
-        getItems: function (){
-            return this.deployedItems
-        },
 
-            // member functions
        getLevel: function (points){
            var level = 0;
                     if (points >= 0 && points <10){
@@ -81,86 +63,11 @@ if (node) {
                 return level
         },
 
-        setPointers : function(){
-            this._super();
-
-            var buildQueueIds = this.buildQueue;
-            this.buildQueue = [];
-            for (var i=0; i<buildQueueIds.length ; i++) {
-                this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
-            }
-        },
-
-        setHealthPoints: function(){
-            this.healthPoints = this._maxHealthPoints;
-        },
-
-
-        addItemToQueue: function(item){
-            this.buildQueue.push(item);
-        },
-
-        addItem: function (item){
-            this.deployedItems.push(item);
-        },
-
-        removeItemFromQueue: function(idx){
-            this.buildQueue.splice(idx,1);
-        },
-
-        checkQueue: function(currentTime) {
-
-           // console.log("checkQueue with currentTime: "+(new Date(currentTime)).toUTCString());
-
-           if (this.buildQueue.length>0){
-               if(this.buildQueue[0]._state == eventStates.VALID) {
-                    this.buildQueue[0].start(currentTime);
-               }
-           }
-
-        },
-
 
         save: function () {
-            var o = this._super();
-            var buildQueueIds = [];
-            for (var i=0; i<this.buildQueue.length ; i++) {
-                buildQueueIds.push(this.buildQueue[i]._id);
-            }
 
-            var appliedItemIds = [];
-            var appliedItemProps= [];
-            var appliedItemValues = [];
-            var appliedItemOperators = [];
-            var appliedItemModes = [];
-            var count = 0;
-            for (var id in this.appliedItems)  {
-
-                for (var k = 0; k<this.appliedItems[id].length;k++){
-                    var feature = this.appliedItems[id][k];
-                    appliedItemIds[count] = id;
-                    appliedItemProps[count]= feature.property;
-                    appliedItemValues[count] = feature.change;
-                    appliedItemOperators[count] = feature.operator;
-                    appliedItemModes[count] = feature.mode;
-                    count++
-                }
-            }
-
-            var deployedItemIds= [];
-            for (var i=0; i<this.deployedItems.length; i++) {
-                deployedItemIds.push(this.deployedItems[i]._id);
-            }
-
-
-            o.a2 =  [this.userId,
+            o.a =  [this.userId,
                      this.healthPoints,
-                    buildQueueIds,
-                    appliedItemIds,
-                    appliedItemProps,
-                    appliedItemValues,
-                    appliedItemOperators,
-                    appliedItemModes
                     ];
             return o;
         },
@@ -168,19 +75,9 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a"))
             {
-                this._super(o);
-                if (o.hasOwnProperty("a2"))
-                {
-                    this.userId = o.a2[0];
-                    this.healthPoints= o.a2[1];
-                    this.buildQueue = o.a2[2];
-
-                    for (var i = 0; i<o.a2[3].length; i++){
-                        this.addFeature(o.a2[3][i],o.a2[4][i],o.a2[5][i],o.a2[6][i],o.a2[7][i])
-                    }
-
-                }
-
+                this.userId = o.a[0];
+                this.healthPoints= o.a[1];
+                this.buildQueue = o.a[2];
 
             }
             else {
