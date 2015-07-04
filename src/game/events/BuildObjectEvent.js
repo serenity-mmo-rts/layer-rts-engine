@@ -27,7 +27,7 @@ if (node) {
         },
 
         isValid: function () {
-            var collidingItems = this._gameData.layers.get(this._mapId).collisionDetection(this._mapObj);
+            var collidingItems = this._gameData.layers.get(this._mapId).mapData.collisionDetection(this._mapObj);
             if (collidingItems.length > 0) {
                 return false;
             }
@@ -43,7 +43,7 @@ if (node) {
             this.start(Date.now() + ntp.offset() );
 
             // make sure that the object is in gameData:
-            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
 
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
             this._super();
@@ -56,7 +56,7 @@ if (node) {
             this.start(Date.now());
 
             // make sure that the object is in gameData:
-            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
 
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
@@ -131,7 +131,7 @@ if (node) {
                     this._mapObj = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId);
                 }
                 else {
-                    this._mapObj = createMapObject(this._gameData,o.a2[0]);
+                    this._mapObj = new MapObject(this._gameData,o.a2[0]);
                 }
             }
             else {
