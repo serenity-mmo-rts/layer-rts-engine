@@ -101,7 +101,8 @@ if (node) {
 
 
         save: function () {
-            var o = this._super();
+
+
             var buildQueueIds = [];
             for (var i=0; i<this.buildQueue.length ; i++) {
                 buildQueueIds.push(this.buildQueue[i]._id);
@@ -131,8 +132,8 @@ if (node) {
                 deployedItemIds.push(this.deployedItems[i]._id);
             }
 
-
-            o.a2 =  [this.userId,
+            var o = {
+            a :  [this.userId,
                 this.healthPoints,
                 buildQueueIds,
                 appliedItemIds,
@@ -140,7 +141,7 @@ if (node) {
                 appliedItemValues,
                 appliedItemOperators,
                 appliedItemModes
-            ];
+            ]};
             return o;
         },
 

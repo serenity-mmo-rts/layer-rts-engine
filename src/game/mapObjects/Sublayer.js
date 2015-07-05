@@ -7,32 +7,30 @@ if (node) {
 
 (function (exports) {
 
+    var Sublayer = function (mapObj,initObj){
+        this._mapObj = mapObj;
+        initObj._subLayerMapId = this._mapObj._subLayerMapId;
 
+        this.load(initObj);
 
-    var Sublayer = function (initObj){
-        this.publicArea = null;
-        this.sublayerMapId = null;
     };
 
     Sublayer.prototype= {
 
-
-        save: function () {
-            var o = this._super();
-            o.a3 = [this._type, this.sublayerMapId];
+       save: function () {
+           var o = {
+            a: [this._subLayerMapId
+            ]};
             return o;
         },
 
         load: function (o) {
-            if (o.hasOwnProperty("a2"))
+
+            if (o.hasOwnProperty("a"))
             {
-                this._super(o);
-                if (o.hasOwnProperty("a3"))
-                {
-                    this.publicArea = o.a3[0];
-                    this.sublayerMapId = o.a3[1];
-                }
+                this._subLayerMapId = o.a[0];
             }
+
             else {
                 for (var key in o) {
                     if (o.hasOwnProperty(key)) {

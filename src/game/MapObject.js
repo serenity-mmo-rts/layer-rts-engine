@@ -48,6 +48,7 @@ if (node) {
         this._deployedItems= [];
 
 
+
         // not serialized:
 
         this.gameData = gameData;
@@ -100,51 +101,64 @@ if (node) {
         setPointers : function(items){
 
             this.map= this.gameData.layers.get(this._mapId);
-            for (var i =1; i<items.length; i++){
-               this.addItem(items[i])
+            this.type=this.gameData.objectTypes.get(this.objTypeId);
+
+
+            if (items==!undefined) {
+                for (var i =1; i<items.length; i++){
+                    this.addItem(items[i])
+                }
             }
         },
 
 
-        createBuildingBlocks: function(blocks){
+        createBuildingBlocks: function(blocks,o) {
 
-            var Objects = this.gameData.objectTypes.get(blocks.objTypeId)._buildingBlocks;
-            var BuildingBlocks  = Object.keys(Objects);
+            if (Object.keys(blocks) == undefined) {
+                var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
+            }
+            else if (Object.keys(blocks).length == 0) {
+                var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
+            }
+            else {
+                var Objects = blocks;
+            }
 
-            for (var i =0;i<BuildingBlocks.length;i++){
+            var BuildingBlocks = Object.keys(Objects);
+
+            for (var i = 0; i < BuildingBlocks.length; i++) {
                 var name = BuildingBlocks[i];
                 var blockObj = Objects[name];
                 if (name == "UserObject") {
-                    this._blocks[name] = new UserObject(this,blockObj);
+                    this._blocks[name] = new UserObject(this, blockObj);
                 }
                 else if (name == "Environment") {
-                    this._blocks[name] = new Environment(this,blockObj);
+                    this._blocks[name] = new Environment(this, blockObj);
                 }
                 else if (name == "ResourceProduction") {
-                    this._blocks[name] = new ResourceProduction(this,blockObj);
+                    this._blocks[name] = new ResourceProduction(this, blockObj);
                 }
                 else if (name == "SoilProduction") {
-                    this._blocks[name] = new SoilProduction(this,blockObj);
+                    this._blocks[name] = new SoilProduction(this, blockObj);
                 }
-                else if (name ==  "HubNode") {
-                    this._blocks[name] = new HubNode(this,blockObj);
+                else if (name == "HubNode") {
+                    this._blocks[name] = new HubNode(this, blockObj);
                 }
-                else if (name ==  "TechProduction") {
-                    this._blocks[name] = new TechProduction(this,blockObj);
+                else if (name == "TechProduction") {
+                    this._blocks[name] = new TechProduction(this, blockObj);
                 }
-                else if (name ==  "Sublayer") {
-                    this._blocks[name] = new Sublayer(this,blockObj);
+                else if (name == "Sublayer") {
+                    this._blocks[name] = new Sublayer(this, blockObj);
                 }
             }
-
         },
 
 
         save: function () {
 
-            var blocks = [];
-            for (var i=0; i<this._blocks.length; i++) {
-                blocks.push(this._blocks[i].save());
+            var blocks = {};
+            for (var key in this._blocks) {
+                blocks[key]= this._blocks[key].save();
             }
 
             var items= [];
@@ -190,13 +204,14 @@ if (node) {
                         this[key] = o[key];
                     }
                 }
+                this.createBuildingBlocks(this._blocks,o);
             }
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
 
-            this.createBuildingBlocks(this._blocks);
             this.setPointers(items);
+            this.createBuildingBlocks(this._blocks,o);
 
         }
 

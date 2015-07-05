@@ -17,7 +17,8 @@ if (node) {
 
     var UpgradeProduction = function (gameData,initObj){
 
-
+        this._freeSlotsAvailable =0;
+        this._itemIds = null;
         // only ids serialized
         this.buildQueue = [];
 
@@ -78,10 +79,11 @@ if (node) {
                 buildQueueIds.push(this.buildQueue[i]._id);
             }
 
-            o.a =  [this.userId,
-                this.healthPoints,
-                buildQueueIds
-            ];
+            var o= {
+                a: [this.userId,
+                    this.healthPoints,
+                    buildQueueIds
+                ]};
             return o;
         },
 

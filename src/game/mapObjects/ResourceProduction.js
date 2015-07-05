@@ -18,9 +18,10 @@ if (node) {
 
 
         save: function () {
-            var o = this._super();
-            o.a3 = [this.productionSpeed];
-            return o;
+            var o = {
+                a: [this.productionSpeed
+            ]};
+        return o;
         },
 
         load: function (o) {

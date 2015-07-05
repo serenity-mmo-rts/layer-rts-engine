@@ -10,24 +10,16 @@ if (node) {
     var ObjectType = AbstractType.extend({
 
         // basics:
-        _type: "ObjectType",
-        _buildingBlocks: {},
-        // requirements
-        _allowOnMapTypeId: null,
-        _requiredTechnologies: null,
-        _requiredRessources: null,
-        // graphics
-        _initWidth: null,
-        _initHeight: null,
-        _spritesheetId: null,
-        _spriteFrame: null,
-        // child
-        _hasChildMapTypeId: null,
-
-        // object Properties not serilized
-
-
-
+    _type: "ObjectType",
+    _buildingBlocks: {},
+    _allowOnMapTypeId: null,
+    _requiredTechnologies: null,
+    _requiredRessources: null,
+    _initWidth: null,
+    _initHeight: null,
+    _spritesheetId: null,
+    _spriteFrame: null,
+    _hasChildMapTypeId: null,
 
     init: function (gameData, initObj) {
 
@@ -50,7 +42,7 @@ if (node) {
                     this._spritesheetId,
                     this._spriteFrame,
                     this._hasChildMapTypeId,
-
+                    this._className
                     ];
 
 
@@ -72,8 +64,7 @@ if (node) {
                 this._spritesheetId = o.a2[6];
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
-
-
+                this._className = o.a2[9];
 
             }
 

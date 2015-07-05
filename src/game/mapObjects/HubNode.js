@@ -24,11 +24,11 @@ if (node) {
         },
 
         save: function () {
-            var o = this._super();
-            o.a3 = [
+            var o = {
+            a : [
                 this.objectsConnected,
                 this.freeSlots
-            ];
+            ]};
             return o;
         },
 

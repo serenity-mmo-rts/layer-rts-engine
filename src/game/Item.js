@@ -160,6 +160,6 @@ if (node) {
 
     //exports.itemStates = itemStates;
     exports.Item = Item;
-    exports.itemStates = itemStates;
+    exports.itemStates = Item.itemStates;
 
 })(typeof exports === 'undefined' ? window : exports);

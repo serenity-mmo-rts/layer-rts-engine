@@ -66,9 +66,11 @@ if (node) {
 
         save: function () {
 
-            o.a =  [this.userId,
+            var o = {
+                    a:[this.userId,
                      this.healthPoints,
-                    ];
+                     this.buildQueue
+                    ]};
             return o;
         },
 
