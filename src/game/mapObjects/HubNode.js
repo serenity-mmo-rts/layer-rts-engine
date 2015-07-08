@@ -7,40 +7,42 @@ if (node) {
 
 (function (exports) {
 
-    var HubNode = function (initObj){
-        this.objectsConnected = null;
-        this.freeSlots = null;
+    var HubNode = function (mapObj,initObj){
+
+        //helper member variables:
+        this._mapObj = mapObj;
+
+
+        //write protected instance properties (defined by object type and features):
+        this._maxRange = 1000;
+        this._connBuildTimePerDist = 1;
+
+        //serialized state:
+
     };
 
     HubNode.prototype= {
 
-
-        getObjectsConnected: function(){
-            return this.objectsConnected;
+        getMaxRange: function(){
+            return this._maxRange;
         },
 
-        getFreeSlots: function(){
-            return this.freeSlots;
+        getConnBuildTimePerDist: function(){
+            return this._connBuildTimePerDist;
         },
 
         save: function () {
             var o = {
             a : [
-                this.objectsConnected,
-                this.freeSlots
+
             ]};
             return o;
         },
 
         load: function (o) {
-            if (o.hasOwnProperty("a2"))
+            if (o.hasOwnProperty("a"))
             {
-                this._super(o);
-                if (o.hasOwnProperty("a3"))
-                {
-                    this.objectsConnected = o.a3[0];
-                    this.freeSlots = o.a3[0];
-                }
+
             }
             else {
                 for (var key in o) {

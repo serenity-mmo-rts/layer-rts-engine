@@ -4,6 +4,7 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var BuildObjectEvent = require('./BuildObjectEvent').BuildObjectEvent;
     var BuildItemEvent = require('./BuildUpgradeEvent').BuildItemEvent;
+    var BuildConnectionEvent = require('./BuildConnectionEvent').BuildConnectionEvent;
 }
 
 (function (exports) {
@@ -15,6 +16,9 @@ if (node) {
         }
         else if (initObj._type == "BuildItemEvent") {
             event = new BuildItemEvent(gameData,initObj);
+        }
+        else if (initObj._type == "BuildConnectionEvent") {
+            event = new BuildConnectionEvent(gameData,initObj);
         }
         return event;
     };

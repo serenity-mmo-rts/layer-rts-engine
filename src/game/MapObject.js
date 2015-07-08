@@ -8,10 +8,15 @@ if (node) {
     var UserObject = require('./mapObjects/UserObject').UserObject;
     var Environment = require('./mapObjects/Environment').Environment;
     var HubNode = require('./mapObjects/HubNode').HubNode ;
+    var HubConnectivity = require('./mapObjects/HubConnectivity').HubConnectivity ;
     var TechProduction = require('./mapObjects/TechProduction').TechProduction;
+    var UpgradeProduction = require('./mapObjects/UpgradeProduction').UpgradeProduction;
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
+    var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
     var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
+    var WorkingPlace = require('./mapObjects/WorkingPlace').WorkingPlace;
+    var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
 }
 
 
@@ -53,7 +58,7 @@ if (node) {
 
         this.gameData = gameData;
         this.onChangeCallback = {};
-
+        this.objType = null;
 
 
 
@@ -112,45 +117,75 @@ if (node) {
         },
 
 
-        createBuildingBlocks: function(blocks,o) {
+        createBuildingBlocks: function(o) {
 
-            if (Object.keys(blocks) == undefined) {
-                var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
-            }
-            else if (Object.keys(blocks).length == 0) {
-                var Objects = this.gameData.objectTypes.get(o.objTypeId)._buildingBlocks;
-            }
-            else {
-                var Objects = blocks;
+            var buildingBlockState = this._blocks;
+
+            for (var blockName in this.objType._blocks) {
+
+                var blockStateVars = {};
+                // check if we already have a state to initialize the building block with:
+                if (buildingBlockState.hasOwnProperty(blockName)) {
+                    var blockStateVars = buildingBlockState[blockName];
+                }
+
+                if (blockName == "UserObject") {
+                    this._blocks[blockName] = new UserObject(this, blockStateVars);
+                }
+                else if (blockName == "Environment") {
+                    this._blocks[blockName] = new Environment(this, blockStateVars);
+                }
+                else if (blockName == "ResourceProduction") {
+                    this._blocks[blockName] = new ResourceProduction(this, blockStateVars);
+                }
+                else if (blockName == "SoilProduction") {
+                    this._blocks[blockName] = new SoilProduction(this, blockStateVars);
+                }
+                else if (blockName == "HubNode") {
+                    this._blocks[blockName] = new HubNode(this, blockStateVars);
+                }
+                else if (blockName == "HubConnectivity") {
+                    this._blocks[blockName] = new HubConnectivity(this, blockStateVars);
+                }
+                else if (blockName == "ProductivityCalculator") {
+                    this._blocks[blockName] = new ProductivityCalculator(this, blockStateVars);
+                }
+                else if (blockName == "EnergyManager") {
+                    this._blocks[blockName] = new EnergyManager(this, blockStateVars);
+                }
+                else if (blockName == "WorkingPlace") {
+                    this._blocks[blockName] = new WorkingPlace(this, blockStateVars);
+                }
+                else if (blockName == "TechProduction") {
+                    this._blocks[blockName] = new TechProduction(this, blockStateVars);
+                }
+                else if (blockName == "UpgradeProduction") {
+                    this._blocks[blockName] = new UpgradeProduction(this, blockStateVars);
+                }
+                else if (blockName == "Sublayer") {
+                    this._blocks[blockName] = new Sublayer(this, blockStateVars);
+                }
+                else {
+                    console.error("Tried to create block " + blockName + " which is not registered as a valid buildingBlock.")
+                }
             }
 
-            var BuildingBlocks = Object.keys(Objects);
+            this.recalculateTypeVariables();
 
-            for (var i = 0; i < BuildingBlocks.length; i++) {
-                var name = BuildingBlocks[i];
-                var blockObj = Objects[name];
-                if (name == "UserObject") {
-                    this._blocks[name] = new UserObject(this, blockObj);
-                }
-                else if (name == "Environment") {
-                    this._blocks[name] = new Environment(this, blockObj);
-                }
-                else if (name == "ResourceProduction") {
-                    this._blocks[name] = new ResourceProduction(this, blockObj);
-                }
-                else if (name == "SoilProduction") {
-                    this._blocks[name] = new SoilProduction(this, blockObj);
-                }
-                else if (name == "HubNode") {
-                    this._blocks[name] = new HubNode(this, blockObj);
-                }
-                else if (name == "TechProduction") {
-                    this._blocks[name] = new TechProduction(this, blockObj);
-                }
-                else if (name == "Sublayer") {
-                    this._blocks[name] = new Sublayer(this, blockObj);
+        },
+
+        recalculateTypeVariables: function(){
+
+            // TODO: At the moment the following is just a hack. Probably this should be done by the FeatureManager which has to change these type properties according to the applied features...
+
+            // loop over all blocks:
+            for (var blockName in this.objType._blocks) {
+                // loop over all type variables of that block:
+                for (var blockTypeVar in this.objType._blocks[blockName]) {
+                    this._blocks[blockName][blockTypeVar] = this.objType._blocks[blockName][blockTypeVar];
                 }
             }
+
         },
 
 
@@ -204,14 +239,14 @@ if (node) {
                         this[key] = o[key];
                     }
                 }
-                this.createBuildingBlocks(this._blocks,o);
             }
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
 
+            this.objType = this.gameData.objectTypes.get(this.objTypeId);
             this.setPointers(items);
-            this.createBuildingBlocks(this._blocks,o);
+            this.createBuildingBlocks(o);
 
         }
 

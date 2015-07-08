@@ -9,7 +9,8 @@ if (node) {
 
     var Sublayer = function (mapObj,initObj){
         this._mapObj = mapObj;
-        initObj._subLayerMapId = this._mapObj._subLayerMapId;
+
+        this._subLayerMapId = null;
 
         this.load(initObj);
 

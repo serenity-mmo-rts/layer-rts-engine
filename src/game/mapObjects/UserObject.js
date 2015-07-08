@@ -11,7 +11,7 @@ if (node) {
 
 
 
-    var UserObject = function (gameData,initObj){
+    var UserObject = function (gameData, blockStateVars){
 
             // serialized:
             this._userId = 0;
@@ -20,6 +20,7 @@ if (node) {
 
             // not serialized
             this._properties = {};
+            this.hubSystem = null;
     };
 
 
@@ -35,6 +36,11 @@ if (node) {
 
         setHealthPointsToMax: function(){
             this._healthPoints = this.getMaxHealthPoints;
+            return this._healthPoints;
+        },
+
+        setHubConnection: function(hubId) {
+            this._connectedToHub = hubId;
         },
 
         getPoints: function(){

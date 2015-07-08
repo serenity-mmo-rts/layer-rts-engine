@@ -8,8 +8,20 @@ if (node) {
 (function (exports) {
 
 
-    var ResourceProduction = function (initObj){
+    var ResourceProduction = function (mapObj,initObj){
 
+        //helper member variables:
+        this._mapObj = mapObj;
+
+        //write protected instance properties (defined by object type and features):
+        this.resInIds = [1, 2];
+        this.resInPerSec = [2, 3];
+        this.resOutIds = [3];
+        this.resOutPerSec = [1];
+        this.capacityScaling = 1; //might be changed by features to increase the throughput of the factory
+
+        //serialized state:
+        this.productivityCap = 1; //can be set by user to artificially limit productivity or set to 0 to disable production completely
 
     };
 
