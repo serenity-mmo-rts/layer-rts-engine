@@ -3,9 +3,12 @@ if (node) {
     var GameList = require('../GameList').GameList;
     var MapObject = require('../MapObject').MapObject;
     var ItemModel = require('../Item').ItemModel;
+    var Box = require('./Box').Box;
+
 }
 
 (function (exports) {
+
     var MapData = function (gameData,layer,initObj) {
         // serialized:
 
@@ -121,51 +124,30 @@ if (node) {
 
         },
 
+        /**
+         * check if a mapObject is colliding with any other objects in the layer
+         * @param mapObject The mapObject to test for collisions
+         * @returns {Array} An array of other mapObjects that are colliding with the given mapObject
+         */
         collisionDetection: function (mapObject) {
-
-            function boundsToRect(b) {
-                return {
-                    left:   b.x,
-                    top:    b.y,
-                    right:  b.x+b.width,
-                    bottom: b.y+b.height
-                };
-            }
-
-            function intersectBounds(r1, r2) {
-
-                return !(r2.left > r1.right ||
-                    r2.right < r1.left ||
-                    r2.top > r1.bottom ||
-                    r2.bottom < r1.top);
-            }
-
+            // retrieve from quad tree all candidates:
             var testItem = this.createTreeObject(mapObject);
-            var testItemRect=boundsToRect(testItem);
-
-            var items = this.quadTree.retrieve(testItem);
+            var candidates = this.quadTree.retrieve(testItem);
 
             var collidingItems = [];
 
-            // detect collision:
+            // detect collisions with candidates:
             var ids = {};
-            for (var i = 0, l = items.length; i < l; i++) {
-                var item = items[i];
-
-                // TODO: collisionType = 0; // 0=NoCollision, 1=overlapping, 2=item in testItem, 3=testItem in item
-
-                if (intersectBounds(testItemRect, boundsToRect(item))) {
-                    //if (item.x < testItem.x + testItem.width && item.x + item.width > testItem.x &&
-                    //    item.y < testItem.y + testItem.height && item.y + item.height > testItem.y) {
-                    if (ids.hasOwnProperty(item.obj._id)){}
-                    else{
-                        collidingItems.push(item.obj);
-                        ids[item.obj._id] = null;
+            for (var i = 0, l = candidates.length; i < l; i++) {
+                var candidate = candidates[i];
+                if (mapObject.isColliding(candidate.obj)) {
+                    if (!ids.hasOwnProperty(candidate.obj._id)){
+                        collidingItems.push(candidate.obj);
+                        ids[candidate.obj._id] = null;
                     }
                 }
 
             }
-            //TODO: detect orientations etc.
 
             return collidingItems;
         },
@@ -206,6 +188,7 @@ if (node) {
 
         }
     }
+
 
     exports.MapData = MapData;
 
