@@ -204,10 +204,10 @@ if (node) {
 
         getRect: function() {
             this.rect = {
-                left:   this.x,
-                top:    this.y,
-                right:  this.x+this.width,
-                bottom: this.y+this.height
+                left:   this.x-this.width/2,
+                top:    this.y-this.height/2,
+                right:  this.x+this.width/2,
+                bottom: this.y+this.height/2
             };
             return this.rect;
         },
@@ -220,12 +220,21 @@ if (node) {
                 var r1 = this.getRect();
                 var r2 = b.getRect();
 
-                return !(r2.left > r1.right ||
+                if (r2.left > r1.right ||
                 r2.right < r1.left ||
                 r2.top > r1.bottom ||
-                r2.bottom < r1.top);
+                r2.bottom < r1.top) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
 
             }
+
+            // for the following more complex check see the references:
+            // see http://jsbin.com/esubuw/4/edit?html,js,output
+            // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
 
             var axesA = this.getAxes();
             var axesB = b.getAxes();
