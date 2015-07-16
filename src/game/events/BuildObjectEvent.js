@@ -27,6 +27,58 @@ if (node) {
         },
 
         isValid: function () {
+
+            var mapData = this._gameData.layers.get(this._mapId).mapData;
+
+            //check if mapObject is defined
+            if (this._mapObj == undefined) {
+                return false;
+            }
+
+            //check if correct layer
+            if (this._mapId != this._mapObj.mapId){
+                return false;
+            }
+
+            if (this._mapObj._blocks.hasOwnProperty("Connection")) {
+
+                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection._connectedFrom);
+                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection._connectedTo);
+
+                //check if both are on the same layer:
+                if (sourceHub == undefined || targetObj == undefined){
+                    return false;
+                }
+
+                //check if it is really a hub node
+                if (!targetObj._blocks.hasOwnProperty("HubNode")){
+                    return false;
+                }
+
+                //check if there is a port free in the hub node
+                if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
+                    return false;
+                }
+
+                //check if there is a port free in the mapObj
+                if (!targetObj._blocks.HubConnectivity.getFreePorts() > 0){
+                    return false;
+                }
+
+                //don't allow self connection
+                if (sourceHub._id == targetObj._id){
+                    return false;
+                }
+
+                //check if both are within the range given by the hub:
+                var x = (sourceHub.x - targetObj.x);
+                var y = (sourceHub.y - targetObj.y);
+                if (sourceHub._blocks.HubNode.getMaxRange() < Math.sqrt(x*x + y*y)) {
+                    return false;
+                }
+
+            }
+
             var collidingItems = this._gameData.layers.get(this._mapId).mapData.collisionDetection(this._mapObj);
             if (collidingItems.length > 0) {
                 return false;

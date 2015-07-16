@@ -19,7 +19,6 @@ if (node) {
     _initHeight: null,
     _spritesheetId: null,
     _spriteFrame: null,
-    _hasChildMapTypeId: null,
 
     init: function (gameData, initObj) {
 

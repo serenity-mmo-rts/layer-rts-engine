@@ -17,6 +17,7 @@ if (node) {
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
     var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
     var WorkingPlace = require('./mapObjects/WorkingPlace').WorkingPlace;
+    var Connection = require('./mapObjects/Connection').Connection;
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
 }
 
@@ -162,6 +163,9 @@ if (node) {
                 }
                 else if (blockName == "TechProduction") {
                     this._blocks[blockName] = new TechProduction(this, blockStateVars);
+                }
+                else if (blockName == "Connection") {
+                    this._blocks[blockName] = new Connection(this, blockStateVars);
                 }
                 else if (blockName == "UpgradeProduction") {
                     this._blocks[blockName] = new UpgradeProduction(this, blockStateVars);
