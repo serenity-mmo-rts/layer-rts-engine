@@ -219,7 +219,7 @@ if (node) {
             this.map= this.gameData.layers.get(this._mapId);
             this.item = this.map.items.get(this._itemId);
             this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
-            this._stack = this.item._buildingBlocks.Feature.command[this.item._level];
+            this._stack = this.item._blocks.Feature.command[this.item._level];
         },
 
 

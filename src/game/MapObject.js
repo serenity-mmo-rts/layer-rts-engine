@@ -108,7 +108,7 @@ if (node) {
         setPointers : function(items){
 
             this.map= this.gameData.layers.get(this._mapId);
-            this.type=this.gameData.objectTypes.get(this.objTypeId);
+            this.objType = this.gameData.objectTypes.get(this.objTypeId);
 
 
             if (items==!undefined) {
@@ -338,7 +338,7 @@ if (node) {
                 this._id = this._id.toHexString();
             }
 
-            this.objType = this.gameData.objectTypes.get(this.objTypeId);
+
             this.setPointers(items);
             this.createBuildingBlocks(o);
 
