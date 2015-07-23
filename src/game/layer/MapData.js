@@ -3,7 +3,6 @@ if (node) {
     var GameList = require('../GameList').GameList;
     var MapObject = require('../MapObject').MapObject;
     var ItemModel = require('../Item').ItemModel;
-    var Box = require('./Box').Box;
 
 }
 
