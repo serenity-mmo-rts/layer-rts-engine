@@ -6,23 +6,21 @@ if (node) {
 
 (function (exports) {
 
-    var Feature = function (item,initObj){
+    var Feature = function (item,stateVars){
 
+        this._item = item;
+
+     // serialized
+        this.itemId =  null;
         this._remainingActivationTime= null;
-        this._mapId = null;
-        this._itemId = null;
         this._executeIndex =0;
-        this._stack = [];
-        this.load(initObj);
 
-    }
+        this.load(stateVars);
 
-
+    };
 
 
     Feature.prototype ={
-
-
 
         setStack: function(){
 
@@ -216,18 +214,17 @@ if (node) {
 
 
         setPointers : function(){
-            this.map= this.gameData.layers.get(this._mapId);
-            this.item = this.map.items.get(this._itemId);
-            this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
-            this._stack = this.item._blocks.Feature.command[this.item._level];
+            this._itemId = this._item._id;
+            this._map= this._item.gameData.layers.get(this._item._mapId);
+            this._mapObject = this._map.mapData.mapObjects.get(this._item._objectId);
+            this._stack = this._item._itemType._blocks.Feature.command[this._item._level];
         },
+
 
 
         save: function () {
 
-            var o = {
-                _mapId: this._mapId,
-                _itemId: this._itemId,
+            var o = { itemId : this._item._id,
                 a:[
                    this._executeIndex,
                    this._currentTargetIds,
@@ -238,13 +235,11 @@ if (node) {
         },
 
         load: function (o) {
-            this._mapId = o._mapId;
-            this._itemId = o._itemId;
 
             if (o.hasOwnProperty("a")) {
-                this._executeIndex = o.a[1];
-                this._currentTargetIds = o.a[2];
-                this._remainingActivationTime = o.a[3];
+                this._executeIndex = o.a[0];
+                this._currentTargetIds = o.a[1];
+                this._remainingActivationTime = o.a[2];
             }
             else {
                 for (var key in o) {
@@ -258,7 +253,7 @@ if (node) {
 
         }
 
-    }
+    };
 
 
     exports.Feature = Feature;

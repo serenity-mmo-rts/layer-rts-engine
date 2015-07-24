@@ -5,7 +5,7 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var MapObject = require('./../MapObject').MapObject;
     var eventStates = require('../events/AbstractEvent').eventStates
-    var BuildItemEvent = require('../events/BuildUpgradeEvent').BuildItemEvent
+    var BuildUpgradeEvent = require('../events/BuildUpgradeEvent').BuildUpgradeEvent
     var Item = require('./../Item').Item;
 
 }
@@ -15,14 +15,15 @@ if (node) {
 
 
 
-    var UpgradeProduction = function (gameData,initObj){
+    var UpgradeProduction = function (mapObj,initObj){
 
         this._freeSlotsAvailable =0;
-        this._itemIds = null;
+        this._itemTypeId =null;
         // only ids serialized
         this.buildQueue = [];
-
         // not serialized
+        this._mapObj = mapObj;
+        this._mapId = mapObj.mapId;
         this.properties = {};
     };
 
@@ -32,10 +33,10 @@ if (node) {
     UpgradeProduction.prototype= {
 
 
-        startUpgrade: function(){
+        startUpgrade: function(itemId){
             var tempId = "tempID"+Math.random();
-            var item = new Item(game,{_id: tempId,_objectId:self.mapObj._id,_itemTypeId:itemId,_mapId:uc.layerView.mapId})
-            var evt = new BuildItemEvent(game);
+            var item = new Item(game,{_id: tempId,_objectId:this._mapObj._id,_itemTypeId:itemId,_mapId:this._mapId})
+            var evt = new BuildUpgradeEvent(game);
             evt.setItem(item);
             uc.addEvent(evt);
         },
