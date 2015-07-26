@@ -55,16 +55,18 @@ if (node) {
             this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
 
 
-
             // not serialized:
             this.gameData = gameData;
             this.onChangeCallback = {};
-            this.objType = null;
+            this.objType = this.gameData.objectTypes.get(initObj.objTypeId);
             this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
             this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
 
 
+
             // init:
+            this.height = this.objType._initHeight;
+            this.width = this.objType._initWidth;
             if (MapObject.arguments.length == 2) {
                 this.load(initObj);
             }
@@ -187,6 +189,8 @@ if (node) {
                     this._blocks[blockName][blockTypeVar] = this.objType._blocks[blockName][blockTypeVar];
                 }
             }
+
+
 
         },
 

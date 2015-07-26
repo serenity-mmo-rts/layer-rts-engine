@@ -8,7 +8,7 @@ if (node) {
 
 (function (exports) {
 
-    var MapData = function (gameData,layer,initObj) {
+    var MapData = function (gameData,layer) {
         // serialized:
 
         // not serialized:
@@ -20,10 +20,6 @@ if (node) {
         this.objectChangedCallback = null;
         this.itemChangedCallback = null;
 
-        // init:
-        if (MapData.arguments.length == 2) {
-            this.load(initObj);
-        }
 
     }
 
@@ -114,7 +110,7 @@ if (node) {
         },
 
         rebuildQuadTree: function() {
-            this.quadTree = new window.QuadTree({x: -this.width / 2, y: -this.height / 2, width: this.width, height: this.height}, false);
+            this.quadTree = new window.QuadTree({x: -this.layer.width / 2, y: -this.layer.height / 2, width: this.layer.width, height: this.layer.height}, false);
 
             for (var id in this.mapObjects.hashList) {
                 var treeItem = this.createTreeObject(this.mapObjects.hashList[id]);
@@ -176,16 +172,8 @@ if (node) {
 
             }
             return inRange;
-        },
-
-        save: function () {
-            var o = {};
-            return o;
-        },
-
-        load: function (o) {
-
         }
+
     }
 
 

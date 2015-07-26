@@ -16,11 +16,8 @@ if (node) {
 
         // not serialized:
         this.eventScheduler = new EventScheduler(gameData);
-        this.mapData = new MapData(gameData);
-        this.quadTree = null;
+        this.mapData = new MapData(gameData,this);
         this.gameData = gameData;
-        this.objectChangedCallback = null;
-        this.itemChangedCallback = null;
 
         // init:
         if (Layer.arguments.length == 2) {
