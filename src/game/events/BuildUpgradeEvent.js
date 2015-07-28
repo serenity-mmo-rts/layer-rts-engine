@@ -73,7 +73,7 @@ if (node) {
            this._super(event);
            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
            this._item._id = event._item._id;
-           this._item._feature._itemId = event._item._id;
+           this._item._blocks["Feature"]._itemId = event._item._id;
            //this._item.createFeature();
 
         },
@@ -81,7 +81,9 @@ if (node) {
         start: function(startTime){
             this._super(startTime);
             //this._item._mapObj.state = mapObjectStates.WORKING;
-            this._item._mapObj.setState(mapObjectStates.WORKING);
+           // this._item._mapObj.setState(mapObjectStates.WORKING);
+           // HACK
+            this._item._mapObj.setState(1);
             this.saveToDb();
         },
 
@@ -119,7 +121,9 @@ if (node) {
             this._item._blocks["Feature"].checkStackExecution(false);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 
-            this._item._mapObj.setState(mapObjectStates.FINISHED);
+            //this._item._mapObj.setState(mapObjectStates.FINISHED);
+            // HACK
+            this._item._mapObj.setState(2);
             this._item._mapObj.notifyChange();
 
             if (node) {
