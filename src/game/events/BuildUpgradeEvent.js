@@ -13,9 +13,9 @@ if (node) {
 
 (function (exports) {
 
-    var BuildItemEvent = AbstractEvent.extend({
+    var BuildUpgradeEvent = AbstractEvent.extend({
 
-        _type: "BuildItemEvent",
+        _type: "BuildUpgradeEvent",
         _item: null,
 
         init: function(gameData, initObj){
@@ -46,7 +46,7 @@ if (node) {
 
             var self = this;
             this._item._id = (new mongodb.ObjectID()).toHexString();
-            this._item._feature._itemId =  this._item._id;
+            this._item._blocks["Feature"]._itemId =  this._item._id;
 
             this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
@@ -73,7 +73,7 @@ if (node) {
            this._super(event);
            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
            this._item._id = event._item._id;
-           this._item._feature._itemId = event._item._id;
+           this._item._blocks["Feature"]._itemId = event._item._id;
            //this._item.createFeature();
 
         },
@@ -81,7 +81,9 @@ if (node) {
         start: function(startTime){
             this._super(startTime);
             //this._item._mapObj.state = mapObjectStates.WORKING;
-            this._item._mapObj.setState(mapObjectStates.WORKING);
+           // this._item._mapObj.setState(mapObjectStates.WORKING);
+           // HACK
+            this._item._mapObj.setState(1);
             this.saveToDb();
         },
 
@@ -111,15 +113,17 @@ if (node) {
 
             this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
             this._item._mapObj.addItem(this._item);
-            this._gameData.layers.get(this._mapId).addItem(this._item);
+            this._gameData.layers.get(this._mapId).mapData.addItem(this._item);
 
 
             //this._item._mapObj.notifyChange();
 
-            this._item._feature.checkStackExecution(false);
+            this._item._blocks["Feature"].checkStackExecution(false);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 
-            this._item._mapObj.setState(mapObjectStates.FINISHED);
+            //this._item._mapObj.setState(mapObjectStates.FINISHED);
+            // HACK
+            this._item._mapObj.setState(2);
             this._item._mapObj.notifyChange();
 
             if (node) {
@@ -155,9 +159,9 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 var itemId = o.a2[0]._id;
-                if(this._gameData.layers.get(this._mapId).items.get(itemId)) {
-                    this._gameData.layers.get(this._mapId).items.get(this._item._id).load(o.a2[0]);
-                    this._item = this._gameData.layers.get(this._mapId).items.get(this._item._id);
+                if(this._gameData.layers.get(this._mapId).mapData.items.get(itemId)) {
+                    this._gameData.layers.get(this._mapId).mapData.items.get(this._item._id).load(o.a2[0]);
+                    this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._item._id);
                 }
                 else {
                     this._item = new Item(this._gameData,o.a2[0]);
@@ -179,6 +183,6 @@ if (node) {
         }
     });
 
-    exports.BuildItemEvent = BuildItemEvent;
+    exports.BuildUpgradeEvent = BuildUpgradeEvent;
 
 })(node ? exports : window);

@@ -12,23 +12,23 @@ if (node) {
 
 (function (exports) {
 
-
+    var itemStates = {};
+    itemStates.TEMP = 0;
+    itemStates.WORKING= 1;
+    itemStates.FINSEHD = 2;
 
     var Item = function (gameData,initObj){
 
-        var itemStates = {};
-        itemStates.TEMP = 0;
-        itemStates.WORKING= 1;
-        itemStates.FINSEHD = 2;
+
         // serialized
+        this._state=itemStates.TEMP;
         this._id=null;
         this._objectId= null;
         this._itemTypeId = null;
         this._mapId= null;
-
-        this._state=itemStates.TEMP;
         this._level=0;
         this._onChangeCallback= null;
+        this._blocks = {};
 
         //not serialized
         this._mapObj= null;
@@ -66,47 +66,75 @@ if (node) {
 
 
         setPointers : function(){
-           this._mapObj =  this.gameData.layers.get(this._mapId).mapObjects.get(this._objectId);
+            this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
+            this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
         },
 
 
-        createBuildingBlocks: function(blocks){
 
-            var Objects = this.gameData.itemTypes.get(blocks.objTypeId)._buildingBlocks;
-            var BuildingBlocks  = Object.keys(Objects);
 
-            for (var i =0;i<BuildingBlocks.length;i++){
-                var name = BuildingBlocks[i];
-                var blockObj = Objects[name];
-                if (name == "Combat") {
-                    this._blocks[name] = new Combat(this,this._blocks[name]);
+        createBuildingBlocks: function(o) {
+
+            var buildingBlockState = this._blocks;
+
+            for (var blockName in this._itemType._blocks) {
+
+                var blockStateVars = {};
+                // check if we already have a state to initialize the building block with:
+                if (buildingBlockState.hasOwnProperty(blockName)) {
+                    blockStateVars = buildingBlockState[blockName];
                 }
-                else if (name == "Commander") {
-                    this._blocks[name] = new Commander(this,blockObj);
+
+                if (blockName == "Combat") {
+                    this._blocks[blockName] = new Combat(this,this._blocks[blockStateVars]);
                 }
-                else if (name == "Feature") {
-                    this._blocks[name] = new Feature(this,blockObj);
+                else if (blockName == "Commander") {
+                    this._blocks[blockName] = new Commander(this,blockStateVars);
                 }
-                else if (name == "InventoryItem") {
-                    this._blocks[name] = new InventoryItem(this,blockObj);
+                else if (blockName == "Feature") {
+                    this._blocks[blockName] = new Feature(this,blockStateVars);
                 }
-                else if (name == "Movable") {
-                    this._blocks[name] = new Movable(this,blockObj);
+                else if (blockName == "InventoryItem") {
+                    this._blocks[blockName] = new InventoryItem(this,blockStateVars);
                 }
-                else if (name == "SubObject") {
-                    this._blocks[name] = new SubObject(this,blockObj);
+                else if (blockName == "Movable") {
+                    this._blocks[blockName] = new Movable(this,blockStateVars);
+                }
+                else if (blockName == "SubObject") {
+                    this._blocks[blockName] = new SubObject(this,blockStateVars);
+                }
+                else {
+                    console.error("Tried to create item block " + blockName + " which is not registered as a valid buildingBlock.")
                 }
             }
+
+            this.recalculateTypeVariables();
+
+        },
+
+        recalculateTypeVariables: function(){
+
+            // TODO: At the moment the following is just a hack. Probably this should be done by the FeatureManager which has to change these type properties according to the applied features...
+
+            // loop over all blocks:
+           // for (var blockName in this._itemType._blocks) {
+           //     // loop over all type variables of that block:
+           //     for (var blockTypeVar in this._itemType._blocks[blockName]) {
+           //         this._blocks[blockName][blockTypeVar] = this._itemType._blocks[blockName][blockTypeVar];
+           //     }
+           // }
 
         },
 
 
         save: function () {
 
-            var blocks = [];
-            for (var i=0; i<this._blocks.length; i++) {
-                blocks.push(this._blocks[i].save());
+
+            var blocks = {};
+            for (var key in this._blocks) {
+                blocks[key]= this._blocks[key].save();
             }
+
            var o = {_id: this._id,
                     _itemTypeId: this._itemTypeId,
                     _objectId: this._objectId,
@@ -141,17 +169,15 @@ if (node) {
                         this[key] = o[key];
                     }
                 }
-                if (this._feature == null){
-                    this.createFeature();
-                }
             }
 
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
 
-            this.createBuildingBlocks(this._blocks);
             this.setPointers();
+            this.createBuildingBlocks(o);
+
 
         }
 
@@ -159,7 +185,8 @@ if (node) {
 
 
     //exports.itemStates = itemStates;
+    exports.itemStates = itemStates;
     exports.Item = Item;
-    exports.itemStates = Item.itemStates;
+
 
 })(typeof exports === 'undefined' ? window : exports);
