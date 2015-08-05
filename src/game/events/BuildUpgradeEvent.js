@@ -46,7 +46,7 @@ if (node) {
 
             var self = this;
             this._item._id = (new mongodb.ObjectID()).toHexString();
-            this._item._blocks["Feature"]._itemId =  this._item._id;
+            this._item._blocks.Feature._itemId =  this._item._id;
 
             this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
@@ -73,7 +73,7 @@ if (node) {
            this._super(event);
            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
            this._item._id = event._item._id;
-           this._item._blocks["Feature"]._itemId = event._item._id;
+           this._item._blocks.Feature._itemId = event._item._id;
            //this._item.createFeature();
 
         },
@@ -114,11 +114,7 @@ if (node) {
             this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
             this._item._mapObj.addItem(this._item);
             this._gameData.layers.get(this._mapId).mapData.addItem(this._item);
-
-
-            //this._item._mapObj.notifyChange();
-
-            this._item._blocks["Feature"].checkStackExecution(false);
+            this._item._blocks.Feature.checkStackExecution(false);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 
             //this._item._mapObj.setState(mapObjectStates.FINISHED);

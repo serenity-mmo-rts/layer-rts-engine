@@ -148,12 +148,11 @@ if (node) {
         },
 
         getObjectsInRange: function (coord,range,type) {
-            var mapObj = {
+            var mapObj = new MapObject(this.gameData,{
                 x: coord[0],
                 y: coord[1],
                 width: range*2,
-                height: range*2
-            }
+                height: range*2});
             var inRange = [];
             var collidingMapObjects = this.collisionDetection(mapObj);
             for (var index in collidingMapObjects) {
@@ -165,7 +164,7 @@ if (node) {
                     }
                 }
                 else if (type==1){ // take only user objects
-                    if (collidingMapObjects[index].hasOwnProperty("userId")&& dx*dx + dy*dy < range*range){
+                    if (collidingMapObjects[index]._blocks.hasOwnProperty("UserObject")&& dx*dx + dy*dy < range*range){
                         inRange.push(collidingMapObjects[index]);
                     }
                 }

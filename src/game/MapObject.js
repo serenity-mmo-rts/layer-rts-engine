@@ -66,8 +66,11 @@ if (node) {
 
 
             // init:
-            this.height = this.objType._initHeight;
-            this.width = this.objType._initWidth;
+            if(!initObj.hasOwnProperty("width")){
+                this.height = this.objType._initHeight;
+                this.width = this.objType._initWidth;
+            }
+
             if (MapObject.arguments.length == 2) {
                 this.load(initObj);
             }
@@ -351,13 +354,16 @@ if (node) {
                     }
                 }
             }
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
+
+            if (!this._id==0){
+                if (typeof this._id != 'string') {
+                    this._id = this._id.toHexString();
+                }
+
+                this.setPointers(items);
+                this.createBuildingBlocks(o);
             }
 
-
-            this.setPointers(items);
-            this.createBuildingBlocks(o);
 
         }
 
