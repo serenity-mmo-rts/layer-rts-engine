@@ -138,7 +138,7 @@ if (node) {
 
         start: function(startTime){
             this._super(startTime);
-            this._mapObj.state = mapObjectStates.WORKING;
+            this._mapObj.setState(mapObjectStates.WORKING);
             this.saveToDb();
         },
 
