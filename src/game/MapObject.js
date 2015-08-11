@@ -13,6 +13,7 @@ if (node) {
     var TechProduction = require('./mapObjects/TechProduction').TechProduction;
     var UpgradeProduction = require('./mapObjects/UpgradeProduction').UpgradeProduction;
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
+    var ResourceStorage = require('./mapObjects/ResourceStorage').ResourceStorage;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
     var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
@@ -81,11 +82,10 @@ if (node) {
 
         setState: function(state) {
             this.state = state;
-            //this.notifyChange();
+            this.notifyChange();
         },
 
         notifyChange: function() {
-            // if (this.onChangeCallback) this.onChangeCallback();
             for (var key in this.onChangeCallback){
                 this.onChangeCallback[key]();
             }
@@ -151,6 +151,9 @@ if (node) {
                 }
                 else if (blockName == "HubNode") {
                     this._blocks[blockName] = new HubNode(this, blockStateVars);
+                }
+                else if (blockName == "ResourceStorage") {
+                    this._blocks[blockName] = new ResourceStorage(this, blockStateVars);
                 }
                 else if (blockName == "HubConnectivity") {
                     this._blocks[blockName] = new HubConnectivity(this, blockStateVars);
