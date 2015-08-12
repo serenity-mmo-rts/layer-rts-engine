@@ -6,25 +6,30 @@ if (node) {
 
 (function (exports) {
 
-    var Feature = function (gameData,initObj){
-        //this._currentTargetIds=null;
+    var Feature = function (item,stateVars){
+
+        this._item = item;
+
+     // serialized
+        this.itemId =  null;
         this._remainingActivationTime= null;
-        this._mapId = null;
-        this._itemId = null;
         this._executeIndex =0;
 
-        //this._properties= null;
-        this.gameData = gameData;
-        this._stack = [];
-        this.load(initObj);
-    }
+        this.load(stateVars);
+
+    };
 
 
     Feature.prototype ={
 
+        setStack: function(){
+
+
+        },
+
+
         checkStackExecution: function(active){
             var process = true;
-            this.setPointers();
             this._executeIndex = this.getExecutionIdx();
             while (process == true && this._executeIndex<= this._stack.length){
                 if (this._executeIndex ==0){
@@ -37,10 +42,7 @@ if (node) {
                         remainingStack.push(this._stack[i]);
                     }
                 }
-
-
-
-                if (remainingStack.length >0){
+             if (remainingStack.length >0){
                    var currentOperation = remainingStack[0];
                    var out =  this.processStack(processedStack,currentOperation,active);
                    process = out[0];
@@ -68,8 +70,8 @@ if (node) {
 
 
          processStack : function(processedStack,currentOperation,active){
-
-            switch(currentOperation[0]){
+         var name = Object.keys(currentOperation)[0];
+            switch(name){
                 case "getParentItem":
                     var newStack = this.getParentItem(processedStack);
                     var allow = true;
@@ -79,11 +81,11 @@ if (node) {
                     var allow = true;
                     break;
                 case "getObjInRange":
-                    var newStack = this.getObjInRange(processedStack,currentOperation[1]); //range
+                    var newStack = this.getObjInRange(processedStack,currentOperation[name]); //range
                     var allow = true;
                     break;
                 case "AddToProp":
-                    this.addToProp(processedStack,currentOperation[1],currentOperation[2],currentOperation[3],currentOperation[4]); // property,change, mode (1= baseline)
+                    this.addToProp(processedStack,currentOperation[name].vars,currentOperation[name].blocks,currentOperation[name].operator,currentOperation[name].values); // property,change, mode (1= baseline)
                     var newStack = processedStack;
                     var allow = true;
                     break;
@@ -123,7 +125,7 @@ if (node) {
 
         getParentObj: function(item){
             if (item == null){
-                return this.mapObject;
+                return this._mapObject;
             }
             else {
                 return item.mapObject
@@ -132,24 +134,24 @@ if (node) {
 
         getObjInRange: function(coordiante,range){
             if (coordiante == null){
-               var currentLocation= [this.mapObject.x,this.mapObject.y];
+               var currentLocation= [this._mapObject.x,this._mapObject.y];
             }
             else{
                var currentLocation= [coordiante.x,coordiante.y];
             }
-            return this.map.getObjectsInRange(currentLocation,range,1);
+            return this._layer.mapData.getObjectsInRange(currentLocation,range,1);
 
         },
 
-        addToProp: function(itemsOrObjects,property,change,operator,mode){
+        addToProp: function(itemsOrObjects,property,block,operator,change){
             if (itemsOrObjects instanceof Array){
                 for (var i = 0; i<itemsOrObjects.length; i++){
                     var itemOrObject = itemsOrObjects[i];
-                    itemOrObject.addFeature(this._itemId,property,change,operator,mode);
+                    itemOrObject._blocks.FeatureManager.addFeature(this._itemId,property,block,operator,change);
                 }
             }
             else{
-                itemsOrObjects.addFeature(this._itemId,property,change,operator,mode);
+                itemsOrObjects._blocks.FeatureManager.addFeature(this._itemId,property,block,operator,change);
             }
         },
 
@@ -167,35 +169,25 @@ if (node) {
         checkSelect: function(currentTarget){
             if (this._properties._canSelect){
                 if(this.validMapObject(currentTarget)){
-                    var featureTargets = this.map.getMapObject(currentTarget);
+                    var featureTargets = this._layer.mapData.getMapObject(currentTarget);
                 }
             }
             else {
-                var coords = [this.map.mapData.mapObjects.get(this._itemId._objectId).x,this.map.mapData.mapObjects.get(this._itemId._objectId).y];
+                var coords = [this._layer.mapData.mapObjects.get(this._itemId._objectId).x,this._layer.mapData.mapObjects.get(this._itemId._objectId).y];
             }
         },
 
         checkRange: function(currentTarget){
             if (this._properties._range > 0){
                 if(this.validCoordinate(currentTarget)){
-                    var featureTargets = this.map.getObjectsInRange(currentTarget,this._properties._range);
+                    var featureTargets = this._layer.mapData.getObjectsInRange(currentTarget,this._properties._range);
                     return featureTargets;
                 }
             }
         },
 
 
-        setPointers : function(){
-            this.map= this.gameData.layers.get(this._mapId);
-            this.item = this.map.items.get(this._itemId);
-            this.mapObject = this.map.mapData.mapObjects.get(this.item._objectId);
-            this.setStack();
-        },
 
-        setStack: function(){
-            var level = this.item._level
-            this._stack = this.gameData.itemTypes.get(this.item._itemTypeId)._features[level];
-        },
 
 
         getMapObject : function(MapCoordinate){
@@ -218,11 +210,19 @@ if (node) {
             // check whether use has mouse over Item (current Target = Item)
         },
 
+
+        setPointers : function(){
+            this._itemId = this._item._id;
+            this._layer= this._item.gameData.layers.get(this._item._mapId);
+            this._mapObject = this._layer.mapData.mapObjects.get(this._item._objectId);
+            this._stack = this._item._itemType._blocks.Feature[this._item._level];
+        },
+
+
+
         save: function () {
 
-            var o = {
-                _mapId: this._mapId,
-                _itemId: this._itemId,
+            var o = { itemId : this._item._id,
                 a:[
                    this._executeIndex,
                    this._currentTargetIds,
@@ -233,13 +233,11 @@ if (node) {
         },
 
         load: function (o) {
-            this._mapId = o._mapId;
-            this._itemId = o._itemId;
 
             if (o.hasOwnProperty("a")) {
-                this._executeIndex = o.a[1];
-                this._currentTargetIds = o.a[2];
-                this._remainingActivationTime = o.a[3];
+                this._executeIndex = o.a[0];
+                this._currentTargetIds = o.a[1];
+                this._remainingActivationTime = o.a[2];
             }
             else {
                 for (var key in o) {
@@ -248,9 +246,12 @@ if (node) {
                     }
                 }
             }
+
+            this.setPointers();
+
         }
 
-    }
+    };
 
 
     exports.Feature = Feature;

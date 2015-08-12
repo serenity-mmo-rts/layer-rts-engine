@@ -12,12 +12,17 @@ if (node) {
 
     var Resource = function (mapObj,initObj){
 
-        this._hubSystems = [];
+
+        // do not serialize:
+        this.hubSystems = []; // stores all objects of each hub system
 
     };
 
     Resource.prototype= {
 
+        addToHubSystem: function(sourceItemId,targetItemId){
+
+        },
 
         save: function () {
 

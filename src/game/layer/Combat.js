@@ -16,7 +16,7 @@ if (node) {
 
     Combat.prototype= {
 
-        _isAttackPossible: function(sourceItemId,targetItemId){
+        isAttackPossible: function(sourceItemId,targetItemId){
 
         },
 

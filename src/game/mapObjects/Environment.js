@@ -18,8 +18,9 @@ if (node) {
 
 
         save: function () {
-
-            o.a3 = [this.productionSpeed];
+            var o = {
+                a :  [this.productionSpeed
+            ]};
             return o;
         },
 

@@ -13,7 +13,7 @@ if (node) {
      * @param initObj
      * @constructor
      */
-    var TechProduction = function (mapObj,initObj){
+    var ResourceStorage = function (mapObj,initObj){
 
         //helper member variables:
         this._mapObj = mapObj;
@@ -25,7 +25,7 @@ if (node) {
 
     };
 
-    TechProduction.prototype= {
+    ResourceStorage.prototype= {
 
 
         save: function () {
@@ -52,6 +52,6 @@ if (node) {
 
     };
 
-    exports.TechProduction = TechProduction
+    exports.ResourceStorage = ResourceStorage
 
 })(typeof exports === 'undefined' ? window : exports);
