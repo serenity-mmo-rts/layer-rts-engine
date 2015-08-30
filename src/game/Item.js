@@ -8,6 +8,7 @@ if (node) {
     var InventoryItem = require('./items/InventoryItem').InventoryItem;
     var Movable = require('./items/Movable').Movable;
     var SubObject = require('./items/SubObject').SubObject;
+    var FeatureManager = require('./mapObjects/FeatureManager').FeatureManager;
 }
 
 (function (exports) {
@@ -32,7 +33,6 @@ if (node) {
 
         //not serialized
         this._mapObj= null;
-        this._initProperties= {};
         this.gameData = gameData;
 
         // deserialize event from json objectet
@@ -53,14 +53,6 @@ if (node) {
             if (lvl!=this._level){
                 this._level = lvl;
                 this._mapObj.notifyChange();
-            }
-        },
-
-
-        updateItemProperties: function() {
-            var initProp = this.gameData.itemTypes.get(this._itemTypeId)._initProperties;
-            for(var key in initProp) {
-                this._initProperties[key] = initProp[key][this._level];
             }
         },
 
@@ -93,6 +85,9 @@ if (node) {
                 }
                 else if (blockName == "Feature") {
                     this._blocks[blockName] = new Feature(this,blockStateVars);
+                }
+                else if (blockName == "FeatureManager") {
+                    this._blocks[blockName] = new FeatureManager(this, blockStateVars);
                 }
                 else if (blockName == "InventoryItem") {
                     this._blocks[blockName] = new InventoryItem(this,blockStateVars);

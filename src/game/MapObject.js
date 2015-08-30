@@ -16,6 +16,7 @@ if (node) {
     var ResourceStorage = require('./mapObjects/ResourceStorage').ResourceStorage;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
+    var FeatureManager = require('./mapObjects/FeatureManager').FeatureManager;
     var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
     var WorkingPlace = require('./mapObjects/WorkingPlace').WorkingPlace;
     var Connection = require('./mapObjects/Connection').Connection;
@@ -175,6 +176,9 @@ if (node) {
                 }
                 else if (blockName == "UpgradeProduction") {
                     this._blocks[blockName] = new UpgradeProduction(this, blockStateVars);
+                }
+                else if (blockName == "FeatureManager") {
+                    this._blocks[blockName] = new FeatureManager(this, blockStateVars);
                 }
                 else if (blockName == "Sublayer") {
                     this._blocks[blockName] = new Sublayer(this, blockStateVars);

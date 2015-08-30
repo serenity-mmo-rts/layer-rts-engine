@@ -74,7 +74,6 @@ if (node) {
            console.log("replace tmp Item ID: "+this._item._id+" by new id from server: "+event._item._id);
            this._item._id = event._item._id;
            this._item._blocks.Feature._itemId = event._item._id;
-           //this._item.createFeature();
 
         },
 

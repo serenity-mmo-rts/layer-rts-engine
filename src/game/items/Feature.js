@@ -9,9 +9,10 @@ if (node) {
     var Feature = function (item,stateVars){
 
         this._item = item;
-
+        this._itemId = this._item._id;
      // serialized
-        this.itemId =  null;
+        this._currentTargetObjectIds = [];
+        this._currentTargetItemIds = [];
         this._remainingActivationTime= null;
         this._executeIndex =0;
 
@@ -49,7 +50,6 @@ if (node) {
                    if (process) {
                        processedStack = out[1];
                        this._executeIndex +=1;
-                      // remainingStack.shift();
                    }
                 }
                 else {
@@ -143,15 +143,27 @@ if (node) {
 
         },
 
-        addToProp: function(itemsOrObjects,property,block,operator,change){
+        addToProp: function(itemsOrObjects,variable,block,operator,change){
             if (itemsOrObjects instanceof Array){
                 for (var i = 0; i<itemsOrObjects.length; i++){
                     var itemOrObject = itemsOrObjects[i];
-                    itemOrObject._blocks.FeatureManager.addFeature(this._itemId,property,block,operator,change);
+                    if (itemOrObject.hasOwnProperty("objTypeId")){
+                        var type = 1;
+                    }
+                    else{
+                        var type = 2;
+                    }
+                    itemOrObject._blocks.FeatureManager.addFeature(this._itemId,type,variable,block,operator,change);
                 }
             }
             else{
-                itemsOrObjects._blocks.FeatureManager.addFeature(this._itemId,property,block,operator,change);
+                if (itemsOrObjects.hasOwnProperty("objTypeId")){
+                    var type = 1;
+                }
+                else{
+                    var type = 2;
+                }
+                itemsOrObjects._blocks.FeatureManager.addFeature(this._itemId,type,variable,block,operator,change);
             }
         },
 
@@ -185,18 +197,7 @@ if (node) {
                 }
             }
         },
-
-
-
-
-
-        getMapObject : function(MapCoordinate){
-            // get MapObj under Coordinate
-        },
-
-        getItem: function(MouseCoordinates){
-            // get Item under Coordinate
-        },
+  
 
         validCoordinate: function (currentTarget){
             // check whether user has mouse on map (current Target = coordinate)
@@ -222,11 +223,12 @@ if (node) {
 
         save: function () {
 
-            var o = { itemId : this._item._id,
-                a:[
-                   this._executeIndex,
-                   this._currentTargetIds,
-                   this._remainingActivationTime
+            var o = {
+                a:[ this._item._id,
+                    this._currentTargetObjectIds,
+                    this._currentTargetItemIds,
+                    this._executeIndex,
+                    this._remainingActivationTime
                 ]
             };
             return o;
@@ -235,9 +237,11 @@ if (node) {
         load: function (o) {
 
             if (o.hasOwnProperty("a")) {
-                this._executeIndex = o.a[0];
-                this._currentTargetIds = o.a[1];
-                this._remainingActivationTime = o.a[2];
+                this._item._id = o.a[0];
+                this._currentTargetObjectIds = o.a[1];
+                this._currentTargetItemIds = o.a[2];
+                this._executeIndex = o.a[3];
+                this._remainingActivationTime = o.a[4];
             }
             else {
                 for (var key in o) {
@@ -252,7 +256,6 @@ if (node) {
         }
 
     };
-
 
     exports.Feature = Feature;
 
