@@ -10,11 +10,16 @@ if (node) {
 
         this._item = item;
         this._itemId = this._item._id;
+
      // serialized
         this._currentTargetObjectIds = [];
         this._currentTargetItemIds = [];
         this._remainingActivationTime= null;
         this._executeIndex =0;
+        this._variables= [];
+        this._blocks  =[];
+        this._operators = [];
+        this._changes =[];
 
         this.load(stateVars);
 
@@ -143,29 +148,52 @@ if (node) {
 
         },
 
+
         addToProp: function(itemsOrObjects,variable,block,operator,change){
-            if (itemsOrObjects instanceof Array){
-                for (var i = 0; i<itemsOrObjects.length; i++){
-                    var itemOrObject = itemsOrObjects[i];
+
+            for (var i = 0; i<itemsOrObjects.length; i++){
+                var itemOrObject = itemsOrObjects[i];
+                var success = this.addFeature(this._itemId,itemOrObject,variable,block,operator,change);
+
+                if (success){
                     if (itemOrObject.hasOwnProperty("objTypeId")){
-                        var type = 1;
+                        this._currentTargetObjectIds.push(itemOrObject._id);
                     }
                     else{
-                        var type = 2;
+                        this._currentTargetItemIds.push(itemOrObject._id);
                     }
-                    itemOrObject._blocks.FeatureManager.addFeature(this._itemId,type,variable,block,operator,change);
+                    itemOrObject._blocks.FeatureManager.setState(true);
+                    itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
                 }
-            }
-            else{
-                if (itemsOrObjects.hasOwnProperty("objTypeId")){
-                    var type = 1;
-                }
-                else{
-                    var type = 2;
-                }
-                itemsOrObjects._blocks.FeatureManager.addFeature(this._itemId,type,variable,block,operator,change);
             }
         },
+
+        addFeature: function(itemId,itemOrObj,variables,blocks,operators,changes){
+            var blockValid = true;
+            var varValid = true;
+            // check if block and variable exit exist
+            for (var i = 0; i<blocks.length; i++){
+
+                if (!itemOrObj._blocks.hasOwnProperty(blocks[i])) {
+                    blockValid = false;
+                    if (!itemOrObj._blocks.hasOwnProperty(blocks[i]).hasOwnProperty(variables[i])) {
+                        var varValid = false;
+                    }
+                }
+            }
+
+            if (blockValid && varValid){
+                this._variables= variables;
+                this._blocks  = blocks;
+                this._operators = operators;
+                this._changes =changes;
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+
 
         getItemsInObject: function(object,itemTypeIds){
             if (itemTypeIds  == null){
@@ -228,7 +256,11 @@ if (node) {
                     this._currentTargetObjectIds,
                     this._currentTargetItemIds,
                     this._executeIndex,
-                    this._remainingActivationTime
+                    this._remainingActivationTime,
+                    this._variables,
+                    this._blocks,
+                    this._operators,
+                    this._changes
                 ]
             };
             return o;
@@ -242,6 +274,10 @@ if (node) {
                 this._currentTargetItemIds = o.a[2];
                 this._executeIndex = o.a[3];
                 this._remainingActivationTime = o.a[4];
+                this._variables= o.a[5];
+                this._blocks  = o.a[6];
+                this._operators = o.a[7];
+                this._changes = o.a[8];
             }
             else {
                 for (var key in o) {

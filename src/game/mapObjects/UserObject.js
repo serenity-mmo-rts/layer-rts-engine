@@ -11,23 +11,35 @@ if (node) {
 
 
 
-    var UserObject = function (gameData, blockStateVars){
+    var UserObject = function (mapObj, blockStateVars){
 
-            // serialized:
+            // state:
             this._userId = 0;
-            this._ownerIds = []; // String List of owner Ids
             this._healthPoints = this.setHealthPointsToMax();
 
-            // not serialized
-            this._properties = {};
-            this.hubSystem = null;
+            // helper
+            this.mapObject = mapObj;
+
+
+            // call
+            this.recalculateTypeVariables();
+            this.load(blockStateVars);
+            this.setPointers();
     };
+
 
 
     UserObject.prototype= {
 
+        recalculateTypeVariables: function() {
+
+            // define default type vars:
+            this.maxHealthPoints = 0;
+            this.points = 0;
+        },
+
         getMaxHealthPoints: function(){
-            return this._properties._maxHealthPoints;
+            return this.maxHealthPoints;
         },
 
         getHealthPoints: function(){
@@ -44,7 +56,7 @@ if (node) {
         },
 
         getPoints: function(){
-            return this._properties._points;
+            return this.points;
         },
 
 
@@ -69,13 +81,16 @@ if (node) {
                 return level
         },
 
+        setPointers : function(){
+            this.objType = this.mapObject.objectType;
+        },
+
 
         save: function () {
 
             var o = {
                     a:[this.userId,
                      this.healthPoints,
-                     this.buildQueue
                     ]};
             return o;
         },
@@ -85,8 +100,6 @@ if (node) {
             {
                 this.userId = o.a[0];
                 this.healthPoints= o.a[1];
-                this.buildQueue = o.a[2];
-
             }
             else {
                 for (var key in o) {
@@ -95,6 +108,8 @@ if (node) {
                     }
                 }
             }
+
+            this.setPointers();
         }
 
     };
