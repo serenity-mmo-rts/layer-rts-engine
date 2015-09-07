@@ -198,6 +198,7 @@ if (node) {
                 for (var blockTypeVar in this.objType._blocks[blockName]) {
                     this._blocks[blockName][blockTypeVar] = this.objType._blocks[blockName][blockTypeVar];
                 }
+                this._blocks[blockName].updateStateVars();
             }
 
 

@@ -27,6 +27,10 @@ if (node) {
 
     WorkingPlace.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
 
         save: function () {
             var o = {

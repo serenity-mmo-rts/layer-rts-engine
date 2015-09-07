@@ -20,6 +20,10 @@ if (node) {
 
     FeatureManager.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
         setState: function(value){
             this._change = value;
         },
@@ -34,19 +38,28 @@ if (node) {
 
         updateObjectProperties: function () {
 
+            // create change Object
+            var toBeAdded = {};
+            var BlockNames = Object.keys(this.mapObj._blocks);
+            for (var i=0;i<BlockNames.length;i++) {
+                toBeAdded[BlockNames[i]] = {};
+            }
+
+            // fill change Object
+            // loop over items
             for (var i=0; i< this._appliedItemIds.length; i++){
                 // get item from id
                 var item = this.mapObj.gameData.layers.get(this.mapObj.mapId).mapData.items.get(this._appliedItemIds[i]);
                 // sanity Check
                 if (item._blocks.Feature._currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
 
-                    // load feature vars
+                    // get block values
                     var variables = item._blocks.Feature._variables;
                     var blocks = item._blocks.Feature._blocks;
                     var operators = item._blocks.Feature._operators;
                     var changes = item._blocks.Feature._changes;
 
-                    // apply feature
+                    // loop over block type variables
                     for (var k=0; k< blocks.length; k++) {
 
                         var variable = variables[k];
@@ -55,17 +68,43 @@ if (node) {
                         var change = changes[k];
 
                         if (operator=="plus"){
-                            this.mapObj._blocks[block][variable]+= change;
+                            if (!toBeAdded[block].hasOwnProperty(variable)) {
+                                toBeAdded[block][variable] = Number(change);
+                            }
+                            else {
+                                toBeAdded[block][variable] += Number(change);
+                            }
                         }
-                        else{
-                            var toAdd  = this.mapObj._blocks[block][variable]*change;
-                            this.mapObj._blocks[block][variable]= toAdd;
+                        else if (operator=="times"){
+
+                            if (!toBeAdded[block].hasOwnProperty(variable)) {
+                                var baseline = this.mapObj.objType._blocks[block][variable];
+                                var times = (baseline*change)-baseline;
+                                toBeAdded[block][variable]= Number(times);
+                            }
+                            else {
+                                var baseline = this.mapObj.objType._blocks[block][variable];
+                                var times = (baseline*change)-baseline;
+                                toBeAdded[block][variable] += Number(times);
+                            }
+
+
                         }
                     }
-
                 }
-
             }
+
+            // apply change to Building Blocks
+            for (var i=0;i<BlockNames.length;i++) {
+                var currentBlock = toBeAdded[BlockNames[i]];
+                var properties = Object.keys(currentBlock);
+                for (var k=0;k<properties.length;k++) {
+                    var base= this.mapObj.objType._blocks[BlockNames[i]][properties[k]];
+                    this.mapObj._blocks[BlockNames[i]][properties[k]]= toBeAdded[BlockNames[i]][properties[k]] + base;
+                }
+            }
+
+            this.setState(false);
 
         },
 

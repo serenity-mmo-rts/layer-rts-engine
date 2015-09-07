@@ -13,16 +13,12 @@ if (node) {
 
     var UserObject = function (mapObj, blockStateVars){
 
-            // state:
-            this._userId = 0;
-            this._healthPoints = this.setHealthPointsToMax();
-
             // helper
             this.mapObject = mapObj;
 
 
             // call
-            this.recalculateTypeVariables();
+            this.initializeTypeVariables();
             this.load(blockStateVars);
             this.setPointers();
     };
@@ -31,11 +27,18 @@ if (node) {
 
     UserObject.prototype= {
 
-        recalculateTypeVariables: function() {
-
+        initializeTypeVariables: function() {
             // define default type vars:
             this.maxHealthPoints = 0;
             this.points = 0;
+            this._userId = 0;
+        },
+
+        updateStateVars: function(){
+            if (this._healthPoints==undefined){
+                this.setHealthPointsToMax();
+            }
+
         },
 
         getMaxHealthPoints: function(){
@@ -46,14 +49,6 @@ if (node) {
             return this._healthPoints;
         },
 
-        setHealthPointsToMax: function(){
-            this._healthPoints = this.getMaxHealthPoints;
-            return this._healthPoints;
-        },
-
-        setHubConnection: function(hubId) {
-            this._connectedToHub = hubId;
-        },
 
         getPoints: function(){
             return this.points;
@@ -85,12 +80,21 @@ if (node) {
             this.objType = this.mapObject.objectType;
         },
 
+        setHealthPointsToMax: function(){
+            this._healthPoints = this.getMaxHealthPoints();
+        },
+
+        setHubConnection: function(hubId) {
+            this._connectedToHub = hubId;
+        },
+
 
         save: function () {
 
             var o = {
-                    a:[this.userId,
-                     this.healthPoints,
+                    a:[this._userId,
+                        this._healthPoints,
+                        this._points
                     ]};
             return o;
         },
@@ -98,8 +102,9 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a"))
             {
-                this.userId = o.a[0];
-                this.healthPoints= o.a[1];
+                this._userId = o.a[0];
+                this._healthPoints= o.a[1];
+                this._points = o.a[2];
             }
             else {
                 for (var key in o) {

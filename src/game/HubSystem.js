@@ -36,7 +36,7 @@ if (node) {
             var totalDesiredPush = sum_over_producers(desiredPush);
             var numObjects = this.mapObjects.length;
             for (var i = 0; i < numObjects; i++) {
-                this.mapObjects[i].ResourceProduction.
+              //  this.mapObjects[i].ResourceProduction.
             }
             var totalDesiredPull = sum_over_consumers(desiredPull);
 

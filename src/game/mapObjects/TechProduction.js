@@ -27,6 +27,10 @@ if (node) {
 
     TechProduction.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
 
         save: function () {
             var o = {

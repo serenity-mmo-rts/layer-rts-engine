@@ -32,6 +32,10 @@ if (node) {
 
     UpgradeProduction.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
 
         startUpgrade: function(itemId){
             var tempId = "tempID"+Math.random();

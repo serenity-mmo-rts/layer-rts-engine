@@ -151,20 +151,38 @@ if (node) {
 
         addToProp: function(itemsOrObjects,variable,block,operator,change){
 
-            for (var i = 0; i<itemsOrObjects.length; i++){
-                var itemOrObject = itemsOrObjects[i];
-                var success = this.addFeature(this._itemId,itemOrObject,variable,block,operator,change);
 
-                if (success){
-                    if (itemOrObject.hasOwnProperty("objTypeId")){
-                        this._currentTargetObjectIds.push(itemOrObject._id);
+            if (itemsOrObjects instanceof Array) {
+                for (var i = 0; i < itemsOrObjects.length; i++) {
+                    var itemOrObject = itemsOrObjects[i];
+                    var success = this.addFeature(this._itemId, itemOrObject, variable, block, operator, change);
+
+                    if (success) {
+                        if (itemOrObject.hasOwnProperty("objTypeId")) {
+                            this._currentTargetObjectIds.push(itemOrObject._id);
+                        }
+                        else {
+                            this._currentTargetItemIds.push(itemOrObject._id);
+                        }
+                        itemOrObject._blocks.FeatureManager.setState(true);
+                        itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
                     }
-                    else{
+                }
+            }
+            else{
+                var success = this.addFeature(this._itemId, itemsOrObjects, variable, block, operator, change);
+
+                if (success) {
+                    if (itemsOrObjects.hasOwnProperty("objTypeId")) {
+                        this._currentTargetObjectIds.push(itemsOrObjects._id);
+                    }
+                    else {
                         this._currentTargetItemIds.push(itemOrObject._id);
                     }
-                    itemOrObject._blocks.FeatureManager.setState(true);
-                    itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
+                    itemsOrObjects._blocks.FeatureManager.setState(true);
+                    itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
                 }
+
             }
         },
 

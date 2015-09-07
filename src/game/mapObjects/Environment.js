@@ -15,7 +15,9 @@ if (node) {
 
     Environment.prototype= {
 
+        updateStateVars: function(){
 
+        },
 
         save: function () {
             var o = {

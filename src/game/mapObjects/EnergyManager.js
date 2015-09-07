@@ -27,6 +27,10 @@ if (node) {
 
     EnergyManager.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
 
         save: function () {
             var o = {
