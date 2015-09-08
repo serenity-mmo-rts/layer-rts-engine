@@ -6,6 +6,7 @@ if (node) {
     var MapObject = require('./../MapObject').MapObject;
     var eventStates = require('../events/AbstractEvent').eventStates
     var BuildUpgradeEvent = require('../events/BuildUpgradeEvent').BuildUpgradeEvent
+    var LevelUpgradeEvent = require('../events/LevelUpgradeEvent').LevelUpgradeEvent
     var Item = require('./../Item').Item;
 
 }
@@ -33,6 +34,14 @@ if (node) {
     UpgradeProduction.prototype= {
 
         updateStateVars: function(){
+
+        },
+
+        levelUpgrade: function(item){
+
+            var evt = new LevelUpgradeEvent(game);
+            evt.setItem(item);
+            uc.addEvent(evt);
 
         },
 

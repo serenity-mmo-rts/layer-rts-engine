@@ -73,6 +73,10 @@ if (node) {
             }
         },
 
+        setExecutionIdx: function(value){
+            this._executeIndex=value;
+        },
+
 
          processStack : function(processedStack,currentOperation,active){
          var name = Object.keys(currentOperation)[0];
@@ -151,42 +155,53 @@ if (node) {
 
         addToProp: function(itemsOrObjects,variable,block,operator,change){
 
-
             if (itemsOrObjects instanceof Array) {
                 for (var i = 0; i < itemsOrObjects.length; i++) {
                     var itemOrObject = itemsOrObjects[i];
-                    var success = this.addFeature(this._itemId, itemOrObject, variable, block, operator, change);
 
+                    var success = this.applyFeature(this._itemId, itemOrObject, variable, block, operator, change);
+                    var targetId = itemOrObject._id;
                     if (success) {
                         if (itemOrObject.hasOwnProperty("objTypeId")) {
-                            this._currentTargetObjectIds.push(itemOrObject._id);
+                            if (this._currentTargetObjectIds.indexOf(targetId)<0){
+                                this._currentTargetObjectIds.push(targetId);
+                                itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
+                            }
                         }
                         else {
-                            this._currentTargetItemIds.push(itemOrObject._id);
+                            if (this._currentTargetItemIds.indexOf(targetId)<0) {
+                                this._currentTargetItemIds.push(targetId);
+                                itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
+                            }
                         }
                         itemOrObject._blocks.FeatureManager.setState(true);
-                        itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
                     }
                 }
             }
             else{
-                var success = this.addFeature(this._itemId, itemsOrObjects, variable, block, operator, change);
-
+                var success = this.applyFeature(this._itemId, itemsOrObjects, variable, block, operator, change);
+                var targetId = itemsOrObjects._id;
                 if (success) {
                     if (itemsOrObjects.hasOwnProperty("objTypeId")) {
-                        this._currentTargetObjectIds.push(itemsOrObjects._id);
+                        if (this._currentTargetObjectIds.indexOf(targetId)<0) {
+                            this._currentTargetObjectIds.push(targetId);
+                            itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
+                        }
                     }
                     else {
-                        this._currentTargetItemIds.push(itemOrObject._id);
+                        if (this._currentTargetItemIds.indexOf(targetId)<0) {
+                            this._currentTargetItemIds.push(targetId);
+                            itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
+                        }
                     }
                     itemsOrObjects._blocks.FeatureManager.setState(true);
-                    itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
+
                 }
 
             }
         },
 
-        addFeature: function(itemId,itemOrObj,variables,blocks,operators,changes){
+        applyFeature: function(itemId,itemOrObj,variables,blocks,operators,changes){
             var blockValid = true;
             var varValid = true;
             // check if block and variable exit exist

@@ -43,6 +43,10 @@ if (node) {
 
     Item.prototype= {
 
+        getLevel: function() {
+            return this._level;
+        },
+
         setState: function(state) {
             this._state = state;
             this._mapObj.notifyChange();

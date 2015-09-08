@@ -33,7 +33,10 @@ if (node) {
         },
 
         addItemId: function(itemId){
-            this._appliedItemIds.push(itemId);
+            if (this._appliedItemIds.indexOf("itemId")<0){
+                this._appliedItemIds.push(itemId);
+            }
+
         },
 
         updateObjectProperties: function () {
