@@ -11,40 +11,47 @@ if (node) {
 
 
 
-    var UserObject = function (gameData, blockStateVars){
+    var UserObject = function (mapObj, blockStateVars){
 
-            // serialized:
-            this._userId = 0;
-            this._ownerIds = []; // String List of owner Ids
-            this._healthPoints = this.setHealthPointsToMax();
+            // helper
+            this.mapObject = mapObj;
 
-            // not serialized
-            this._properties = {};
-            this.hubSystem = null;
+
+            // call
+            this.initializeTypeVariables();
+            this.load(blockStateVars);
+            this.setPointers();
     };
+
 
 
     UserObject.prototype= {
 
+        initializeTypeVariables: function() {
+            // define default type vars:
+            this.maxHealthPoints = 0;
+            this.points = 0;
+            this._userId = 0;
+        },
+
+        updateStateVars: function(){
+            if (this._healthPoints==undefined){
+                this.setHealthPointsToMax();
+            }
+
+        },
+
         getMaxHealthPoints: function(){
-            return this._properties._maxHealthPoints;
+            return this.maxHealthPoints;
         },
 
         getHealthPoints: function(){
             return this._healthPoints;
         },
 
-        setHealthPointsToMax: function(){
-            this._healthPoints = this.getMaxHealthPoints;
-            return this._healthPoints;
-        },
-
-        setHubConnection: function(hubId) {
-            this._connectedToHub = hubId;
-        },
 
         getPoints: function(){
-            return this._properties._points;
+            return this.points;
         },
 
 
@@ -69,13 +76,25 @@ if (node) {
                 return level
         },
 
+        setPointers : function(){
+            this.objType = this.mapObject.objectType;
+        },
+
+        setHealthPointsToMax: function(){
+            this._healthPoints = this.getMaxHealthPoints();
+        },
+
+        setHubConnection: function(hubId) {
+            this._connectedToHub = hubId;
+        },
+
 
         save: function () {
 
             var o = {
-                    a:[this.userId,
-                     this.healthPoints,
-                     this.buildQueue
+                    a:[this._userId,
+                        this._healthPoints,
+                        this._points
                     ]};
             return o;
         },
@@ -83,10 +102,9 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a"))
             {
-                this.userId = o.a[0];
-                this.healthPoints= o.a[1];
-                this.buildQueue = o.a[2];
-
+                this._userId = o.a[0];
+                this._healthPoints= o.a[1];
+                this._points = o.a[2];
             }
             else {
                 for (var key in o) {
@@ -95,6 +113,8 @@ if (node) {
                     }
                 }
             }
+
+            this.setPointers();
         }
 
     };

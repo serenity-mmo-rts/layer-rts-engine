@@ -27,6 +27,9 @@ if (node) {
 
     ResourceProduction.prototype= {
 
+        updateStateVars: function(){
+
+        },
 
 
         save: function () {

@@ -28,6 +28,10 @@ if (node) {
     ResourceStorage.prototype= {
 
 
+        updateStateVars: function(){
+
+        },
+
         save: function () {
             var o = {
                 a : [

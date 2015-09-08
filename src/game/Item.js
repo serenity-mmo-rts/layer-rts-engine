@@ -43,6 +43,10 @@ if (node) {
 
     Item.prototype= {
 
+        getLevel: function() {
+            return this._level;
+        },
+
         setState: function(state) {
             this._state = state;
             this._mapObj.notifyChange();
@@ -109,15 +113,13 @@ if (node) {
 
         recalculateTypeVariables: function(){
 
-            // TODO: At the moment the following is just a hack. Probably this should be done by the FeatureManager which has to change these type properties according to the applied features...
-
             // loop over all blocks:
-           // for (var blockName in this._itemType._blocks) {
-           //     // loop over all type variables of that block:
-           //     for (var blockTypeVar in this._itemType._blocks[blockName]) {
-           //         this._blocks[blockName][blockTypeVar] = this._itemType._blocks[blockName][blockTypeVar];
-           //     }
-           // }
+            for (var blockName in this._itemType._blocks) {
+           // loop over all type variables of that block:
+               for (var blockTypeVar in this._itemType._blocks[blockName]) {
+                    this._blocks[blockName][blockTypeVar] = this._itemType._blocks[blockName][blockTypeVar];
+                }
+            }
 
         },
 

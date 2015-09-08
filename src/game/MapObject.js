@@ -96,10 +96,6 @@ if (node) {
             this._deployedItems.push(item);
         },
 
-        addFeature: function (feature){
-            this._appliedFeatures.push(feature);
-        },
-
         getItems: function (){
             return this._deployedItems;
         },
@@ -194,14 +190,15 @@ if (node) {
 
         recalculateTypeVariables: function(){
 
-            // TODO: At the moment the following is just a hack. Probably this should be done by the FeatureManager which has to change these type properties according to the applied features...
 
             // loop over all blocks:
             for (var blockName in this.objType._blocks) {
                 // loop over all type variables of that block:
+
                 for (var blockTypeVar in this.objType._blocks[blockName]) {
                     this._blocks[blockName][blockTypeVar] = this.objType._blocks[blockName][blockTypeVar];
                 }
+                this._blocks[blockName].updateStateVars();
             }
 
 

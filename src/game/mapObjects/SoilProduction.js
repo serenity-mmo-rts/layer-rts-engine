@@ -23,6 +23,10 @@ if (node) {
 
     SoilPuller.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
         _getSoilTypeId: function(){
 
         },

@@ -18,6 +18,10 @@ if (node) {
 
     Sublayer.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
        save: function () {
            var o = {
             a: [this._subLayerMapId

@@ -27,6 +27,10 @@ if (node) {
 
     ProductivityCalculator.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
 
         save: function () {
             var o = {

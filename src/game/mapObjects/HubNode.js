@@ -23,6 +23,10 @@ if (node) {
 
     HubNode.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
         getMaxRange: function(){
             return this._maxRange;
         },

@@ -28,6 +28,10 @@ if (node) {
 
     HubConnectivity.prototype= {
 
+        updateStateVars: function(){
+
+        },
+
         getObjectsConnected: function(){
             return this._connectedObjIds;
         },
