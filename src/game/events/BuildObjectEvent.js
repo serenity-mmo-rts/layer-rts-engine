@@ -51,7 +51,12 @@ if (node) {
                 }
 
                 //check if it is really a hub node
-                if (!targetObj._blocks.hasOwnProperty("HubNode")){
+                if (!sourceHub._blocks.hasOwnProperty("HubNode")){
+                    return false;
+                }
+
+                //check if target object has hubConnectivity
+                if (!targetObj._blocks.hasOwnProperty("HubConnectivity")){
                     return false;
                 }
 
@@ -71,15 +76,50 @@ if (node) {
                 }
 
                 //check if both are within the range given by the hub:
-                var x = (sourceHub.x - targetObj.x);
-                var y = (sourceHub.y - targetObj.y);
-                if (sourceHub._blocks.HubNode.getMaxRange() < Math.sqrt(x*x + y*y)) {
+                var dx = (targetObj.x - sourceHub.x);
+                var dy = (targetObj.y - sourceHub.y);
+                var connLength = Math.sqrt(dx*dx + dy*dy);
+                if (sourceHub._blocks.HubNode.getMaxRange() < connLength) {
                     return false;
                 }
+
+                //set center coordinate of connection and orientation of connection correctly:
+                this._mapObj.x = sourceHub.x + dx/2;
+                this._mapObj.y = sourceHub.y + dy/2;
+                this._mapObj.ori = -Math.atan2(dy, dx);
+                this._mapObj.width = connLength;
+                this._mapObj.height = this._mapObj.objType._initHeight;
 
             }
 
             var collidingItems = this._gameData.layers.get(this._mapId).mapData.collisionDetection(this._mapObj);
+
+            if (this._mapObj._blocks.hasOwnProperty("Connection")) {
+                    // check if there is any object colliding that is not the source or target object
+                    var arrayLength = collidingItems.length;
+                    for (var i = 0; i < arrayLength; i++) {
+                        if (collidingItems[i]._id != targetObj._id &&
+                            collidingItems[i]._id != sourceHub._id) {
+
+                            if(collidingItems[i]._blocks.hasOwnProperty("Connection")) {
+                                // only fail if the colliding item is not any other connection to either the source or target object:
+                                if (collidingItems[i]._blocks.Connection._connectedFrom != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection._connectedFrom != sourceHub._id &&
+                                    collidingItems[i]._blocks.Connection._connectedTo != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection._connectedTo != sourceHub._id) {
+                                    return false;
+                                }
+                            }
+                            else{
+                                return false;
+                            }
+
+                        }
+                    }
+                    // seems ok, because no collision with any object besides source and target
+                    return true;
+            }
+
             if (collidingItems.length > 0) {
                 return false;
             }
@@ -96,6 +136,7 @@ if (node) {
 
             // make sure that the object is in gameData:
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+            this._mapObj.setPointers();
 
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
             this._super();
@@ -109,6 +150,7 @@ if (node) {
 
             // make sure that the object is in gameData:
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+            this._mapObj.setPointers();
 
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
@@ -124,6 +166,8 @@ if (node) {
         executeOnOthers: function() {
             // make sure that the object is in gameData:
             this._gameData.layers.get(this._mapId).addObject(this._mapObj);
+            this._mapObj.setPointers();
+
             this._super();
         },
 
@@ -196,7 +240,7 @@ if (node) {
         },
 
         revert: function() {
-            this._gameData.layers.get(this._mapId).removeObject(this._mapObj);
+            this._gameData.layers.get(this._mapId).mapData.removeObject(this._mapObj);
             return true;
         }
     });

@@ -17,12 +17,14 @@ if (node) {
 
         //helper member variables:
         this._mapObj = mapObj;
+        this._connectedObjIds = {}; // key=objId, value=false if in production or true if connected
+
 
         //write protected instance properties (defined by object type and changed by applied features):
         this._numPorts = null;
 
         //serialized state:
-        this._connectedObjIds = {}; // key=objId, value=false if in production or true if connected
+
 
     };
 
@@ -43,7 +45,7 @@ if (node) {
         save: function () {
             var o = {
                 a : [
-                    this._connectedObjIds
+                    //this._connectedObjIds
                 ]};
             return o;
         },
@@ -51,7 +53,7 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a"))
             {
-                this._connectedObjIds = o.a[0];
+                //this._connectedObjIds = o.a[0];
             }
             else {
                 for (var key in o) {

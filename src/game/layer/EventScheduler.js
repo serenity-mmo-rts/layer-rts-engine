@@ -89,7 +89,16 @@ if (node) {
         },
 
         updateEventId: function(oldId, newId) {
-            this.events.updateId(oldId,newId);
+            var success = this.events.updateId(oldId,newId);
+            if (!success) {
+                var success2 = this.eventsFinished.updateId(oldId,newId);
+                if (!success2) {
+                    console.log("WARNING: updateEventId in EventScheduler: could not find old event Id " + oldId);
+                }
+                else {
+                    console.log("WARNING: updateEventId in EventScheduler: the event with oldId " + oldId + " was already finished when the id was updated!");
+                }
+            }
         },
 
         updateEventDueTime: function(eventId, newDueTime) {

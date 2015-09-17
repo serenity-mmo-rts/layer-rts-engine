@@ -21,6 +21,7 @@ if (node) {
     var WorkingPlace = require('./mapObjects/WorkingPlace').WorkingPlace;
     var Connection = require('./mapObjects/Connection').Connection;
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
+    var Tower = require('./mapObjects/Tower').Tower;
 }
 
 
@@ -54,9 +55,7 @@ if (node) {
             this.height = null; // optional
             this.state =  mapObjectStates.TEMP;
             this._blocks = {};
-            this._deployedItems= [];
             this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
-
 
             // not serialized:
             this.gameData = gameData;
@@ -64,7 +63,8 @@ if (node) {
             this.objType = this.gameData.objectTypes.get(initObj.objTypeId);
             this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
             this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
-
+            this.items = {};
+            this._deployedItems= [];
 
 
             // init:
@@ -92,12 +92,12 @@ if (node) {
             }
         },
 
-        addItem: function (item){
-            this._deployedItems.push(item);
-        },
+        //addItem: function (item){
+        //    this._deployedItems.push(item);
+        //},
 
         getItems: function (){
-            return this._deployedItems;
+            return this.items;
         },
 
         addCallback: function(key,callback){
@@ -108,17 +108,18 @@ if (node) {
             delete this.onChangeCallback[key];
         },
 
-        setPointers : function(items){
+        setPointers : function(){
 
             this.map= this.gameData.layers.get(this._mapId);
             this.objType = this.gameData.objectTypes.get(this.objTypeId);
 
-
-            if (items==!undefined) {
-                for (var i =1; i<items.length; i++){
-                    this.addItem(items[i])
+            // call all setPointer functions of the building blocks:
+            for (var blockName in this._blocks) {
+                if(typeof this._blocks[blockName].setPointers === 'function') {
+                    this._blocks[blockName].setPointers();
                 }
             }
+
         },
 
 
@@ -176,6 +177,9 @@ if (node) {
                 else if (blockName == "FeatureManager") {
                     this._blocks[blockName] = new FeatureManager(this, blockStateVars);
                 }
+                else if (blockName == "Tower") {
+                    this._blocks[blockName] = new Tower(this, blockStateVars);
+                }
                 else if (blockName == "Sublayer") {
                     this._blocks[blockName] = new Sublayer(this, blockStateVars);
                 }
@@ -211,8 +215,8 @@ if (node) {
             this.axes[0] = new Vector(1, 0);
             this.axes[1] = new Vector(0, -1);
             if(this.ori != 0) {
-                this.axes[0].rotate(ori);
-                this.axes[1].rotate(ori);
+                this.axes[0].rotate(this.ori);
+                this.axes[1].rotate(this.ori);
             }
             return this.axes;
         },
@@ -312,13 +316,6 @@ if (node) {
                 blocks[key]= this._blocks[key].save();
             }
 
-            var items= [];
-            for (var i=0; i<this._deployedItems.length; i++) {
-                items.push(this._deployedItems[i]._id);
-            }
-
-
-
             var o = {_id: this._id,
                 mapId: this.mapId,
                 objTypeId: this.objTypeId,
@@ -329,7 +326,6 @@ if (node) {
                     this.ori,
                     this.state,
                     blocks,
-                    items
                 ]};
 
             return o;
@@ -349,7 +345,6 @@ if (node) {
                 this.ori = o.a[4]
                 this.state = o.a[5];
                 this._blocks = o.a[6];
-                var items = o.a[7];
             }
             else {
                 for (var key in o) {
@@ -359,13 +354,22 @@ if (node) {
                 }
             }
 
-            if (!this._id==0){
+            if (this._id != 0){
                 if (typeof this._id != 'string') {
                     this._id = this._id.toHexString();
                 }
 
-                this.setPointers(items);
+
+                var blockStatesJson = this._blocks;
+
+
+                this.setPointers();
                 this.createBuildingBlocks(o);
+
+                // loop over all blocks:
+                for (var blockName in this.objType._blocks) {
+                    this._blocks[blockName].load(blockStatesJson);
+                }
             }
 
 

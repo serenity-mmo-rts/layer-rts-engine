@@ -64,6 +64,9 @@ if (node) {
         setPointers : function(){
             this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
             this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
+
+            this._mapObj.items[this._id] = this;
+
         },
 
 

@@ -47,10 +47,16 @@ if (node) {
         },
 
         updateId: function(oldId, newId) {
-            var tmpObj = this.hashList[oldId];
-            this.deleteById(oldId)
-            tmpObj._id = newId;
-            return this.add(tmpObj);
+
+            if (this.hashList.hasOwnProperty(oldId)) {
+                var tmpObj = this.hashList[oldId];
+                this.deleteById(oldId)
+                tmpObj._id = newId;
+                return this.add(tmpObj);
+            }
+            else{
+                return false;
+            }
         },
 
         deleteById: function(id) {

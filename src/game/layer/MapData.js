@@ -2,7 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('../GameList').GameList;
     var MapObject = require('../MapObject').MapObject;
-    var ItemModel = require('../Item').ItemModel;
+    var Item = require('../Item').Item;
 
 }
 
@@ -14,7 +14,7 @@ if (node) {
         // not serialized:
         this.layer = layer;
         this.mapObjects = new GameList(gameData,MapObject,false,false);
-        this.items = new GameList(gameData,ItemModel,false,false);
+        this.items = new GameList(gameData,Item,false,false);
         this.quadTree = null;
         this.gameData = gameData;
         this.objectChangedCallback = null;
@@ -39,6 +39,16 @@ if (node) {
             }
             else {
                 height = this.gameData.objectTypes.get(mapObject.objTypeId)._initHeight;
+            }
+
+            // now calculate the width and heigth in the global map coordinate system after rotating the object by ori:
+            if (mapObject.hasOwnProperty('ori') && mapObject.ori != 0) {
+                var cosOri = Math.cos(mapObject.ori);
+                var sinOri = Math.sin(mapObject.ori);
+                var w = mapObject.width;
+                var h = mapObject.height;
+                width =  Math.abs( cosOri * w + sinOri * h );
+                height = Math.abs( sinOri * w + cosOri * h );
             }
 
             var treeItem = {
@@ -68,9 +78,20 @@ if (node) {
                 this.quadTree.insert(treeItem);
             }
 
+
+
+
             if (this.objectChangedCallback) {
                 this.objectChangedCallback(mapObject);
             }
+        },
+
+        /**
+         * this function assumes that all the rest of the layer is already loaded. The function will create all pointers between objects
+         */
+        setPointers: function () {
+            this.mapObjects.each(function(mapObject){mapObject.setPointers()});
+            this.items.each(function(item){item.setPointers()});
         },
 
         removeObject: function (mapObject) {
