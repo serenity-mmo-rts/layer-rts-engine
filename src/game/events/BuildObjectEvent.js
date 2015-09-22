@@ -60,21 +60,6 @@ if (node) {
                     return false;
                 }
 
-                //check if there is a port free in the hub node
-                if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
-                    return false;
-                }
-
-                //check if there is a port free in the mapObj
-                if (!targetObj._blocks.HubConnectivity.getFreePorts() > 0){
-                    return false;
-                }
-
-                //don't allow self connection
-                if (sourceHub._id == targetObj._id){
-                    return false;
-                }
-
                 //check if both are within the range given by the hub:
                 var dx = (targetObj.x - sourceHub.x);
                 var dy = (targetObj.y - sourceHub.y);
@@ -89,6 +74,22 @@ if (node) {
                 this._mapObj.ori = -Math.atan2(dy, dx);
                 this._mapObj.width = connLength;
                 this._mapObj.height = this._mapObj.objType._initHeight;
+                this._mapObj.notifyChange();
+
+                //check if there is a port free in the hub node
+                if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
+                    return false;
+                }
+
+                //check if there is a port free in the mapObj
+                if (!targetObj._blocks.HubConnectivity.getFreePorts() > 0){
+                    return false;
+                }
+
+                //don't allow self connection
+                if (sourceHub._id == targetObj._id){
+                    return false;
+                }
 
             }
 
