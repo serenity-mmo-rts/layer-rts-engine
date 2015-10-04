@@ -19,7 +19,7 @@ if (node) {
         _item: null,
         _desiredLevel: 0,
 
-    init: function(gameData, initObj){
+        init: function(gameData, initObj){
             this._super( gameData, initObj );
         },
 
@@ -37,7 +37,7 @@ if (node) {
 
         execute: function () {
             //  this._item._state = itemStates.WORKING;
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
             console.log("I upgraded a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
             this._super();
@@ -47,7 +47,7 @@ if (node) {
 
             var self = this
 
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
             dbConn.get('mapObjects', function (err, collMapObjects) {
@@ -64,7 +64,7 @@ if (node) {
 
         executeOnOthers: function() {
 
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._super();
         },
 
@@ -142,7 +142,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._item.save(),
+            o.a2 = [this._item._id,
                     this._desiredLevel
             ];
             return o;
@@ -151,16 +151,10 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                var itemId = o.a2[0]._id;
+                var itemId = o.a2[0];
                 this._desiredLevel= o.a2[1];
+                this._item = this._gameData.layers.get(this._mapId).mapData.items.get(itemId);
 
-                if(this._gameData.layers.get(this._mapId).mapData.items.get(itemId)) {
-                    this._gameData.layers.get(this._mapId).mapData.items.get(itemId).load(o.a2[0]);
-                    this._item = this._gameData.layers.get(this._mapId).mapData.items.get(itemId);
-                }
-                else {
-                    this._item = new Item(this._gameData,o.a2[0]);
-                }
             }
             else {
                 for (var key in o) {

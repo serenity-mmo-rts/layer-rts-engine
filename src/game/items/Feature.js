@@ -186,6 +186,7 @@ if (node) {
                         if (this._currentTargetObjectIds.indexOf(targetId)<0) {
                             this._currentTargetObjectIds.push(targetId);
                             itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
+
                         }
                     }
                     else {

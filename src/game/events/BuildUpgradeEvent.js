@@ -36,7 +36,7 @@ if (node) {
         execute: function () {
           //  this._item._state = itemStates.WORKING;
             this._item._id = 'tmpId'+Math.random();
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
             console.log("I build a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
             this._super();
@@ -48,24 +48,16 @@ if (node) {
             this._item._id = (new mongodb.ObjectID()).toHexString();
             this._item._blocks.Feature._itemId =  this._item._id;
 
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
-            dbConn.get('items', function (err, collItems) {
-                if (err) callback(err);
-                collItems.save(self._item.save(), function(err,docs) {
-                    if (err) throw(err);
-                    console.log("successfully saved item " + self._item._id + " to db");
-                });
-            });
-
-            /*dbConn.get('mapObjects', function (err, collMapObjects) {
+            dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
                 collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
                     if (err) throw err;
                     console.log("updated map object in db with new buildQueue");
                 });
-            });*/
+            });
 
             this._super();
         },
@@ -73,7 +65,7 @@ if (node) {
 
         executeOnOthers: function() {
 
-            this._item._mapObj._blocks.UpgradeProduction.addItemToQueue(this);
+            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._super();
         },
 
@@ -120,9 +112,7 @@ if (node) {
 
             this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
             this._item.setLevel(1);
-
-            this._item.setPointers();
-            //this._item._mapObj.addItem(this._item);
+            this._item._mapObj.addItem(this._item);
 
             this._gameData.layers.get(this._mapId).mapData.addItem(this._item);
             this._item._blocks.Feature.checkStackExecution(false);
@@ -144,15 +134,13 @@ if (node) {
                         console.log("successfully saved item " + self._item._id + " to db");
                     });
                 });
-
-                // TODO: Probably the following is not needed, because the items are stored in their own list
-                /*dbConn.get('mapObjects', function (err, collMapObjects) {
+                dbConn.get('mapObjects', function (err, collMapObjects) {
                     if (err) throw err;
                     collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
                         if (err) throw err;
                         console.log("updated map object in db with new buildQueue");
                     });
-                });*/
+                });
             }
 
             this._super();
