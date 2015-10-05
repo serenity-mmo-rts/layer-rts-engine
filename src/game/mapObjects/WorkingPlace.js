@@ -31,6 +31,26 @@ if (node) {
 
         },
 
+        /**
+         * This function defines the default type variables and returns them as an object.
+         */
+        defineTypeVars: function() {
+            return {
+                requiredSkills: 0
+            };
+        },
+
+
+        /**
+         * This function defines the default state variables and returns them as an object.
+         */
+        defineStateVars: function() {
+            return {
+                availableSkills: 0,
+                hiredHumans: []
+            };
+        },
+
 
         save: function () {
             var o = {

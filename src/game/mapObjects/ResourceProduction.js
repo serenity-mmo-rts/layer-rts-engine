@@ -31,6 +31,25 @@ if (node) {
 
         },
 
+        /**
+         * This function defines the default type variables and returns them as an object.
+         */
+        defineTypeVars: function() {
+            return {
+            };
+        },
+
+
+        /**
+         * This function defines the default state variables and returns them as an object.
+         */
+        defineStateVars: function() {
+            return {
+                techInResearchQueueId: []
+            };
+        },
+
+
 
         save: function () {
             var o = {
@@ -40,21 +59,6 @@ if (node) {
         },
 
         load: function (o) {
-            if (o.hasOwnProperty("a2"))
-            {
-                this._super(o);
-                if (o.hasOwnProperty("a3"))
-                {
-                    this.productionSpeed = o.a3[0];
-                }
-            }
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
         }
 
     };

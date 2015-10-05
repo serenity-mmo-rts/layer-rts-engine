@@ -1,71 +1,77 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var GameList = require('../GameList').GameList;
+    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
 
 (function (exports) {
 
     /**
-     * This building block implements connectivity to other map objects. is implemented by hubs and other map objects that connect to hubs
-     * @param mapObj
-     * @param initObj
+     * This is a constructor to create a new Hub.
+     * @param parent the parent object/item/map of this building block
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
      * @constructor
      */
-    var HubConnectivity = function (mapObj,initObj){
+    var HubConnectivity = function (parent, type) {
 
-        //helper member variables:
-        this._mapObj = mapObj;
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
+
+        // Define helper member variables:
         this._connectedObjIds = {}; // key=objId, value=false if in production or true if connected
 
-
-        //write protected instance properties (defined by object type and changed by applied features):
-        this._numPorts = null;
-
-        //serialized state:
-
-
     };
 
-    HubConnectivity.prototype= {
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    HubConnectivity.prototype = Object.create(AbstractBlock.prototype);
+    var proto = HubConnectivity.prototype;
+    proto.constructor = HubConnectivity;
 
-        updateStateVars: function(){
-
-        },
-
-        getObjectsConnected: function(){
-            return this._connectedObjIds;
-        },
-
-        getFreePorts: function(){
-            return this._numPorts - Object.keys(this._connectedObjIds).length;
-        },
-
-        save: function () {
-            var o = {
-                a : [
-                    //this._connectedObjIds
-                ]};
-            return o;
-        },
-
-        load: function (o) {
-            if (o.hasOwnProperty("a"))
-            {
-                //this._connectedObjIds = o.a[0];
-            }
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
-        }
-
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            numPorts: 1
+        };
     };
 
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {testState1: 5},
+            {testState2: this.maxRange/2}
+        ];
+    };
+
+
+    /**
+     * Returns the object ids to which this object is connected
+     * @returns {{ids: bool}}
+     */
+    proto.getObjectsConnected = function(){
+        return this._connectedObjIds;
+    };
+
+    /**
+     * Returns the number of free ports
+     * @returns {number}
+     */
+    proto.getFreePorts = function(){
+        return this.numPorts - Object.keys(this._connectedObjIds).length;
+    };
+
+
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    HubConnectivity.prototype.finalizeBlockClass('HubConnectivity');
     exports.HubConnectivity = HubConnectivity
 
 })(typeof exports === 'undefined' ? window : exports);

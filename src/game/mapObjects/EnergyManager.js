@@ -32,6 +32,26 @@ if (node) {
         },
 
 
+        /**
+         * This function defines the default type variables and returns them as an object.
+         */
+        defineTypeVars: function() {
+            return {
+                requiredPerSec: 0
+            };
+        },
+
+
+        /**
+         * This function defines the default state variables and returns them as an object.
+         */
+        defineStateVars: function() {
+            return {
+                availablePerSec: 0
+            };
+        },
+
+
         save: function () {
             var o = {
                 a : [

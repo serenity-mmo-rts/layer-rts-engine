@@ -22,6 +22,8 @@ if (node) {
     var Connection = require('./mapObjects/Connection').Connection;
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
     var Tower = require('./mapObjects/Tower').Tower;
+
+    var createBlockInstance = require('./AbstractBlock').createBlockInstance;
 }
 
 
@@ -48,7 +50,7 @@ if (node) {
             // serialized:
             this._id = 0;
             this.mapId = null;
-            this.objTypeId = null;
+            this.objTypeId = initObj.objTypeId;
             this.x = null;
             this.y = null;
             this.width = null; // optional
@@ -57,6 +59,7 @@ if (node) {
             this._blocks = {};
             this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
 
+
             // not serialized:
             this.gameData = gameData;
             this.onChangeCallback = {};
@@ -64,21 +67,41 @@ if (node) {
             this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
             this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
             this.items = {};
-            this._deployedItems= [];
 
-
-            // init:
-            if(!initObj.hasOwnProperty("width")){
-                this.height = this.objType._initHeight;
-                this.width = this.objType._initWidth;
-            }
 
             if (MapObject.arguments.length == 2) {
+
+
+                // init:
+                if(!initObj.hasOwnProperty("width")){
+                    this.height = this.objType._initHeight;
+                    this.width = this.objType._initWidth;
+                }
+
+
                 this.load(initObj);
             }
 
 
+
+
         },
+
+
+        setPointers : function(){
+
+            this.map = this.gameData.layers.get(this._mapId);
+            this.objType = this.gameData.objectTypes.get(this.objTypeId);
+
+            // call all setPointer functions of the building blocks:
+            for (var blockName in this._blocks) {
+                if(typeof this._blocks[blockName].setPointers === 'function') {
+                    this._blocks[blockName].setPointers();
+                }
+            }
+
+        },
+
 
 
         setState: function(state) {
@@ -108,24 +131,13 @@ if (node) {
             delete this.onChangeCallback[key];
         },
 
-        setPointers : function(){
-
-            this.map= this.gameData.layers.get(this._mapId);
-            this.objType = this.gameData.objectTypes.get(this.objTypeId);
-
-            // call all setPointer functions of the building blocks:
-            for (var blockName in this._blocks) {
-                if(typeof this._blocks[blockName].setPointers === 'function') {
-                    this._blocks[blockName].setPointers();
-                }
-            }
-
-        },
 
 
-        createBuildingBlocks: function(o) {
+        createBuildingBlocks: function() {
 
             var buildingBlockState = this._blocks;
+
+            this._blocks = {};
 
             for (var blockName in this.objType._blocks) {
 
@@ -148,13 +160,13 @@ if (node) {
                     this._blocks[blockName] = new SoilProduction(this, blockStateVars);
                 }
                 else if (blockName == "HubNode") {
-                    this._blocks[blockName] = new HubNode(this, blockStateVars);
+                    this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
                 }
                 else if (blockName == "ResourceStorage") {
                     this._blocks[blockName] = new ResourceStorage(this, blockStateVars);
                 }
                 else if (blockName == "HubConnectivity") {
-                    this._blocks[blockName] = new HubConnectivity(this, blockStateVars);
+                    this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
                 }
                 else if (blockName == "ProductivityCalculator") {
                     this._blocks[blockName] = new ProductivityCalculator(this, blockStateVars);
@@ -186,23 +198,6 @@ if (node) {
                 else {
                     console.error("Tried to create block " + blockName + " which is not registered as a valid buildingBlock.")
                 }
-            }
-
-            this.recalculateTypeVariables();
-
-        },
-
-        recalculateTypeVariables: function(){
-
-
-            // loop over all blocks:
-            for (var blockName in this.objType._blocks) {
-                // loop over all type variables of that block:
-
-                for (var blockTypeVar in this.objType._blocks[blockName]) {
-                    this._blocks[blockName][blockTypeVar] = this.objType._blocks[blockName][blockTypeVar];
-                }
-                this._blocks[blockName].updateStateVars();
             }
 
 
@@ -332,9 +327,16 @@ if (node) {
         },
 
 
+        /**
+         * loads the state variables either from a previously serialized machine-readable-object or from a human-readable JSON object.
+         * @param o
+         */
         load: function (o) {
 
             if (o.hasOwnProperty("a")) {
+
+                // previously saved...
+
                 this._id = o._id;
                 this.mapId = o.mapId;
                 this.objTypeId = o.objTypeId;
@@ -342,11 +344,14 @@ if (node) {
                 this.y = o.a[1];
                 this.width = o.a[2];
                 this.height = o.a[3];
-                this.ori = o.a[4]
+                this.ori = o.a[4];
                 this.state = o.a[5];
                 this._blocks = o.a[6];
             }
             else {
+
+                // initialize state from
+
                 for (var key in o) {
                     if (o.hasOwnProperty(key)) {
                         this[key] = o[key];
@@ -354,24 +359,23 @@ if (node) {
                 }
             }
 
-            if (this._id != 0){
+            if (this._id != 0) {
                 if (typeof this._id != 'string') {
                     this._id = this._id.toHexString();
                 }
 
-
                 var blockStatesJson = this._blocks;
 
+                // call block constructors
+                this.createBuildingBlocks();
 
-                this.setPointers();
-                this.createBuildingBlocks(o);
-
-                // loop over all blocks:
+                // load state
                 for (var blockName in this.objType._blocks) {
-                    this._blocks[blockName].load(blockStatesJson);
+                    if (blockStatesJson[blockName] !== undefined) {
+                        this._blocks[blockName].load(blockStatesJson[blockName]);
+                    }
                 }
             }
-
 
         }
 

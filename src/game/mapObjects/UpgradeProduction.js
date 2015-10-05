@@ -19,7 +19,7 @@ if (node) {
     var UpgradeProduction = function (mapObj,initObj){
 
         this._freeSlotsAvailable =0;
-        this._itemTypeId =null;
+        this._itemTypeId = [];
         // only ids serialized
         this.buildQueue = [];
         // not serialized
@@ -37,6 +37,28 @@ if (node) {
 
         },
 
+
+        /**
+         * This function defines the default type variables and returns them as an object.
+         */
+        defineTypeVars: function() {
+            return {
+                numSlots: 0,
+                itemTypeIds: []
+            };
+        },
+
+
+        /**
+         * This function defines the default state variables and returns them as an object.
+         */
+        defineStateVars: function() {
+            return {
+                buildQueue: []
+            };
+        },
+
+
         levelUpgrade: function(item){
 
             var evt = new LevelUpgradeEvent(game);
@@ -45,6 +67,17 @@ if (node) {
 
         },
 
+        checkIfFinished: function() {
+
+             this.finished(true);
+
+        },
+
+        finished: function(success) {
+
+
+
+        },
 
         startUpgrade: function(itemId){
             var tempId = "tempID"+Math.random();
@@ -52,6 +85,8 @@ if (node) {
             var evt = new BuildUpgradeEvent(game);
             evt.setItem(item);
             uc.addEvent(evt);
+
+            mapData.timeScheduler.addCallback(50, this.checkIfFinished);
         },
 
         setPointers : function(){
@@ -101,9 +136,9 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a"))
             {
-                this.userId = o.a2[0];
-                this.healthPoints= o.a2[1];
-                this.buildQueue = o.a2[2];
+                this.userId = o.a[0];
+                this.healthPoints= o.a[1];
+                this.buildQueue = o.a[2];
             }
             else {
                 for (var key in o) {

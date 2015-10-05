@@ -3,6 +3,7 @@ if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
     var GameList = require('../GameList').GameList;
+    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
 
 (function (exports) {
@@ -31,6 +32,7 @@ if (node) {
         }
 
     };
+
 
     Connection.prototype= {
 
@@ -76,6 +78,8 @@ if (node) {
         }
 
     };
+
+
 
     exports.Connection = Connection;
 

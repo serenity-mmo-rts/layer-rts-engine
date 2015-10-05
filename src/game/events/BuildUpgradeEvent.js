@@ -156,13 +156,17 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 var itemId = o.a2[0]._id;
+
                 if(this._gameData.layers.get(this._mapId).mapData.items.get(itemId)) {
+                    // if an item with the same id is already in the gameData, we update that item with the given state and set the member variable to that item
                     this._gameData.layers.get(this._mapId).mapData.items.get(this._item._id).load(o.a2[0]);
                     this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._item._id);
                 }
                 else {
+                    // if there is no item we create a new item and initialize the state with the given data:
                     this._item = new Item(this._gameData,o.a2[0]);
                 }
+
             }
             else {
                 for (var key in o) {

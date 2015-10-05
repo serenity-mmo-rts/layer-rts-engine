@@ -31,6 +31,24 @@ if (node) {
 
         },
 
+        /**
+         * This function defines the default type variables and returns them as an object.
+         */
+        defineTypeVars: function() {
+            return {
+            };
+        },
+
+
+        /**
+         * This function defines the default state variables and returns them as an object.
+         */
+        defineStateVars: function() {
+            return {
+                techInResearchQueueId: []
+            };
+        },
+
 
         save: function () {
             var o = {
