@@ -71,15 +71,12 @@ if (node) {
             }
             else {
                 //addObjectToMapData:
-                this.mapObjects.hashList[mapObject._id] = mapObject;
+                this.mapObjects.add(mapObject);
 
                 //addObjectToTree:
                 var treeItem = this.createTreeObject(mapObject);
                 this.quadTree.insert(treeItem);
             }
-
-
-
 
             if (this.objectChangedCallback) {
                 this.objectChangedCallback(mapObject);
@@ -95,11 +92,9 @@ if (node) {
         },
 
         removeObject: function (mapObject) {
-            //check if object is already in list:
+            //check if object is in list:
             if (this.mapObjects.hashList.hasOwnProperty(mapObject._id)) {
-                delete this.mapObjects.hashList[mapObject._id];
-                //var treeItem = this.createTreeObject(mapObject);
-                //this.quadTree.remove(treeItem);
+                this.mapObjects.deleteById(mapObject._id);
             }
             if (this.objectChangedCallback) {
                 this.objectChangedCallback(mapObject);
@@ -114,7 +109,7 @@ if (node) {
             }
             else {
                 //addObjectToMapData:
-                this.items.hashList[item._id] = item;
+                this.items.add(item._id);
             }
 
 
@@ -124,8 +119,7 @@ if (node) {
         removeItem: function (item) {
             //check if object is already in list:
             if (this.items.hashList.hasOwnProperty(item._id)) {
-                delete this.items.hashList[item._id];
-
+                delete this.items.deleteById(item._id);
             }
 
         },

@@ -126,6 +126,13 @@ if (node) {
 
         },
 
+        /**
+         * call this function if a state variable has changed to notify db sync later.
+         */
+        notifyStateChange: function(){
+            this.map.mapData.items.notifyStateChange(this._id);
+        },
+
 
         save: function () {
 

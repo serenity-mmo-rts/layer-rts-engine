@@ -116,9 +116,7 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     proto.notifyStateChange = function(){
-
-        this.parent.game.changedObjects[this.parent._id] = true;
-
+        this.parent.notifyStateChange();
     };
 
     /**

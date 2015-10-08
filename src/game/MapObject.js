@@ -49,7 +49,7 @@ if (node) {
         init: function MapObject(gameData,initObj) {
             // serialized:
             this._id = 0;
-            this.mapId = null;
+            this.mapId = initObj.mapId;
             this.objTypeId = initObj.objTypeId;
             this.x = null;
             this.y = null;
@@ -60,9 +60,10 @@ if (node) {
             this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
 
 
-            // not serialized:
+            // not serialized: pointers etc.
             this.gameData = gameData;
             this.onChangeCallback = {};
+            this.map = this.gameData.layers.get(this.mapId);
             this.objType = this.gameData.objectTypes.get(initObj.objTypeId);
             this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
             this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
@@ -90,7 +91,7 @@ if (node) {
 
         setPointers : function(){
 
-            this.map = this.gameData.layers.get(this._mapId);
+            this.map = this.gameData.layers.get(this.mapId);
             this.objType = this.gameData.objectTypes.get(this.objTypeId);
 
             // call all setPointer functions of the building blocks:
@@ -113,6 +114,13 @@ if (node) {
             for (var key in this.onChangeCallback){
                 this.onChangeCallback[key]();
             }
+        },
+
+        /**
+         * call this function if a state variable has changed to notify db sync later.
+         */
+        notifyStateChange: function(){
+            this.map.mapData.mapObjects.notifyStateChange(this._id);
         },
 
         //addItem: function (item){

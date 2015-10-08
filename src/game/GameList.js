@@ -18,6 +18,7 @@ if (node) {
         this.factoryMethod = factoryMethod || false;
         this.ClassType = ClassType;
         this.gameData = gameData;
+        this.recentlyChanged = {};
 
         // init:
         if (initObj) {
@@ -28,23 +29,45 @@ if (node) {
     GameList.prototype = {
         add: function(o) {
             if (o instanceof Class || o instanceof this.ClassType) {
+                if (this.hashList.hasOwnProperty(o._id)) {
+                    console.log("warning: this id already exists in GameList. Overwriting...")
+                }
                 //console.log("adding to GameList by appending object")
                 this.hashList[o._id] = o;
+                this.recentlyChanged[o._id] = true;
                 return this.hashList[o._id];
             }
             else {
-                //console.log("adding to GameList with copying")
+                console.log("warning: adding to GameList with copying")
                 if (this.factoryMethod) {
                     var objInstance = this.factoryMethod(this.gameData,o);
                 }
                 else {
                     var objInstance = new this.ClassType(this.gameData,o);
                 }
-                this.hashList[objInstance._id] = objInstance;
-                return this.hashList[objInstance._id];
+                return this.add(objInstance);
             }
 
         },
+
+        /**
+         * call this function if a state variable has changed to notify db sync later.
+         */
+        notifyStateChange: function(id){
+            if (this.hashList.hasOwnProperty(id)) {
+                this.recentlyChanged[id] = true;
+            }
+        },
+
+        /**
+         * call this function if a state variable has changed to notify db sync later.
+         */
+        getAndResetStateChanges: function(){
+            var oldStateChanges = this.recentlyChanged;
+            this.recentlyChanged = {}
+            return oldStateChanges;
+        },
+
 
         updateId: function(oldId, newId) {
 
@@ -64,13 +87,7 @@ if (node) {
         },
 
         delete: function(o) {
-            if (o instanceof this.ClassType) {
-                delete this.hashList[o._id];
-            }
-            else {
-                delete this.hashList[o._id];
-            }
-
+            delete this.hashList[o._id];
         },
 
         get: function(id) {
@@ -96,6 +113,14 @@ if (node) {
         save: function () {
             var asArray = [];
             for (var k in this.hashList) {
+                asArray.push(this.hashList[k].save());
+            }
+            return asArray;
+        },
+
+        saveIds: function (idsObj) {
+            var asArray = [];
+            for (var k in idsObj) {
                 asArray.push(this.hashList[k].save());
             }
             return asArray;

@@ -153,12 +153,15 @@ if (node) {
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
             this._mapObj.setPointers();
 
+            /*
+               This is now automagically done later in server.js ...
+
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
                 collMapObjects.insert(self._mapObj.save(), function(err,docs) {
                     if (err) throw err;
                 });
-            });
+            });*/
 
             this._super();
 
@@ -201,7 +204,11 @@ if (node) {
             var self = this;
             this._mapObj.setState(mapObjectStates.FINISHED);
             this._mapObj.notifyChange();
-            if (node) {
+
+           /*
+            This is now automagically done later in server.js ...
+
+           if (node) {
                 dbConn.get('mapObjects', function (err, collMapObjects) {
                     if (err) throw err;
                     collMapObjects.save(self._mapObj.save(), function(err,docs) {
@@ -209,7 +216,8 @@ if (node) {
                         console.log("updated map object in db");
                     });
                 });
-            }
+            }*/
+
             this._super();
         },
 
