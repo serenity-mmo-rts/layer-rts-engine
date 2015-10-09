@@ -10,6 +10,11 @@ if (node) {
 
     function createBlockInstance(blockname, parent, type) {
 
+        if (!registeredBlockClasses.hasOwnProperty(blockname)){
+            console.error("Tried to create block " + blockname + " which is not registered as a valid buildingBlock.")
+            return null;
+        }
+
         var block = new registeredBlockClasses[blockname](parent,type);
         return block;
 
@@ -96,7 +101,7 @@ if (node) {
                         },
                         set: function (val) {
                             console.error("it is not allowed to set type variables.");
-                            throw new Error("it is not allowed to set type variables.");
+                            //throw new Error("it is not allowed to set type variables.");
                         }
                     });
                 })(typeVarName);

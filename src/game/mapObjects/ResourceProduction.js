@@ -1,68 +1,63 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var GameList = require('../GameList').GameList;
+    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
 
 (function (exports) {
 
+    /**
+     * This is a constructor to create a new Hub.
+     * @param parent the parent object/item/map of this building block
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @constructor
+     */
+    var ResourceProduction = function (parent, type) {
 
-    var ResourceProduction = function (mapObj,initObj){
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
 
-        //helper member variables:
-        this._mapObj = mapObj;
-
-        //write protected instance properties (defined by object type and features):
-        this.resInIds = [1, 2];
-        this.resInPerSec = [2, 3];
-        this.resOutIds = [3];
-        this.resOutPerSec = [1];
-        this.capacityScaling = 1; //might be changed by features to increase the throughput of the factory
-
-        //serialized state:
-        this.productivityCap = 1; //can be set by user to artificially limit productivity or set to 0 to disable production completely
+        // Define helper member variables:
+        this.helperVar = 22;
 
     };
 
-    ResourceProduction.prototype= {
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    ResourceProduction.prototype = Object.create(AbstractBlock.prototype);
+    var proto = ResourceProduction.prototype;
+    proto.constructor = ResourceProduction;
 
-        updateStateVars: function(){
-
-        },
-
-        /**
-         * This function defines the default type variables and returns them as an object.
-         */
-        defineTypeVars: function() {
-            return {
-            };
-        },
-
-
-        /**
-         * This function defines the default state variables and returns them as an object.
-         */
-        defineStateVars: function() {
-            return {
-                techInResearchQueueId: []
-            };
-        },
-
-
-
-        save: function () {
-            var o = {
-                a: [this.productionSpeed
-            ]};
-        return o;
-        },
-
-        load: function (o) {
-        }
-
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            resInIds: [1, 2],
+            resInPerSec: [2, 3],
+            resOutIds: [3],
+            resOutPerSec: [1],
+            capacityScaling: 1
+        };
     };
 
-    exports.ResourceProduction = ResourceProduction;
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {productionSpeed: 0},
+            {productivityCap: 1}
+        ];
+    };
+
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    ResourceProduction.prototype.finalizeBlockClass('ResourceProduction');
+    exports.ResourceProduction = ResourceProduction
 
 })(typeof exports === 'undefined' ? window : exports);

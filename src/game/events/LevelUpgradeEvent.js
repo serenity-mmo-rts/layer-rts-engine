@@ -50,13 +50,7 @@ if (node) {
             this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
-            dbConn.get('mapObjects', function (err, collMapObjects) {
-                if (err) throw err;
-                collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
-                    if (err) throw err;
-                    console.log("updated map object in db with new buildQueue");
-                });
-            });
+
 
             this._super();
         },
@@ -117,25 +111,7 @@ if (node) {
             this._item._mapObj.setState(2);
             this._item._mapObj.notifyChange();
 
-            if (node) {
-                var self = this;
-                dbConn.get('items', function (err, collItems) {
-                    if (err) callback(err);
 
-                    //TODO: Check if we should use insert or save. The item is already saved to db within the event!
-                    collItems.save(self._item.save(), function(err,docs) {
-                        if (err) throw(err);
-                        console.log("successfully saved item " + self._item._id + " to db");
-                    });
-                });
-                dbConn.get('mapObjects', function (err, collMapObjects) {
-                    if (err) throw err;
-                    collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
-                        if (err) throw err;
-                        console.log("updated map object in db with new buildQueue");
-                    });
-                });
-            }
 
             this._super();
         },

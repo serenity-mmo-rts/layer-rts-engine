@@ -67,6 +67,7 @@ if (node) {
 
         finishAllTillTime: function(time) {
 
+            var numEventsFinished = 0;
             var index = this.sortedEvents.length-1;
             while(index>=0 && this.sortedDueTimes[index] <= time) {
                 var curEvent = this.sortedEvents[index];
@@ -81,11 +82,15 @@ if (node) {
                     this.events.deleteById(curEvent._id);
                     this.eventsFinished.add(curEvent);
                     curEvent.finish();
+
+                    numEventsFinished++;
                 }
 
                 // Continue with next Event:
                 var index = this.sortedEvents.length-1;
             }
+
+            return numEventsFinished;
         },
 
         updateEventId: function(oldId, newId) {

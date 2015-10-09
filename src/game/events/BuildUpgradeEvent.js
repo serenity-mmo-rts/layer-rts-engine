@@ -51,13 +51,15 @@ if (node) {
             this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
+            /*
+
             dbConn.get('mapObjects', function (err, collMapObjects) {
                 if (err) throw err;
                 collMapObjects.save(self._item._mapObj.save(), function(err,docs) {
                     if (err) throw err;
                     console.log("updated map object in db with new buildQueue");
                 });
-            });
+            });*/
 
             this._super();
         },
@@ -123,7 +125,7 @@ if (node) {
             this._item._mapObj.setState(2);
             this._item._mapObj.notifyChange();
 
-            if (node) {
+            /*if (node) {
                 var self = this;
                 dbConn.get('items', function (err, collItems) {
                     if (err) callback(err);
@@ -141,7 +143,7 @@ if (node) {
                         console.log("updated map object in db with new buildQueue");
                     });
                 });
-            }
+            }*/
 
             this._super();
         },

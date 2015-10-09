@@ -96,14 +96,16 @@ if (node) {
 
             // call all setPointer functions of the building blocks:
             for (var blockName in this._blocks) {
-                if(typeof this._blocks[blockName].setPointers === 'function') {
-                    this._blocks[blockName].setPointers();
-                }
+                this._blocks[blockName].setPointers();
             }
 
         },
 
-
+        setInitTypeVars: function() {
+            for (var blockName in this._blocks) {
+                this._blocks[blockName].setInitTypeVars();
+            }
+        },
 
         setState: function(state) {
             this.state = state;
@@ -123,9 +125,9 @@ if (node) {
             this.map.mapData.mapObjects.notifyStateChange(this._id);
         },
 
-        //addItem: function (item){
-        //    this._deployedItems.push(item);
-        //},
+        addItem: function (item){
+            this.items[item._id] = item;
+        },
 
         getItems: function (){
             return this.items;
@@ -139,79 +141,12 @@ if (node) {
             delete this.onChangeCallback[key];
         },
 
-
-
         createBuildingBlocks: function() {
-
-            var buildingBlockState = this._blocks;
-
             this._blocks = {};
-
             for (var blockName in this.objType._blocks) {
-
-                var blockStateVars = {};
-                // check if we already have a state to initialize the building block with:
-                if (buildingBlockState.hasOwnProperty(blockName)) {
-                    blockStateVars = buildingBlockState[blockName];
-                }
-
-                if (blockName == "UserObject") {
-                    this._blocks[blockName] = new UserObject(this, blockStateVars);
-                }
-                else if (blockName == "Environment") {
-                    this._blocks[blockName] = new Environment(this, blockStateVars);
-                }
-                else if (blockName == "ResourceProduction") {
-                    this._blocks[blockName] = new ResourceProduction(this, blockStateVars);
-                }
-                else if (blockName == "SoilProduction") {
-                    this._blocks[blockName] = new SoilProduction(this, blockStateVars);
-                }
-                else if (blockName == "HubNode") {
-                    this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
-                }
-                else if (blockName == "ResourceStorage") {
-                    this._blocks[blockName] = new ResourceStorage(this, blockStateVars);
-                }
-                else if (blockName == "HubConnectivity") {
-                    this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
-                }
-                else if (blockName == "ProductivityCalculator") {
-                    this._blocks[blockName] = new ProductivityCalculator(this, blockStateVars);
-                }
-                else if (blockName == "EnergyManager") {
-                    this._blocks[blockName] = new EnergyManager(this, blockStateVars);
-                }
-                else if (blockName == "WorkingPlace") {
-                    this._blocks[blockName] = new WorkingPlace(this, blockStateVars);
-                }
-                else if (blockName == "TechProduction") {
-                    this._blocks[blockName] = new TechProduction(this, blockStateVars);
-                }
-                else if (blockName == "Connection") {
-                    this._blocks[blockName] = new Connection(this, blockStateVars);
-                }
-                else if (blockName == "UpgradeProduction") {
-                    this._blocks[blockName] = new UpgradeProduction(this, blockStateVars);
-                }
-                else if (blockName == "FeatureManager") {
-                    this._blocks[blockName] = new FeatureManager(this, blockStateVars);
-                }
-                else if (blockName == "Tower") {
-                    this._blocks[blockName] = new Tower(this, blockStateVars);
-                }
-                else if (blockName == "Sublayer") {
-                    this._blocks[blockName] = new Sublayer(this, blockStateVars);
-                }
-                else {
-                    console.error("Tried to create block " + blockName + " which is not registered as a valid buildingBlock.")
-                }
+                this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
             }
-
-
-
         },
-
 
         getAxes: function() {
             this.axes = new Array(2);

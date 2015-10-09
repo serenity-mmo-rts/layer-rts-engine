@@ -178,7 +178,7 @@ if (node) {
                 }
             }
 
-            if (typeof this._id != 'string') {
+            if (typeof this._id != 'string' && this._id !== undefined) {
                 this._id = this._id.toHexString();
             }
 

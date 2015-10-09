@@ -109,7 +109,7 @@ if (node) {
             }
             else {
                 //addObjectToMapData:
-                this.items.add(item._id);
+                this.items.add(item);
             }
 
 
