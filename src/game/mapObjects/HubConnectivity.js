@@ -17,7 +17,7 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this._connectedObjIds = {}; // key=objId, value=false if in production or true if connected
+        this.connectedObjIds = {}; // key=objId, value=false if in production or true if connected
 
     };
 
@@ -56,7 +56,7 @@ if (node) {
      * @returns {{ids: bool}}
      */
     proto.getObjectsConnected = function(){
-        return this._connectedObjIds;
+        return this.connectedObjIds;
     };
 
     /**
@@ -64,7 +64,7 @@ if (node) {
      * @returns {number}
      */
     proto.getFreePorts = function(){
-        return this.numPorts - Object.keys(this._connectedObjIds).length;
+        return this.numPorts - Object.keys(this.connectedObjIds).length;
     };
 
 

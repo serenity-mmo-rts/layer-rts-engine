@@ -43,7 +43,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_subLayerMapId: null}
+            {subLayerMapId: null}
         ];
     };
 

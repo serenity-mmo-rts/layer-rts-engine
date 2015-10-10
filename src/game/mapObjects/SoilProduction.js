@@ -1,107 +1,67 @@
-
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var GameList = require('../GameList').GameList;
+    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
-
-
 
 (function (exports) {
 
-    var SoilPuller = function (mapObj,initObj){
+    /**
+     * This is a constructor to create a new Hub.
+     * @param parent the parent object/item/map of this building block
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @constructor
+     */
+    var SoilPuller = function (parent, type) {
 
-        this._mapObj = mapObj;
-        this._soil_typeId=null;
-        this._soil_available=0;
-        this._soilDepletedInSec = 0;
-        this._amount_in_from_soil=0;
-        this._soil_effective_in=0;
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
 
+        // Define helper member variables:
+
+    };
+
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    SoilPuller.prototype = Object.create(AbstractBlock.prototype);
+    var proto = SoilPuller.prototype;
+    proto.constructor = SoilPuller;
+
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            soilTypeIds: []
         };
+    };
 
-    SoilPuller.prototype= {
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {soilEffectiveIn: []}, // in amount per sec
+            {soilAvailable: []}
+        ];
+    };
 
-        updateStateVars: function(){
+    /**
+     *
+     * @param soilTypeId
+     * @returns {number}
+     */
+    proto.getSoilDepletedIn = function(soilTypeId) {
+        return this.soilAvailable / this.soilEffectiveIn;
+    };
 
-        },
-
-        _getSoilTypeId: function(){
-
-        },
-
-        _getAmountSoilAvailable: function(){
-
-
-        },
-
-        _getSoilTypeId: function(){
-
-        },
-
-
-        extract_soil_resources: function(typeId,requested) {
-
-            var output
-            return output
-        },
-
-        calculateDepletion: function() {
-
-        },
-
-
-
-        save: function () {
-
-            var o = {_soil_typeId: this._soil_typeId,
-                _soil_available: this._soil_available,
-                _soilDepletedInSec: this._soilDepletedInSec,
-                _amount_in_from_soil: this._amount_in_from_soil,
-                _soil_effective_in: this._soil_effective_in
-
-            };
-
-            return o;
-        },
-
-
-        load: function (o) {
-            this._soil_typeId = o._soil_typeId;
-            this._soil_available = o._soil_available;
-            this._soilDepletedInSec = o._soilDepletedInSec;
-            this._amount_in_from_soil = o._amount_in_from_soil;
-            this._soil_effective_in = o._soil_effective_in;
-
-            if (o.hasOwnProperty("a")) {
-                this._level = o.a[0];
-                this._state = o.a[1];
-                this._feature = new FeatureModel(this.gameData,o.a[2]);
-
-            }
-
-
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-                if (this._feature == null){
-                    this.createFeature();
-                }
-
-            }
-            this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
-            }
-
-        }
-
-    }
-
-    exports.SoilPuller = SoilPuller;
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    SoilPuller.prototype.finalizeBlockClass('SoilPuller');
+    exports.SoilPuller = SoilPuller
 
 })(typeof exports === 'undefined' ? window : exports);

@@ -170,6 +170,8 @@ if (node) {
 
     proto.load = function (o) {
 
+        // TODO: the state encoding could be somehow precached during class finalization...
+
         var states = this.defineStateVars();
         var ArrLen = states.length;
 
@@ -179,18 +181,14 @@ if (node) {
             for (var i=0; i < ArrLen; i++) {
                 var stateVarNames = Object.keys(states[i]);
                 if (stateVarNames.length > 1) {
-
                     // load these variables directly with their corresponding name:
                     for (var stateVarName in states[i]){
                         this[stateVarName] = o[stateVarName];
                     }
-
                 }
                 else {
-
                     // compress these keys:
                     this[stateVarNames[0]] = o.a[i];
-
                 }
             }
 
@@ -198,10 +196,15 @@ if (node) {
 
         }
         else {
+
+            this.setInitStateVars();
+
             for (var key in o) {
+
+                // TODO: check if the supplied arguments are really state variables...
                 if (o.hasOwnProperty(key)) {
-                    if ( states.hasOwnProperty() )
-                    this[key] = o[key];
+                    if ( this.hasOwnProperty(key) )
+                        this[key] = o[key];
                 }
             }
         }

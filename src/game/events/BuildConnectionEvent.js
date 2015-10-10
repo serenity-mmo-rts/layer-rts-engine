@@ -63,7 +63,7 @@ if (node) {
             }
 
             //check if the connection is already there
-            if (this._hubObj._blocks.HubConnectivity._connectedObjIds.hasOwnProperty(this._mapObj._id)){
+            if (this._hubObj._blocks.HubConnectivity.connectedObjIds.hasOwnProperty(this._mapObj._id)){
                 return false;
             }
 
@@ -126,8 +126,8 @@ if (node) {
 
         applyToGame: function() {
             // change gameData:
-            this._hubObj._blocks.HubConnectivity._connectedObjIds[this._mapObj._id] = false;
-            this._mapObj._blocks.HubConnectivity._connectedObjIds[this._hubObj._id] = false;
+            this._hubObj._blocks.HubConnectivity.connectedObjIds[this._mapObj._id] = false;
+            this._mapObj._blocks.HubConnectivity.connectedObjIds[this._hubObj._id] = false;
         },
 
         /**
@@ -158,8 +158,8 @@ if (node) {
         finish: function () {
             var self = this;
 
-            this._hubObj._blocks.HubConnectivity._connectedObjIds[this._mapObj._id] = true;
-            this._mapObj._blocks.HubConnectivity._connectedObjIds[this._hubObj._id] = true;
+            this._hubObj._blocks.HubConnectivity.connectedObjIds[this._mapObj._id] = true;
+            this._mapObj._blocks.HubConnectivity.connectedObjIds[this._hubObj._id] = true;
 
             this._hubObj.setState(mapObjectStates.FINISHED);
             this._hubObj.notifyChange();
@@ -201,8 +201,8 @@ if (node) {
 
         revert: function() {
 
-            delete this._hubObj._blocks.HubConnectivity._connectedObjIds[this._mapObj._id];
-            delete this._mapObj._blocks.HubConnectivity._connectedObjIds[this._hubObj._id];
+            delete this._hubObj._blocks.HubConnectivity.connectedObjIds[this._mapObj._id];
+            delete this._mapObj._blocks.HubConnectivity.connectedObjIds[this._hubObj._id];
 
             return true;
         }

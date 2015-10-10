@@ -1,86 +1,71 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var GameList = require('../GameList').GameList;
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
 
 (function (exports) {
 
     /**
-     * This building block implements connectivity to other map objects. is implemented by hubs and other map objects that connect to hubs
-     * @param mapObj
-     * @param initObj
+     * This is a constructor to create a new Hub.
+     * @param parent the parent object/item/map of this building block
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
      * @constructor
      */
-    var Connection = function (mapObj,initWithState){
+    var Connection = function (parent, type) {
 
-        //helper member variables:
-        this._mapObj = mapObj;
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
 
-        //write protected instance properties (defined by object type and changed by applied features):
+        // Define helper member variables:
 
-
-        //define serialized state variables:
-        this._connectedFrom = null;    // id encoded. this has to be a hub
-        this._connectedTo = null;    // id encoded. can be any other object or hub
-
-        // if initWithState is supplied, then load the state
-        if (Connection.arguments.length == 2) {
-            this.load(initWithState);
-        }
 
     };
 
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    Connection.prototype = Object.create(AbstractBlock.prototype);
+    var proto = Connection.prototype;
+    proto.constructor = Connection;
 
-    Connection.prototype= {
-
-        updateStateVars: function(){
-
-        },
-
-        setPointers: function(){
-            var mapData = this._mapObj.gameData.layers.get(this._mapObj.mapId).mapData;
-
-            //update the helper vars of the connected objects:
-            var isConnectionFinished = (this._mapObj.state >= 2);
-            mapData.mapObjects.get(this._connectedFrom)._blocks.HubConnectivity._connectedObjIds[this._connectedTo] = isConnectionFinished;
-            mapData.mapObjects.get(this._connectedTo  )._blocks.HubConnectivity._connectedObjIds[this._connectedFrom] = isConnectionFinished;
-        },
-
-        getObjectsConnected: function(){
-            return [this._connectedFrom, this._connectedTo ];
-        },
-
-        save: function () {
-            var o = {
-                a : [
-                    this._connectedFrom,
-                    this._connectedTo
-                ]};
-            return o;
-        },
-
-        load: function (o) {
-            if (o.hasOwnProperty("a"))
-            {
-                this._connectedFrom = o.a[0];
-                this._connectedTo = o.a[1];
-            }
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
-        }
-
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+        };
     };
 
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            { connectedFrom: null},    // id encoded. this has to be a hub
+            { connectedTo: null}    // id encoded. can be any other object or hub}
+        ];
+    };
 
+    proto.setPointers = function(){
+        var mapData = this._mapObj.gameData.layers.get(this.parent.mapId).mapData;
 
-    exports.Connection = Connection;
+        //update the helper vars of the connected objects:
+        var isConnectionFinished = (this.parent.state >= 2);
+        mapData.mapObjects.get(this.connectedFrom)._blocks.HubConnectivity.connectedObjIds[this.connectedTo] = isConnectionFinished;
+        mapData.mapObjects.get(this.connectedTo  )._blocks.HubConnectivity.connectedObjIds[this.connectedFrom] = isConnectionFinished;
+    };
+
+    proto.getObjectsConnected = function(){
+        return [this.connectedFrom, this.connectedTo ];
+    };
+
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    Connection.prototype.finalizeBlockClass('Connection');
+    exports.Connection = Connection
 
 })(typeof exports === 'undefined' ? window : exports);
