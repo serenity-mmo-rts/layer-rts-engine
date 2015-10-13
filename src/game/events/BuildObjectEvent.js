@@ -42,8 +42,8 @@ if (node) {
 
             if (this._mapObj._blocks.hasOwnProperty("Connection")) {
 
-                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection._connectedFrom);
-                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection._connectedTo);
+                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedFrom);
+                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedTo);
 
                 //check if both are on the same layer:
                 if (sourceHub == undefined || targetObj == undefined){
@@ -104,10 +104,10 @@ if (node) {
 
                             if(collidingItems[i]._blocks.hasOwnProperty("Connection")) {
                                 // only fail if the colliding item is not any other connection to either the source or target object:
-                                if (collidingItems[i]._blocks.Connection._connectedFrom != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection._connectedFrom != sourceHub._id &&
-                                    collidingItems[i]._blocks.Connection._connectedTo != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection._connectedTo != sourceHub._id) {
+                                if (collidingItems[i]._blocks.Connection.connectedFrom != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection.connectedFrom != sourceHub._id &&
+                                    collidingItems[i]._blocks.Connection.connectedTo != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection.connectedTo != sourceHub._id) {
                                     return false;
                                 }
                             }

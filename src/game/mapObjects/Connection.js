@@ -50,7 +50,7 @@ if (node) {
     };
 
     proto.setPointers = function(){
-        var mapData = this._mapObj.gameData.layers.get(this.parent.mapId).mapData;
+        var mapData = this.parent.gameData.layers.get(this.parent.mapId).mapData;
 
         //update the helper vars of the connected objects:
         var isConnectionFinished = (this.parent.state >= 2);
