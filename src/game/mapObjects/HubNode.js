@@ -34,6 +34,7 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
+            canBuildConnectionTypeId: null,
             minRange: 0,
             maxRange: 1000,
             connBuildTimePerDist: 1
