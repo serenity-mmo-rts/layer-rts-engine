@@ -73,6 +73,6 @@ if (node) {
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
     HubNode.prototype.finalizeBlockClass('HubNode');
-    exports.HubNode = HubNode
+    exports.HubNode = HubNode;
 
 })(typeof exports === 'undefined' ? window : exports);

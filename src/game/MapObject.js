@@ -70,16 +70,13 @@ if (node) {
             this.items = {};
 
 
+            //load state if argument was supplied:
             if (MapObject.arguments.length == 2) {
-
-
                 // init:
                 if(!initObj.hasOwnProperty("width")){
                     this.height = this.objType._initHeight;
                     this.width = this.objType._initWidth;
                 }
-
-
                 this.load(initObj);
             }
 
@@ -277,9 +274,7 @@ if (node) {
         load: function (o) {
 
             if (o.hasOwnProperty("a")) {
-
-                // previously saved...
-
+                // load state from a previously saved json:
                 this._id = o._id;
                 this.mapId = o.mapId;
                 this.objTypeId = o.objTypeId;
@@ -292,9 +287,7 @@ if (node) {
                 this._blocks = o.a[6];
             }
             else {
-
-                // initialize state from
-
+                // initialize state from json:
                 for (var key in o) {
                     if (o.hasOwnProperty(key)) {
                         this[key] = o[key];

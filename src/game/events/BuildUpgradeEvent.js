@@ -36,6 +36,7 @@ if (node) {
         execute: function () {
           //  this._item._state = itemStates.WORKING;
             this._item._id = 'tmpId'+Math.random();
+            this._item.setPointers();
             this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
             console.log("I build a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
@@ -47,7 +48,7 @@ if (node) {
             var self = this;
             this._item._id = (new mongodb.ObjectID()).toHexString();
             this._item._blocks.Feature._itemId =  this._item._id;
-
+            this._item.setPointers();
             this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
 
@@ -66,7 +67,7 @@ if (node) {
 
 
         executeOnOthers: function() {
-
+            this._item.setPointers();
             this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
             this._super();
         },
