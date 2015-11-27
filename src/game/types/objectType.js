@@ -10,17 +10,18 @@ if (node) {
     var ObjectType = AbstractType.extend({
 
         // basics:
-    _type: "ObjectType",
-    _blocks: {},
-    _allowOnMapTypeId: null,
-    _requiredTechnologies: null,
-    _requiredRessources: null,
-    _initWidth: null,
-    _initHeight: null,
-    _spritesheetId: null,
-    _spriteFrame: null,
+        _type: "ObjectType",
+        _blocks: {},
+        _allowOnMapTypeId: null,
+        _requiredTechnologies: null,
+        _requiredRessources: null,
+        _initWidth: null,
+        _initHeight: null,
+        _spritesheetId: null,
+        _spriteFrame: null,
+        _spriteAnimation: null,
 
-    init: function (gameData, initObj) {
+        init: function (gameData, initObj) {
 
             this._super(gameData, initObj);
 
@@ -33,16 +34,17 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this._blocks,
-                    this._allowOnMapTypeId,
-                    this._requiredTechnologies,
-                    this._requiredRessources,
-                    this._initWidth,
-                    this._initHeight,
-                    this._spritesheetId,
-                    this._spriteFrame,
-                    this._hasChildMapTypeId,
-                    this._className
-                    ];
+                this._allowOnMapTypeId,
+                this._requiredTechnologies,
+                this._requiredRessources,
+                this._initWidth,
+                this._initHeight,
+                this._spritesheetId,
+                this._spriteFrame,
+                this._hasChildMapTypeId,
+                this._className,
+                this._spriteAnimation
+            ];
 
 
 
@@ -64,7 +66,7 @@ if (node) {
                 this._spriteFrame = o.a2[7];
                 this._hasChildMapTypeId = o.a2[8];
                 this._className = o.a2[9];
-
+                this._spriteAnimation = o.a2[10];
             }
 
             else {
