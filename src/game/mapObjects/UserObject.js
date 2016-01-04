@@ -66,7 +66,7 @@ if (node) {
 
 
     proto.getLevel = function(){
-        var level = 0;
+        var level = 1;
         var points = this.points;
         if (points >= 0 && points <10){
             level= 1;

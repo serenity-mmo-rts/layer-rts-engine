@@ -40,6 +40,10 @@ if (node) {
             }
         },
 
+        setMapId: function(mapId) {
+            this._mapId = mapId;
+        },
+
         setInvalid: function () {
             this._state = eventStates.INVALID;
         },
@@ -175,7 +179,13 @@ if (node) {
 
         revert: function() {
             this._gameData.layers.get(this._mapId).eventScheduler.removeEvent(this._id);
+        },
+
+        setPointers: function () {
+
         }
+
+
 
     });
 

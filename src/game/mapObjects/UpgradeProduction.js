@@ -65,16 +65,6 @@ if (node) {
 
     };
 
-    proto.startUpgrade = function (itemId) {
-        var tempId = "tempID" + Math.random();
-        var item = new Item(game, {_id: tempId, _objectId: this.parent._id, _itemTypeId: itemId, _mapId: this._mapId});
-        item.setPointers();
-        var evt = new BuildUpgradeEvent(game);
-        evt.setItem(item);
-        uc.addEvent(evt);
-
-    };
-
     proto.setPointers = function () {
         var buildQueueIds = this.buildQueue;
         this.buildQueue = [];

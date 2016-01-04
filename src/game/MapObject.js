@@ -122,6 +122,15 @@ if (node) {
             this.map.mapData.mapObjects.notifyStateChange(this._id);
         },
 
+        getLevel: function() {
+            if (this._blocks.hasOwnProperty("UserObject")) {
+                return this._blocks.UserObject.getLevel();
+            }
+            else {
+                return 0;
+            }
+        },
+
         addItem: function (item){
             this.items[item._id] = item;
         },

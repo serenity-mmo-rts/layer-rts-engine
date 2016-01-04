@@ -17,7 +17,12 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.helperVar = 'test';
+        this._mapObject = null;
+        this._executeIndex = 0;
+        this._variables = [];
+        this._blocks = [];
+        this._operators = [];
+        this._changes = [];
 
     };
 
@@ -46,19 +51,14 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {_currentTargetObjectIds: []},
-            {_currentTargetItemIds: []},
-            {_executeIndex: 0},
-            {_variables: []},
-            {_blocks: []},
-            {_operators: []},
-            {_changes: []}
+            {_currentTargetItemIds: []}
         ];
     };
 
     proto.checkStackExecution = function(active){
         var process = true;
         this._executeIndex = this.getExecutionIdx();
-        while (process == true && this._executeIndex<= this._stack.length){
+        while (process == true && this._executeIndex < this._stack.length){
             if (this._executeIndex ==0){
                 var processedStack = null;
                 var remainingStack = this._stack;
@@ -98,9 +98,18 @@ if (node) {
         this._executeIndex=value;
     };
 
-
+    /**
+     *
+     * @param processedStack
+     * @param currentOperation
+     * @param active
+     * @returns {*[]}
+     */
     proto.processStack = function(processedStack,currentOperation,active){
+
+
         var name = Object.keys(currentOperation)[0];
+
         switch(name){
             case "getParentItem":
                 var newStack = this.getParentItem(processedStack);
@@ -130,8 +139,8 @@ if (node) {
 
             // execute on map, build mapObject on execute
         }
-        var out = [allow, newStack];
-        return out
+
+        return [allow, newStack]
 
     };
 
@@ -297,6 +306,7 @@ if (node) {
         this._itemId = this.parent._id;
         this._layer= this.parent.gameData.layers.get(this.parent._mapId);
         this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
+        this.checkStackExecution(false);
     };
 
     /**

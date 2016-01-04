@@ -64,11 +64,23 @@ if (node) {
             }
         },
 
+        updateId: function(newId) {
+            if (this._mapObj != null) {
+                delete this._mapObj.items[this._id];
+                this._mapObj.items[this._id] = this;
+            }
+            this._id = newId;
+        },
+
         setPointers : function(){
             this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
             this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
             this._mapObj.items[this._id] = this;
 
+            // call all setPointer functions of the building blocks:
+            for (var blockName in this._blocks) {
+                this._blocks[blockName].setPointers();
+            }
         },
 
         createBuildingBlocks: function() {

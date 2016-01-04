@@ -50,6 +50,15 @@ if (node) {
         ];
     };
 
+
+    proto.setState = function(value){
+        this._change = value;
+    };
+
+    proto.getState = function(){
+        return this._change;
+    };
+
     proto.addItemId = function(itemId){
         if (this._appliedItemIds.indexOf("itemId")<0){
             this._appliedItemIds.push(itemId);
@@ -65,7 +74,7 @@ if (node) {
 
         // create change Object
         var toBeAdded = {};
-        var BlockNames = Object.keys(this.mapObj._blocks);
+        var BlockNames = Object.keys(this.parent._blocks);
         for (var i=0;i<BlockNames.length;i++) {
             toBeAdded[BlockNames[i]] = {};
         }
@@ -74,7 +83,7 @@ if (node) {
         // loop over items
         for (var i=0; i< this._appliedItemIds.length; i++){
             // get item from id
-            var item = this.mapObj.gameData.layers.get(this.mapObj.mapId).mapData.items.get(this._appliedItemIds[i]);
+            var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds[i]);
             // sanity Check
             if (item._blocks.Feature._currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
 
@@ -103,17 +112,15 @@ if (node) {
                     else if (operator=="times"){
 
                         if (!toBeAdded[block].hasOwnProperty(variable)) {
-                            var baseline = this.mapObj.objType._blocks[block][variable];
+                            var baseline = this.parent.objType._blocks[block][variable];
                             var times = (baseline*change)-baseline;
                             toBeAdded[block][variable]= Number(times);
                         }
                         else {
-                            var baseline = this.mapObj.objType._blocks[block][variable];
+                            var baseline = this.parent.objType._blocks[block][variable];
                             var times = (baseline*change)-baseline;
                             toBeAdded[block][variable] += Number(times);
                         }
-
-
                     }
                 }
             }
@@ -124,8 +131,8 @@ if (node) {
             var currentBlock = toBeAdded[BlockNames[i]];
             var properties = Object.keys(currentBlock);
             for (var k=0;k<properties.length;k++) {
-                var base= this.mapObj.objType._blocks[BlockNames[i]][properties[k]];
-                this.mapObj._blocks[BlockNames[i]]._typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
+                var base= this.parent.objType._blocks[BlockNames[i]][properties[k]];
+                this.parent._blocks[BlockNames[i]]._typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
             }
         }
 

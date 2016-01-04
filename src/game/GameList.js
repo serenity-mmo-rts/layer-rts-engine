@@ -110,6 +110,12 @@ if (node) {
             }
         },
 
+        setPointers: function() {
+            for (var k in this.hashList) {
+                this.hashList[k].setPointers();
+            }
+        },
+
         save: function () {
             var asArray = [];
             for (var k in this.hashList) {

@@ -60,10 +60,21 @@ if (node) {
     proto.setInitTypeVars = function() {
         this._typeCache = this.defineTypeVars();
 
+        var typeDef = this.type;
+        if (typeDef instanceof Array) {
+            var myLevel = this.parent.getLevel();
+            if (typeDef.length < myLevel){
+                typeDef = typeDef[typeDef.length-1];
+            }
+            else {
+                typeDef = typeDef[myLevel-1];
+            }
+        }
+
         // overwrite
-        for (var typeVarName in this.type) {
-            if (this.type.hasOwnProperty(typeVarName))
-                this._typeCache[typeVarName] = this.type[typeVarName];
+        for (var typeVarName in typeDef) {
+            if (typeDef.hasOwnProperty(typeVarName))
+                this._typeCache[typeVarName] = typeDef[typeVarName];
         }
 
         return this;
