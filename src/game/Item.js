@@ -60,6 +60,16 @@ if (node) {
         setLevel: function(lvl) {
             if (lvl!=this._level){
                 this._level = lvl;
+
+                // recalculate all type variables in all building blocks:
+                for (var blockName in this._blocks) {
+                    this._blocks[blockName].setInitTypeVars();
+                }
+
+                if (this._blocks.hasOwnProperty("Feature")) {
+                    this._blocks.Feature.restartExecutation();
+                }
+
                 this._mapObj.notifyChange();
             }
         },

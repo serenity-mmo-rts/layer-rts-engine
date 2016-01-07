@@ -18,11 +18,17 @@ if (node) {
 
         // Define helper member variables:
         this._mapObject = null;
+
+
+        // TODO: I guess there is no need for the following variables to be persistent member variables of the Feature.
+        // Therefore, please check if these can be made local variables or state variables?
         this._executeIndex = 0;
         this._variables = [];
         this._blocks = [];
         this._operators = [];
         this._changes = [];
+        this._currentTargetObjectIds = [];
+        this._currentTargetItemIds = [];
 
     };
 
@@ -50,8 +56,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_currentTargetObjectIds: []},
-            {_currentTargetItemIds: []}
+
         ];
     };
 
@@ -96,6 +101,13 @@ if (node) {
 
     proto.setExecutionIdx = function(value){
         this._executeIndex=value;
+    };
+
+    proto.restartExecutation = function() {
+        this._currentTargetObjectIds = [];
+        this._currentTargetItemIds = [];
+        this.setExecutionIdx(0);
+        this.checkStackExecution(false);
     };
 
     /**

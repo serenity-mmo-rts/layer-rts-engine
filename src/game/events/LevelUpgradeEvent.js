@@ -101,8 +101,6 @@ if (node) {
 
             this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
             this._item.setLevel(this._desiredLevel);
-            this._item._blocks.Feature.setExecutionIdx(0);
-            this._item._blocks.Feature.checkStackExecution(false);
 
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 

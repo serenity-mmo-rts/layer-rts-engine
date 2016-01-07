@@ -60,7 +60,7 @@ if (node) {
     };
 
     proto.addItemId = function(itemId){
-        if (this._appliedItemIds.indexOf("itemId")<0){
+        if (this._appliedItemIds.indexOf(itemId)<0){
             this._appliedItemIds.push(itemId);
         }
         this.notifyStateChange();
