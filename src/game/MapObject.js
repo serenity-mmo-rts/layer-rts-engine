@@ -22,6 +22,7 @@ if (node) {
     var Connection = require('./mapObjects/Connection').Connection;
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
     var Tower = require('./mapObjects/Tower').Tower;
+    var Unit = require('./mapObjects/Unit').Unit;
 
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;
 }
