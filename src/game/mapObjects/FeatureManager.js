@@ -46,7 +46,8 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {_change: false},
-            {_appliedItemIds: []}
+            {_appliedItemIds: []},
+            {_appliedItemStackIdx: []}
         ];
     };
 
@@ -59,12 +60,25 @@ if (node) {
         return this._change;
     };
 
-    proto.addItemId = function(itemId){
-        if (this._appliedItemIds.indexOf(itemId)<0){
-            this._appliedItemIds.push(itemId);
-        }
+    proto.addItemId = function(itemId,stackIdx){
+        this._appliedItemIds.push(itemId);
+        this._appliedItemStackIdx.push(stackIdx);
         this.notifyStateChange();
         this.updateObjectProperties();
+    };
+
+    proto.removeItemId = function(itemId,stackIdx){
+        var positions = this._appliedItemIds.indexOf(itemId);
+        if (positions instanceof Array){
+            var helpArray = this._appliedItemStackIdx[positions];
+            var subPosition = this._appliedItemStackIdx.indexOf(stackIdx);
+            var finalPosition = positions[subPosition];
+        }
+        else{
+            var finalPosition = positions;
+        }
+        this._appliedItemIds.splice(finalPosition, 1);
+        this._appliedItemStackIdx.splice(finalPosition, 1);
     };
 
     proto.updateObjectProperties = function () {
@@ -85,13 +99,14 @@ if (node) {
             // get item from id
             var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds[i]);
             // sanity Check
-            if (item._blocks.Feature._currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
+
+            if (item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
 
                 // get block values
-                var variables = item._blocks.Feature._variables;
-                var blocks = item._blocks.Feature._blocks;
-                var operators = item._blocks.Feature._operators;
-                var changes = item._blocks.Feature._changes;
+                var variables = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].variables;
+                var blocks = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].blocks;
+                var operators = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].operators;
+                var changes = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].changes;
 
                 // loop over block type variables
                 for (var k=0; k< blocks.length; k++) {

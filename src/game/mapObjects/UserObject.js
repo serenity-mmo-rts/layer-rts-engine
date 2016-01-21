@@ -34,7 +34,7 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            maxHealth: 100,
+            maxHealthPoints: 100,
             points: 0
         };
     };
@@ -47,12 +47,12 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {userId: 0},
-            {health: this.maxHealth}
+            {health: this.maxHealthPoints}
         ];
     };
 
     proto.getMaxHealthPoints = function() {
-        return this.maxHealth;
+        return this.maxHealthPoints;
     };
 
     proto.getHealthPoints = function(){

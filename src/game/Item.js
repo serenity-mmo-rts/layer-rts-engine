@@ -34,6 +34,7 @@ if (node) {
         this._blocks = {};
 
         //not serialized
+        this.map = null;
         this._mapObj= null;
         this.gameData = gameData;
         this.itemType = this.gameData.itemTypes.get(initObj._itemTypeId);
@@ -67,7 +68,7 @@ if (node) {
                 }
 
                 if (this._blocks.hasOwnProperty("Feature")) {
-                    this._blocks.Feature.restartExecutation();
+                    this._blocks.Feature.restartExecution();
                 }
 
                 this._mapObj.notifyChange();
@@ -83,6 +84,7 @@ if (node) {
         },
 
         setPointers : function(){
+            this.map = this.gameData.layers.get(this._mapId);
             this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
             this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
             this._mapObj.items[this._id] = this;
