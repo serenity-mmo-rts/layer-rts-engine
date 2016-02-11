@@ -93,7 +93,27 @@ if (node) {
         this._executeIndex=value;
     };
 
+    proto.removeItemFromFeatureManagers= function() {
+
+        for (var i = 0; i<this._processedStack.length;i++){
+            var stack = this._processedStack[i];
+            if (stack.hasOwnProperty("currentTargetObjectIds")){
+                for (var k = 0; k<stack.currentTargetObjectIds.length;k++){
+                    var object=  this._layer.mapData.mapObjects.get(stack.currentTargetObjectIds[k]);
+                    object._blocks.FeatureManager.removeItem(this._itemId);
+                }
+
+                for (var k = 0; k<stack.currentTargetItemIds.length;k++){
+                    var object=  this._layer.mapData.mapObjects.get(stack.currentTargetItemIds[k]);
+                    object._blocks.FeatureManager.removeItem(this._itemId);
+                }
+            }
+        }
+    };
+
+
     proto.restartExecution = function() {
+        this.removeItemFromFeatureManagers();
         this._processedStack = [];
         this.setExecutionIdx(0);
         this.checkStackExecution(false);
@@ -324,6 +344,8 @@ if (node) {
         this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
         this.checkStackExecution(false);
     };
+
+
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.

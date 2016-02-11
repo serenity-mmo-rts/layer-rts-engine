@@ -61,12 +61,44 @@ if (node) {
     };
 
     proto.addItemId = function(itemId,stackIdx){
+
+        var positions = this._appliedItemIds.indexOf(itemId);
+        if (positions == -1) {
+            this.insertItem(itemId,stackIdx);
+        }
+        else if (positions instanceof Array){
+            var insert = true;
+            for (var i = 0;i<positions.length;i++) {
+                if (this._appliedItemStackIdx[positions[i]] == stackIdx) {
+                    insert = false;
+                }
+            }
+            if (insert){
+                this.insertItem(itemId,stackIdx);
+            }
+        }
+        else {
+            if (!this._appliedItemStackIdx[positions]== stackIdx){
+                this.insertItem(itemId,stackIdx);
+            }
+        }
+    };
+
+    proto.insertItem = function(itemId,stackIdx){
         this._appliedItemIds.push(itemId);
         this._appliedItemStackIdx.push(stackIdx);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
 
+
+
+    /**
+     *
+     * @param itemId
+     * @param stackIdx
+     * removes single ItemId, same item with other stackIdx can still be included.
+     */
     proto.removeItemId = function(itemId,stackIdx){
         var positions = this._appliedItemIds.indexOf(itemId);
         if (positions instanceof Array){
@@ -79,6 +111,17 @@ if (node) {
         }
         this._appliedItemIds.splice(finalPosition, 1);
         this._appliedItemStackIdx.splice(finalPosition, 1);
+    };
+
+    /**
+     *
+     * @param itemId
+     * removes all itemIds that are the same.
+     */
+    proto.removeItem= function(itemId){
+        var positions = this._appliedItemIds.indexOf(itemId);
+        this._appliedItemIds.splice(positions, 1);
+        this._appliedItemStackIdx.splice(positions, 1);
     };
 
     proto.updateObjectProperties = function () {

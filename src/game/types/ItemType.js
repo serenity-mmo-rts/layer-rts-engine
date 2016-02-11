@@ -13,7 +13,6 @@ if (node) {
         _blocks: {},
         _allowOnMapTypeId: null,
         _allowOnObjTypeId: null,
-        _maxLevel: null,
 
         init: function(gameData, initObj){
 
@@ -29,7 +28,6 @@ if (node) {
                     this._blocks,
                     this._allowOnMapTypeId,
                     this._allowOnObjTypeId,
-                    this._maxLevel
 
                     ];
             return o;
@@ -42,7 +40,6 @@ if (node) {
                     this._blocks = o.a2[1];
                     this._allowOnMapTypeId = o.a2[2];
                     this._allowOnObjTypeId = o.a2[3];
-                    this._maxLevel = o.a2[4];
 
             }
             else {
