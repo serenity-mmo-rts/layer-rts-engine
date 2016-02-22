@@ -5,9 +5,11 @@ if (node) {
     var MapObject = require('../MapObject').MapObject;
     var mapObjectStates = require('../MapObject').mapObjectStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
+    var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
     var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
+
 }
 
 (function (exports) {
@@ -141,6 +143,11 @@ if (node) {
 
             console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
             this._super();
+
+         //  var dueTime = 10000;
+         //  this.callbackId =  TimeScheduler.addCallback(this.finish,dueTime);
+         //   TimeScheduler.changeDueTime(this.callbackId, dueTime)
+
         },
 
         executeOnServer: function () {

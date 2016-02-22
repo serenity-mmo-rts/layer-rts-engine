@@ -1,6 +1,8 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var MapObject = require('../MapObject').MapObject;
+    var Item = require('../Item').Item;
 }
 
 (function (exports) {
@@ -18,18 +20,6 @@ if (node) {
 
         // Define helper member variables:
         this._mapObject = null;
-
-
-        // TODO: I guess there is no need for the following variables to be persistent member variables of the Feature.
-        // Therefore, please check if these can be made local variables or state variables?
-        this._executeIndex = 0;
-        this._variables = [];
-        this._blocks = [];
-        this._operators = [];
-        this._changes = [];
-        this._currentTargetObjectIds = [];
-        this._currentTargetItemIds = [];
-
     };
 
     /**
@@ -56,37 +46,37 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-
+            {_executeIndex:null},
+            {_processedStack:[]}
         ];
     };
 
-    proto.checkStackExecution = function(active){
+    /**
+     * processes the feature Script stack
+     */
+    proto.checkStackExecution = function(active) {
+
         var process = true;
         this._executeIndex = this.getExecutionIdx();
-        while (process == true && this._executeIndex < this._stack.length){
-            if (this._executeIndex ==0){
-                var processedStack = null;
-                var remainingStack = this._stack;
-            }
-            else{
-                remainingStack  = [];
-                for (var i = this._executeIndex; i < this._stack.length; i++) {
-                    remainingStack.push(this._stack[i]);
-                }
-            }
-            if (remainingStack.length >0){
-                var currentOperation = remainingStack[0];
-                var out =  this.processStack(processedStack,currentOperation,active);
-                process = out[0];
-                if (process) {
-                    processedStack = out[1];
-                    this._executeIndex +=1;
-                }
-            }
-            else {
-                process = false;
-            }
+        if (this._executeIndex==0){
+            var formerOperation = null;
         }
+
+        // execute script iterative
+        while (process == true && this._executeIndex < this._stack.length) {
+            var currentOperation = this._stack[this._executeIndex];
+            if (this._executeIndex>0){
+                formerOperation = this._processedStack[this._executeIndex-1];
+            }
+            process = this.processStack(formerOperation, currentOperation,active);
+            this._executeIndex += 1;
+        }
+
+        //  subtract 1 to get correct execution index
+            this._executeIndex -= 1;
+
+        // notify change
+        this.notifyStateChange();
 
     };
 
@@ -103,177 +93,191 @@ if (node) {
         this._executeIndex=value;
     };
 
-    proto.restartExecutation = function() {
-        this._currentTargetObjectIds = [];
-        this._currentTargetItemIds = [];
+    proto.restartExecution = function() {
+        this._processedStack = [];
         this.setExecutionIdx(0);
         this.checkStackExecution(false);
     };
 
     /**
      *
-     * @param processedStack
+     * @param formerOperation
      * @param currentOperation
      * @param active
      * @returns {*[]}
      */
-    proto.processStack = function(processedStack,currentOperation,active){
+    proto.processStack = function(formerOperation,currentOperation,active){
 
 
         var name = Object.keys(currentOperation)[0];
+        var process = true;
 
         switch(name){
+
             case "getParentItem":
-                var newStack = this.getParentItem(processedStack);
-                var allow = true;
+                this.getParentItem(formerOperation);
                 break;
             case "getParentObj":
-                var newStack = this.getParentObj(processedStack);
-                var allow = true;
+                this.getParentObj(formerOperation);
                 break;
             case "getObjInRange":
-                var newStack = this.getObjInRange(processedStack,currentOperation[name]); //range
-                var allow = true;
+                this.getObjInRange(formerOperation,currentOperation[name]); //range
                 break;
             case "AddToProp":
-                this.addToProp(processedStack,currentOperation[name].vars,currentOperation[name].blocks,currentOperation[name].operator,currentOperation[name].values); // property,change, mode (1= baseline)
-                var newStack = processedStack;
-                var allow = true;
+                this.addToProp(formerOperation,currentOperation[name].vars,currentOperation[name].blocks,currentOperation[name].operator,currentOperation[name].values); // property,change, mode (1= baseline)
                 break;
             case "activatePerClick":
-                var allow = this.activatePerClick(active);
-                var newStack = processedStack;
+                process = this.activatePerClick(active);
                 break;
             case "getItemsInObject":
-                var newStack = this.getItemsInObject(processedStack,currentOperation[1]);
-                var allow = true;
+                this.getItemsInObject(formerOperation,currentOperation[1]);
                 break;
-
-            // execute on map, build mapObject on execute
+            case "Wait":
+                this.Wait(currentOperation[0]);
+                break;
+            case "clear":
+                this.clear(currentOperation[0]);
+                break;
         }
 
-        return [allow, newStack]
+        return process
 
     };
 
 
-    proto.activatePerClick = function(active){
-        var allow = false;
-        if (active == true){
-            allow = true;
+
+    proto.Wait = function(waitingTime){
+        // create timed Event
+        tutu=1;
+    };
+
+    proto.clear = function(StackIdx){
+
+        var objects = this._processedStack[StackIdx].currentTargetObjectIds;
+        var items = this._processedStack[StackIdx].currentTargetItemIds;
+
+        // delete feature from all objects and items that used it
+        for (var i = 0; i<objects.length; i++) {
+            objects[i]._blocks.FeatureManager.removeItemId(this._itemId,StackIdx);
         }
-        return allow;
+
+        for (var i = 0; i<items.length; i++) {
+            objects[i]._blocks.FeatureManager.removeItemId(this._itemId,StackIdx);
+        }
+
+        this._processedStack[StackIdx] = null;
+    };
+
+    proto.activatePerClick = function(active){
+        this._processedStack[this._executeIndex] = active;
+        return active;
     };
 
     proto.getParentItem = function(feature){
-        if (feature == null){
-            return this.item;
+        if (feature==null || feature instanceof Boolean){
+            this._processedStack[this._executeIndex] = this.parent;
         }
-        else {
-            return feature.item;
+        else{
+            this._processedStack[this._executeIndex] = feature.parent;
         }
+
     };
 
     proto.getParentObj = function(item){
-        if (item == null){
-            return this._mapObject;
-        }
-        else {
-            return item.mapObject
-        }
-    };
-
-    proto.getObjInRange = function(coordiante,range){
-        if (coordiante == null){
-            var currentLocation= [this._mapObject.x,this._mapObject.y];
+        if (item==null || item instanceof Boolean){
+            this._processedStack[this._executeIndex] = this.parent._mapObj;
         }
         else{
-            var currentLocation= [coordiante.x,coordiante.y];
+            this._processedStack[this._executeIndex] = item._mapObj;
         }
-        return this._layer.mapData.getObjectsInRange(currentLocation,range,1);
 
     };
 
+    proto.getObjInRange = function(MapObjOrCoordinate,range){
+        if (MapObjOrCoordinate == null || MapObjOrCoordinate instanceof Boolean){
+            var currentLocation= [this.parent._mapObj.x,this.parent._mapObj.y];
+        }
+        else {
+            var currentLocation = [MapObjOrCoordinate.x, MapObjOrCoordinate.y];
+        }
+        this._processedStack[this._executeIndex] = this._layer.mapData.getObjectsInRange(currentLocation,range,1);
+    };
 
     proto.addToProp = function(itemsOrObjects,variable,block,operator,change){
+        this._processedStack[this._executeIndex] = {
+            variables:variable,
+            blocks:block,
+            operators:operator,
+            changes:change,
+            currentTargetObjectIds: [],
+            currentTargetItemIds: []
+        };
 
         if (itemsOrObjects instanceof Array) {
             for (var i = 0; i < itemsOrObjects.length; i++) {
                 var itemOrObject = itemsOrObjects[i];
-
-                var success = this.applyFeature(this._itemId, itemOrObject, variable, block, operator, change);
-                var targetId = itemOrObject._id;
-                if (success) {
-                    if (itemOrObject.hasOwnProperty("objTypeId")) {
-                        if (this._currentTargetObjectIds.indexOf(targetId)<0){
-                            this._currentTargetObjectIds.push(targetId);
-                            itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
-                        }
-                    }
-                    else {
-                        if (this._currentTargetItemIds.indexOf(targetId)<0) {
-                            this._currentTargetItemIds.push(targetId);
-                            itemOrObject._blocks.FeatureManager.addItemId(this._itemId);
-                        }
-                    }
-                    itemOrObject._blocks.FeatureManager.setState(true);
-                }
+                this.addTargets(itemOrObject, variable, block);
             }
         }
+
         else{
-            var success = this.applyFeature(this._itemId, itemsOrObjects, variable, block, operator, change);
-            var targetId = itemsOrObjects._id;
-            if (success) {
-                if (itemsOrObjects.hasOwnProperty("objTypeId")) {
-                    if (this._currentTargetObjectIds.indexOf(targetId)<0) {
-                        this._currentTargetObjectIds.push(targetId);
-                        itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
-
-                    }
-                }
-                else {
-                    if (this._currentTargetItemIds.indexOf(targetId)<0) {
-                        this._currentTargetItemIds.push(targetId);
-                        itemsOrObjects._blocks.FeatureManager.addItemId(this._itemId);
-                    }
-                }
-                itemsOrObjects._blocks.FeatureManager.setState(true);
-
-            }
-
+            this.addTargets(itemsOrObjects, variable, block);
         }
     };
 
-    proto.applyFeature = function(itemId,itemOrObj,variables,blocks,operators,changes){
-        var blockValid = true;
-        var varValid = true;
-        // check if block and variable exit exist
+    proto.addTargets= function(itemOrObject, variable, block){
+        var success = this.checkValidity(itemOrObject, variable, block);
+        if (success) {
+            if (itemOrObject.hasOwnProperty("objTypeId")){
+                this.addObjTargets(itemOrObject);
+            }
+            else{
+                this.addItemTargets(itemOrObject);
+            }
+        }
+    };
+
+    proto.checkValidity = function(itemOrObj,variables,blocks){
+        var valid = true;
+        // check if block and variable exist
         for (var i = 0; i<blocks.length; i++){
-
-            if (!itemOrObj._blocks.hasOwnProperty(blocks[i])) {
-                blockValid = false;
-                if (!itemOrObj._blocks.hasOwnProperty(blocks[i]).hasOwnProperty(variables[i])) {
-                    var varValid = false;
+            if (itemOrObj._blocks.hasOwnProperty(blocks[i])) {
+                if (!itemOrObj._blocks[blocks[i]]._typeCache.hasOwnProperty(variables[i])) {
+                    valid = false;
                 }
             }
+            else{
+                valid = false;
+            }
         }
-
-        if (blockValid && varValid){
-            this._variables= variables;
-            this._blocks  = blocks;
-            this._operators = operators;
-            this._changes =changes;
-            return true;
-        }
-        else{
-            return false;
-        }
+        return valid
     };
+
+    proto.addObjTargets= function(object){
+        var targetId = object._id;
+        if (this._processedStack[this._executeIndex].currentTargetObjectIds.indexOf(targetId)<0){
+            this._processedStack[this._executeIndex].currentTargetObjectIds.push(targetId);
+            object._blocks.FeatureManager.addItemId(this._itemId,this._executeIndex);
+        }
+        object._blocks.FeatureManager.setState(true);
+    };
+
+    proto.addItemTargets= function(item){
+        var targetId = item._id;
+        if (this._processedStack[this._executeIndex].currentTargetItemIds.indexOf(targetId)<0) {
+            this._processedStack[this._executeIndex].currentTargetItemIds.push(targetId);
+            item._blocks.FeatureManager.addItemId(this._itemId,this._executeIndex);
+        }
+        item._blocks.FeatureManager.setState(true);
+    };
+
+
+
 
 
     proto.getItemsInObject = function(object,itemTypeIds){
         if (itemTypeIds  == null){
-            return object.getItems()
+            this._processedStack[this._executeIndex] = object.getItems();
         }
         else{
 
