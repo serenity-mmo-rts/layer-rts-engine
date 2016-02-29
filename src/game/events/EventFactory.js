@@ -6,6 +6,7 @@ if (node) {
     var BuildUpgradeEvent = require('./BuildUpgradeEvent').BuildUpgradeEvent;
     var BuildConnectionEvent = require('./BuildConnectionEvent').BuildConnectionEvent;
     var LevelUpgradeEvent = require('./LevelUpgradeEvent').LevelUpgradeEvent;
+    var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
 }
 
 (function (exports) {
@@ -23,6 +24,9 @@ if (node) {
         }
         else if (initObj._type == "LevelUpgradeEvent") {
             event = new LevelUpgradeEvent(gameData,initObj);
+        }
+        else if (initObj._type == "ActivateFeatureEvent") {
+            event = new ActivateFeatureEvent(gameData,initObj);
         }
         return event;
     };

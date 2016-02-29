@@ -100,7 +100,7 @@ if (node) {
             console.log("item: "+this._item._id+" upgrade completed");
 
             this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
-            this._item.setLevel(this._desiredLevel);
+            this._item.setLevel(this._desiredLevel,this.dueTime);
 
             this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
 

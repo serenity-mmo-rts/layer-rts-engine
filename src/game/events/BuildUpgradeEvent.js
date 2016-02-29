@@ -106,7 +106,7 @@ if (node) {
 
             this._gameData.layers.get(this._mapId).mapData.addItem(item);
             item.setPointers();
-            item._blocks.Feature.checkStackExecution(false);
+            item._blocks.Feature.startExecution(this.dueTime);
 
             this._parentObject.setState(2);
             this._parentObject._blocks.UpgradeProduction.removeItemFromQueue(0);

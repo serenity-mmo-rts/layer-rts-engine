@@ -19,19 +19,23 @@ if (node) {
         this.callbacks = {};
         this.sortedDueTimes = [];
         this.sortedCallbackIds = [];
-        this.idx = 0;
+        this.idx = -1;
     };
 
     TimeScheduler.prototype = {
 
+
         /**
-         * Adds new callback to Callback Object
+         *
+         * @param callback
+         * @param dueTime
+         * @returns {id}
          */
         addCallback: function (callback,dueTime) {
             this.idx +=1;
             var callbackId = this.idx;
             this.callbacks[callbackId] = callback;
-            this.setDueTime(callbackId,dueTime);
+            this._addDueTimeAndID(callbackId,dueTime);
             return callbackId;
         },
 
@@ -41,7 +45,7 @@ if (node) {
         removeCallback: function (callbackId) {
             var callback = this.callbacks[callbackId];
             if(callback) {
-                this.callbacks.deleteById(callbackId);
+                delete this.callbacks[callbackId];
                 this._removeDueTimeAndID(callbackId);
             }
             else{
@@ -75,12 +79,10 @@ if (node) {
             // this function is doing nothing if the event does not exist in scheduler:
             var callback = this.callbacks[callbackId];
             if(callback) {
-                this._removeDueTimeAndID(callbackId,dueTime);
+                this._removeDueTimeAndID(callbackId);
                 this._addDueTimeAndID(callbackId,dueTime);
             }
-            else{
-                console.log("Error no callback found with callbackId:"+callbackId);
-            }
+
         },
 
         /**
@@ -98,7 +100,7 @@ if (node) {
                 // Recalculate the current DuetTime and check if it is really finished:
 
                 if (curDueTime <= time){
-                    var newDueTime = curCallback(curDueTime);
+                    var newDueTime = curCallback(curDueTime,curId);
                     this.setDueTime(curId,newDueTime);
                     // check whether due time was updated or callback was due (newDueTime = Infinite)
                     if (!isFinite(newDueTime)) {

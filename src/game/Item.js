@@ -58,7 +58,7 @@ if (node) {
             this._mapObj.notifyChange();
         },
 
-        setLevel: function(lvl) {
+        setLevel: function(lvl,curTime) {
             if (lvl!=this._level){
                 this._level = lvl;
 
@@ -68,7 +68,7 @@ if (node) {
                 }
 
                 if (this._blocks.hasOwnProperty("Feature")) {
-                    this._blocks.Feature.restartExecution();
+                    this._blocks.Feature.startExecution(curTime);
                 }
 
                 this._mapObj.notifyChange();

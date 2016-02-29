@@ -3,6 +3,8 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
+    var ActivateFeatureEvent = require('../events/ActivateFeatureEvent').ActivateFeatureEvent;
+    var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
 }
 
 (function (exports) {
@@ -20,6 +22,7 @@ if (node) {
 
         // Define helper member variables:
         this._mapObject = null;
+        this._timeCallbackId = null;
     };
 
     /**
@@ -46,29 +49,59 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_executeIndex:null},
-            {_processedStack:[]}
+            {_executeIndex:0},
+            {_processedStack:{
+                effects: [],
+                isActivated: null,
+                lastActivationTime:null,
+                dueTime:null,
+                parentObject: null,
+                parentItem:null
+                }
+            }
         ];
     };
 
     /**
-     * processes the feature Script stack
+     * activates Feature per user click
      */
-    proto.checkStackExecution = function(active) {
+    proto.activate = function(startedTime) {
+        this.checkStackExecution(true,startedTime);
+    };
 
-        var process = true;
-        this._executeIndex = this.getExecutionIdx();
-        if (this._executeIndex==0){
-            var formerOperation = null;
+    proto.startExecution = function(curTime) {
+        this.removeItemFromFeatureManagers();
+        this.setInitStateVars();
+        this.checkStackExecution(false,curTime);
+    };
+
+
+    /**
+     *
+     * @param active
+     * @param startedTime
+     */
+    proto.checkStackExecution = function(flag,startedTime) {
+
+        // set defaults
+        if (arguments.length==0){
+            var flag =false;
+            var startedTime = Infinity;
         }
+        else if (arguments.length==1){
+            var startedTime = Infinity;
+        }
+
+        var formerOperation = null;
+        var out = null;
+        var process = true;
 
         // execute script iterative
         while (process == true && this._executeIndex < this._stack.length) {
             var currentOperation = this._stack[this._executeIndex];
-            if (this._executeIndex>0){
-                formerOperation = this._processedStack[this._executeIndex-1];
-            }
-            process = this.processStack(formerOperation, currentOperation,active);
+            out  = this.processStack(formerOperation, currentOperation,flag,startedTime);
+            formerOperation = out[0];
+            process = out[1];
             this._executeIndex += 1;
         }
 
@@ -78,139 +111,138 @@ if (node) {
         // notify change
         this.notifyStateChange();
 
-    };
 
-    proto.getExecutionIdx = function(){
-        if (this._executeIndex==null){
-            return 0;
-        }
-        else{
-            return this._executeIndex
-        }
-    };
-
-    proto.setExecutionIdx = function(value){
-        this._executeIndex=value;
-    };
-
-    proto.removeItemFromFeatureManagers= function() {
-
-        for (var i = 0; i<this._processedStack.length;i++){
-            var stack = this._processedStack[i];
-            if (stack.hasOwnProperty("currentTargetObjectIds")){
-                for (var k = 0; k<stack.currentTargetObjectIds.length;k++){
-                    var object=  this._layer.mapData.mapObjects.get(stack.currentTargetObjectIds[k]);
-                    object._blocks.FeatureManager.removeItem(this._itemId);
-                }
-
-                for (var k = 0; k<stack.currentTargetItemIds.length;k++){
-                    var object=  this._layer.mapData.mapObjects.get(stack.currentTargetItemIds[k]);
-                    object._blocks.FeatureManager.removeItem(this._itemId);
-                }
-            }
-        }
-    };
-
-
-    proto.restartExecution = function() {
-        this.removeItemFromFeatureManagers();
-        this._processedStack = [];
-        this.setExecutionIdx(0);
-        this.checkStackExecution(false);
     };
 
     /**
      *
      * @param formerOperation
      * @param currentOperation
-     * @param active
+     * @param flag
      * @returns {*[]}
      */
-    proto.processStack = function(formerOperation,currentOperation,active){
+    proto.processStack = function(formerOperation,currentOperation,flag,startedTime){
 
 
         var name = Object.keys(currentOperation)[0];
         var process = true;
+        var out = null;
 
         switch(name){
-
-            case "getParentItem":
-                this.getParentItem(formerOperation);
-                break;
             case "getParentObj":
-                this.getParentObj(formerOperation);
+                out = this.getParentObj(formerOperation);
+                break;
+            case "getParentItem":
+                out =  this.getParentItem(formerOperation);
                 break;
             case "getObjInRange":
-                this.getObjInRange(formerOperation,currentOperation[name]); //range
-                break;
-            case "AddToProp":
-                this.addToProp(formerOperation,currentOperation[name].vars,currentOperation[name].blocks,currentOperation[name].operator,currentOperation[name].values); // property,change, mode (1= baseline)
-                break;
-            case "activatePerClick":
-                process = this.activatePerClick(active);
+                out = this.getObjInRange(formerOperation,currentOperation[name]); //range
                 break;
             case "getItemsInObject":
-                this.getItemsInObject(formerOperation,currentOperation[1]);
+                out = this.getItemsInObject(formerOperation,currentOperation[1]);
                 break;
-            case "Wait":
-                this.Wait(currentOperation[0]);
+            case "addToProp":
+                this.addToProp(formerOperation,currentOperation[name].vars,currentOperation[name].blocks,currentOperation[name].operator,currentOperation[name].values); // property,change, mode (1= baseline)
                 break;
             case "clear":
-                this.clear(currentOperation[0]);
+                this.clear(currentOperation.clear.effectIdx);
                 break;
+            case "wait":
+                process = this.wait(currentOperation.wait.waitingTime,startedTime);
+                break;
+            case "activatePerClick":
+                process = this.activatePerClick(flag,startedTime);
+                break;
+            case "goToExecutionIndex":
+                process = this.goToExecutionIndex(currentOperation.goToExecutionIndex.index);
+                break;
+
+
         }
+        return [out, process]
+    };
 
-        return process
-
+    proto.goToExecutionIndex = function(idx){
+        this.setExecutionIdx(idx-1);
+        return true;
     };
 
 
-
-    proto.Wait = function(waitingTime){
-        // create timed Event
-        tutu=1;
+    proto.setExecutionIdx = function(value){
+        this._executeIndex=value;
     };
 
-    proto.clear = function(StackIdx){
 
-        var objects = this._processedStack[StackIdx].currentTargetObjectIds;
-        var items = this._processedStack[StackIdx].currentTargetItemIds;
+    proto.wait = function(waitingTime,startedTime){
+
+        if (this._timeCallbackId !=null){ // re-enter with call back
+            this._timeCallbackId = null;
+            this._processedStack.lastActivationTime = this._processedStack.dueTime;
+            this._processedStack.dueTime = null;
+            return true;
+        }
+        else{ // enter first time, calculate dueTime and create callback
+            if (this._processedStack.lastActivationTime==null){
+                this._processedStack.dueTime = startedTime + waitingTime;
+            }
+            else {
+                this._processedStack.dueTime =  this._processedStack.lastActivationTime +waitingTime;
+            }
+
+            var self = this;
+            var callback = function(dueTime,callbackId){
+                //TO DO check whether event is really due
+                self._layer.timeScheduler.removeCallback(callbackId);
+                self.checkStackExecution();
+                return Infinity
+            };
+            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this._processedStack.dueTime);
+            return false;
+        }
+    };
+
+    proto.clear = function(effectIdx){
+
+        var objects = this._processedStack.effects[effectIdx].currentTargetObjectIds;
+        var items = this._processedStack.effects[effectIdx].currentTargetItemIds;
 
         // delete feature from all objects and items that used it
         for (var i = 0; i<objects.length; i++) {
-            objects[i]._blocks.FeatureManager.removeItemId(this._itemId,StackIdx);
+            var object = this._layer.mapData.mapObjects.get(objects[i]);
+             object._blocks.FeatureManager.removeItemId(this._itemId,effectIdx);
         }
 
         for (var i = 0; i<items.length; i++) {
-            objects[i]._blocks.FeatureManager.removeItemId(this._itemId,StackIdx);
+            var item = this._layer.mapData.items.get(items[i]);
+            item._blocks.FeatureManager.removeItemId(this._itemId,effectIdx);
         }
 
-        this._processedStack[StackIdx] = null;
+        this._processedStack.effects.splice(effectIdx,1);
+
+        return null;
     };
 
-    proto.activatePerClick = function(active){
-        this._processedStack[this._executeIndex] = active;
+
+    proto.activatePerClick = function(active,startedTime){
+        if (active){
+
+            this._processedStack.lastActivationTime = startedTime;
+            this._processedStack.isActivated = true;
+        }
+        else{
+            this._processedStack.isActivated = false;
+        }
         return active;
     };
 
-    proto.getParentItem = function(feature){
-        if (feature==null || feature instanceof Boolean){
-            this._processedStack[this._executeIndex] = this.parent;
-        }
-        else{
-            this._processedStack[this._executeIndex] = feature.parent;
-        }
-
+    proto.getParentItem = function(){
+        this._processedStack.parentItem = this.parent;
+        return this.parent;
     };
 
-    proto.getParentObj = function(item){
-        if (item==null || item instanceof Boolean){
-            this._processedStack[this._executeIndex] = this.parent._mapObj;
-        }
-        else{
-            this._processedStack[this._executeIndex] = item._mapObj;
-        }
-
+    proto.getParentObj = function(){
+        this._processedStack.parentObject  = this.parent._mapObj;
+        return this.parent._mapObj;
     };
 
     proto.getObjInRange = function(MapObjOrCoordinate,range){
@@ -220,39 +252,41 @@ if (node) {
         else {
             var currentLocation = [MapObjOrCoordinate.x, MapObjOrCoordinate.y];
         }
-        this._processedStack[this._executeIndex] = this._layer.mapData.getObjectsInRange(currentLocation,range,1);
+        return this._layer.mapData.getObjectsInRange(currentLocation,range,1);
     };
 
     proto.addToProp = function(itemsOrObjects,variable,block,operator,change){
-        this._processedStack[this._executeIndex] = {
-            variables:variable,
-            blocks:block,
-            operators:operator,
-            changes:change,
-            currentTargetObjectIds: [],
-            currentTargetItemIds: []
+
+        var changeObj = {
+        variables:variable,
+        blocks:block,
+        operators:operator,
+        changes:change,
+        currentTargetObjectIds: [],
+        currentTargetItemIds: []
         };
+        this._processedStack.effects.push(changeObj);
 
         if (itemsOrObjects instanceof Array) {
             for (var i = 0; i < itemsOrObjects.length; i++) {
                 var itemOrObject = itemsOrObjects[i];
-                this.addTargets(itemOrObject, variable, block);
+                this.addTargets(itemOrObject, variable, block,changeObj);
             }
         }
 
         else{
-            this.addTargets(itemsOrObjects, variable, block);
+            this.addTargets(itemsOrObjects, variable, block,changeObj);
         }
     };
 
-    proto.addTargets= function(itemOrObject, variable, block){
+    proto.addTargets= function(itemOrObject, variable, block,changeObj){
         var success = this.checkValidity(itemOrObject, variable, block);
         if (success) {
             if (itemOrObject.hasOwnProperty("objTypeId")){
-                this.addObjTargets(itemOrObject);
+                this.addObjTargets(itemOrObject,changeObj);
             }
             else{
-                this.addItemTargets(itemOrObject);
+                this.addItemTargets(itemOrObject,changeObj);
             }
         }
     };
@@ -273,27 +307,25 @@ if (node) {
         return valid
     };
 
-    proto.addObjTargets= function(object){
+    proto.addObjTargets= function(object,changeObj){
         var targetId = object._id;
-        if (this._processedStack[this._executeIndex].currentTargetObjectIds.indexOf(targetId)<0){
-            this._processedStack[this._executeIndex].currentTargetObjectIds.push(targetId);
-            object._blocks.FeatureManager.addItemId(this._itemId,this._executeIndex);
+        var effectCounter = this._processedStack.effects.length-1;
+        if (this._processedStack.effects[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
+            this._processedStack.effects[effectCounter].currentTargetObjectIds.push(targetId);
+            object._blocks.FeatureManager.addItemId(this._itemId,effectCounter);
         }
         object._blocks.FeatureManager.setState(true);
     };
 
-    proto.addItemTargets= function(item){
+    proto.addItemTargets= function(item,changeObj){
         var targetId = item._id;
-        if (this._processedStack[this._executeIndex].currentTargetItemIds.indexOf(targetId)<0) {
-            this._processedStack[this._executeIndex].currentTargetItemIds.push(targetId);
-            item._blocks.FeatureManager.addItemId(this._itemId,this._executeIndex);
+        var effectCounter = this._processedStack.effects.length-1;
+        if (this._processedStack.effects[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
+            this._processedStack.effects[effectCounter].currentTargetItemIds.push(targetId);
+            item._blocks.FeatureManager.addItemId(this._itemId,effectCounter);
         }
         item._blocks.FeatureManager.setState(true);
     };
-
-
-
-
 
     proto.getItemsInObject = function(object,itemTypeIds){
         if (itemTypeIds  == null){
@@ -303,6 +335,28 @@ if (node) {
 
         }
     };
+
+    proto.removeItemFromFeatureManagers= function() {
+
+        for (var i = 0; i<this._processedStack.effects.length;i++){
+            var objectIds= this._processedStack.effects[i].currentTargetObjectIds;
+            var itemIds= this._processedStack.effects[i].currentTargetItemIds;
+
+                for (var k = 0; k<objectIds.length;k++){
+                    var object=  this._layer.mapData.mapObjects.get(objectIds[k]);
+                    object._blocks.FeatureManager.removeItem(this._itemId);
+                }
+
+                for (var k = 0; k<itemIds.length;k++){
+                    var item =  this._layer.mapData.items.get(itemIds[k]);
+                    item._blocks.FeatureManager.removeItem(this._itemId);
+                }
+
+        }
+    };
+
+
+
 
     proto.checkSelect = function(currentTarget){
         if (this._properties._canSelect){
@@ -342,10 +396,7 @@ if (node) {
         this._itemId = this.parent._id;
         this._layer= this.parent.gameData.layers.get(this.parent._mapId);
         this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
-        this.checkStackExecution(false);
     };
-
-
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.

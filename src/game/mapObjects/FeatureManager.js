@@ -47,7 +47,7 @@ if (node) {
         return [
             {_change: false},
             {_appliedItemIds: []},
-            {_appliedItemStackIdx: []}
+            {_appliedEffectIndex: []}
         ];
     };
 
@@ -69,7 +69,7 @@ if (node) {
         else if (positions instanceof Array){
             var insert = true;
             for (var i = 0;i<positions.length;i++) {
-                if (this._appliedItemStackIdx[positions[i]] == stackIdx) {
+                if (this._appliedEffectIndex[positions[i]] == stackIdx) {
                     insert = false;
                 }
             }
@@ -78,7 +78,7 @@ if (node) {
             }
         }
         else {
-            if (!this._appliedItemStackIdx[positions]== stackIdx){
+            if (!this._appliedEffectIndex[positions]== stackIdx){
                 this.insertItem(itemId,stackIdx);
             }
         }
@@ -86,7 +86,7 @@ if (node) {
 
     proto.insertItem = function(itemId,stackIdx){
         this._appliedItemIds.push(itemId);
-        this._appliedItemStackIdx.push(stackIdx);
+        this._appliedEffectIndex.push(stackIdx);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
@@ -102,15 +102,17 @@ if (node) {
     proto.removeItemId = function(itemId,stackIdx){
         var positions = this._appliedItemIds.indexOf(itemId);
         if (positions instanceof Array){
-            var helpArray = this._appliedItemStackIdx[positions];
-            var subPosition = this._appliedItemStackIdx.indexOf(stackIdx);
+            var helpArray = this._appliedEffectIndex[positions];
+            var subPosition = this._appliedEffectIndex.indexOf(stackIdx);
             var finalPosition = positions[subPosition];
         }
         else{
             var finalPosition = positions;
         }
         this._appliedItemIds.splice(finalPosition, 1);
-        this._appliedItemStackIdx.splice(finalPosition, 1);
+        this._appliedEffectIndex.splice(finalPosition, 1);
+        this.notifyStateChange();
+        this.updateObjectProperties();
     };
 
     /**
@@ -121,11 +123,12 @@ if (node) {
     proto.removeItem= function(itemId){
         var positions = this._appliedItemIds.indexOf(itemId);
         this._appliedItemIds.splice(positions, 1);
-        this._appliedItemStackIdx.splice(positions, 1);
+        this._appliedEffectIndex.splice(positions, 1);
+        this.notifyStateChange();
+        this.updateObjectProperties();
     };
 
     proto.updateObjectProperties = function () {
-
 
         this.parent.setInitTypeVars();
 
@@ -143,13 +146,13 @@ if (node) {
             var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds[i]);
             // sanity Check
 
-            if (item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
+            if (item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
 
                 // get block values
-                var variables = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].variables;
-                var blocks = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].blocks;
-                var operators = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].operators;
-                var changes = item._blocks.Feature._processedStack[this._appliedItemStackIdx[i]].changes;
+                var variables = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].variables;
+                var blocks = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].blocks;
+                var operators = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].operators;
+                var changes = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].changes;
 
                 // loop over block type variables
                 for (var k=0; k< blocks.length; k++) {
@@ -195,8 +198,8 @@ if (node) {
         }
 
         this.setState(false);
-
-    }
+        this.parent.notifyChange();
+    };
 
 
 

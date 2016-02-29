@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('./GameList').GameList;
     var EventScheduler = require('./layer/EventScheduler').EventScheduler;
+    var TimeScheduler = require('./layer/TimeScheduler').TimeScheduler;
     var MapData = require('./layer/MapData').MapData;
 }
 
@@ -16,6 +17,7 @@ if (node) {
 
         // not serialized:
         this.eventScheduler = new EventScheduler(gameData);
+        this.timeScheduler = new TimeScheduler(gameData);
         this.mapData = new MapData(gameData,this);
         this.gameData = gameData;
 
