@@ -93,12 +93,11 @@ if (node) {
             var numEventsFinished = 0;
             var index = this.sortedCallbackIds.length-1;
             while(index>=0 && this.sortedDueTimes[index] <= time) {
-                var curCallback = this.callbacks[index];
-                var curDueTime = this.sortedDueTimes[index];
                 var curId = this.sortedCallbackIds[index];
+                var curDueTime = this.sortedDueTimes[index];
+                var curCallback = this.callbacks[curId];
 
                 // Recalculate the current DuetTime and check if it is really finished:
-
                 if (curDueTime <= time){
                     var newDueTime = curCallback(curDueTime,curId);
                     this.setDueTime(curId,newDueTime);

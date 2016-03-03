@@ -86,10 +86,10 @@ if (node) {
         // set defaults
         if (arguments.length==0){
             var flag =false;
-            var startedTime = Infinity;
+            var startedTime = this._processedStack.lastActivationTime;
         }
         else if (arguments.length==1){
-            var startedTime = Infinity;
+            var startedTime = this._processedStack.lastActivationTime;
         }
 
         var formerOperation = null;
@@ -163,7 +163,8 @@ if (node) {
     };
 
     proto.goToExecutionIndex = function(idx){
-        this.setExecutionIdx(idx-1);
+        this.setExecutionIdx(idx);
+        this.checkStackExecution(false,this._processedStack.lastActivationTime);
         return true;
     };
 
