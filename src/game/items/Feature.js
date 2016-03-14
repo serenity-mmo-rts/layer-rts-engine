@@ -122,8 +122,6 @@ if (node) {
      * @returns {*[]}
      */
     proto.processStack = function(formerOperation,currentOperation,flag,startedTime){
-
-
         var name = Object.keys(currentOperation)[0];
         var process = true;
         var out = null;
@@ -163,8 +161,7 @@ if (node) {
     };
 
     proto.goToExecutionIndex = function(idx){
-        this.setExecutionIdx(idx);
-        this.checkStackExecution(false,this._processedStack.lastActivationTime);
+        this.setExecutionIdx(idx-1);
         return true;
     };
 
@@ -187,14 +184,14 @@ if (node) {
                 this._processedStack.dueTime = startedTime + waitingTime;
             }
             else {
-                this._processedStack.dueTime =  this._processedStack.lastActivationTime +waitingTime;
+                this._processedStack.dueTime =  this._processedStack.lastActivationTime+waitingTime;
             }
 
             var self = this;
             var callback = function(dueTime,callbackId){
                 //TO DO check whether event is really due
                 self._layer.timeScheduler.removeCallback(callbackId);
-                self.checkStackExecution();
+                self.checkStackExecution(false,self._processedStack.lastActivationTime);
                 return Infinity
             };
             this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this._processedStack.dueTime);
