@@ -53,10 +53,13 @@ if (node) {
             {_processedStack:{
                 effects: [],
                 isActivated: null,
+                canBeActivated: null,
                 lastActivationTime:null,
                 dueTime:null,
                 parentObject: null,
-                parentItem:null
+                parentItem:null,
+                isHidden: null,
+                targetObject: null
                 }
             }
         ];
@@ -110,8 +113,7 @@ if (node) {
 
         // notify change
         this.notifyStateChange();
-
-
+        this._mapObject.notifyChange();
     };
 
     /**
@@ -154,10 +156,16 @@ if (node) {
             case "goToExecutionIndex":
                 process = this.goToExecutionIndex(currentOperation.goToExecutionIndex.index);
                 break;
-
-
+            case "deactivate":
+                process = this.deactivate();
+                break;
         }
         return [out, process]
+    };
+
+    proto.deactivate = function(){
+        this._processedStack.isActivated = false;
+        return true;
     };
 
     proto.goToExecutionIndex = function(idx){
@@ -226,9 +234,11 @@ if (node) {
 
             this._processedStack.lastActivationTime = startedTime;
             this._processedStack.isActivated = true;
+            this._processedStack.canBeActivated = false;
         }
         else{
             this._processedStack.isActivated = false;
+            this._processedStack.canBeActivated = true;
         }
         return active;
     };
