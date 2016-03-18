@@ -51,15 +51,17 @@ if (node) {
         return [
             {_executeIndex:0},
             {_processedStack:{
+                currentOperation: {},
                 effects: [],
-                isActivated: null,
-                canBeActivated: null,
+                isActivated: false,
+                canBeActivated: false,
                 lastActivationTime:null,
                 dueTime:null,
                 parentObject: null,
                 parentItem:null,
-                isHidden: null,
-                targetObject: null
+                isHidden: false,
+                targetType: null,
+                target: null
                 }
             }
         ];
@@ -68,15 +70,22 @@ if (node) {
     /**
      * activates Feature per user click
      */
-    proto.activate = function(startedTime) {
-        this.checkStackExecution(true,startedTime);
+    proto.activate = function(startedTime,target) {
+        if (arguments[1]!=null){
+            this._processedStack.target = target;
+        }
+        this._processedStack.lastActivationTime = startedTime;
+        this._processedStack.isActivated = true;
+        this.checkStackExecution();
     };
 
-    proto.startExecution = function(curTime) {
+    proto.startExecution = function(startedTime) {
+        this._processedStack.lastActivationTime = startedTime;
         this.removeItemFromFeatureManagers();
         this.setInitStateVars();
-        this.checkStackExecution(false,curTime);
+        this.checkStackExecution();
     };
+
 
 
     /**
@@ -84,16 +93,7 @@ if (node) {
      * @param active
      * @param startedTime
      */
-    proto.checkStackExecution = function(flag,startedTime) {
-
-        // set defaults
-        if (arguments.length==0){
-            var flag =false;
-            var startedTime = this._processedStack.lastActivationTime;
-        }
-        else if (arguments.length==1){
-            var startedTime = this._processedStack.lastActivationTime;
-        }
+    proto.checkStackExecution = function() {
 
         var formerOperation = null;
         var out = null;
@@ -102,7 +102,8 @@ if (node) {
         // execute script iterative
         while (process == true && this._executeIndex < this._stack.length) {
             var currentOperation = this._stack[this._executeIndex];
-            out  = this.processStack(formerOperation, currentOperation,flag,startedTime);
+            this._processedStack.currentOperation = currentOperation;
+            out  = this.processStack(formerOperation, currentOperation);
             formerOperation = out[0];
             process = out[1];
             this._executeIndex += 1;
@@ -123,7 +124,7 @@ if (node) {
      * @param flag
      * @returns {*[]}
      */
-    proto.processStack = function(formerOperation,currentOperation,flag,startedTime){
+    proto.processStack = function(formerOperation,currentOperation){
         var name = Object.keys(currentOperation)[0];
         var process = true;
         var out = null;
@@ -148,10 +149,12 @@ if (node) {
                 this.clear(currentOperation.clear.effectIdx);
                 break;
             case "wait":
-                process = this.wait(currentOperation.wait.waitingTime,startedTime);
+                process = this.wait(currentOperation.wait.waitingTime);
                 break;
             case "activatePerClick":
-                process = this.activatePerClick(flag,startedTime);
+                var back = this.activatePerClick(currentOperation.activatePerClick.targetType,currentOperation.activatePerClick.range);
+                out = back[0];
+                process = back[1];
                 break;
             case "goToExecutionIndex":
                 process = this.goToExecutionIndex(currentOperation.goToExecutionIndex.index);
@@ -163,23 +166,44 @@ if (node) {
         return [out, process]
     };
 
-    proto.deactivate = function(){
-        this._processedStack.isActivated = false;
-        return true;
+
+    proto.activatePerClick = function(target,range){
+
+        this._processedStack.targetType = target;
+        if (this._processedStack.isActivated){
+            this._processedStack.canBeActivated = false;
+        }
+        else{
+            this._processedStack.canBeActivated = true;
+        }
+
+
+        if (target == "self") {
+            return [null, this._processedStack.isActivated];
+        }
+
+        else if (target == "object"){
+
+            if (this._processedStack.target ==null){
+                return [null, false];
+            }
+            else{
+                return [this._processedStack.target, true];
+            }
+        }
+        else if (target == "item"){
+
+
+        }
+        else if (target == "coordinate"){
+
+
+        }
+
     };
 
-    proto.goToExecutionIndex = function(idx){
-        this.setExecutionIdx(idx-1);
-        return true;
-    };
 
-
-    proto.setExecutionIdx = function(value){
-        this._executeIndex=value;
-    };
-
-
-    proto.wait = function(waitingTime,startedTime){
+    proto.wait = function(waitingTime){
 
         if (this._timeCallbackId !=null){ // re-enter with call back
             this._timeCallbackId = null;
@@ -188,12 +212,8 @@ if (node) {
             return true;
         }
         else{ // enter first time, calculate dueTime and create callback
-            if (this._processedStack.lastActivationTime==null){
-                this._processedStack.dueTime = startedTime + waitingTime;
-            }
-            else {
-                this._processedStack.dueTime =  this._processedStack.lastActivationTime+waitingTime;
-            }
+
+            this._processedStack.dueTime =  this._processedStack.lastActivationTime+waitingTime;
 
             var self = this;
             var callback = function(dueTime,callbackId){
@@ -228,19 +248,18 @@ if (node) {
         return null;
     };
 
+    proto.deactivate = function(){
+        this._processedStack.isActivated = false;
+        return true;
+    };
 
-    proto.activatePerClick = function(active,startedTime){
-        if (active){
+    proto.goToExecutionIndex = function(idx){
+        this.setExecutionIdx(idx-1);
+        return true;
+    };
 
-            this._processedStack.lastActivationTime = startedTime;
-            this._processedStack.isActivated = true;
-            this._processedStack.canBeActivated = false;
-        }
-        else{
-            this._processedStack.isActivated = false;
-            this._processedStack.canBeActivated = true;
-        }
-        return active;
+    proto.setExecutionIdx = function(value){
+        this._executeIndex=value;
     };
 
     proto.getParentItem = function(){
