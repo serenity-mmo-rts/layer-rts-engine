@@ -22,9 +22,19 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
+
         // Define helper member variables:
         this.helperVar = 22;
         this._mapId = this.parent.mapId;
+        this._timeCallbackId = null;
+        this.startedTime = null;
+        this.dueTime = null;
+
+        this.gameData = null;
+        this.mapObjectId = null;
+        this.mapId = null;
+        this.layer= null;
+        this.mapObject = null;
 
     };
 
@@ -53,23 +63,26 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {buildQueue: []}
+            {buildQueue: []},
+            {isRunning: false}
         ];
     };
 
     proto.levelUpgrade = function (item) {
-
         var evt = new LevelUpgradeEvent(game);
         evt.setItem(item);
         uc.addEvent(evt);
-
     };
 
     proto.setPointers = function () {
-        var buildQueueIds = this.buildQueue;
+        this.gameData = this.parent.gameData;
+        this.mapObjectId = this.parent._id;
+        this.mapId = this.parent.mapId;
+        this.layer= this.parent.gameData.layers.get(this.parent.mapId);
+        this.mapObject = this.layer.mapData.mapObjects.get(this.parent.objectId);
         this.buildQueue = [];
-        for (var i = 0; i < buildQueueIds.length; i++) {
-            this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]));
+        for (var i = 0; i < this.buildQueue.length; i++) {
+            this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueue[i]));
         }
     };
 
@@ -82,15 +95,40 @@ if (node) {
         this.buildQueue.splice(idx, 1);
     };
 
-
-    proto.checkQueue = function (currentTime) {
-        if (this.buildQueue.length > 0) {
-            if (this.buildQueue[0]._state == eventStates.VALID) {
-                this.buildQueue[0].start(currentTime);
-            }
+    proto.checkQueue = function (startedTime) {
+        if (this.buildQueue.length > 0 && this.isRunning==false) {
+            this.isRunning = true;
+            var evt = this.buildQueue[0];
+            var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[0];
+            this.startedTime = startedTime;
+            this.dueTime = startedTime + buildTime;
+            var self = this;
+            var callback = function(dueTime,callbackId) {
+                self.layer.timeScheduler.removeCallback(callbackId);
+                var item = new Item(self.gameData, {_id: evt._newItemId, _objectId: self.mapObjectId, _itemTypeId: evt._itemTypeId, _mapId: evt._mapId, _level: 1});
+                console.log("item: "+evt._newItemId+" production completed");
+                self.layer.mapData.addItem(item);
+                item.setPointers();
+                item._blocks.Feature.startExecution(dueTime);
+                self.parent.setState(2);
+                self.removeItemFromQueue(0);
+                self.isRunning = false;
+                self.checkQueue(dueTime);
+                return Infinity;
+            };
+            this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+            console.log("I start building a " + evt._itemTypeId + " in map Object" +this.mapObjectId);
         }
+    };
 
-    }
+
+    proto.progress= function(){
+        var totalTimeNeeded = this.dueTime -this.startedTime;
+        var currentTime  = Date.now();
+        var timeLeft =  this.dueTime-currentTime;
+        var percent = (timeLeft/totalTimeNeeded)*100;
+        return 100-percent
+    };
 
 
     /**

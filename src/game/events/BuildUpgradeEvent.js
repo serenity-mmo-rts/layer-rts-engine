@@ -44,25 +44,26 @@ if (node) {
         },
 
         execute: function () {
-
             this._newItemId = 'tmpId'+Math.random();
-
+            this.start(Date.now() + ntp.offset());
             this._parentObject._blocks.UpgradeProduction.addItemEventToQueue(this);
-            this._parentObject._blocks.UpgradeProduction.checkQueue(Date.now());
-            console.log("I start building a " + this._itemTypeId + " in map Object" +this._parentObjectId);
+            this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            console.log("Added" + this._itemTypeId + " to BuildQue in Map Object" +this._parentObjectId);
             this._super();
         },
 
         executeOnServer: function () {
             var self = this;
-            this._newItemId = (new mongodb.ObjectID()).toHexString()
+            this._newItemId = (new mongodb.ObjectID()).toHexString();
+            this.start(Date.now());
             this._parentObject._blocks.UpgradeProduction.addItemEventToQueue(this);
-            this._parentObject._blocks.UpgradeProduction.checkQueue(Date.now());
+            this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
             this._super();
         },
 
         executeOnOthers: function() {
             this._parentObject._blocks.UpgradeProduction.addItemEventToQueue(this);
+
             this._super();
         },
 
@@ -70,6 +71,7 @@ if (node) {
             this._super(event);
             console.log("replace tmp Item ID: "+this._newItemId+" by new id from server: "+event._newItemId);
             this._newItemId = event._newItemId;
+            this._startedTime = event._startedTime;
         },
 
         start: function(startTime){
@@ -78,26 +80,8 @@ if (node) {
             this.saveToDb();
         },
 
-        progress: function(){
-           var totalTimeNeeded = this._dueTime -this._startedTime;
-           var currentTime  = Date.now();
-           var timeLeft =  this._dueTime-currentTime;
-           var percent = (timeLeft/totalTimeNeeded)*100;
-           return 100-percent
-        },
 
-        updateDueTime: function(){
-            if (this._startedTime) {
-                var buildTime = this._gameData.itemTypes.get(this._itemTypeId)._buildTime[0];
-                this.setDueTime(this._startedTime + buildTime);
-            }
-            else {
-                console.log('error: started time was not set...')
-                this.setDueTime(0);
-            }
-        },
-
-
+/**
         finish: function () {
 
             console.log("item: "+this._newItemId+" production completed");
@@ -114,6 +98,7 @@ if (node) {
 
             this._super();
         },
+ **/
 
         save: function () {
             var o = this._super();

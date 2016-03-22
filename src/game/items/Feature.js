@@ -425,6 +425,10 @@ if (node) {
         this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
     };
 
+    proto.removePointers  = function(){
+        this.removeItemFromFeatureManagers();
+    };
+
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
