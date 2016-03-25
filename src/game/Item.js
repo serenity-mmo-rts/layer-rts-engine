@@ -29,7 +29,7 @@ if (node) {
         this._objectId= null;
         this._itemTypeId = null;
         this._mapId= null;
-        this._level=0;
+        this._level=1;
         this._onChangeCallback= null;
         this._blocks = {};
 
@@ -61,16 +61,6 @@ if (node) {
         setLevel: function(lvl,curTime) {
             if (lvl!=this._level){
                 this._level = lvl;
-
-                // recalculate all type variables in all building blocks:
-                for (var blockName in this._blocks) {
-                    this._blocks[blockName].setInitTypeVars();
-                }
-
-                if (this._blocks.hasOwnProperty("Feature")) {
-                    this._blocks.Feature.startExecution(curTime);
-                }
-
                 this._mapObj.notifyChange();
             }
         },

@@ -1,12 +1,10 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
+   // var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
     var mapObjectStates = require('../MapObject').mapObjectStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
-    var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
-    var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
 
@@ -16,16 +14,20 @@ if (node) {
 
     var BuildObjectEvent = AbstractEvent.extend({
 
+        // serialized
         _type: "BuildObjectEvent",
-        _mapObj : null,
+        mapObjId: null,
+        x: null,
+        y: null,
+        mapObjTypeId: null,
+        connectedFrom: null,
+        connectedTo: null,
+
+        //not serialized
+        _mapObj: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
-        },
-
-        setMapObject: function (mapObj) {
-            this._mapObj = mapObj;
-            this._mapId = this._mapObj.mapId;
         },
 
         isValid: function () {
@@ -131,120 +133,97 @@ if (node) {
             }
         },
 
-        execute: function () {
+        setCoordinates: function (coordinate) {
+            this.x = coordinate.x;
+            this.y = coordinate.y;
+        },
 
-            this._mapObj.state = mapObjectStates.WORKING;
-            this._mapObj._id = 'tmpId'+Math.random();
-            this.start(Date.now() + ntp.offset() );
+        setTargetConnection: function (connectionTo) {
+            this.connectedTo = connectionTo;
+        },
 
-            // make sure that the object is in gameData:
-            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
-            this._mapObj.setPointers();
+        setParameters: function (mapObj,connectionFrom) {
+            this.mapObjTypeId = mapObj.objTypeId;
+            this._mapObj = mapObj;
+            if (arguments.length==2){
+                this.connectedFrom = connectionFrom;
+            }
+        },
 
-            console.log("I build a " + this._mapObj.objTypeId + " at coordinates ("+ this._mapObj.x+","+this._mapObj.y+")");
-            this._super();
+        setPointers: function () {
+            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
+            if (this._mapObj._blocks.hasOwnProperty("Connection")){
+                this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
+            }
+        },
 
-         //  var dueTime = 10000;
-         //  this.callbackId =  TimeScheduler.addCallback(this.finish,dueTime);
-         //   TimeScheduler.changeDueTime(this.callbackId, dueTime)
-
+        executeOnClient: function () {
+            this.start(Date.now() + ntp.offset());
+            this.mapObjId  = 'tmpId'+Math.random();
+            this.execute();
         },
 
         executeOnServer: function () {
-            var self = this;
-            this._mapObj.state = mapObjectStates.WORKING;
-            this._mapObj._id = (new mongodb.ObjectID()).toHexString();
             this.start(Date.now());
-
-            // make sure that the object is in gameData:
-            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
-            this._mapObj.setPointers();
-
-            /*
-               This is now automagically done later in server.js ...
-
-            dbConn.get('mapObjects', function (err, collMapObjects) {
-                if (err) throw err;
-                collMapObjects.insert(self._mapObj.save(), function(err,docs) {
-                    if (err) throw err;
-                });
-            });*/
-
-            this._super();
-
+            this.mapObjId = (new mongodb.ObjectID()).toHexString();
+            this.execute();
         },
 
         executeOnOthers: function() {
-            // make sure that the object is in gameData:
-            this._gameData.layers.get(this._mapId).addObject(this._mapObj);
-            this._mapObj.setPointers();
-
-            this._super();
+            this.execute();
         },
+
+        execute: function () {
+            this._mapObj = null;
+            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
+
+            if (this._mapObj._blocks.hasOwnProperty("Connection")){
+                this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
+                this._mapObj._blocks.Connection.connectedTo = this.connectedTo;
+            }
+
+            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+            this._mapObj.setPointers();
+            this._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
+            this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+        },
+
 
         updateFromServer: function (event) {
+            console.log("replace tmp Object ID: "+this.mapObjId+" by new id from server: "+event.mapObjId);
+            this._gameData.layers.get(this._mapId).mapData.mapObjects.updateId(this.mapObjId,event.mapObjId);
+            this._mapObj._id = event.mapObjId;
+            this.mapObjId = event.mapObjId;
             this._super(event);
-            // update ID:
-            console.log("replace tmp Object ID: "+this._mapObj._id+" by new id from server: "+event._mapObj._id);
-            this._gameData.layers.get(this._mapId).mapData.mapObjects.updateId(this._mapObj._id,event._mapObj._id);
-            this._mapObj.notifyChange();
+            this._mapObj._blocks.UpgradeProduction.updateDueTime(event);
         },
 
-
-        start: function(startTime){
-            this._super(startTime);
-            this._mapObj.setState(mapObjectStates.WORKING);
-            this.saveToDb();
-        },
-
-        updateDueTime: function(){
-            if (this._startedTime) {
-                var buildTime = this._gameData.objectTypes.get(this._mapObj.objTypeId)._buildTime;
-                this.setDueTime(this._startedTime + buildTime);
-            }
-            else {
-                this.setDueTime(0);
-            }
-        },
-
-        finish: function () {
-            var self = this;
-            this._mapObj.setState(mapObjectStates.FINISHED);
-            this._mapObj.notifyChange();
-
-           /*
-            This is now automagically done later in server.js ...
-
-           if (node) {
-                dbConn.get('mapObjects', function (err, collMapObjects) {
-                    if (err) throw err;
-                    collMapObjects.save(self._mapObj.save(), function(err,docs) {
-                        if (err) throw err;
-                        console.log("updated map object in db");
-                    });
-                });
-            }*/
-
-            this._super();
+        revert: function() {
+            this._gameData.layers.get(this._mapId).mapData.removeObject(this._mapObj);
+            return true;
         },
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._mapObj.save()];
+            o.a2 = [this.mapObjId,
+                    this.x,
+                    this.y,
+                    this.mapObjTypeId,
+                    this.connectedFrom,
+                    this.connectedTo
+                    ];
             return o;
         },
 
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                var mapObjId = o.a2[0]._id;
-                if(this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId)) {
-                    this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId).load(o.a2[0]);
-                    this._mapObj = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(mapObjId);
-                }
-                else {
-                    this._mapObj = new MapObject(this._gameData,o.a2[0]);
-                }
+                this.mapObjId= o.a2[0];
+                this.x= o.a2[1];
+                this.y= o.a2[2];
+                this.mapObjTypeId= o.a2[3];
+                this.connectedFrom = o.a2[4];
+                this.connectedTo = o.a2[5];
             }
             else {
                 for (var key in o) {
@@ -253,12 +232,8 @@ if (node) {
                     }
                 }
             }
-        },
-
-        revert: function() {
-            this._gameData.layers.get(this._mapId).mapData.removeObject(this._mapObj);
-            return true;
         }
+
     });
 
     exports.BuildObjectEvent = BuildObjectEvent;

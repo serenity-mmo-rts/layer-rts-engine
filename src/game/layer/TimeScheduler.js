@@ -2,7 +2,6 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameList = require('../GameList').GameList;
     var AbstractEvent = require('./../events/AbstractEvent').AbstractEvent;
-    var eventStates = require('./../events/AbstractEvent').eventStates;
     var EventFactory = require('./../events/EventFactory');
     var dbConn = require('../../server/dbConnection');
 }

@@ -80,12 +80,7 @@ if (node) {
                 }
                 this.load(initObj);
             }
-
-
-
-
         },
-
 
         setPointers : function(){
 

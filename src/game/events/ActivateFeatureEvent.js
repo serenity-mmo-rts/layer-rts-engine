@@ -4,7 +4,6 @@ if (node) {
     var Item =require('../Item').Item;
     var itemStates =require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
-    var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
 }
@@ -15,15 +14,15 @@ if (node) {
 
         // states
         _type: "ActivateFeatureEvent",
-        _target: null,
-        _item: null,
+        _targetId: null,
+        _itemId: null,
         _targetType: null,
 
         // helpers
+        _target:null,
+        _item:null,
         _range: null,
         _mapObj: null,
-        _mapId: null,
-
 
 
         init: function(gameData, initObj){
@@ -35,19 +34,17 @@ if (node) {
             return true;
         },
 
-        setItem: function (item) {
+        setParameters: function (item,operation) {
             this._item = item;
-            this._mapId = this._item._mapId;
             this._mapObj = this._item._mapObj;
-        },
-
-        setActivationParameters: function (operation) {
             this._range = operation.activatePerClick.range;
+            this._itemId = this._item._id;
             this._targetType = operation.activatePerClick.targetType;
         },
 
-        setTarget: function (targetId) {
 
+        setTarget: function (targetId) {
+            this._targetId = targetId;
             if (this._targetType =="self"){
                 this._target = null;
             }
@@ -58,55 +55,64 @@ if (node) {
                 this._target = this._gameData.layers.get(this._mapId).mapData.items.get(targetId);
             }
             else if (this._targetType =="coordinate"){
-
             }
         },
 
-        execute: function () {
-            this.start(Date.now() + ntp.offset());
-            this._item._blocks.Feature.activate(this._startedTime,this._target);
+        setPointers: function(){
             this._super();
+            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
+
+            this._mapObj = this._item._mapObj;
+            this.setTarget(this._targetId);
+        },
+
+        executeOnClient: function () {
+            this.start(Date.now() + ntp.offset());
+            this.execute();
         },
 
         executeOnServer: function () {
             this.start(Date.now());
-            this._item._blocks.Feature.activate(this._startedTime,this._target);
-            this._super();
+            this.execute();
         },
 
-
         executeOnOthers: function() {
+            this.execute();
+        },
+
+        execute: function () {
             this._item._blocks.Feature.activate(this._startedTime,this._target);
-            this._super();
+            this.setFinished();
         },
 
         updateFromServer: function (event) {
             this._super(event);
+            this._item._blocks.Feature.activate(event._startedTime,this._target);
         },
 
-        start: function(startTime){
-            this._super(startTime);
-            //this._mapObj.setState(mapObjectStates.WORKING);
-            this.saveToDb();
+        revert: function() {
+
         },
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._item._id,
-                    this._target._id,
+            o.a2 = [this._itemId,
+                    this._targetId,
                     this._targetType
             ];
             return o;
         },
 
-        load: function (o) {
+        load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                var itemId = o.a2[0];
-                this._item = this._gameData.layers.get(this._mapId).mapData.items.get(itemId);
-                var targetId = o.a2[1];
+                this._itemId = o.a2[0];
+                this._targetId = o.a2[1];
                 this._targetType = o.a2[2];
-                this.setTarget(targetId);
+
+                if (arguments.length>1 && flag==true){
+                   this.setPointers();
+                }
 
             }
             else {
@@ -116,11 +122,9 @@ if (node) {
                     }
                 }
             }
-        },
-
-        revert: function() {
-
         }
+
+
     });
 
     exports.ActivateFeatureEvent = ActivateFeatureEvent;

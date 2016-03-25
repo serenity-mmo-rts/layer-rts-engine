@@ -7,32 +7,29 @@ if (node) {
 
 (function (exports) {
 
-    var eventStates = {};
-    eventStates.INITIALIZED = 0;
-    eventStates.INVALID = 1;
-    eventStates.VALID = 2; //PENDING
-    eventStates.EXECUTING = 3;
-    eventStates.FINISHED = 4;
 
     var AbstractEvent = Class.extend({
 
-        _gameData: null,
+       // serialized
         _id: null,
-        _type: "AbstractEvent",
-        _mapId: null,
-        _nextEvents: [],
-        _startedTime: null,
-        _dueTime: null,
-        _state: null,
         _userId: null,
+        _mapId: null,
+        _type: "AbstractEvent",
+        _startedTime: null,
+        _isFinished: false,
+
+        // not serialized
+        _gameData: null,
 
         init: function(gameData, initObj) {
             this._gameData = gameData;
             if (arguments.length == 1 || initObj==null ) {
                 // create new event
                 this._id = 'tmpId'+Math.random();
-                this._state = eventStates.INITIALIZED;
-                this._dueTime = 0;
+                if (!node){
+                    this._userId = uc.userId;
+                    this._mapId = uc.layerView.mapId;
+                }
             }
             else {
                 // deserialize event from json object
@@ -40,117 +37,77 @@ if (node) {
             }
         },
 
-        setMapId: function(mapId) {
-            this._mapId = mapId;
-        },
-
-        setInvalid: function () {
-            this._state = eventStates.INVALID;
-        },
-
-        setValid: function(){
-            this._state = eventStates.VALID;
-        },
-
-        setInitialized: function(){
-            this._state = eventStates.INITIALIZED;
-        },
-
         isValid: function () {
             //overwrite
         },
 
-        execute: function () {
-            // add event to scheduler:
-            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
+        setFinished: function(){
+            this._isFinished = true;
+            this._gameData.layers.get(this._mapId).eventScheduler.finishEvent(this);
+        },
+
+        setState: function(){
+            event.setValid()
+        },
+
+        executeOnClient: function () {
+            //overwrite
         },
 
         executeOnServer: function() {
-
-            this.saveToDb();
-
-            // add event to scheduler:
-            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
-
+            //overwrite
         },
 
         executeOnOthers: function() {
-            // add event to scheduler:
-            this._gameData.layers.get(this._mapId).eventScheduler.addEvent(this);
+            //overwrite
         },
 
-        finish: function () {
-
-            //  if (this._nextEvents.length > 0) {
-            //      this._nextEvents[0].start(this._dueTime);
-            //  }
-
-            this._state = eventStates.FINISHED;
-            console.log("finished event "+this._id);
-            this.saveToDb();
+        execute: function () {
+            //overwrite
         },
 
         start: function(curTime){
-            this._state = eventStates.EXECUTING;
-            console.log("starting event "+this._id);
             this._startedTime = curTime;
-            this.updateDueTime();
-
         },
 
-        saveToDb: function() {
-            if (node) {
-                // change event in db:
-                var self = this;
-                dbConn.get('mapEvents', function (err, collMapEvents) {
-                    if (err) throw err;
-                    collMapEvents.save(self.save(), {safe:true}, function(err,docs) {
-                        if (err) throw err;
-                        else {
-                            console.log("updated event "+self._id+" in db");
-                        }
-                    });
-                });
-            }
+
+        updateFromServer: function (event) {
+            console.log("replace tmp event Id: "+this._id+" by new id from server: "+event._id);
+            this._gameData.layers.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
+            this._id = event._id;
+            console.log("replace event execution time  "+this._startedTime+" by new execution time "+event._startedTime);
+            this._startedTime = event._startedTime;
         },
 
-        updateDueTime: function() {
-            //overwrite with a method to setDueTime
-            var myNewDueTime = 0000000;
-            this.setDueTime(myNewDueTime); // this call should be used in the function to set a new dueTime
+
+        revert: function() {
+            //overwrite
         },
 
-        setDueTime: function(dueTime){
-            if(dueTime!=this._dueTime) {
-                // notify event scheduler:
-                this._gameData.layers.get(this._mapId).eventScheduler.updateEventDueTime(this._id,dueTime);
-                this._dueTime = dueTime;
-            }
+        setPointers: function () {
+            //overwrite
         },
 
         save: function () {
             var o = {_id: this._id,
-                _type: this._type,
-                _mapId: this._mapId,
-                a: [this._nextEvent,
-                    this._startedTime,
-                    this._dueTime,
-                    this._state,
-                    this._userId]
-            };
-            return o;
+                    _userId: this._userId,
+                    _mapId: this._mapId,
+                    _type: this._type,
+                    a: [
+                        this._startedTime,
+                        this._state
+                    ]};
+        return o;
         },
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                this._type = o._type;
+                this._userId = o._userId;
                 this._mapId = o._mapId;
-                this._nextEvent = o.a[0];
-                this._startedTime = o.a[1];
-                this._dueTime = o.a[2];
-                this._state = o.a[3];
-                this._userId = o.a[4];
+                this._type = o._type;
+                this._startedTime = o.a[0];
+                this._state = o.a[1];
             }
             else {
                 for (var key in o) {
@@ -162,34 +119,10 @@ if (node) {
             if (typeof this._id != 'string') {
                 this._id = this._id.toHexString();
             }
-        },
-
-        updateFromServer: function (event) {
-
-            this._gameData.layers.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
-
-            //overwrite with method to bring this event up to date
-            this._gameData.layers.get(this._mapId).eventScheduler.events.updateId(this._id,event._id);
-            this._id = event._id;
-            this._state = event._state;
-            this._startedTime = event._startedTime;
-            this.updateDueTime();
-        },
-
-
-        revert: function() {
-            this._gameData.layers.get(this._mapId).eventScheduler.removeEvent(this._id);
-        },
-
-        setPointers: function () {
-
         }
-
-
 
     });
 
-    exports.eventStates = eventStates;
     exports.AbstractEvent = AbstractEvent;
 
 })(node ? exports : window);

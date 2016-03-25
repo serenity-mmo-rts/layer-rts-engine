@@ -2,11 +2,9 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
-    var mapObjectStates = require('../MapObject').mapObjectStates;
     var Item =require('../Item').Item;
     var itemStates =require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
-    var eventStates = require('./AbstractEvent').eventStates;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
 }
@@ -15,9 +13,15 @@ if (node) {
 
     var LevelUpgradeEvent = AbstractEvent.extend({
 
+        // serialized
         _type: "LevelUpgradeEvent",
+        _itemId:null,
+        _itemTypeId:null,
+        _parentObjectId:null,
+
+        // helper
         _item: null,
-        _desiredLevel: 0,
+        _parentObject: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -28,96 +32,53 @@ if (node) {
             return true;
         },
 
-        setItem: function (item) {
+        setParameters: function (item) {
             this._item = item;
-            this._desiredLevel = this._item.getLevel() +1;
-            this._mapId = this._item._mapId;
+            this._parentObject = this._item._mapObj;
+            this._parentObjectId = this._parentObject._id;
+            this._itemId = this._item._id;
+            this._itemTypeId = this._item._itemTypeId;
+},
+
+        setPointers: function(){
+            this._super();
+            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
+            this._parentObject = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._parentObjectId);
         },
 
-
-        execute: function () {
-            //  this._item._state = itemStates.WORKING;
-            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
-            this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
-            console.log("I upgraded a " + this._item._itemTypeId + " in map Object" +this._item._objectId);
-            this._super();
+        executeOnClient: function () {
+            this.start(Date.now() + ntp.offset());
+            this.execute();
         },
 
         executeOnServer: function () {
-
-            var self = this
-
-            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
-            this._item._mapObj._blocks.UpgradeProduction.checkQueue(Date.now());
-
-
-
-            this._super();
+            this.start(Date.now());
+            this.execute();
         },
 
-
         executeOnOthers: function() {
+            this.execute();
+        },
 
-            this._item._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
-            this._super();
+        execute: function () {
+            this._parentObject._blocks.UpgradeProduction.addItemEventToQueue(this);
+            this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
         updateFromServer: function (event) {
             this._super(event);
+            this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
         },
 
-        start: function(startTime){
-            this._super(startTime);
-            //this._item._mapObj.state = mapObjectStates.WORKING;
-            // this._item._mapObj.setState(mapObjectStates.WORKING);
-            // HACK
-            this._item._mapObj.setState(1);
-            this.saveToDb();
-        },
+        revert: function() {
 
-        progress: function(){
-            var totalTimeNeeded = this._dueTime -this._startedTime;
-            var currentTime  = Date.now();
-            var timeLeft =  this._dueTime-currentTime;
-            var percent = (timeLeft/totalTimeNeeded)*100;
-            return 100-percent
-        },
-
-        updateDueTime: function(){
-            if (this._startedTime) {
-                var buildTime = this._gameData.itemTypes.get(this._item._itemTypeId)._buildTime[this._desiredLevel-1];
-                this.setDueTime(this._startedTime + buildTime);
-            }
-            else {
-                this.setDueTime(0);
-            }
-        },
-
-
-        finish: function () {
-
-
-            console.log("item: "+this._item._id+" upgrade completed");
-
-            this._item._mapObj._blocks.UpgradeProduction.removeItemFromQueue(0);
-            this._item.setLevel(this._desiredLevel,this.dueTime);
-
-            this._item._mapObj._blocks.UpgradeProduction.checkQueue(this._dueTime);
-
-            //this._item._mapObj.setState(mapObjectStates.FINISHED);
-            // HACK
-            this._item._mapObj.setState(2);
-            this._item._mapObj.notifyChange();
-
-
-
-            this._super();
         },
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._item._id,
-                    this._desiredLevel
+            o.a2 = [this._itemId,
+                    this._parentObjectId,
+                    this._itemTypeId
             ];
             return o;
         },
@@ -125,10 +86,9 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                var itemId = o.a2[0];
-                this._desiredLevel= o.a2[1];
-                this._item = this._gameData.layers.get(this._mapId).mapData.items.get(itemId);
-
+                this._itemId = o.a2[0];
+                this._parentObjectId = o.a2[1];
+                this._itemTypeId = o.a2[2];
             }
             else {
                 for (var key in o) {
@@ -137,10 +97,6 @@ if (node) {
                     }
                 }
             }
-        },
-
-        revert: function() {
-
         }
     });
 
