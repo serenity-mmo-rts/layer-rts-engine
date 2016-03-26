@@ -57,7 +57,6 @@ if (node) {
                 canBeActivated: false,
                 lastActivationTime:null,
                 dueTime:null,
-                parentObject: null,
                 parentItem:null,
                 isHidden: false,
                 targetType: null,
@@ -268,7 +267,6 @@ if (node) {
     };
 
     proto.getParentObj = function(){
-        this._processedStack.parentObject  = this.parent._mapObj;
         return this.parent._mapObj;
     };
 
