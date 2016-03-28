@@ -75,9 +75,9 @@ if (node) {
 
         setPointers : function(){
             this.map = this.gameData.layers.get(this._mapId);
-            this._mapObj =  this.gameData.layers.get(this._mapId).mapData.mapObjects.get(this._objectId);
             this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
-            this._mapObj.items[this._id] = this;
+            this._mapObj =  this.map.mapData.mapObjects.get(this._objectId);
+            this._mapObj.addItem(this);
 
             // call all setPointer functions of the building blocks:
             for (var blockName in this._blocks) {

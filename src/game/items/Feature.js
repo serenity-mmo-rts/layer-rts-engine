@@ -67,6 +67,18 @@ if (node) {
         ];
     };
 
+    proto.setPointers  = function(){
+        this._itemId = this.parent._id;
+        console.log("parent Id=" + this.parent._id );
+        this._layer= this.parent.gameData.layers.get(this.parent._mapId);
+        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
+        this.addItemToFeatureManagers();
+    };
+
+    proto.removePointers  = function(){
+        this.removeItemFromFeatureManagers();
+    };
+
     /**
      * activates Feature per user click
      */
@@ -268,8 +280,8 @@ if (node) {
     };
 
     proto.getParentObj = function(){
-        this._processedStack.parentObject  = this.parent._mapObj;
-        return this.parent._mapObj;
+        this._processedStack.parentObject  = this._mapObject;
+        return this._mapObject;
     };
 
     proto.getObjInRange = function(MapObjOrCoordinate,range){
@@ -383,6 +395,26 @@ if (node) {
     };
 
 
+    proto.addItemToFeatureManagers= function() {
+
+        for (var i = 0; i<this._processedStack.effects.length;i++){
+            var objectIds= this._processedStack.effects[i].currentTargetObjectIds;
+            var itemIds= this._processedStack.effects[i].currentTargetItemIds;
+
+            for (var k = 0; k<objectIds.length;k++){
+                var object=  this._layer.mapData.mapObjects.get(objectIds[k]);
+                object._blocks.FeatureManager.addItemId(this._itemId,k);
+            }
+
+            for (var k = 0; k<itemIds.length;k++){
+                var item =  this._layer.mapData.items.get(itemIds[k]);
+                item._blocks.FeatureManager.addItemId(this._itemId,k);
+            }
+
+        }
+    };
+
+
 
 
     proto.checkSelect = function(currentTarget){
@@ -419,15 +451,7 @@ if (node) {
     };
 
 
-    proto.setPointers  = function(){
-        this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent._mapId);
-        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
-    };
 
-    proto.removePointers  = function(){
-        this.removeItemFromFeatureManagers();
-    };
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
