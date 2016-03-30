@@ -95,7 +95,7 @@ if (node) {
                     _type: this._type,
                     a: [
                         this._startedTime,
-                        this._state
+                        this._isFinished
                     ]};
         return o;
         },
@@ -107,7 +107,7 @@ if (node) {
                 this._mapId = o._mapId;
                 this._type = o._type;
                 this._startedTime = o.a[0];
-                this._state = o.a[1];
+                this._isFinished = o.a[1];
             }
             else {
                 for (var key in o) {

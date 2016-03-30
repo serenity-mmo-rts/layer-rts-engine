@@ -130,7 +130,7 @@ if (node) {
 
     proto.updateObjectProperties = function () {
 
-        this.parent.setInitTypeVars();
+      //  this.parent.setInitTypeVars(); // might be problematic
 
         // create change Object
         var toBeAdded = {};
