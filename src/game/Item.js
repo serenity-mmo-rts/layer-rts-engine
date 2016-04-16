@@ -19,11 +19,10 @@ if (node) {
     itemStates.TEMP = 0;
     itemStates.WORKING= 1;
     itemStates.FINSEHD = 2;
+    itemStates.HIDDEN = 3;
 
     var Item = function (gameData,initObj){
-
-
-        // serialized
+      // serialized
         this._state=itemStates.TEMP;
         this._id=null;
         this._objectId= null;

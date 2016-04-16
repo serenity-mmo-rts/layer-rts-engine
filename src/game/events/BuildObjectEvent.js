@@ -1,12 +1,15 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-   // var Class = require('../Class').Class;
+    var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
+    var Item = require('../Item').Item;
     var mapObjectStates = require('../MapObject').mapObjectStates;
+    var itemStates = require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection');
+    var dbConn = require('../../server/dbConnection')
+
 
 }
 
@@ -22,6 +25,8 @@ if (node) {
         mapObjTypeId: null,
         connectedFrom: null,
         connectedTo: null,
+        itemId: null,
+        sublayerId: null,
 
         //not serialized
         _mapObj: null,
@@ -158,14 +163,18 @@ if (node) {
         },
 
         executeOnClient: function () {
+            this.mapObjId  = 'tmpObjId'+Math.random();
+            this.itemId  = 'tmpItemId'+Math.random();
+            this.sublayerId  = 'tmpSublayerId'+Math.random();
             this.start(Date.now() + ntp.offset());
-            this.mapObjId  = 'tmpId'+Math.random();
             this.execute();
         },
 
         executeOnServer: function () {
-            this.start(Date.now());
             this.mapObjId = (new mongodb.ObjectID()).toHexString();
+            this.itemId = (new mongodb.ObjectID()).toHexString();
+            this.sublayerId = (new mongodb.ObjectID()).toHexString();
+            this.start(Date.now());
             this.execute();
         },
 
@@ -174,17 +183,40 @@ if (node) {
         },
 
         execute: function () {
-            this._mapObj = null;
-            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
+            if (node) {
+                var Layer = require('../Layer').Layer;
+            }
 
-            if (this._mapObj._blocks.hasOwnProperty("Connection")){
+            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
+                var newCityMap = new Layer(this._gameData,{
+                    _id: this.sublayerId,
+                    width: 10000,
+                    height: 10000,
+                    mapTypeId: "cityMapType01",
+                    parentMapId: "moonMap01",
+                    gameData: this._gameData
+                });
+                this._gameData.layers.add(newCityMap);
+            }
+
+            this._mapObj = null;
+            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
+
+            if (this._mapObj._blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
                 this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
                 this._mapObj._blocks.Connection.connectedTo = this.connectedTo;
             }
 
+            if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
+                var itemTypeId = this._mapObj.Unit.itemTypeId;
+                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: this.mapObjId, _itemTypeId: itemTypeId, _mapId: this._mapId, _state: itemStates.HIDDEN});
+                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+                this.item.setPointers();
+            }
+
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
             this._mapObj.setPointers();
-            this._mapObj._blocks.UpgradeProduction.addItemEventToQueue(this);
+            this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
             this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
@@ -195,6 +227,19 @@ if (node) {
             this._mapObj._id = event.mapObjId;
             this.mapObjId = event.mapObjId;
             this._super(event);
+
+            if (this._mapObj._blocks.hasOwnProperty("Unit")){
+                this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
+                this.item._id = event.itemId;
+                this.itemId = event.itemId;
+            }
+
+            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){
+                this._gameData.layers.updateId(this.sublayerId,event.sublayerId);
+                this._mapObj.sublayerId = event.sublayerId;
+                this.sublayerId = event.sublayerId;
+            }
+
             this._mapObj._blocks.UpgradeProduction.updateDueTime(event);
         },
 
@@ -210,7 +255,9 @@ if (node) {
                     this.y,
                     this.mapObjTypeId,
                     this.connectedFrom,
-                    this.connectedTo
+                    this.connectedTo,
+                    this.itemId,
+                    this.sublayerId
                     ];
             return o;
         },
@@ -224,6 +271,8 @@ if (node) {
                 this.mapObjTypeId= o.a2[3];
                 this.connectedFrom = o.a2[4];
                 this.connectedTo = o.a2[5];
+                this.itemId = o.a2[6];
+                this.sublayerId = o.a2[7];
             }
             else {
                 for (var key in o) {

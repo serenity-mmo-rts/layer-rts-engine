@@ -10,19 +10,14 @@ if (node) {
 
 (function (exports) {
 
-    var MoveItemEvent = AbstractEvent.extend({
+    var MoveThroughLayerEvent = AbstractEvent.extend({
 
         // states
-        _type: "MoveItemEvent",
-        _originId: null,
-        _targetId: null,
-        _itemId: null,
+        _type: "MoveThroughLayerEvent",
+        mapObjId: null,
 
         // helpers
-        _originMapObj: null,
-        _targetMapObj:null,
-        _item:null,
-        _range: null,
+        mapObj: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -33,36 +28,15 @@ if (node) {
             return true;
         },
 
-        setParameters: function (item,operation) {
-            this._item = item;
-            this._mapObj = this._item._mapObj;
-            this._range = operation.activatePerClick.range;
-            this._itemId = this._item._id;
-            this._targetType = operation.activatePerClick.targetType;
+        setParameters: function (mapObj) {
+            this.mapObjId = mapObj._id;
+            this.setPointers();
         },
 
-
-        setTarget: function (targetId) {
-            this._targetId = targetId;
-            if (this._targetType =="self"){
-                this._target = null;
-            }
-            else if (this._targetType =="object"){
-                this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(targetId);
-            }
-            else if (this._targetType =="item"){
-                this._target = this._gameData.layers.get(this._mapId).mapData.items.get(targetId);
-            }
-            else if (this._targetType =="coordinate"){
-            }
-        },
 
         setPointers: function(){
             this._super();
-            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-
-            this._mapObj = this._item._mapObj;
-            this.setTarget(this._targetId);
+            this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
         },
 
         executeOnClient: function () {
@@ -80,13 +54,13 @@ if (node) {
         },
 
         execute: function () {
-            this._item._blocks.Feature.activate(this._startedTime,this._target);
-            this.setFinished();
+            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
+            this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            this._item._blocks.Feature.activate(event._startedTime,this._target);
+            this._mapObj._blocks.Unit.updateDueTime(event._startedTime);
         },
 
         revert: function() {
@@ -95,19 +69,16 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._itemId,
-                this._targetId,
-                this._targetType
+            o.a2 = [this.mapObjId,
             ];
             return o;
         },
 
+
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._itemId = o.a2[0];
-                this._targetId = o.a2[1];
-                this._targetType = o.a2[2];
+                this.mapObjId = o.a2[0];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();
@@ -126,6 +97,6 @@ if (node) {
 
     });
 
-    exports.MoveItemEvent = MoveItemEvent;
+    exports.MoveThroughLayerEvent = MoveThroughLayerEvent;
 
 })(node ? exports : window);

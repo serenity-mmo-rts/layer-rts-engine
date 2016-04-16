@@ -47,7 +47,7 @@ if (node) {
         },
 
         setState: function(){
-            event.setValid()
+            event.setValid();
         },
 
         executeOnClient: function () {
@@ -86,6 +86,7 @@ if (node) {
 
         setPointers: function () {
             //overwrite
+            this.map = this._gameData.layers.get(this._mapId);
         },
 
         save: function () {

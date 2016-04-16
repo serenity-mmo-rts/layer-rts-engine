@@ -59,7 +59,7 @@ if (node) {
         },
 
         execute: function () {
-            this._parentObject._blocks.UpgradeProduction.addItemEventToQueue(this);
+            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
             this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 

@@ -1,4 +1,5 @@
 var node = !(typeof exports === 'undefined');
+
 if (node) {
     var GameList = require('./GameList').GameList;
     var TimeScheduler = require('./layer/TimeScheduler').TimeScheduler;
@@ -26,7 +27,7 @@ if (node) {
             this.load(initObj);
         }
 
-    }
+    };
 
     Layer.prototype = {
 
@@ -59,8 +60,9 @@ if (node) {
             }
             this.mapData.rebuildQuadTree();
         }
-    }
+    };
 
     exports.Layer = Layer;
 
+//})(typeof exports === 'undefined' ? window : exports);
 })(node ? exports : window);

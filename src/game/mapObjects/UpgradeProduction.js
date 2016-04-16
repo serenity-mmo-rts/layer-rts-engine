@@ -84,7 +84,7 @@ if (node) {
     };
 
 
-    proto.addItemEventToQueue = function (evt) {
+    proto.addEventToQueue = function (evt) {
         // TODO serialize global event list
         this.buildQueue.push(evt);
         this.buildQueueIds.push(evt._id);
@@ -122,6 +122,7 @@ if (node) {
             this.isRunning = true;
             this.parent.setState(1);
             var evt = this.buildQueue[0];
+            evt.setFinished();
             // building upgrade
             if (evt._type=="BuildUpgradeEvent"){
                 var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[0];
@@ -131,7 +132,7 @@ if (node) {
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     var item = new Item(self.gameData, {_id: evt._itemId, _objectId: self.mapObjectId, _itemTypeId: evt._itemTypeId, _mapId: evt._mapId});
-                    evt.setFinished();
+
                     console.log("item: "+evt._itemId+" production completed");
                     self.layer.mapData.addItem(item);
                     item.setPointers();
@@ -153,7 +154,6 @@ if (node) {
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    evt.setFinished();
                     console.log("item: "+evt._itemId+" upgrade completed");
                     var item = self.layer.mapData.items.get(evt._itemId);
                     var level = item.getLevel()+1;
@@ -177,7 +177,6 @@ if (node) {
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    evt.setFinished();
                     console.log("I finished building a " + self.parent.objTypeId + " at coordinates ("+ self.parent.x+","+self.parent.y+")");
                     self.parent.setState(2);
                     self.removeItemFromQueue(0);
@@ -187,6 +186,27 @@ if (node) {
                 };
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
                 console.log("I start building an" + self.parent.objTypeId +  " at coordinates ("+ self.parent.x+","+self.parent.y+")");
+            }
+
+            // dismantle map Object
+           else if (evt._type=="MoveThroughLayerEvent"){
+                this.parent.setState(0);
+                var objType = this.gameData.objectTypes.get(this.parent._id);
+                var deployTime = objType.Unit.deployTime;
+                this.startedTime = startedTime;
+                this.dueTime = startedTime + deployTime;
+                evt.setFinished();
+                var self = this;
+                var callback = function(dueTime,callbackId) {
+                    self.layer.timeScheduler.removeCallback(callbackId);
+                    self.parent.state = mapObjectStates.HIDDEN;
+                    self.parent.notifyStateChange();
+                    console.log("Dismantling of Map Object: "+self.parent._id+" done.");
+                    self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
+                    return Infinity;
+                };
+                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+                console.log("Start dismantling of Map Object " +this.parent._id + "");
             }
 
 

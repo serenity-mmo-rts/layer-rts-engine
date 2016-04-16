@@ -1,6 +1,12 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var GameData = require('../GameData').GameData;
+    var MapObject = require('./../MapObject').MapObject;
+    var mapObjectStates = require('../MapObject').mapObjectStates;
+    var itemStates = require('../item').itemStates;
+    var MoveThroughLayerEvent = require('../events/MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var Item = require('./../Item').Item;
 }
 
 (function (exports) {
@@ -16,8 +22,20 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
+
         // Define helper member variables:
         this.helperVar = 22;
+        this._mapId = this.parent.mapId;
+        this.timeCallbackId = null;
+        this.startedTime = null;
+        this.dueTime = null;
+
+        this.gameData = null;
+        this.mapObjectId = null;
+        this.mapId = null;
+        this.layer= null;
+        this.mapObject = null;
+
 
     };
 
@@ -34,8 +52,8 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            typeVar1: 1,
-            typeVar2: 6
+            itemTypeId: null,
+            deployTime: null
         };
     };
 
@@ -46,10 +64,77 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {stateVar1: 5},
-            {stateVar2: this.typeVar2/2}
+            {isMoving: false},
+            {eventId: null}
         ];
     };
+
+    proto.setPointers = function () {
+        this.gameData = this.parent.gameData;
+        this.mapObjectId = this.parent._id;
+        this.mapId = this.parent.mapId;
+        this.layer= this.parent.gameData.layers.get(this.parent.mapId);
+    };
+
+    proto.setEventId = function (eventId) {
+        this.eventId = eventId;
+    };
+
+
+    proto.updateDueTime= function(evt) {
+        var movingTime = this.getTravelTime();
+        this.startedTime = evt._startedTime;
+        // notify time scheduler:
+        console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
+        this.dueTime = this.startedTime + movingTime;
+        this.gameData.layers.get(this._mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
+    };
+    //game.layers.get(uc.layerView.mapId).parentMapId
+    //this._targetMapObj = mapObj
+    //this._targetMapObj =
+
+
+
+    proto.moveObjectToUpperLayer = function (startedTime) {
+            this.isMoving = true;
+            var movingTime = this.getTravelTime();
+            this.startedTime = startedTime;
+            this.dueTime = startedTime + movingTime;
+            // TODO render dashed line from map Object to edge, render icon on top of that position
+            var self = this;
+            var callback = function(dueTime,callbackId) {
+                self.layer.timeScheduler.removeCallback(callbackId);
+                console.log("map Object moved to Upper Layer");
+                // TODO delete map object and Item from current Layer
+                // TODO delete dashed line, delete render icon from current Layer
+                this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.HIDDEN});
+                this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+                this._mapObj.setPointers();
+                var itemTypeId = this._mapObj.Unit.itemTypeId;
+                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: this.mapObjId, _itemTypeId: itemTypeId, _mapId: this._mapId, _state: itemStates.FINSEHD});
+                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+                this.item.setPointers();
+                self.isMoving = false;
+                return Infinity;
+            };
+            this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+            console.log("Map Object" + this.parent._id+ "started moving");
+    };
+
+    proto.getTravelTime = function () {
+        // TODO calculate travel time base on distance to edge
+        return 40000;
+    };
+
+
+    proto.travelProgress= function(){
+        var totalTimeNeeded = this.dueTime -this.startedTime;
+        var currentTime  = Date.now();
+        var timeLeft =  this.dueTime-currentTime;
+        var percent = (timeLeft/totalTimeNeeded)*100;
+        return 100-percent
+    };
+
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
