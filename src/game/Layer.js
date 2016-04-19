@@ -64,5 +64,5 @@ if (node) {
 
     exports.Layer = Layer;
 
-//})(typeof exports === 'undefined' ? window : exports);
-})(node ? exports : window);
+})(typeof exports === 'undefined' ? window : exports);
+//})(node ? exports : window);

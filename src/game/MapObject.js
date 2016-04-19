@@ -15,7 +15,6 @@ if (node) {
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
     var ResourceStorage = require('./mapObjects/ResourceStorage').ResourceStorage;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
-    var UpItem = require('./mapObjects/Unit').UpItem;
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
     var FeatureManager = require('./mapObjects/FeatureManager').FeatureManager;
     var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;

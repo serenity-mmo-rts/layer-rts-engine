@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
+    //var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
@@ -8,9 +8,7 @@ if (node) {
     var itemStates = require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
-    var dbConn = require('../../server/dbConnection')
-
-
+    var dbConn = require('../../server/dbConnection');
 }
 
 (function (exports) {
@@ -183,9 +181,6 @@ if (node) {
         },
 
         execute: function () {
-            if (node) {
-                var Layer = require('../Layer').Layer;
-            }
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
                 var newCityMap = new Layer(this._gameData,{
