@@ -122,7 +122,7 @@ if (node) {
             this.isRunning = true;
             this.parent.setState(1);
             var evt = this.buildQueue[0];
-            evt.setFinished();
+            //evt.setFinished(); we should not set this from here, because the eventScheduler handles these states...
             // building upgrade
             if (evt._type=="BuildUpgradeEvent"){
                 var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[0];
@@ -195,7 +195,7 @@ if (node) {
                 var deployTime = objType.Unit.deployTime;
                 this.startedTime = startedTime;
                 this.dueTime = startedTime + deployTime;
-                evt.setFinished();
+                //evt.setFinished(); we should not set this from here, because the eventScheduler handles these states...
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);

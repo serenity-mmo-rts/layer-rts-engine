@@ -59,7 +59,22 @@ if (node) {
                 this._id = this._id.toHexString();
             }
             this.mapData.rebuildQuadTree();
+        },
+
+        createSublayer: function(x,y,sublayerId) {
+
+            var newCityMap = new Layer(this._gameData,{
+                _id: sublayerId,
+                width: 10000,
+                height: 10000,
+                mapTypeId: "cityMapType01",
+                parentMapId: this._id,
+                gameData: this._gameData
+            });
+
+            this.gameData.layers.add(newCityMap);
         }
+
     };
 
     exports.Layer = Layer;

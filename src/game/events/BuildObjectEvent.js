@@ -162,16 +162,24 @@ if (node) {
 
         executeOnClient: function () {
             this.mapObjId  = 'tmpObjId'+Math.random();
-            this.itemId  = 'tmpItemId'+Math.random();
-            this.sublayerId  = 'tmpSublayerId'+Math.random();
+            if (this._mapObj._blocks.hasOwnProperty("Unit")) {
+                this.itemId = 'tmpItemId' + Math.random();
+            }
+            if (this._mapObj._blocks.hasOwnProperty("Sublayer")) {
+                this.sublayerId = 'tmpSublayerId' + Math.random();
+            }
             this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
         executeOnServer: function () {
             this.mapObjId = (new mongodb.ObjectID()).toHexString();
-            this.itemId = (new mongodb.ObjectID()).toHexString();
-            this.sublayerId = (new mongodb.ObjectID()).toHexString();
+            if (this._mapObj._blocks.hasOwnProperty("Unit")) {
+                this.itemId = (new mongodb.ObjectID()).toHexString();
+            }
+            if (this._mapObj._blocks.hasOwnProperty("Sublayer")) {
+                this.sublayerId = (new mongodb.ObjectID()).toHexString();
+            }
             this.start(Date.now());
             this.execute();
         },
@@ -182,20 +190,18 @@ if (node) {
 
         execute: function () {
 
-            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
-                var newCityMap = new Layer(this._gameData,{
-                    _id: this.sublayerId,
-                    width: 10000,
-                    height: 10000,
-                    mapTypeId: "cityMapType01",
-                    parentMapId: "moonMap01",
-                    gameData: this._gameData
-                });
-                this._gameData.layers.add(newCityMap);
-            }
+
 
             this._mapObj = null;
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
+
+
+            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
+
+                if (node) {
+                    this._gameData.layers.get(this._mapId).createSublayer(this.x, this.y, this.sublayerId);
+                }
+            }
 
             if (this._mapObj._blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
                 this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
