@@ -76,24 +76,14 @@ if (node) {
         this.layer= this.parent.gameData.layers.get(this.parent.mapId);
     };
 
-    proto.setEventId = function (eventId) {
-        this.eventId = eventId;
-    };
-
-
     proto.updateDueTime= function(evt) {
         var movingTime = this.getTravelTime();
         this.startedTime = evt._startedTime;
         // notify time scheduler:
         console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
         this.dueTime = this.startedTime + movingTime;
-        this.gameData.layers.get(this._mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
+        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
     };
-    //game.layers.get(uc.layerView.mapId).parentMapId
-    //this._targetMapObj = mapObj
-    //this._targetMapObj =
-
-
 
     proto.moveObjectToUpperLayer = function (startedTime) {
             this.isMoving = true;
@@ -105,15 +95,12 @@ if (node) {
             var callback = function(dueTime,callbackId) {
                 self.layer.timeScheduler.removeCallback(callbackId);
                 console.log("map Object moved to Upper Layer");
-                // TODO delete map object and Item from current Layer
+
                 // TODO delete dashed line, delete render icon from current Layer
-                this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.HIDDEN});
-                this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
-                this._mapObj.setPointers();
-                var itemTypeId = this._mapObj.Unit.itemTypeId;
-                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: this.mapObjId, _itemTypeId: itemTypeId, _mapId: this._mapId, _state: itemStates.FINSEHD});
-                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
-                this.item.setPointers();
+                var subItemId = this.parent.getSubItem();
+                var item = this.gameData.layers.get(this.mapId).mapData.items.get(subItemId);
+                this.gameData.layers.get(this.mapId).mapData.removeObject(this.parent);
+                this.gameData.layers.get(this.mapId).mapData.removeItem(item);
                 self.isMoving = false;
                 return Infinity;
             };

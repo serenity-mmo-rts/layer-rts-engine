@@ -61,6 +61,7 @@ if (node) {
             this._blocks = {};
             this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
             this.sublayerId = null;
+            this.subItemId = null;
 
 
             // not serialized: pointers etc.
@@ -133,6 +134,11 @@ if (node) {
             this.items[item._id] = item;
         },
 
+        removeItem: function (itemId){
+            var idx = this.items.indexOf(itemId)
+            this.items.splice(idx,1);
+        },
+
         getItems: function (){
             return this.items;
         },
@@ -171,6 +177,15 @@ if (node) {
                 bottom: this.y+this.height/2
             };
             return this.rect;
+        },
+
+        setSubItem: function(subItemId) {
+            this.subItemId = subItemId;
+            this.removeItem(subItemId);
+        },
+
+        getSubItem: function(subItemId) {
+           return this.subItemId;
         },
 
         isColliding: function(b) {
@@ -268,7 +283,8 @@ if (node) {
                     this.ori,
                     this.state,
                     blocks,
-                    this.sublayerId
+                    this.sublayerId,
+                    this.subItemId
                 ]};
 
             return o;
@@ -294,6 +310,7 @@ if (node) {
                 this.state = o.a[5];
                 this._blocks = o.a[6];
                 this.sublayerId = o.a[7];
+                this.subItemId= o.a[8];
             }
             else {
                 // initialize state from json:

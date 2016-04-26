@@ -11,6 +11,7 @@ if (node) {
     var Layer = function (gameData,initObj) {
         // serialized:
         this._id = 0;
+        this.parentObjId= null;
         this.width = 0;
         this.height = 0;
         this.mapTypeId = null;
@@ -33,7 +34,8 @@ if (node) {
 
         save: function () {
             var o = {_id: this._id,
-                a: [this.width,
+                a: [this.parentObjId,
+                    this.width,
                     this.height,
                     this.mapTypeId,
                     this.parentMapId]};
@@ -43,10 +45,11 @@ if (node) {
         load: function (o) {
             if (o.hasOwnProperty("a")) {
                 this._id = o._id;
-                this.width = o.a[0];
-                this.height = o.a[1];
-                this.mapTypeId = o.a[2];
-                this.parentMapId = o.a[3];
+                this.parentObjId = o.a[0];
+                this.width = o.a[1];
+                this.height = o.a[2];
+                this.mapTypeId = o.a[3];
+                this.parentMapId = o.a[4];
             }
             else {
                 for (var key in o) {
@@ -61,10 +64,11 @@ if (node) {
             this.mapData.rebuildQuadTree();
         },
 
-        createSublayer: function(x,y,sublayerId) {
+        createSublayer: function(x,y,sublayerId,parentObjId) {
 
             var newCityMap = new Layer(this._gameData,{
                 _id: sublayerId,
+                parentObjId: parentObjId,
                 width: 10000,
                 height: 10000,
                 mapTypeId: "cityMapType01",

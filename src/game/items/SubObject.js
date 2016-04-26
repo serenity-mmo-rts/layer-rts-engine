@@ -3,6 +3,7 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
+    var itemStates =require('../Item').itemStates;
     var ActivateFeatureEvent = require('../events/ActivateFeatureEvent').ActivateFeatureEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
 }
@@ -23,6 +24,9 @@ if (node) {
         // Define helper member variables:
         this._mapObject = null;
         this._timeCallbackId = null;
+        this.startedTime = null;
+        this.deployTime= null;
+        this.travelTime= null;
     };
 
     /**
@@ -61,94 +65,27 @@ if (node) {
 
     };
 
+    proto.addMovementProps = function (mapObj) {
+       this.deployTime = this.gameData.objectTypes.get(mapObj.objTypeId).Unit.deployTime;
+       this.travelTime = mapObj._blocks.Unit.getTravelTime();
+    };
 
-
-
-    proto.activatePerClick = function(target,range){
-
-        this._processedStack.targetType = target;
-        if (this._processedStack.isActivated){
-            this._processedStack.canBeActivated = false;
-        }
-        else{
-            this._processedStack.canBeActivated = true;
-        }
-
-
-        if (target == "self") {
-            return [null, this._processedStack.isActivated];
-        }
-
-        else if (target == "object"){
-
-            if (this._processedStack.target ==null){
-                return [null, false];
-            }
-            else{
-                return [this._processedStack.target, true];
-            }
-        }
-        else if (target == "item"){
-
-
-        }
-        else if (target == "coordinate"){
-
-
-        }
+    proto.lockItem = function (startedTime) {
+        this.startedTime = startedTime;
+        this.dueTime = this.startedTime + this.deployTime + this.travelTime;
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            self.layer.timeScheduler.removeCallback(callbackId);
+            self.parent.state = itemStates.FINISHED;
+            self.parent.notifyStateChange();
+            console.log("Unit: "+self.parent._id+" ready in Upper Layer");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        console.log("Unit" +this.parent._id + "blocks space on upper layer");
 
     };
 
-
-    proto.wait = function(waitingTime){
-
-        if (this._timeCallbackId !=null){ // re-enter with call back
-            this._timeCallbackId = null;
-            this._processedStack.lastActivationTime = this._processedStack.dueTime;
-            this._processedStack.dueTime = null;
-            return true;
-        }
-        else{ // enter first time, calculate dueTime and create callback
-
-            this._processedStack.dueTime =  this._processedStack.lastActivationTime+waitingTime;
-
-            var self = this;
-            var callback = function(dueTime,callbackId){
-                //TO DO check whether event is really due
-                self._layer.timeScheduler.removeCallback(callbackId);
-                self.checkStackExecution(false,self._processedStack.lastActivationTime);
-                return Infinity
-            };
-            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this._processedStack.dueTime);
-            return false;
-        }
-    };
-
-
-
-
-
-    proto.checkRange = function(currentTarget){
-        if (this._properties._range > 0){
-            if(this.validCoordinate(currentTarget)){
-                var featureTargets = this._layer.mapData.getObjectsInRange(currentTarget,this._properties._range);
-                return featureTargets;
-            }
-        }
-    };
-
-
-    proto.validCoordinate = function (currentTarget){
-        // check whether user has mouse on map (current Target = coordinate)
-    };
-
-    proto.validMapObject = function (currentTarget){
-        // check whether user has mouse over map Object (current Target = map Obj)
-    };
-
-    proto.validItem = function (currentTarget){
-        // check whether use has mouse over Item (current Target = Item)
-    };
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.

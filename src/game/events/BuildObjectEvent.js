@@ -189,17 +189,13 @@ if (node) {
         },
 
         execute: function () {
-
-
-
             this._mapObj = null;
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
-
+            this._mapObj.setPointers();
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
-
                 if (node) {
-                    this._gameData.layers.get(this._mapId).createSublayer(this.x, this.y, this.sublayerId);
+                    this._gameData.layers.get(this._mapId).createSublayer(this.x, this.y, this.sublayerId, this.mapObjId);
                 }
             }
 
@@ -213,10 +209,11 @@ if (node) {
                 this.item = new Item(this._gameData, {_id: this.itemId, _objectId: this.mapObjId, _itemTypeId: itemTypeId, _mapId: this._mapId, _state: itemStates.HIDDEN});
                 this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
                 this.item.setPointers();
+                this._mapObj.setSubItem(this.itemId);
             }
 
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
-            this._mapObj.setPointers();
+
             this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
             this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
@@ -233,10 +230,10 @@ if (node) {
                 this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
                 this.item._id = event.itemId;
                 this.itemId = event.itemId;
+                this._mapObj.setSubItem(event.itemId);
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){
-                this._gameData.layers.updateId(this.sublayerId,event.sublayerId);
                 this._mapObj.sublayerId = event.sublayerId;
                 this.sublayerId = event.sublayerId;
             }

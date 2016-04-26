@@ -20,6 +20,7 @@ if (node) {
     itemStates.WORKING= 1;
     itemStates.FINSEHD = 2;
     itemStates.HIDDEN = 3;
+    itemStates.BLOCKED = 4;
 
     var Item = function (gameData,initObj){
       // serialized
