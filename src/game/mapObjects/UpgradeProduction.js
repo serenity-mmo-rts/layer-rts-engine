@@ -78,8 +78,8 @@ if (node) {
         this.layer= this.parent.gameData.layers.get(this.parent.mapId);
         this.mapObject = this.layer.mapData.mapObjects.get(this.parent.objectId);
         this.buildQueue = [];
-        for (var i = 0; i < this.buildQueueIds.length; i++) {
-            this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds[i]));
+        for (var i = 0; i < this.buildQueueIds().length; i++) {
+            this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
         }
     };
 
@@ -119,8 +119,8 @@ if (node) {
     };
 
     proto.checkQueue = function (startedTime) {
-        if (this.buildQueue.length > 0 && this.isRunning==false) {
-            this.isRunning = true;
+        if (this.buildQueue.length > 0 && this.isRunning()==false) {
+            this.isRunning(true);
             this.parent.setState(1);
             var evt = this.buildQueue[0];
             // building upgrade
@@ -139,7 +139,7 @@ if (node) {
                     item._blocks.Feature.startExecution(dueTime);
                     self.parent.setState(2);
                     self.removeItemFromQueue(0);
-                    self.isRunning = false;
+                    self.isRunning(false);
                     self.checkQueue(dueTime);
                     return Infinity;
                 };
@@ -161,7 +161,7 @@ if (node) {
                     item._blocks.Feature.startExecution(dueTime);
                     self.parent.setState(2);
                     self.removeItemFromQueue(0);
-                    self.isRunning = false;
+                    self.isRunning(false);
                     self.checkQueue(dueTime);
                     return Infinity;
                 };
@@ -180,7 +180,7 @@ if (node) {
                     console.log("I finished building a " + self.parent.objTypeId + " at coordinates ("+ self.parent.x+","+self.parent.y+")");
                     self.parent.setState(2);
                     self.removeItemFromQueue(0);
-                    self.isRunning = false;
+                    self.isRunning(false);
                     self.checkQueue(dueTime);
                     return Infinity;
                 };

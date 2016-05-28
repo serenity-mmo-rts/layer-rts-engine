@@ -55,7 +55,7 @@ if (node) {
      * @returns {number}
      */
     proto.getSoilDepletedIn = function(soilTypeId) {
-        return this.soilAvailable / this.soilEffectiveIn;
+        return this.soilAvailable()[0] / this.soilEffectiveIn()[0];
     };
 
     /**

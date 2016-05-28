@@ -49,8 +49,8 @@ if (node) {
 
             if (this._mapObj._blocks.hasOwnProperty("Connection")) {
 
-                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedFrom);
-                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedTo);
+                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedFrom());
+                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedTo());
 
                 //check if both are on the same layer:
                 if (sourceHub == undefined || targetObj == undefined){
@@ -111,10 +111,10 @@ if (node) {
 
                             if(collidingItems[i]._blocks.hasOwnProperty("Connection")) {
                                 // only fail if the colliding item is not any other connection to either the source or target object:
-                                if (collidingItems[i]._blocks.Connection.connectedFrom != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection.connectedFrom != sourceHub._id &&
-                                    collidingItems[i]._blocks.Connection.connectedTo != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection.connectedTo != sourceHub._id) {
+                                if (collidingItems[i]._blocks.Connection.connectedFrom() != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection.connectedFrom() != sourceHub._id &&
+                                    collidingItems[i]._blocks.Connection.connectedTo() != targetObj._id &&
+                                    collidingItems[i]._blocks.Connection.connectedTo() != sourceHub._id) {
                                     return false;
                                 }
                             }
@@ -156,7 +156,7 @@ if (node) {
         setPointers: function () {
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
             if (this._mapObj._blocks.hasOwnProperty("Connection")){
-                this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
+                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
             }
         },
 
@@ -200,8 +200,8 @@ if (node) {
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
-                this._mapObj._blocks.Connection.connectedFrom = this.connectedFrom;
-                this._mapObj._blocks.Connection.connectedTo = this.connectedTo;
+                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom)
+                this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item

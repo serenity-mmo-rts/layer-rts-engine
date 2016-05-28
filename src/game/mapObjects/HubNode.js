@@ -19,6 +19,7 @@ if (node) {
         // Define helper member variables:
         this.helperVar = 'test';
 
+
     };
 
     /**

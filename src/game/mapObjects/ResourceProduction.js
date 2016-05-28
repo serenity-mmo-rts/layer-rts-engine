@@ -1,6 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
@@ -17,7 +18,8 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.helperVar = 22;
+        this.productivity = ko.observable(1);
+
 
     };
 
@@ -34,9 +36,9 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            resInIds: [1, 2],
+            resInIds: ["iron", "oxygen"],
             resInPerSec: [2, 3],
-            resOutIds: [3],
+            resOutIds: ["carbon"],
             resOutPerSec: [1],
             capacityScaling: 1
         };

@@ -56,7 +56,7 @@ if (node) {
     };
 
     proto.getHealthPoints = function(){
-        return this.health;
+        return this.health();
     };
 
 
@@ -88,7 +88,7 @@ if (node) {
     };
 
     proto.setHealthPointsToMax = function(){
-        this.health = this.getMaxHealthPoints();
+        this.health(this.getMaxHealthPoints());
     };
 
 

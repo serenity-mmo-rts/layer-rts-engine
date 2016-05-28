@@ -86,7 +86,7 @@ if (node) {
     };
 
     proto.moveObjectToUpperLayer = function (startedTime) {
-            this.isMoving = true;
+            this.isMoving(true)
             var movingTime = this.getTravelTime();
             this.startedTime = startedTime;
             this.dueTime = startedTime + movingTime;
@@ -101,7 +101,7 @@ if (node) {
                 var item = this.gameData.layers.get(this.mapId).mapData.items.get(subItemId);
                 this.gameData.layers.get(this.mapId).mapData.removeObject(this.parent);
                 this.gameData.layers.get(this.mapId).mapData.removeItem(item);
-                self.isMoving = false;
+                self.isMoving(false);
                 return Infinity;
             };
             this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);

@@ -53,11 +53,11 @@ if (node) {
 
 
     proto.setState = function(value){
-        this._change = value;
+        this._change(value);
     };
 
     proto.getState = function(){
-        return this._change;
+        return this._change();
     };
 
     proto.addItemId = function(itemId,stackIdx){
@@ -69,7 +69,7 @@ if (node) {
         else if (positions instanceof Array){
             var insert = true;
             for (var i = 0;i<positions.length;i++) {
-                if (this._appliedEffectIndex[positions[i]] == stackIdx) {
+                if (this._appliedEffectIndex()[positions[i]] == stackIdx) {
                     insert = false;
                 }
             }
@@ -78,7 +78,7 @@ if (node) {
             }
         }
         else {
-            if (!this._appliedEffectIndex[positions]== stackIdx){
+            if (!this._appliedEffectIndex()[positions]== stackIdx){
                 this.insertItem(itemId,stackIdx);
             }
         }
@@ -102,7 +102,7 @@ if (node) {
     proto.removeItemId = function(itemId,stackIdx){
         var positions = this._appliedItemIds.indexOf(itemId);
         if (positions instanceof Array){
-            var helpArray = this._appliedEffectIndex[positions];
+            var helpArray = this._appliedEffectIndex()[positions];
             var subPosition = this._appliedEffectIndex.indexOf(stackIdx);
             var finalPosition = positions[subPosition];
         }
@@ -141,18 +141,18 @@ if (node) {
 
         // fill change Object
         // loop over items
-        for (var i=0; i< this._appliedItemIds.length; i++){
+        for (var i=0; i< this._appliedItemIds().length; i++){
             // get item from id
-            var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds[i]);
+            var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds()[i]);
             // sanity Check
 
-            if (item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].currentTargetObjectIds.indexOf(this._appliedItemIds[i])){
+            if (item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this._appliedItemIds()[i])){
 
                 // get block values
-                var variables = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].variables;
-                var blocks = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].blocks;
-                var operators = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].operators;
-                var changes = item._blocks.Feature._processedStack.effects[this._appliedEffectIndex[i]].changes;
+                var variables = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].variables;
+                var blocks = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].blocks;
+                var operators = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].operators;
+                var changes = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].changes;
 
                 // loop over block type variables
                 for (var k=0; k< blocks.length; k++) {

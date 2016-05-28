@@ -1,5 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
+    var ko = require('../client/lib/knockout-3.3.0.debug.js');
 }
 
 
@@ -81,14 +82,64 @@ if (node) {
     };
 
     /**
-     * This function sets the type vars first with the hardcoded defaults and then overwrites them with the given this.type
+     * This function sets the state vars first with the hardcoded defaults and then overwrites them with the given this.type
      */
     proto.setInitStateVars = function() {
+
+
+
+        // recursive function to create deep observable objects / arrays:
+        function makeObservable(data) {
+            var vm;
+            var dataType;
+            if (data) {
+                dataType = data.constructor;
+                if (dataType === Array) {
+
+                    // create an observable array with observable elements
+                    vm = ko.observableArray();
+                    for (var arr in data) {
+                        if (data.hasOwnProperty(arr)) {
+                            // make each element of array observable
+                            vm.push(makeObservable(data[arr]));
+                        }
+                    }
+
+                }
+                else if (dataType === Object) {
+
+                    // create an observable object and add all sub-elements as observable elements:
+                    vm = ko.observable({});
+                    for (var prop in data) {
+                        if (data.hasOwnProperty(prop)) {
+
+                            // recursive call to create observable sub-object:
+                            vm()[prop] = makeObservable(data[prop]);
+
+                        }
+                    }
+                }
+                else {
+
+                    // just create a normal observable:
+                    vm = ko.observable(data);
+
+                }
+            }
+            else {
+                // data type unclear:
+                vm = ko.observable(data);
+            }
+            return vm;
+        }
+
+        //var viewModel = makeObservable(data, {});
 
         var states = this.defineStateVars();
         for (var i=0; i<=states.length; i++) {
             for (var stateVarName in states[i]) {
-                this[stateVarName] = states[i][stateVarName];
+                //this[stateVarName] = states[i][stateVarName];
+                this[stateVarName] = makeObservable(states[i][stateVarName]);
             }
         }
 
@@ -164,14 +215,14 @@ if (node) {
 
                 // save these variables directly with their corresponding name:
                 for (var stateVarName in states[i]){
-                    o[stateVarName] = this[stateVarName];
+                    o[stateVarName] = ko.toJS(this[stateVarName]);
                 }
 
             }
             else {
 
                 // compress these keys:
-                o.a[i] = this[stateVarNames[0]];
+                o.a[i] = ko.toJS(this[stateVarNames[0]]);
 
             }
         }
@@ -188,18 +239,17 @@ if (node) {
 
         if (o.hasOwnProperty("a")) {
 
-
             for (var i=0; i < ArrLen; i++) {
                 var stateVarNames = Object.keys(states[i]);
                 if (stateVarNames.length > 1) {
                     // load these variables directly with their corresponding name:
                     for (var stateVarName in states[i]){
-                        this[stateVarName] = o[stateVarName];
+                        this[stateVarName](o[stateVarName]);
                     }
                 }
                 else {
-                    // compress these keys:
-                    this[stateVarNames[0]] = o.a[i];
+                    // uncompress these keys:
+                    this[stateVarNames[0]](o.a[i]);
                 }
             }
 
@@ -215,7 +265,7 @@ if (node) {
                 // TODO: check if the supplied arguments are really state variables...
                 if (o.hasOwnProperty(key)) {
                     if ( this.hasOwnProperty(key) )
-                        this[key] = o[key];
+                        this[key](o[key]);
                 }
             }
         }
