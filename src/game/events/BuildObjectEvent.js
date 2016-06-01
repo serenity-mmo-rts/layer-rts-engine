@@ -75,14 +75,6 @@ if (node) {
                     return false;
                 }
 
-                //set center coordinate of connection and orientation of connection correctly:
-                this._mapObj.x = sourceHub.x + dx/2;
-                this._mapObj.y = sourceHub.y + dy/2;
-                this._mapObj.ori = -Math.atan2(dy, dx);
-                this._mapObj.width = connLength;
-                this._mapObj.height = this._mapObj.objType._initHeight;
-                this._mapObj.notifyChange();
-
                 //check if there is a port free in the hub node
                 if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
                     return false;
@@ -157,6 +149,7 @@ if (node) {
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
             if (this._mapObj._blocks.hasOwnProperty("Connection")){
                 this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
+                this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
         },
 
@@ -189,6 +182,7 @@ if (node) {
         },
 
         execute: function () {
+
             this._mapObj = null;
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
             this._mapObj.setPointers();
@@ -200,7 +194,7 @@ if (node) {
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
-                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom)
+                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
                 this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
 
@@ -212,10 +206,13 @@ if (node) {
                 this._mapObj.setSubItem(this.itemId);
             }
 
+            if (this._mapObj._blocks.hasOwnProperty("UpgradeProduction")){
+                this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
+                this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            }
+
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
 
-            this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
-            this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
 
