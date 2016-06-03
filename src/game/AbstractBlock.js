@@ -87,6 +87,20 @@ if (node) {
     proto.setInitStateVars = function() {
 
 
+        ko.extenders.logChange = function(target, options) {
+            target.oldValue = null;
+            target.changedChilds = [];
+            target.subscribe(function(oldValue) {
+                if (target.oldValue == null) {
+                    target.oldValue = oldValue;
+                    if (!options.parent.hasOwnProperty("mutatedChilds")) {
+                        options.parent.mutatedChilds = [];
+                    }
+                    options.parent.mutatedChilds[options.key] = target;
+                }
+            }, null, "beforeChange");
+            return target;
+        };
 
         // recursive function to create deep observable objects / arrays:
         function makeObservable(data) {
@@ -101,7 +115,9 @@ if (node) {
                     for (var arr in data) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
-                            vm.push(makeObservable(data[arr]));
+                            var elm = makeObservable(data[arr]);
+                            newLen = vm.push(elm);
+                            elm.extend({logChange: {parent: vm, key: newLen}})
                         }
                     }
 
@@ -115,6 +131,7 @@ if (node) {
 
                             // recursive call to create observable sub-object:
                             vm()[prop] = makeObservable(data[prop]);
+                            vm()[prop].extend({logChange: {parent: vm, key: prop}})
 
                         }
                     }
@@ -123,7 +140,6 @@ if (node) {
 
                     // just create a normal observable:
                     vm = ko.observable(data);
-
                 }
             }
             else {
@@ -139,7 +155,9 @@ if (node) {
         for (var i=0; i<=states.length; i++) {
             for (var stateVarName in states[i]) {
                 //this[stateVarName] = states[i][stateVarName];
+
                 this[stateVarName] = makeObservable(states[i][stateVarName]);
+                this[stateVarName].extend({logChange: {parent: this.parent, key: stateVarName}})
             }
         }
 
