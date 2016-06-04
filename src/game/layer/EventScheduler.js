@@ -12,8 +12,8 @@ if (node) {
 
     var EventScheduler = function (gameData) {
         // serialize
-        this.events = new GameList(gameData,AbstractEvent,false,EventFactory);
-        this.eventsFinished = new GameList(gameData,AbstractEvent,false,EventFactory);
+        this.events = new GameList(gameData,AbstractEvent,false,EventFactory,this);
+        this.eventsFinished = new GameList(gameData,AbstractEvent,false,EventFactory,this);
     };
 
     EventScheduler.prototype = {

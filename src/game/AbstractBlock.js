@@ -54,6 +54,31 @@ if (node) {
         ];
     };
 
+    /**
+     * get the gameData
+     * @returns {*}
+     */
+    proto.getGameData = function() {
+        if (this.hasOwnProperty("gameData")){
+            return this.gameData;
+        }
+        else {
+            return this.parent.getGameData();
+        }
+    };
+
+    /**
+     * get the map
+     * @returns {*}
+     */
+    proto.getMap = function() {
+        if (this.hasOwnProperty("map")){
+            return this.map;
+        }
+        else {
+            return this.parent.getMap();
+        }
+    };
 
     /**
      * This function sets the type vars first with the hardcoded defaults and then overwrites them with the given this.type

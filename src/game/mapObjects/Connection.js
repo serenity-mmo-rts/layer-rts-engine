@@ -53,7 +53,7 @@ if (node) {
         var mapData = this.parent.gameData.layers.get(this.parent.mapId).mapData;
 
         //update the helper vars of the connected objects:
-        var isConnectionFinished = (this.parent.state >= 2);
+        var isConnectionFinished = (this.parent.state() >= 2);
         mapData.mapObjects.get(this.connectedFrom())._blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
         mapData.mapObjects.get(this.connectedTo()  )._blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
     };

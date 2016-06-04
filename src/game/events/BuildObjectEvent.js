@@ -234,7 +234,7 @@ if (node) {
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){
-                this._mapObj.sublayerId = event.sublayerId;
+                this._mapObj.sublayerId(event.sublayerId);
                 this.sublayerId = event.sublayerId;
             }
 
