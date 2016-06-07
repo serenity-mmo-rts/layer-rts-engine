@@ -17,26 +17,25 @@ if (node) {
 
 
 (function (exports) {
-    function GameData(initObj) {
-        this.layerTypes = new GameList(this,LayerType);
+    var GameData = function GameData(initObj) {
+        this.layerTypes = new GameList(this,LayerType,false,false,this);
 
-        this.objectTypes = new GameList(this,ObjectType);
-        this.ressourceTypes = new GameList(this,RessourceType);
-        this.technologyTypes = new GameList(this,TechnologyType);
-        this.itemTypes = new GameList(this,ItemType);
-        //this.featureTypes = new GameList(this,FeatureType);
+        this.objectTypes = new GameList(this,ObjectType,false,false,this);
+        this.ressourceTypes = new GameList(this,RessourceType,false,false,this);
+        this.technologyTypes = new GameList(this,TechnologyType,false,false,this);
+        this.itemTypes = new GameList(this,ItemType,false,false,this);
+        //this.featureTypes = new GameList(this,FeatureType,false,false,this);
 
 
-        this.spritesheets = new GameList(this,Spritesheet);
-        this.layers = new GameList(this,Layer);
-        this.users = new GameList(this,User);
+        this.spritesheets = new GameList(this,Spritesheet,false,false,this);
+        this.layers = new GameList(this,Layer,false,false,this);
+        this.users = new GameList(this,User,false,false,this);
         if (GameData.arguments.length == 1) {
             this.load(initObj);
         }
     }
 
-    GameData.prototype = {
-        save: function () {
+    GameData.prototype.save = function () {
             var a = [
                 this.layerTypes.save(),
                 this.objectTypes.save(),
@@ -49,9 +48,9 @@ if (node) {
                 this.users.save()
             ];
             return a;
-        },
+        };
 
-        load: function (a) {
+    GameData.prototype.load = function (a) {
             this.layerTypes.load(a[0]);
             this.objectTypes.load(a[1]);
             this.ressourceTypes.load(a[2]);
@@ -61,8 +60,8 @@ if (node) {
             this.spritesheets.load(a[5]);
             this.layers.load(a[6]);
             this.users.load(a[7]);
-        }
-    }
+        };
+
 
     exports.GameData = GameData;
 

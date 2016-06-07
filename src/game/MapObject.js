@@ -24,6 +24,7 @@ if (node) {
     var Tower = require('./mapObjects/Tower').Tower;
     var Unit = require('./mapObjects/Unit').Unit;
 
+    var AbstractBlock = require('./AbstractBlock').AbstractBlock;
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;
 }
 
@@ -38,312 +39,287 @@ if (node) {
     mapObjectStates.HIDDEN =4;
 
 
-    var MapObject = Class.extend({
-        /**
-         * Creates an instance of a MapObject.
-         *
-         * @constructor (init)
-         * @this {MapObject}
-         * gameData includes the whole data of the game
-         * initObj object includes the properties for a new map Object
-         * @return {none}
-         */
-        init: function MapObject(gameData,initObj) {
-            // serialized:
-            this._id = 0;
-            this.mapId = initObj.mapId;
-            this.objTypeId = initObj.objTypeId;
-            this.x = null;
-            this.y = null;
-            this.width = null; // optional
-            this.height = null; // optional
-            this.state =  mapObjectStates.TEMP;
-            this._blocks = {};
-            this.ori = 0; // orientation/rotation of map object (.i.e. for connections)
-            this.sublayerId = null;
-            this.subItemId = null;
+    /*
+     constructor(gameData,initObj)
+     or
+     constructor(parent,type)
+     */
+    var MapObject = function (arg1, arg2) {
+
+        var parent;
+        var type;
+        var initObj;
+        if (arg1.constructor.name === "GameData"){
+            // assume first argument is gameData and second argument is initObj:
+            this.gameData = arg1;
+            initObj = arg2;
+            type = this.gameData.objectTypes.get(initObj.objTypeId);
+            parent = this.gameData.layers.get(initObj.mapId).mapData.mapObjects;
+        }
+        else {
+            parent = arg1;
+            type = arg2;
+        }
+
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
+
+        this.objTypeId(type._id);
+        this._blocks = {};
+        this.gameData = this.getGameData();
+        this.onChangeCallback = {};
+        this.map = this.getMap();
+        this.objType = type;
+        this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
+        this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
+        this.items = {};
+
+        this.createBuildingBlocks();
 
 
-            // not serialized: pointers etc.
-            this.gameData = gameData;
-            this.onChangeCallback = {};
-            this.map = this.gameData.layers.get(this.mapId);
-            this.objType = this.gameData.objectTypes.get(initObj.objTypeId);
-            this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
-            this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
-            this.items = {};
+        if (arg1.constructor.name === "GameData"){
+            // assume first argument is gameData and second argument is initObj:
+            this.load(initObj);
+        }
+
+    }
+
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    MapObject.prototype = Object.create(AbstractBlock.prototype);
+    var proto = MapObject.prototype;
+    proto.constructor = MapObject;
+
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            _className: "plantation",
+            _initWidth: 40,
+            _initHeight: 40,
+            _allowOnMapTypeId: "cityMapType01",
+            _name: "tree plantation 2",
+            _spritesheetId: "objectsSprite",
+            _spriteFrame: 14,
+            _iconSpritesheetId: "objectsSprite",
+            _iconSpriteFrame: 15,
+            _buildTime: 1000
+        };
+    };
+
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {
+                _id: 0,
+                mapId: 0,
+                objTypeId: 0
+            },
+            {x: 0},
+            {y: 0},
+            {width: this._initWidth},
+            {height: this._initHeight},
+            {ori: 0},
+            {state: mapObjectStates.TEMP},
+            {sublayerId: null},
+            {subItemId: null},
+
+        ];
+    };
+
+    proto.setPointers = function(){
+
+        this.map = this.gameData.layers.get(this.mapId());
+        this.objType = this.gameData.objectTypes.get(this.objTypeId());
+
+        // call all setPointer functions of the building blocks:
+        for (var blockName in this._blocks) {
+            this._blocks[blockName].setPointers();
+        }
+
+    };
 
 
-            //load state if argument was supplied:
-            if (MapObject.arguments.length == 2) {
-                // init:
-                if(!initObj.hasOwnProperty("width")){
-                    this.height = this.objType._initHeight;
-                    this.width = this.objType._initWidth;
-                }
-                this.load(initObj);
-            }
-        },
+    proto.setInitTypeVars = function() {
+        AbstractBlock.prototype.setInitTypeVars.call(this);
+        for (var blockName in this._blocks) {
+            this._blocks[blockName].setInitTypeVars();
+        }
+    };
 
-        setPointers : function(){
+    proto.setState = function(state) {
+        this.state(state);
+        this.notifyChange();
+    };
 
-            this.map = this.gameData.layers.get(this.mapId);
-            this.objType = this.gameData.objectTypes.get(this.objTypeId);
+    proto.notifyChange = function() {
+        for (var key in this.onChangeCallback){
+            this.onChangeCallback[key]();
+        }
+    };
 
-            // call all setPointer functions of the building blocks:
-            for (var blockName in this._blocks) {
-                this._blocks[blockName].setPointers();
-            }
+    /**
+     * call this function if a state variable has changed to notify db sync later.
+     */
+    proto.notifyStateChange = function(){
+        this.map.mapData.mapObjects.notifyStateChange(this._id());
+    };
 
-        },
+    proto.getLevel = function() {
+        if (this._blocks.hasOwnProperty("UserObject")) {
+            return this._blocks.UserObject.getLevel();
+        }
+        else {
+            return 0;
+        }
+    };
 
-        setInitTypeVars: function() {
-            for (var blockName in this._blocks) {
-                this._blocks[blockName].setInitTypeVars();
-            }
-        },
+    proto.addItem = function (item){
+        this.items[item._id] = item;
+    };
 
-        setState: function(state) {
-            this.state = state;
-            this.notifyChange();
-        },
+    proto.removeItem = function (itemId){
+        var idx = this.items.indexOf(itemId)
+        this.items.splice(idx,1);
+    };
 
-        notifyChange: function() {
-            for (var key in this.onChangeCallback){
-                this.onChangeCallback[key]();
-            }
-        },
+    proto.getItems = function (){
+        return this.items;
+    };
 
-        /**
-         * call this function if a state variable has changed to notify db sync later.
-         */
-        notifyStateChange: function(){
-            this.map.mapData.mapObjects.notifyStateChange(this._id);
-        },
+    proto.addCallback = function(key,callback){
+        this.onChangeCallback[key] = callback;
+    };
 
-        getLevel: function() {
-            if (this._blocks.hasOwnProperty("UserObject")) {
-                return this._blocks.UserObject.getLevel();
-            }
-            else {
-                return 0;
-            }
-        },
+    proto.removeCallback = function(key){
+        delete this.onChangeCallback[key];
+    };
 
-        addItem: function (item){
-            this.items[item._id] = item;
-        },
+    proto.createBuildingBlocks = function() {
+        this._blocks = {};
+        for (var blockName in this.objType._blocks) {
+            this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
+        }
+    };
 
-        removeItem: function (itemId){
-            var idx = this.items.indexOf(itemId)
-            this.items.splice(idx,1);
-        },
+    proto.getAxes = function() {
+        this.axes = new Array(2);
+        this.axes[0] = new Vector(1, 0);
+        this.axes[1] = new Vector(0, -1);
+        if(this.ori() != 0) {
+            this.axes[0].rotate(this.ori());
+            this.axes[1].rotate(this.ori());
+        }
+        return this.axes;
+    };
 
-        getItems: function (){
-            return this.items;
-        },
+    proto.getRect = function() {
+        this.rect = {
+            left:   this.x()-this.width()/2,
+            top:    this.y()-this.height()/2,
+            right:  this.x()+this.width()/2,
+            bottom: this.y()+this.height()/2
+        };
+        return this.rect;
+    };
 
-        addCallback: function(key,callback){
-            this.onChangeCallback[key] = callback;
-        },
+    proto.setSubItem = function(subItemId) {
+        this.subItemId(subItemId);
+        this.removeItem(subItemId);
+    };
 
-        removeCallback: function(key){
-            delete this.onChangeCallback[key];
-        },
+    proto.getSubItem = function(subItemId) {
+        return this.subItemId();
+    };
 
-        createBuildingBlocks: function() {
-            this._blocks = {};
-            for (var blockName in this.objType._blocks) {
-                this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
-            }
-        },
+    proto.isColliding = function(b) {
 
-        getAxes: function() {
-            this.axes = new Array(2);
-            this.axes[0] = new Vector(1, 0);
-            this.axes[1] = new Vector(0, -1);
-            if(this.ori != 0) {
-                this.axes[0].rotate(this.ori);
-                this.axes[1].rotate(this.ori);
-            }
-            return this.axes;
-        },
+        if (this.ori()==0 && b.ori==0) {
+            // do a more simple and faster check if both boxes are aligned with x and y axes of map
 
-        getRect: function() {
-            this.rect = {
-                left:   this.x-this.width/2,
-                top:    this.y-this.height/2,
-                right:  this.x+this.width/2,
-                bottom: this.y+this.height/2
-            };
-            return this.rect;
-        },
+            var r1 = this.getRect();
+            var r2 = b.getRect();
 
-        setSubItem: function(subItemId) {
-            this.subItemId = subItemId;
-            this.removeItem(subItemId);
-        },
-
-        getSubItem: function(subItemId) {
-           return this.subItemId;
-        },
-
-        isColliding: function(b) {
-
-            if (this.ori==0 && b.ori==0) {
-                // do a more simple and faster check if both boxes are aligned with x and y axes of map
-
-                var r1 = this.getRect();
-                var r2 = b.getRect();
-
-                if (r2.left > r1.right ||
+            if (r2.left > r1.right ||
                 r2.right < r1.left ||
                 r2.top > r1.bottom ||
                 r2.bottom < r1.top) {
-                    return false;
-                }
-                else {
-                    return true;
-                }
-
-            }
-
-            // for the following more complex check see the references:
-            // see http://jsbin.com/esubuw/4/edit?html,js,output
-            // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-
-            var axesA = this.getAxes();
-            var axesB = b.getAxes();
-
-            var posA = new Vector(this.x, this.y);
-            var posB = new Vector(b.x, b.y);
-
-            var t = new Vector(b.x, b.y);
-            t.subtract(posA);
-            var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
-
-            var d = new Array(4);
-            d[0] = axesA[0].dot(axesB[0]);
-            d[1] = axesA[0].dot(axesB[1]);
-            d[2] = axesA[1].dot(axesB[0]);
-            d[3] = axesA[1].dot(axesB[1]);
-
-            var ra = 0, rb = 0;
-
-            ra = this.width * 0.5;
-            rb = Math.abs(d[0])*b.width*0.5 + Math.abs(d[1])*b.height*0.5;
-            if(Math.abs(s1.x) > ra+rb) {
                 return false;
-            }
-
-            ra = this.height * 0.5;
-            rb = Math.abs(d[2])*b.width*0.5 + Math.abs(d[3])*b.height*0.5;
-            if(Math.abs(s1.y) > ra+rb) {
-                return false;
-            }
-
-
-            t.set(posA);
-            t.subtract(posB);
-            var s2 = new Vector(t.dot(axesB[0]), t.dot(axesB[1]));
-
-
-            ra = Math.abs(d[0])*this.width*0.5 + Math.abs(d[2])*this.height*0.5;
-            rb = b.width*0.5;
-            if(Math.abs(s2.x) > ra+rb) {
-                return false;
-            }
-
-            ra = Math.abs(d[1])*this.width*0.5 + Math.abs(d[3])*this.height*0.5;
-            rb = b.height*0.5;
-            if(Math.abs(s2.y) > ra+rb) {
-                return false;
-            }
-
-            // collision detected:
-            return true;
-        },
-
-
-
-        save: function () {
-
-            var blocks = {};
-            for (var key in this._blocks) {
-                blocks[key]= this._blocks[key].save();
-            }
-
-            var o = {_id: this._id,
-                mapId: this.mapId,
-                objTypeId: this.objTypeId,
-                a: [this.x,
-                    this.y,
-                    this.width,
-                    this.height,
-                    this.ori,
-                    this.state,
-                    blocks,
-                    this.sublayerId,
-                    this.subItemId
-                ]};
-
-            return o;
-        },
-
-
-        /**
-         * loads the state variables either from a previously serialized machine-readable-object or from a human-readable JSON object.
-         * @param o
-         */
-        load: function (o) {
-
-            if (o.hasOwnProperty("a")) {
-                // load state from a previously saved json:
-                this._id = o._id;
-                this.mapId = o.mapId;
-                this.objTypeId = o.objTypeId;
-                this.x = o.a[0];
-                this.y = o.a[1];
-                this.width = o.a[2];
-                this.height = o.a[3];
-                this.ori = o.a[4];
-                this.state = o.a[5];
-                this._blocks = o.a[6];
-                this.sublayerId = o.a[7];
-                this.subItemId= o.a[8];
             }
             else {
-                // initialize state from json:
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
-
-            if (this._id != 0) {
-                if (typeof this._id != 'string') {
-                    this._id = this._id.toHexString();
-                }
-
-                var blockStatesJson = this._blocks;
-
-                // call block constructors
-                this.createBuildingBlocks();
-
-                // load state
-                for (var blockName in this.objType._blocks) {
-                    if (blockStatesJson[blockName] !== undefined) {
-                        this._blocks[blockName].load(blockStatesJson[blockName]);
-                    }
-                }
+                return true;
             }
 
         }
 
-    });
+        // for the following more complex check see the references:
+        // see http://jsbin.com/esubuw/4/edit?html,js,output
+        // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+
+        var axesA = this.getAxes();
+        var axesB = b.getAxes();
+
+        var posA = new Vector(this.x(), this.y());
+        var posB = new Vector(b.x, b.y);
+
+        var t = new Vector(b.x, b.y);
+        t.subtract(posA);
+        var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
+
+        var d = new Array(4);
+        d[0] = axesA[0].dot(axesB[0]);
+        d[1] = axesA[0].dot(axesB[1]);
+        d[2] = axesA[1].dot(axesB[0]);
+        d[3] = axesA[1].dot(axesB[1]);
+
+        var ra = 0, rb = 0;
+
+        ra = this.width() * 0.5;
+        rb = Math.abs(d[0])*b.width*0.5 + Math.abs(d[1])*b.height*0.5;
+        if(Math.abs(s1.x) > ra+rb) {
+            return false;
+        }
+
+        ra = this.height() * 0.5;
+        rb = Math.abs(d[2])*b.width*0.5 + Math.abs(d[3])*b.height*0.5;
+        if(Math.abs(s1.y) > ra+rb) {
+            return false;
+        }
 
 
+        t.set(posA);
+        t.subtract(posB);
+        var s2 = new Vector(t.dot(axesB[0]), t.dot(axesB[1]));
+
+
+        ra = Math.abs(d[0])*this.width()*0.5 + Math.abs(d[2])*this.height()*0.5;
+        rb = b.width*0.5;
+        if(Math.abs(s2.x) > ra+rb) {
+            return false;
+        }
+
+        ra = Math.abs(d[1])*this.width()*0.5 + Math.abs(d[3])*this.height()*0.5;
+        rb = b.height*0.5;
+        if(Math.abs(s2.y) > ra+rb) {
+            return false;
+        }
+
+        // collision detected:
+        return true;
+    };
+
+
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    MapObject.prototype.finalizeBlockClass('MapObject');
     exports.mapObjectStates = mapObjectStates;
     exports.MapObject = MapObject;
 

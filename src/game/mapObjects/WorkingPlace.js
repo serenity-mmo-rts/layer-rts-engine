@@ -46,7 +46,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {availableSkills: 0},
-            {hiredHumans: []}
+            {hiredHumanIds: []}
         ];
     };
 

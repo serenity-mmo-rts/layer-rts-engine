@@ -8,10 +8,10 @@ if (node) {
 }
 
 (function (exports) {
-    var Layer = function (gameData,initObj) {
+    var Layer = function (gameData, initObj) {
         // serialized:
         this._id = 0;
-        this.parentObjId= null;
+        this.parentObjId = null;
         this.width = 0;
         this.height = 0;
         this.mapTypeId = null;
@@ -20,7 +20,7 @@ if (node) {
         // not serialized:
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
-        this.mapData = new MapData(gameData,this);
+        this.mapData = new MapData(gameData, this);
         this.gameData = gameData;
 
         // init:
@@ -30,55 +30,57 @@ if (node) {
 
     };
 
-    Layer.prototype = {
+    var proto = Layer.prototype;
 
-        save: function () {
-            var o = {_id: this._id,
-                a: [this.parentObjId,
-                    this.width,
-                    this.height,
-                    this.mapTypeId,
-                    this.parentMapId]};
-            return o;
-        },
 
-        load: function (o) {
-            if (o.hasOwnProperty("a")) {
-                this._id = o._id;
-                this.parentObjId = o.a[0];
-                this.width = o.a[1];
-                this.height = o.a[2];
-                this.mapTypeId = o.a[3];
-                this.parentMapId = o.a[4];
-            }
-            else {
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
+
+    proto.save = function () {
+        var o = {
+            _id: this._id,
+            a: [this.parentObjId,
+                this.width,
+                this.height,
+                this.mapTypeId,
+                this.parentMapId]
+        };
+        return o;
+    };
+
+    proto.load = function (o) {
+        if (o.hasOwnProperty("a")) {
+            this._id = o._id;
+            this.parentObjId = o.a[0];
+            this.width = o.a[1];
+            this.height = o.a[2];
+            this.mapTypeId = o.a[3];
+            this.parentMapId = o.a[4];
+        }
+        else {
+            for (var key in o) {
+                if (o.hasOwnProperty(key)) {
+                    this[key] = o[key];
                 }
             }
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
-            }
-            this.mapData.rebuildQuadTree();
-        },
-
-        createSublayer: function(x,y,sublayerId,parentObjId) {
-
-            var newCityMap = new Layer(this._gameData,{
-                _id: sublayerId,
-                parentObjId: parentObjId,
-                width: 10000,
-                height: 10000,
-                mapTypeId: "cityMapType01",
-                parentMapId: this._id,
-                gameData: this._gameData
-            });
-
-            this.gameData.layers.add(newCityMap);
         }
+        if (typeof this._id != 'string') {
+            this._id = this._id.toHexString();
+        }
+        this.mapData.rebuildQuadTree();
+    };
 
+    proto.createSublayer = function (x, y, sublayerId, parentObjId) {
+
+        var newCityMap = new Layer(this._gameData, {
+            _id: sublayerId,
+            parentObjId: parentObjId,
+            width: 10000,
+            height: 10000,
+            mapTypeId: "cityMapType01",
+            parentMapId: this._id,
+            gameData: this._gameData
+        });
+
+        this.gameData.layers.add(newCityMap);
     };
 
     exports.Layer = Layer;

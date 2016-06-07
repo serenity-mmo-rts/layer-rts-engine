@@ -26,7 +26,6 @@ if (node) {
 
         // Define helper member variables:
         this.helperVar = 22;
-        this._mapId = this.parent.mapId;
         this._timeCallbackId = null;
         this.startedTime = null;
         this.dueTime = null;
@@ -35,7 +34,6 @@ if (node) {
         this.mapObjectId = null;
         this.mapId = null;
         this.layer= null;
-        this.mapObject = null;
 
         this.buildQueue = [];
 
@@ -73,10 +71,9 @@ if (node) {
 
     proto.setPointers = function () {
         this.gameData = this.parent.gameData;
-        this.mapObjectId = this.parent._id;
-        this.mapId = this.parent.mapId;
-        this.layer= this.parent.gameData.layers.get(this.parent.mapId);
-        this.mapObject = this.layer.mapData.mapObjects.get(this.parent.objectId);
+        this.mapObjectId = this.parent._id();
+        this.mapId = this.parent.mapId();
+        this.layer= this.parent.gameData.layers.get(this.parent.mapId());
         this.buildQueue = [];
         for (var i = 0; i < this.buildQueueIds().length; i++) {
             this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
@@ -198,7 +195,7 @@ if (node) {
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    self.parent.state = mapObjectStates.HIDDEN;
+                    self.parent.state(mapObjectStates.HIDDEN);
                     self.parent.notifyStateChange();
                     console.log("Dismantling of Map Object: "+self.parent._id+" done.");
                     self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);

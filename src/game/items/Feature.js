@@ -51,7 +51,6 @@ if (node) {
         return [
             {_executeIndex:0},
             {_processedStack:{
-                currentOperation: {},
                 effects: [],
                 isActivated: false,
                 canBeActivated: false,
@@ -98,6 +97,9 @@ if (node) {
     };
 
 
+    proto.getCurrentOp = function() {
+        return this._stack[this._executeIndex()];
+    };
 
     /**
      *
@@ -112,8 +114,7 @@ if (node) {
 
         // execute script iterative
         while (process == true && this._executeIndex() < this._stack.length) {
-            var currentOperation = this._stack[this._executeIndex()];
-            this._processedStack().currentOperation(currentOperation);
+            var currentOperation = this.getCurrentOp();
             out  = this.processStack(formerOperation, currentOperation);
             formerOperation = out[0];
             process = out[1];
@@ -297,12 +298,12 @@ if (node) {
     proto.addToProp = function(itemsOrObjects,variable,block,operator,change){
 
         var changeObj = {
-        variables:variable,
-        blocks:block,
-        operators:operator,
-        changes:change,
-        currentTargetObjectIds: [],
-        currentTargetItemIds: []
+            variables:variable,
+            blocks:block,
+            operators:operator,
+            changes:change,
+            currentTargetObjectIds: [],
+            currentTargetItemIds: []
         };
         this._processedStack().effects().push(changeObj);
 
