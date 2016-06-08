@@ -43,7 +43,7 @@ if (node) {
             }
 
             //check if correct layer
-            if (this._mapId != this._mapObj.mapId){
+            if (this._mapId != this._mapObj.mapId()){
                 return false;
             }
 
@@ -138,7 +138,7 @@ if (node) {
         },
 
         setParameters: function (mapObj,connectionFrom) {
-            this.mapObjTypeId = mapObj.objTypeId;
+            this.mapObjTypeId = mapObj.objTypeId();
             this._mapObj = mapObj;
             if (arguments.length==2){
                 this.connectedFrom = connectionFrom;

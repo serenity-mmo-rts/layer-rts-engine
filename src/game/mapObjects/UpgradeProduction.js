@@ -84,12 +84,12 @@ if (node) {
     proto.addEventToQueue = function (evt) {
         // TODO serialize global event list
         this.buildQueue.push(evt);
-        this.buildQueueIds.push(evt._id);
+        this.buildQueueIds().push(evt._id);
         evt.setFinished();
     };
 
     proto.removeItemFromQueue = function (idx) {
-        this.buildQueueIds.splice(idx, 1);
+        this.buildQueueIds().splice(idx, 1);
         this.buildQueue.splice(idx, 1);
     };
 
@@ -111,7 +111,7 @@ if (node) {
         // notify time scheduler:
         console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
         this.dueTime = this.startedTime + buildTime;
-        this.gameData.layers.get(this._mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime);
+        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime);
 
     };
 
@@ -174,7 +174,7 @@ if (node) {
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    console.log("I finished building a " + self.parent.objTypeId + " at coordinates ("+ self.parent.x+","+self.parent.y+")");
+                    console.log("I finished building a " + self.parent.objTypeId() + " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
                     self.parent.setState(2);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
@@ -182,13 +182,13 @@ if (node) {
                     return Infinity;
                 };
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("I start building an" + self.parent.objTypeId +  " at coordinates ("+ self.parent.x+","+self.parent.y+")");
+                console.log("I start building an" + self.parent.objTypeId() +  " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
             }
 
             // dismantle map Object
            else if (evt._type=="MoveThroughLayerEvent"){
                 this.parent.setState(0);
-                var objType = this.gameData.objectTypes.get(this.parent._id);
+                var objType = this.gameData.objectTypes.get(this.parent._id());
                 var deployTime = objType.Unit.deployTime;
                 this.startedTime = startedTime;
                 this.dueTime = startedTime + deployTime;
@@ -197,12 +197,12 @@ if (node) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.parent.state(mapObjectStates.HIDDEN);
                     self.parent.notifyStateChange();
-                    console.log("Dismantling of Map Object: "+self.parent._id+" done.");
+                    console.log("Dismantling of Map Object: "+self.parent._id()+" done.");
                     self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
                     return Infinity;
                 };
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("Start dismantling of Map Object " +this.parent._id + "");
+                console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }
 
 

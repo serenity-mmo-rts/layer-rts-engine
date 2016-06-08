@@ -241,7 +241,7 @@ if (node) {
 
     proto.isColliding = function(b) {
 
-        if (this.ori()==0 && b.ori==0) {
+        if (this.ori()==0 && b.ori()==0) {
             // do a more simple and faster check if both boxes are aligned with x and y axes of map
 
             var r1 = this.getRect();
@@ -267,9 +267,9 @@ if (node) {
         var axesB = b.getAxes();
 
         var posA = new Vector(this.x(), this.y());
-        var posB = new Vector(b.x, b.y);
+        var posB = new Vector(b.x(), b.y());
 
-        var t = new Vector(b.x, b.y);
+        var t = new Vector(b.x(), b.y());
         t.subtract(posA);
         var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
 
@@ -282,13 +282,13 @@ if (node) {
         var ra = 0, rb = 0;
 
         ra = this.width() * 0.5;
-        rb = Math.abs(d[0])*b.width*0.5 + Math.abs(d[1])*b.height*0.5;
+        rb = Math.abs(d[0])*b.width()*0.5 + Math.abs(d[1])*b.height()*0.5;
         if(Math.abs(s1.x) > ra+rb) {
             return false;
         }
 
         ra = this.height() * 0.5;
-        rb = Math.abs(d[2])*b.width*0.5 + Math.abs(d[3])*b.height*0.5;
+        rb = Math.abs(d[2])*b.width()*0.5 + Math.abs(d[3])*b.height()*0.5;
         if(Math.abs(s1.y) > ra+rb) {
             return false;
         }
@@ -300,13 +300,13 @@ if (node) {
 
 
         ra = Math.abs(d[0])*this.width()*0.5 + Math.abs(d[2])*this.height()*0.5;
-        rb = b.width*0.5;
+        rb = b.width()*0.5;
         if(Math.abs(s2.x) > ra+rb) {
             return false;
         }
 
         ra = Math.abs(d[1])*this.width()*0.5 + Math.abs(d[3])*this.height()*0.5;
-        rb = b.height*0.5;
+        rb = b.height()*0.5;
         if(Math.abs(s2.y) > ra+rb) {
             return false;
         }
