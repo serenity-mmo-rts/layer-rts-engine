@@ -53,16 +53,13 @@ if (node) {
 
     proto.setPointers  = function(){
         this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent._mapId);
-        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
+        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this._mapObject = this.parent._mapObj;
     };
 
     proto.removePointers  = function(){
 
     };
-
-
-
 
     proto.activatePerClick = function(target,range){
 

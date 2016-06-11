@@ -43,11 +43,9 @@ if (node) {
 
         setFinished: function(){
             this._isFinished = true;
-            this._gameData.layers.get(this._mapId).eventScheduler.finishEvent(this);
         },
 
         setState: function(){
-            event.setValid();
         },
 
         executeOnClient: function () {

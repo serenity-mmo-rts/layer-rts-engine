@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
-    var Class= require('./Class').Class;
+    var Class = require('./Class').Class;
     var Combat = require('./items/Combat').Combat;
     var Commander = require('./items/Commander').Commander;
     var Feature = require('./items/Feature').Feature;
@@ -10,6 +10,7 @@ if (node) {
     var SubObject = require('./items/SubObject').SubObject;
     var FeatureManager = require('./mapObjects/FeatureManager').FeatureManager;
 
+    var AbstractBlock = require('./AbstractBlock').AbstractBlock;
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;
 }
 
@@ -17,150 +18,152 @@ if (node) {
 
     var itemStates = {};
     itemStates.TEMP = 0;
-    itemStates.WORKING= 1;
+    itemStates.WORKING = 1;
     itemStates.FINSEHD = 2;
     itemStates.HIDDEN = 3;
     itemStates.BLOCKED = 4;
 
-    var Item = function (gameData,initObj){
-      // serialized
-        this._state=itemStates.TEMP;
-        this._id=null;
-        this._objectId= null;
-        this._itemTypeId = null;
-        this._mapId= null;
-        this._level=1;
-        this._onChangeCallback= null;
+    /*
+     constructor(gameData,initObj)
+     or
+     constructor(parent,type)
+     */
+    var Item = function (arg1, arg2) {
+
+        var parent;
+        var type;
+        var initObj;
+        if (arg1.constructor.name === "GameData"){
+            // assume first argument is gameData and second argument is initObj:
+            this.gameData = arg1;
+            initObj = arg2;
+            type = this.gameData.itemTypes.get(initObj.itemTypeId);
+            parent = this.gameData.layers.get(initObj.mapId).mapData.items;
+        }
+        else {
+            parent = arg1;
+            type = arg2;
+        }
+
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
+
+        this.itemTypeId(type._id);
         this._blocks = {};
+        this._onChangeCallback = null;
+        this._mapObj = null;
+        this.gameData = this.getGameData();
+        this.map = this.getMap();
+        this.itemType = this.gameData.itemTypes.get(initObj.itemTypeId);
 
-        //not serialized
-        this.map = null;
-        this._mapObj= null;
-        this.gameData = gameData;
-        this.itemType = this.gameData.itemTypes.get(initObj._itemTypeId);
+        this.createBuildingBlocks();
 
-        //load state if argument was supplied:
-        if (Item.arguments.length == 2) {
+        if (arg1.constructor.name === "GameData"){
+            // assume first argument is gameData and second argument is initObj:
             this.load(initObj);
         }
 
 
     };
 
-    Item.prototype= {
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    Item.prototype = Object.create(AbstractBlock.prototype);
+    var proto = Item.prototype;
+    proto.constructor = Item;
 
-        getLevel: function() {
-            return this._level;
-        },
 
-        setState: function(state) {
-            this._state = state;
+
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            _className: "ProductivityUpgrade",
+            _allowOnMapTypeId: null,
+            _allowOnObjTypeId: null,
+            _name: "activationItem",
+            _iconSpritesheetId: "itemSprite",
+            _iconSpriteFrame: 4,
+            _buildMenuTooltip: "this is awesome",
+            _buildTime: [10000,10000,10000,10000,10000]
+        };
+    };
+
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {
+                _id: 0,
+                mapId: 0,
+                itemTypeId: 0
+            },
+            {_objectId: 0},
+            {x: 0},
+            {y: 0},
+            {state: itemStates.TEMP},
+            {_level: 1}
+
+        ];
+    };
+
+
+
+
+    proto.getLevel = function () {
+        return this._level();
+    };
+
+    proto.setState = function (state) {
+        this._state(state)
+        this._mapObj.notifyChange();
+    };
+
+    proto.setLevel = function (lvl, curTime) {
+        if (lvl != this._level()) {
+            this._level(lvl);
             this._mapObj.notifyChange();
-        },
-
-        setLevel: function(lvl,curTime) {
-            if (lvl!=this._level){
-                this._level = lvl;
-                this._mapObj.notifyChange();
-            }
-        },
-
-        updateId: function(newId) {
-            if (this._mapObj != null) {
-                delete this._mapObj.items[this._id];
-                this._mapObj.items[this._id] = this;
-            }
-            this._id = newId;
-        },
-
-        setPointers : function(){
-            this.map = this.gameData.layers.get(this._mapId);
-            this._itemType = this.gameData.itemTypes.get(this._itemTypeId);
-            this._mapObj =  this.map.mapData.mapObjects.get(this._objectId);
-            this._mapObj.addItem(this);
-
-            // call all setPointer functions of the building blocks:
-            for (var blockName in this._blocks) {
-                this._blocks[blockName].setPointers();
-            }
-        },
-
-        createBuildingBlocks: function() {
-            this._blocks = {};
-            for (var blockName in this.itemType._blocks) {
-                this._blocks[blockName] = createBlockInstance(blockName,this,this.itemType._blocks[blockName]);
-            }
-        },
-
-        /**
-         * call this function if a state variable has changed to notify db sync later.
-         */
-        notifyStateChange: function(){
-            this.map.mapData.items.notifyStateChange(this._id);
-        },
-
-
-        save: function () {
-
-            var blocks = {};
-            for (var key in this._blocks) {
-                blocks[key]= this._blocks[key].save();
-            }
-
-            var o = {_id: this._id,
-                _itemTypeId: this._itemTypeId,
-                _objectId: this._objectId,
-                _mapId: this._mapId,
-                a:[this._level,
-                    this._state,
-                    blocks
-                ]
-
-            };
-
-            return o;
-        },
-
-
-        load: function (o) {
-
-            if (o.hasOwnProperty("a")) {
-                // load state from a previously saved json:
-                this._id = o._id;
-                this._itemTypeId = o._itemTypeId;
-                this._objectId = o._objectId;
-                this._mapId = o._mapId;
-                this._level = o.a[0];
-                this._state = o.a[1];
-                this._blocks = o.a[2];
-            }
-            else {
-                // initialize state from json:
-                for (var key in o) {
-                    if (o.hasOwnProperty(key)) {
-                        this[key] = o[key];
-                    }
-                }
-            }
-
-            if (typeof this._id != 'string' && this._id !== undefined) {
-                this._id = this._id.toHexString();
-            }
-
-            var blockStatesJson = this._blocks;
-
-            // call block constructors
-            this.createBuildingBlocks();
-
-            // load state
-            for (var blockName in this.itemType._blocks) {
-                if (blockStatesJson[blockName] !== undefined) {
-                    this._blocks[blockName].load(blockStatesJson[blockName]);
-                }
-            }
-
         }
+    };
 
+    proto.updateId = function (newId) {
+        if (this._mapObj != null) {
+            delete this._mapObj.items[this._id()];
+            this._mapObj.items[this._id()] = this;
+        }
+        this._id(newId);
+    };
+
+    proto.setPointers = function () {
+        this.map = this.getMap();
+        this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
+        this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
+        this._mapObj.addItem(this);
+
+        // call all setPointer functions of the building blocks:
+        for (var blockName in this._blocks) {
+            this._blocks[blockName].setPointers();
+        }
+    };
+
+    proto.createBuildingBlocks = function () {
+        this._blocks = {};
+        for (var blockName in this.itemType._blocks) {
+            this._blocks[blockName] = createBlockInstance(blockName, this, this.itemType._blocks[blockName]);
+        }
+    };
+
+    /**
+     * call this function if a state variable has changed to notify db sync later.
+     */
+    proto.notifyStateChange = function () {
+        this.map.mapData.items.notifyStateChange(this._id());
     };
 
 

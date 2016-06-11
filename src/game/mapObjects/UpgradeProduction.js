@@ -99,11 +99,11 @@ if (node) {
 
         // get building time
         if (evt._type=="BuildUpgradeEvent"){
-            var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[0];
+            var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[0];
         }
         else if (evt._type=="LevelUpgradeEvent"){
             var level= this.layer.mapData.items.get(evt._itemId).getLevel(); // level goes from 1 to n, buildTime from 0 to n-1
-            var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[level];
+            var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[level];
         }
         else if (evt._type=="BuildObjectEvent"){
             var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId)._buildTime;
@@ -122,13 +122,13 @@ if (node) {
             var evt = this.buildQueue[0];
             // building upgrade
             if (evt._type=="BuildUpgradeEvent"){
-                var buildTime = this.gameData.itemTypes.get(evt._itemTypeId)._buildTime[0];
+                var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[0];
                 this.startedTime = startedTime;
                 this.dueTime = startedTime + buildTime;
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    var item = new Item(self.gameData, {_id: evt._itemId, _objectId: self.mapObjectId, _itemTypeId: evt._itemTypeId, _mapId: evt._mapId});
+                    var item = new Item(self.gameData, {_id: evt._itemId, _objectId: self.mapObjectId, itemTypeId: evt.itemTypeId, mapId: evt._mapId});
 
                     console.log("item: "+evt._itemId+" production completed");
                     self.layer.mapData.addItem(item);
@@ -141,11 +141,11 @@ if (node) {
                     return Infinity;
                 };
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("I start building a " + evt._itemTypeId + " in map Object" +this.mapObjectId);
+                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.mapObjectId);
             }
             // upgrading  upgrade
             else if (evt._type=="LevelUpgradeEvent"){
-                var buildTime = this.gameData.itemTypes.get(evt._item._itemTypeId)._buildTime[evt._item._level];
+                var buildTime = this.gameData.itemTypes.get(evt._item.itemTypeId)._buildTime[evt._item._level()];
                 this.startedTime = startedTime;
                 this.dueTime = startedTime + buildTime;
                 var self = this;
@@ -163,7 +163,7 @@ if (node) {
                     return Infinity;
                 };
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("I start upgrading an" + evt._itemTypeId + " in map Object" +this.mapObjectId);
+                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.mapObjectId);
 
             }
             // building map object

@@ -123,7 +123,7 @@ if (node) {
 
     proto.addItem = function (item) {
         //check if item is already in list:
-        if (this.items.hashList.hasOwnProperty(item._id)) {
+        if (this.items.hashList.hasOwnProperty(item._id())) {
             console.log("item was already in list.")
         }
         else {
@@ -136,8 +136,8 @@ if (node) {
 
     proto.removeItem = function (item) {
         //check if object is already in list:
-        if (this.items.hashList.hasOwnProperty(item._id)) {
-            delete this.items.deleteById(item._id);
+        if (this.items.hashList.hasOwnProperty(item._id())) {
+            delete this.items.deleteById(item._id());
         }
 
     };
@@ -190,7 +190,8 @@ if (node) {
             x: coord[0],
             y: coord[1],
             width: range * 2,
-            height: range * 2
+            height: range * 2,
+            mapId: this.layer._id
         });
         var inRange = [];
         var collidingMapObjects = this.collisionDetection(mapObj);

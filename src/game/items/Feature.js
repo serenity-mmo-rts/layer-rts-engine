@@ -66,10 +66,10 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        this._itemId = this.parent._id;
-        console.log("parent Id=" + this.parent._id );
-        this._layer= this.parent.gameData.layers.get(this.parent._mapId);
-        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
+        this._itemId = this.parent._id();
+        console.log("parent Id=" + this.parent._id() );
+        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId());
         this.addItemToFeatureManagers();
     };
 
@@ -348,7 +348,7 @@ if (node) {
     };
 
     proto.addObjTargets= function(object,changeObj){
-        var targetId = object._id;
+        var targetId = object._id();
         var effectCounter = this._processedStack().effects().length-1;
         if (this._processedStack().effects()[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
             this._processedStack().effects()[effectCounter].currentTargetObjectIds.push(targetId);
@@ -358,7 +358,7 @@ if (node) {
     };
 
     proto.addItemTargets= function(item,changeObj){
-        var targetId = item._id;
+        var targetId = item._id();
         var effectCounter = this._processedStack().effects().length-1;
         if (this._processedStack().effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
             this._processedStack().effects()[effectCounter].currentTargetItemIds.push(targetId);

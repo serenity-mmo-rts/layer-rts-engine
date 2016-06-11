@@ -49,11 +49,11 @@ if (node) {
         var parent;
         var type;
         var initObj;
-        if (arg1.constructor.name === "GameData"){
+        if (arg1.constructor.name === "GameData") {
             // assume first argument is gameData and second argument is initObj:
             this.gameData = arg1;
             initObj = arg2;
-            type = this.gameData.objectTypes.get(initObj.objTypeId);
+            type = this.gameData.objectTypes.get(initObj.objTypeId) || null;
             parent = this.gameData.layers.get(initObj.mapId).mapData.mapObjects;
         }
         else {
@@ -64,7 +64,9 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        this.objTypeId(type._id);
+        if (type){
+            this.objTypeId(type._id);
+        }
         this._blocks = {};
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
@@ -182,7 +184,7 @@ if (node) {
     };
 
     proto.addItem = function (item){
-        this.items[item._id] = item;
+        this.items[item._id()] = item;
     };
 
     proto.removeItem = function (itemId){

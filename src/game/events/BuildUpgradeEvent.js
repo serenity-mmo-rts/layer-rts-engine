@@ -16,7 +16,7 @@ if (node) {
         _type: "BuildUpgradeEvent",
 
         //serialized:
-        _itemTypeId: null,
+        itemTypeId: null,
         _itemId: null,
         _parentObjectId: null,
 
@@ -32,8 +32,8 @@ if (node) {
         },
 
         setParameters: function (itemTypeId,parentObject) {
-            this._itemTypeId = itemTypeId;
-            this._parentObjectId = parentObject._id;
+            this.itemTypeId = itemTypeId;
+            this._parentObjectId = parentObject._id();
             this._parentObject = parentObject;
         },
 
@@ -79,7 +79,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._itemTypeId,
+            o.a2 = [this.itemTypeId,
                 this._itemId,
                 this._parentObjectId
             ];
@@ -89,7 +89,7 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._itemTypeId = o.a2[0];
+                this.itemTypeId = o.a2[0];
                 this._itemId = o.a2[1];
                 this._parentObjectId = o.a2[2];
             }
