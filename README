@@ -11,11 +11,12 @@ D) go to https://github.com/TooTallNate/node-gyp and see requirements for socket
 E) clone git repository to local folderssl:
 F) Goto  http://slproweb.com/products/Win32OpenSSL.html  and install Visual C++ 2008 Redistributables and  install Win64 OpenSSL v1.0.1f
 G) install  visual studio 2010 professional and pack 1 update for visual studio 2010 
-H) goto server folder in bash and type: "npm install" 
-I) install mongoDB
+H) Install ZeroMQ
+I) goto server folder in bash and type: "npm install" 
+J) install mongoDB
 
-J) Install Webstorm: http://www.jetbrains.com/webstorm/ and license it
-K) Configure Webstorm:
+K) Install Webstorm: http://www.jetbrains.com/webstorm/ and license it
+L) Configure Webstorm:
 	2. create new project from existing files
 	3. choose first option, local host, no synch
 	4. web server root URL: localhost, check box
