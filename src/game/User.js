@@ -4,6 +4,7 @@
         // serialized:
         this._id = 0;
         this.name = null;
+        researchedTechnologies: []
 
         // not serialized:
         this.gameData = gameData;
@@ -12,7 +13,7 @@
         if (User.arguments.length == 2) {
             this.load(initObj);
         }
-    }
+    };
 
     User.prototype = {
 
@@ -35,8 +36,33 @@
                     }
                 }
             }
+        },
+
+
+        addTechnology: function (techId) {
+            var pos =  this._appliedItemIds.indexOf(techId);
+            if (pos == -1) {
+                this.researchedTechnologies.push(techId);
+            }
+          },
+
+        removeItemId: function(techId){
+            var pos = this._appliedItemIds.indexOf(techId);
+            if (this.lookUpTechnology(techId)) {
+                this._appliedItemIds.splice(pos, 1);
+            }
+        },
+
+        lookUpTechnology: function (techId) {
+            var pos =  this._appliedItemIds.indexOf(techId);
+            if (pos == -1) {
+                return false;
+            }
+            else{
+                return true;
+            }
         }
-    }
+    };
 
     exports.User = User;
 
