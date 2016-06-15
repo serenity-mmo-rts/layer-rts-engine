@@ -143,7 +143,7 @@ if (node) {
         // loop over items
         for (var i=0; i< this._appliedItemIds().length; i++){
             // get item from id
-            var item = this.parent.gameData.layers.get(this.parent.mapId).mapData.items.get(this._appliedItemIds()[i]);
+            var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this._appliedItemIds()[i]);
             // sanity Check
 
             if (item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this._appliedItemIds()[i])){

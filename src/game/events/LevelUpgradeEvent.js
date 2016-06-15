@@ -16,7 +16,7 @@ if (node) {
         // serialized
         _type: "LevelUpgradeEvent",
         _itemId:null,
-        _itemTypeId:null,
+        itemTypeId:null,
         _parentObjectId:null,
 
         // helper
@@ -37,7 +37,7 @@ if (node) {
             this._parentObject = this._item._mapObj;
             this._parentObjectId = this._parentObject._id;
             this._itemId = this._item._id;
-            this._itemTypeId = this._item._itemTypeId;
+            this.itemTypeId = this._item.itemTypeId;
 },
 
         setPointers: function(){
@@ -78,7 +78,7 @@ if (node) {
             var o = this._super();
             o.a2 = [this._itemId,
                     this._parentObjectId,
-                    this._itemTypeId
+                    this.itemTypeId
             ];
             return o;
         },
@@ -88,7 +88,7 @@ if (node) {
             if (o.hasOwnProperty("a2")) {
                 this._itemId = o.a2[0];
                 this._parentObjectId = o.a2[1];
-                this._itemTypeId = o.a2[2];
+                this.itemTypeId = o.a2[2];
             }
             else {
                 for (var key in o) {

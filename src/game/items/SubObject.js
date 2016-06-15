@@ -57,8 +57,8 @@ if (node) {
 
     proto.setPointers  = function(){
         this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent._mapId);
-        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId);
+        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this._mapObject = this.parent._mapObj;
     };
 
     proto.removePointers  = function(){
@@ -76,7 +76,7 @@ if (node) {
         var self = this;
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
-            self.parent.state = itemStates.FINISHED;
+            self.parent.state(itemStates.FINISHED);
             self.parent.notifyStateChange();
             console.log("Unit: "+self.parent._id+" ready in Upper Layer");
             return Infinity;
