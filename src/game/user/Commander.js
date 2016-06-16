@@ -43,12 +43,68 @@ if (node) {
      * Within this function it is possible to read the type variables of the instance using this.typeVarName.
      * @returns {[{stateVarName: defaultValue},...]}
      */
+
+    // TODO: divide into type and state variables
     proto.defineStateVars = function () {
         return [
-
+            {generalSkills: ["Strength","Intelligence","Agility","Leadership","Personage","Cogency","Strategic-Thinking"]},
+            {combatSkills: ["defenseAbility","attackAbility","maxArmor","maxHealth","attackSpeed","attackRange","movementSpeed","CommanderFatigue","RecoveryRate","Armor","Health"]},
+            {specialSkills: ["Scientific-Reputation","Market-Power","Construction-Expertise","Popularity"]},
+            {generalSkillValues: [5,5,5,5,5,5,5,5]},
+            {combatSkillValues: [5,5,5,5,5,5,5,5,5,5,5]},
+            {specialSkillValues: [5,5,5,5]}
         ];
     };
 
+    proto.getGeneralSkillValues = function (skillIds) {
+        if (arguments.length>0){
+            var out = [];
+            for (var i=0;i<skillIds.length;i++){
+                var pos = this.generalSkills.indexOf(skillIds[i]);
+                if (pos != -1) {
+                   out.push(this.generalSkillValues[pos]);
+                }
+            }
+            return out;
+        }
+
+        else{
+            return this.generalSkillValues
+        }
+
+    };
+
+    proto.getCombatSkillValues = function (skillIds) {
+        if (arguments.length>0){
+            var out = [];
+            for (var i=0;i<skillIds.length;i++){
+                var pos = this.combatSkills.indexOf(skillIds[i]);
+                if (pos != -1) {
+                    out.push(this.combatSkillValues[pos]);
+                }
+            }
+            return out;
+        }
+        else{
+            return this.combatSkillValues
+        }
+    };
+
+    proto.getSpecialSkillValues = function (skillIds) {
+        if (arguments.length>0){
+            var out = [];
+            for (var i=0;i<skillIds.length;i++){
+                var pos = this.specialSkills.indexOf(skillIds[i]);
+                if (pos != -1) {
+                    out.push(this.specialSkillValues[pos]);
+                }
+            }
+            return out;
+        }
+        else{
+            return this.specialSkillValues
+        }
+    };
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
