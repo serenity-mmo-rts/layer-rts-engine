@@ -10,9 +10,6 @@ if (node) {
         // serialized:
         _type: "TechnologyType",
         // requirements
-        _allowOnMapTypeId: null,
-        _allowOnObjTypeId: null,
-
         _requiredTechnologies: null,
         _requiredItemIds: null,
         _requiredItemLevels: null,
@@ -31,8 +28,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._allowOnMapTypeId,
-                    this._allowOnObjTypeId,
+            o.a2 = [
                     this._requiredTechnologies,
                     this._requiredItemIds,
                     this._requiredItemLevels,
@@ -47,15 +43,13 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                    this._allowOnMapTypeId = o.a2[0];
-                    this._allowOnObjTypeId = o.a2[1];
-                    this._requiredTechnologies = o.a2[2];
-                    this._requiredItemIds = o.a2[3];
-                    this._requiredItemLevels = o.a2[4];
-                    this._requiredSkillIds = o.a2[5];
-                    this._requiredSkillPoints = o.a2[6];
-                    this._requiredResourceIds = o.a2[7];
-                    this._requiredResourceAmounts = o.a2[8];
+                    this._requiredTechnologies = o.a2[0];
+                    this._requiredItemIds = o.a2[1];
+                    this._requiredItemLevels = o.a2[2];
+                    this._requiredSkillIds = o.a2[3];
+                    this._requiredSkillPoints = o.a2[4];
+                    this._requiredResourceIds = o.a2[5];
+                    this._requiredResourceAmounts = o.a2[6];
                     this._techPoints = o.a2[9];
             }
             else {

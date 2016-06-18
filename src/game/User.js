@@ -1,7 +1,7 @@
 
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var AbstractBlock = require('./AbstractBlock').AbstractBlock;
 }
 
 (function (exports) {
@@ -56,15 +56,15 @@ if (node) {
         }
     };
 
-    proto.removeItemId= function(techId){
+    proto.removeTechnology= function(techId){
         var pos = this._appliedItemIds.indexOf(techId);
         if (this.lookUpTechnology(techId)) {
-            this._appliedItemIds.splice(pos, 1);
+            this.researchedTechnologies.splice(pos, 1);
         }
     };
 
     proto.lookUpTechnology= function (techId) {
-        var pos =  this._appliedItemIds.indexOf(techId);
+        var pos =  this.researchedTechnologies.indexOf(techId);
         if (pos == -1) {
             return false;
         }
