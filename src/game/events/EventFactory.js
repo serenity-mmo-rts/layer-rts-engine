@@ -7,6 +7,7 @@ if (node) {
     var LevelUpgradeEvent = require('./LevelUpgradeEvent').LevelUpgradeEvent;
     var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
     var MoveThroughLayerEvent = require('./MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var ResearchEvent = require('./ResearchEvent').ResearchEvent;
 }
 
 (function (exports) {
@@ -27,6 +28,9 @@ if (node) {
         }
         else if (initObj._type == "MoveThroughLayerEvent") {
             event = new MoveThroughLayerEvent(gameData,initObj);
+        }
+        else if (initObj._type == "ResearchEvent") {
+            event = new ResearchEvent(gameData,initObj);
         }
         return event;
     };

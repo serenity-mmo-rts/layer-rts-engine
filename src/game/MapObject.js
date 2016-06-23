@@ -23,6 +23,7 @@ if (node) {
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
     var Tower = require('./mapObjects/Tower').Tower;
     var Unit = require('./mapObjects/Unit').Unit;
+    var Technologies = require('./user/Technologies').Technologies;
 
     var AbstractBlock = require('./AbstractBlock').AbstractBlock;
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;

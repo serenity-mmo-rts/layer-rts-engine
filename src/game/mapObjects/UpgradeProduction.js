@@ -2,12 +2,15 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('./../MapObject').MapObject;
+    var MapObject = require('../MapObject').MapObject;
+    var Item = require('../Item').Item;
+    var User = require('../User').User;
     var mapObjectStates = require('../MapObject').mapObjectStates;
     var BuildUpgradeEvent = require('../events/BuildUpgradeEvent').BuildUpgradeEvent;
     var LevelUpgradeEvent = require('../events/LevelUpgradeEvent').LevelUpgradeEvent;
     var BuildObjectEvent = require('../events/BuildObjectEvent').BuildObjectEvent;
-    var Item = require('./../Item').Item;
+    var ResearchEvent = require('../events/ResearchEvent').ResearchEvent;
+
 }
 
 (function (exports) {
@@ -108,6 +111,9 @@ if (node) {
         else if (evt._type=="BuildObjectEvent"){
             var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId)._buildTime;
         }
+        else if (evt._type=="ResearchEvent"){
+            var buildTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
+        }
         // notify time scheduler:
         console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
         this.dueTime = this.startedTime + buildTime;
@@ -203,6 +209,26 @@ if (node) {
                 };
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
+            }
+
+
+            // research technology
+            else if (evt._type=="ResearchEvent"){
+                this.parent.setState(0);
+                var techTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
+                this.startedTime = startedTime;
+                this.dueTime = startedTime + techTime;
+                var self = this;
+                var callback = function(dueTime,callbackId) {
+                    self.layer.timeScheduler.removeCallback(callbackId);
+                    self.parent.state(2);
+                    self.parent.notifyStateChange();
+                    console.log("Fished research:"+evt.techTypeId+" in Map Object: "+self.parent._id());
+                    User.addTechnology(evt.techTypeId);
+                    return Infinity;
+                };
+                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+                console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }
 
 

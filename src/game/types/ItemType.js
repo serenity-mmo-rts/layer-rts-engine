@@ -27,7 +27,7 @@ if (node) {
                     this._className,
                     this._blocks,
                     this._allowOnMapTypeId,
-                    this._allowOnObjTypeId,
+                    this._allowOnObjTypeId
 
                     ];
             return o;
