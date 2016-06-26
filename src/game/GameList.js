@@ -101,7 +101,7 @@ if (node) {
      */
     proto.getAndResetStateChanges = function () {
         var oldStateChanges = this.recentlyChanged;
-        this.recentlyChanged = {}
+        this.recentlyChanged = {};
         return oldStateChanges;
     };
 
@@ -110,7 +110,7 @@ if (node) {
 
         if (this.hashList.hasOwnProperty(oldId)) {
             var tmpObj = this.hashList[oldId];
-            this.deleteById(oldId)
+            this.deleteById(oldId);
             var id;
             if (ko.isObservable(tmpObj._id)) {
                 tmpObj._id(newId);
@@ -145,6 +145,14 @@ if (node) {
         return count;
         // faster version, but only working in Node, Chrome, IE 9+, FF 4+, or Safari 5+:
         //return Object.keys(this.hashList).length;
+    };
+
+    proto.toArray = function () {
+        var newArray = []
+        for (var key in this.hashList) {
+            newArray.push(this.hashList[key]);
+        }
+        return newArray;
     };
 
     proto.each = function (func) {

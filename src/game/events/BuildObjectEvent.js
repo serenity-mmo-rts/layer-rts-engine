@@ -51,6 +51,7 @@ if (node) {
 
                 var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedFrom());
                 var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedTo());
+                this._mapObj._blocks.Connection.setConnectionPoints();
 
                 //check if both are on the same layer:
                 if (sourceHub == undefined || targetObj == undefined){
@@ -68,12 +69,22 @@ if (node) {
                 }
 
                 //check if both are within the range given by the hub:
-                var dx = (targetObj.x - sourceHub.x);
-                var dy = (targetObj.y - sourceHub.y);
+                var dx = (targetObj.x() - sourceHub.x());
+                var dy = (targetObj.y() - sourceHub.y());
                 var connLength = Math.sqrt(dx*dx + dy*dy);
                 if (sourceHub._blocks.HubNode.getMaxRange() < connLength) {
                     return false;
                 }
+
+                //set center coordinate of connection and orientation of connection correctly:
+                this.x = sourceHub.x() + dx/2;
+                this.y = sourceHub.y() + dy/2;
+                this._mapObj.x(this.x);
+                this._mapObj.y(this.y);
+                this._mapObj.ori(-Math.atan2(dy, dx));
+                this._mapObj.width(connLength);
+                this._mapObj.height(this._mapObj.objType._initHeight);
+                this._mapObj.notifyChange();
 
                 //check if there is a port free in the hub node
                 if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
@@ -86,7 +97,7 @@ if (node) {
                 }
 
                 //don't allow self connection
-                if (sourceHub._id == targetObj._id){
+                if (sourceHub._id() == targetObj._id()){
                     return false;
                 }
 
@@ -98,15 +109,15 @@ if (node) {
                     // check if there is any object colliding that is not the source or target object
                     var arrayLength = collidingItems.length;
                     for (var i = 0; i < arrayLength; i++) {
-                        if (collidingItems[i]._id != targetObj._id &&
-                            collidingItems[i]._id != sourceHub._id) {
+                        if (collidingItems[i]._id() != targetObj._id() &&
+                            collidingItems[i]._id() != sourceHub._id()) {
 
                             if(collidingItems[i]._blocks.hasOwnProperty("Connection")) {
                                 // only fail if the colliding item is not any other connection to either the source or target object:
-                                if (collidingItems[i]._blocks.Connection.connectedFrom() != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection.connectedFrom() != sourceHub._id &&
-                                    collidingItems[i]._blocks.Connection.connectedTo() != targetObj._id &&
-                                    collidingItems[i]._blocks.Connection.connectedTo() != sourceHub._id) {
+                                if (collidingItems[i]._blocks.Connection.connectedFrom() != targetObj._id() &&
+                                    collidingItems[i]._blocks.Connection.connectedFrom() != sourceHub._id() &&
+                                    collidingItems[i]._blocks.Connection.connectedTo() != targetObj._id() &&
+                                    collidingItems[i]._blocks.Connection.connectedTo() != sourceHub._id()) {
                                     return false;
                                 }
                             }
@@ -185,6 +196,7 @@ if (node) {
 
             this._mapObj = null;
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
+
             this._mapObj.setPointers();
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
@@ -211,6 +223,8 @@ if (node) {
                 this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
             }
 
+            this.isValid();
+            this._mapObj.embedded(true);
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
 
         },

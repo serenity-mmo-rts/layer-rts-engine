@@ -57,28 +57,22 @@ if (node) {
         this.connectedTo.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
+        this.embedded.subscribe(function(newValue) {
+            self.setConnectionPoints();
+        });
     };
 
     proto.setConnectionPoints = function(){
-        var mapData = this.parent.gameData.layers.get(this.parent.mapId).mapData;
+        var mapData = this.getMap().mapData;
         //update the helper vars of the connected objects:
-        var isConnectionFinished = (this.parent.state >= 2);
-        if(this.connectedFrom()!=null && this.connectedTo()!=null){
-            var sourceHub = mapData.mapObjects.get(this.connectedFrom());
-            var targetObj = mapData.mapObjects.get(this.connectedTo());
-            sourceHub._blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
-            targetObj._blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
-            var dx = (targetObj.x - sourceHub.x);
-            var dy = (targetObj.y - sourceHub.y);
-            var connLength = Math.sqrt(dx*dx + dy*dy);
-
-            //set center coordinate of connection and orientation of connection correctly:
-            this.parent.x = sourceHub.x + dx/2;
-            this.parent.y = sourceHub.y + dy/2;
-            this.parent.ori = -Math.atan2(dy, dx);
-            this.parent.width = connLength;
-            this.parent.height = this.parent.objType._initHeight;
-            this.parent.notifyChange();
+        if (this.embedded()) {
+            var isConnectionFinished = (this.parent.state() >= 2);
+            if (this.connectedFrom() != null && this.connectedTo() != null) {
+                var sourceHub = mapData.mapObjects.get(this.connectedFrom());
+                var targetObj = mapData.mapObjects.get(this.connectedTo());
+                sourceHub._blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
+                targetObj._blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
+            }
         }
     };
 

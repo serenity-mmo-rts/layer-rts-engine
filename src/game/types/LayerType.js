@@ -9,7 +9,9 @@
         this._bgColor = null;
         this._groundImage = null;
         this._groundImageScaling = null;
+        this._groundDragScaling = 1;
         this._buildCategories = [];  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
+
 
         // not serialized:
         this._gameData = gameData;
@@ -30,6 +32,7 @@
                     this._bgColor,
                     this._groundImage,
                     this._groundImageScaling,
+                    this._groundDragScaling,
                     this._buildCategories]};
             return o;
         },
@@ -43,7 +46,8 @@
                 this._bgColor = o.a[3];
                 this._groundImage = o.a[4];
                 this._groundImageScaling = o.a[5];
-                this._buildCategories = o.a[6];
+                this._groundDragScaling = o.a[6]
+                this._buildCategories = o.a[7];
             }
             else {
                 for (var key in o) {

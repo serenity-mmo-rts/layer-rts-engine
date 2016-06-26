@@ -150,6 +150,14 @@ if (node) {
         for (var blockName in this._blocks) {
             this._blocks[blockName].setPointers();
         }
+
+        var self= this;
+        this.embedded.subscribe(function(newValue) {
+            // set embedded variable of all blocks
+            for (var blockName in self._blocks) {
+                self._blocks[blockName].embedded(newValue);
+            }
+        });
     };
 
     proto.createBuildingBlocks = function () {

@@ -26,6 +26,7 @@ if (node) {
 
         this.parent = parent;
         this.type = type;
+        this.embedded = ko.observable(false);
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -238,6 +239,7 @@ if (node) {
         // this.objType = this.mapObject.objectType;
         // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this._id;
     };
+
 
     /**
      * this function automatically saves all state variables to a key-compressed format.

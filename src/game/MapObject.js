@@ -80,6 +80,8 @@ if (node) {
         this.createBuildingBlocks();
 
 
+
+
         if (arg1.constructor.name === "GameData"){
             // assume first argument is gameData and second argument is initObj:
             this.load(initObj);
@@ -146,6 +148,14 @@ if (node) {
         for (var blockName in this._blocks) {
             this._blocks[blockName].setPointers();
         }
+
+        var self= this;
+        this.embedded.subscribe(function(newValue) {
+            // set embedded variable of all blocks
+            for (var blockName in self._blocks) {
+                self._blocks[blockName].embedded(newValue);
+            }
+        });
 
     };
 
