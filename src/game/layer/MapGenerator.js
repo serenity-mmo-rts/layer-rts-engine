@@ -5,17 +5,6 @@ var MapGenerator = function (seed, mapWidth, mapHeight) {
     this.mapHeight = mapHeight;
 
     this.sources = [];
-    this.resTypes = [];
-
-    this.genRes();
-
-}
-
-MapGenerator.prototype.genRes = function () {
-
-    Math.seedrandom(this.seed);
-
-    var rScaling = Math.min(this.mapWidth, this.mapHeight);
 
     this.resTypes = [
         {id: 0, name: 'Ice-Water', minV: 0.2, maxV: 0.5, minR: 0.02, maxR: 0.07, num: 800},
@@ -34,6 +23,16 @@ MapGenerator.prototype.genRes = function () {
         {id: 13, name: 'Pyroxene', minV: 0.1, maxV: 1, minR: 0.02, maxR: 0.01, num: 50},
         {id: 14, name: 'Height', minV: 0.03, maxV: 0.3, minR: 0.01, maxR: 0.06, num: 900}
     ];
+
+    this.genRes();
+}
+
+MapGenerator.prototype.genRes = function () {
+
+    Math.seedrandom(this.seed);
+
+    var rScaling = Math.min(this.mapWidth, this.mapHeight);
+
 
     for(var typeId in this.resTypes) {
         var num = this.resTypes[typeId].num;
@@ -54,8 +53,6 @@ MapGenerator.prototype.genRes = function () {
         }
 
     }
-
-
 
 
 }
