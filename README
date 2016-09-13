@@ -8,11 +8,19 @@ D) go to https://github.com/TooTallNate/node-gyp and see requirements for socket
 	1. Microsoft Visual Studio C++ 2010 
 	2. For 64-bit builds of node and native modules you will also need the Windows 7 64-bit SDK. 
 	3. Compiler update for the Windows SDK 7.1
+    
+   
 E) clone git repository to local folderssl:
 F) Goto  http://slproweb.com/products/Win32OpenSSL.html  and install Visual C++ 2008 Redistributables and  install Win64 OpenSSL v1.0.1f
 G) install  visual studio 2010 professional and pack 1 update for visual studio 2010 
 H) Install ZeroMQ
 I) goto server folder in bash and type: "npm install" 
+
+    Note: If there are still compile errors when installing bcrypt or zmq or bson (which require node-gyp) try specifying the visual studio version manually: 
+    npm install zmq --msvs_version=2012
+    npm install bcrypt --msvs_version=2012
+    npm install bson --msvs_version=2012
+ 
 J) install mongoDB
 
 K) Install Webstorm: http://www.jetbrains.com/webstorm/ and license it
