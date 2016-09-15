@@ -24,6 +24,8 @@ var MapGenerator = function (seed, mapWidth, mapHeight) {
         {id: 14, name: 'Height', minV: 0.03, maxV: 0.3, minR: 0.01, maxR: 0.06, num: 900}
     ];
 
+    this.planetMap = new PlanetGenerator(10,2,200);  // size (in x²+1), seed, roughness (in percent from seed)
+
     this.genRes();
 }
 
