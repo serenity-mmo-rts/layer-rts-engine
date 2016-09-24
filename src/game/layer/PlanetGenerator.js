@@ -5,29 +5,29 @@ var PlanetGenerator = function(size,seed,roughness) {
     this.nrOfIterations = size;
     this.seed = seed;
     this.roughness = roughness/100*seed;
+    this.map = new Float32Array(this.size * this.size);
 
-    var roughnessMap = this.generate(this.seed,this.roughness);
-    var heightMap = this.generate(this.seed,roughnessMap);
+    this.loopTime = 0;
+
+    var start =  new Date().getTime();
+    this.initMapGeneration();
+    var ende =  new Date().getTime();
+    var overAllTime = ende-start;
+    var heightMap = this.initMapGeneration(roughnessMap);
 };
 
 
-PlanetGenerator.prototype.generate = function(seed,roughness) {
+PlanetGenerator.prototype.initMapGeneration = function() {
 
-    this.map = new Float32Array(this.size * this.size);
     var currIteration = 1;
     var currSize = this.size;
     var scale = 1;
-    var self = this;
+    var size = this.size;
+    var roughness = this.roughness;
 
-    // set Seed Value
-    if (roughness.instanceOf(ArrayBuffer)){
-        setVal(0, 0, seed+(roughness[0]));
-    }
-    else{
-        var normRand = (Math.random()-0.5)*2; // between -1 and 1
-        setVal(0, 0, seed+(normRand*roughness));
-    }
-
+    Math.seedrandom(this.seed);
+    var normRand = (Math.random()-0.5)*2; // between -1 and 1
+    this.map[0] =this.seed+(normRand*roughness);
 
     // iterate
     while (currIteration <= this.nrOfIterations) {
@@ -35,24 +35,17 @@ PlanetGenerator.prototype.generate = function(seed,roughness) {
         var y = currSize / 2;
         var center = currSize / 2;
 
-        for (y = center; y < self.size; y += currSize) {
-            for (x = center; x < self.size; x += currSize) {
-
-                // set Seed Value
-                if (roughness.instanceOf(ArrayBuffer)){
-                    var posi = this.size * y + x;
-                    square(x, y, center, this.roughness[posi]);
-                }
-                else{
-                    var normRand = (Math.random()-0.5)*2; // between -1 and 1
-                    square(x, y, center, normRand*this.roughness*scale);
-                }
+        for (y = center; y < size; y += currSize) {
+            for (x = center; x < size; x += currSize) {
+                var normRand = (Math.random()-0.5)*2; // between -1 and 1
+                this.square(x, y, center, normRand*roughness*scale);
             }
         }
-        for (y = 0; y < self.size; y += center) {
-            for (x = (y + center) % currSize; x < self.size; x += currSize) {
+
+        for (y = 0; y < size; y += center) {
+            for (x = (y + center) % currSize; x < size; x += currSize) {
                 var normRand = (Math.random()-0.5)*2; // between -1 and 1
-                diamond(x, y, center,normRand*this.roughness*scale);
+                this.diamond(x, y, center,normRand*roughness*scale);
             }
         }
 
@@ -60,68 +53,137 @@ PlanetGenerator.prototype.generate = function(seed,roughness) {
         currSize /= 2;
         currIteration += 1;
     }
-
-    function square(x, y, size, offset) {
-        var neighbors = [
-            getVal(x - size, y - size),   // upper left
-            getVal(x + size, y - size),   // upper right
-            getVal(x + size, y + size),   // lower right
-            getVal(x - size, y + size)    // lower left
-        ];
-        var ave = average(neighbors);
-        setVal(x, y, ave + offset);
-    }
-    function diamond(x, y, size, offset) {
-        var neighbours = [
-            getVal(x, y - size),      // top
-            getVal(x + size, y),      // right
-            getVal(x, y + size),      // bottom
-            getVal(x - size, y)       // left
-        ];
-        var ave = average(neighbours);
-        setVal(x, y, ave + offset);
-    }
-
-    function getVal (x, y) {
-        if (x > this.size-1 && y <= this.size-1 && y >=0 ){ // right out
-            return self.map[x % this.size  * y];
-        }
-
-        else if (y > this.size-1 && x <= this.size-1 && x >=0){ // bottom out
-            return self.map[y % this.size * x];
-        }
-
-
-        else if ( x < 0 && y <= this.size-1 &&y >=0){ // left out
-            return self.map[((this.size+x)*this.size)+y];
-        }
-
-        else if (y < 0 && x  <= this.size-1  &&x >=0){ //  top out
-            return self.map[((this.size+y)*this.size)+x];
-        }
-
-        else if (x > this.size-1 && y > this.size-1){ // right and bottom out
-            return self.map[0];
-        }
-
-        else { // not behind edge
-            return self.map[this.size*y + x ];
-        }
-    }
-
-    function setVal (x, y, val) {
-        self.map[this.size * y + x] = val;
-    }
-
-    function average(values) {
-        var total = values.reduce(function(sum, val) { return sum + val; }, 0);
-        return total / values.length;
-    }
-
-    return this.map
+ //   return this.map
 };
 
 
+
+
+
+PlanetGenerator.prototype.square = function(x, y, size, offset) {
+    var neighbors = [
+        this.getVal(x - size, y - size),   // upper left
+        this.getVal(x + size, y - size),   // upper right
+        this.getVal(x + size, y + size),   // lower right
+        this.getVal(x - size, y + size)    // lower left
+    ];
+    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
+    this.map[this.size * y + x] = ave + offset;
+};
+
+PlanetGenerator.prototype.diamond = function(x, y, size, offset) {
+    var neighbors = [
+        this.getVal(x, y - size),      // top
+        this.getVal(x + size, y),      // right
+        this.getVal(x, y + size),      // bottom
+        this.getVal(x - size, y)       // left
+    ];
+    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
+    this.map[this.size * y + x] = ave + offset;
+};
+
+PlanetGenerator.prototype.getVal = function(x, y) {
+    var size = this.size;
+    if (x >=0){
+        if(x<=size-1){ // x ok
+            if(y >=0 ){
+                if( y<=size-1){ // x ok, y ok
+                    return this.map[size*y + x ];
+                }
+                else{ //x ok,  y too big
+                    return this.map[size*(y-size)+x];
+                }
+            }
+            else{ //x ok,  y too small
+                return this.map[((size+y)*size)+x];
+            }
+        }
+        else{ // x too big
+            if(y >=0 ){
+                if( y<=this.size-1){ // x too big, y ok
+                    return this.map[size*y+(size-x)];
+                }
+                else{ //x too big, y too big
+                    return this.map[0];
+                }
+            }
+        }
+    }
+    else{ // x too small
+
+        if(y >=0 ){
+            if( y<=this.size-1){ // x too small, y ok
+                return this.map[((size+x)*size)+y];
+            }
+        }
+    }
+
+
+
+
+/**
+    if  (x >=0 && x<=this.size-1 && y >=0 && y<=this.size-1 ){ // not behind edge
+        return this.map[this.size*y + x ];
+    }
+    else if (y < 0 && x  <= this.size-1  &&x >=0){ //  top out
+        return this.map[((this.size+y)*this.size)+x];
+    }
+
+    else if (x > this.size-1 && y <= this.size-1 && y >=0 ){ // right out
+        return this.map[x % this.size  * y];
+    }
+
+    else if (y > this.size-1 && x <= this.size-1 && x >=0){ // bottom out
+        return this.map[y % this.size * x];
+    }
+
+    else if ( x < 0 && y <= this.size-1 &&y >=0){ // left out
+        return this.map[((this.size+x)*this.size)+y];
+    }
+
+    else if (x > this.size-1 && y > this.size-1){ // right and bottom out
+        return this.map[0];
+    }
+ **/
+};
+
+
+PlanetGenerator.prototype.mapGenerationRoughnessMap = function(roughness) {
+
+    var currIteration = 1;
+    var currSize = this.size;
+    var scale = 1;
+    var size = this.size;
+
+    Math.seedrandom(this.seed);
+    this.map[0] = this.seed+roughness[0];
+
+    // iterate
+    while (currIteration <= this.nrOfIterations) {
+        var x = currSize / 2;
+        var y = currSize / 2;
+        var center = currSize / 2;
+
+        for (y = center; y < size; y += currSize) {
+            for (x = center; x < size; x += currSize) {
+                var posi = size * y + x;
+                this.square(x, y, center, this.roughness[posi]);
+            }
+        }
+
+        for (y = 0; y < size; y += center) {
+            for (x = (y + center) % currSize; x < size; x += currSize) {
+                var posi = size * y + x;
+                this.diamond(x, y, center, this.roughness[posi]);
+            }
+        }
+
+        scale /=2;
+        currSize /= 2;
+        currIteration += 1;
+    }
+    //   return this.map
+};
 
 PlanetGenerator.prototype.bgMapRenderer = function(){
     var noiseLevel = 0;
