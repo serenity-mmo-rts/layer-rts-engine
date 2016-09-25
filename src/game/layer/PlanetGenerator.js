@@ -1,19 +1,204 @@
 
-var PlanetGenerator = function(size,seed,roughness) {
+var PlanetGenerator = function(seed,roughness,size,waterLevel,temperature) {
 
-    this.size = Math.pow(2,size);
-    this.nrOfIterations = size;
     this.seed = seed;
     this.roughness = roughness/100*seed;
-    this.map = new Float32Array(this.size * this.size);
+    this.depthAtNormalZoom = size;
+    this.stadardEdgeLength = Math.pow(2,this.depthAtNormalZoom);
+    this.waterlevel = waterLevel;
+    this.temperature = temperature;
+    this.maps = [];
+    this.mapsCrop = [];
 
-    this.loopTime = 0;
+    this.getMatrix(0,0,0.2,0.1,10); // x,y, width, height, depth
+};
 
-    var start =  new Date().getTime();
-    this.initMapGeneration();
-    var ende =  new Date().getTime();
-    var overAllTime = ende-start;
-    var heightMap = this.initMapGeneration(roughnessMap);
+PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n) {
+
+    // get size of requested area
+    this.zoomLevel = Math.pow(2,n-this.depthAtNormalZoom);
+    this.requestedTotalWidth = width*this.depthAtNormalZoom*this.zoomLevel;
+    this.requestedTotalHeight = height*this.depthAtNormalZoom*this.zoomLevel;
+
+    // set initial parameters
+    this.currIteration = 1;
+    var scale = 1;
+    var reshaped = false;
+    this.xSizePercent=1;
+    this.ySizePercent =1;
+
+    // set seed
+    Math.seedrandom(this.seed);
+
+    // map for first iteration
+    this.maps.push(new Float32Array( this.currIteration * this.currIteration));
+    this.maps[0][0] = this.seed;
+
+    this.mapsCrop.push({top: 0, left: 0});
+
+    // iterate
+    while (this.currIteration <= n) {
+
+        var currSizeTotal = Math.pow(2, this.currIteration);
+        if (reshaped){ // if array already reshaped (not quadratic anymore)
+
+            // determine old of new size of array
+            this.oldsizeX = newSizeX;
+            this.oldsizeY = newSizeY;
+            this.sizeX = newSizeX*2;
+            this.sizeY = newSizeY*2;
+
+            // make new array and copy old values into new array
+            this.transfer();
+
+            var reqX1 = (Math.floor(currSizeTotal * xPos - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
+            var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
+            var reqY1 = (Math.floor(currSizeTotal * yPos - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
+            var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
+            var newSizeX = (reqX2 - reqX1+1)+4;
+            var newSizeY = (reqY2 - reqY1+1)+4;
+        }
+        else{ // if still quadratic
+            // determine old of new size of array
+            this.sizeX =  Math.pow(2,this.currIteration);
+            this.sizeY=  Math.pow(2,this.currIteration);
+            this.oldsizeX=  Math.pow(2,this.currIteration-1);
+            this.oldsizeY=  Math.pow(2,this.currIteration-1);
+
+            // make new array and copy old values into new array
+            this.transfer();
+
+            // get x and y position, and size of requested area
+            var reqX1 = Math.floor(this.sizeX * xPos);
+            var reqX2 = Math.ceil(this.sizeX * (xPos + width));
+            var reqY1 = Math.floor(this.sizeY * yPos);
+            var reqY2 = Math.ceil(this.sizeY * (yPos + height));
+            var newSizeX = (reqX2 - reqX1+1)+4;
+            var newSizeY = (reqY2 - reqY1+1)+4;
+        }
+
+
+        // Diamond Square
+        if (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY){ // if area can be cropped
+            var sizeX = this.sizeX;
+            var sizeY = this.sizeY;
+
+            // square
+            for(var y=reqY1-3;y<=reqY2+3;y+=2 ){
+                for(var x=(reqX1-3)-(reqX1-2)%2;x<=reqX2+3;x+=2 ){
+                    var normRand = (Math.random()-0.5)*2;
+                    this.square(x, y, normRand*this.roughness*scale);
+                }
+            }
+
+            // diamond
+            for(var y=reqY1-2;y<=reqY2+2;y++ ){
+                for(var x=(reqX1-2)+(y+1)%2;x<=reqX2+2;x+=2 ){
+                    var normRand = (Math.random()-0.5)*2;
+                    this.diamond(x, y, normRand*this.roughness*scale);
+                }
+            }
+
+            // put data into reshaped smaller array
+            var croppedMap = new Float32Array(newSizeX*newSizeY);
+            var newY = -1;
+            var newX = -1;
+            for(var y=reqY1-2;y<=reqY2+2;y++ ){
+                newY++;
+                newX = -1;
+                for(var x=(reqX1-2);x<=reqX2+2;x++ ){
+                    newX++;
+                    croppedMap[(newY*newSizeX)+newX] = this.maps[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)]
+                }
+            }
+            this.maps[this.currIteration] = croppedMap;
+            // Hack, take additional -2 for first iteration
+            if (reshaped == false){
+                var substract = -2;
+            }
+
+
+           this.mapsCrop.push({
+                top: (((this.mapsCrop[this.currIteration-1].top+reqY1-2)+currSizeTotal)%currSizeTotal)*2,
+                left:(((this.mapsCrop[this.currIteration-1].left+reqX1-2)+currSizeTotal)%currSizeTotal)*2
+            });
+
+            var reshaped = true;
+        }
+
+        else{ // if area is still quadratic
+            // square
+            for (var y =1; y < this.sizeY; y += 2) {
+                for (var x = 1; x < this.sizeX; x += 2) {
+                    var normRand = (Math.random()-0.5)*2;
+                    this.square(x, y, normRand*this.roughness*scale);
+                }
+            }
+            // diamond
+            for (var y = 0; y < this.sizeY; y += 1) {
+                for (var x = (y+1)%2; x < this.sizeX; x += 2) {
+                    var normRand = (Math.random()-0.5)*2;
+                    this.diamond(x, y, normRand*this.roughness*scale);
+                }
+            }
+            var reshaped = false;
+
+            this.mapsCrop.push({
+                top: 0,
+                left: 0
+            });
+
+        }
+
+        scale /=2;
+        this.currIteration += 1;
+    }
+
+};
+
+PlanetGenerator.prototype.transfer = function() {
+
+    this.maps.push(new Float32Array(this.sizeX*this.sizeY));
+    for (var y = 0;y<this.oldsizeY;y++){
+        var oldRowIdx = this.oldsizeY*y;
+        var newRowIdx = this.sizeY*(y*2);
+        for (var x = 0;x<this.oldsizeX;x++){
+            this.maps[this.currIteration][x*2+newRowIdx] = this.maps[this.currIteration-1][x+oldRowIdx];
+        }
+    }
+};
+
+
+PlanetGenerator.prototype.square = function(x, y, offset) {
+    var sizeX = this.sizeX;
+    var sizeY = this.sizeY;
+    var neighbors = [
+
+        this.maps[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x-1+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x-1+sizeX)%sizeX]
+    ];
+    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
+    this.maps[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)] = ave + offset;
+};
+
+PlanetGenerator.prototype.diamond = function(x, y, offset) {
+    var sizeX = this.sizeX;
+    var sizeY = this.sizeY;
+    var neighbors = [
+        this.maps[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x+sizeX)%sizeX],
+        this.maps[this.currIteration][(((sizeX+y)%sizeX)*sizeY)+(x-1+sizeX)%sizeX]
+    ];
+    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
+    this.maps[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)] = ave + offset;
+};
+
+PlanetGenerator.prototype.getVal = function(x, y) {
+    var size = this.size;
+    return this.maps[this.currIteration][(((size+y)%size)*size)+(x+size)%size];
 };
 
 
@@ -53,100 +238,8 @@ PlanetGenerator.prototype.initMapGeneration = function() {
         currSize /= 2;
         currIteration += 1;
     }
- //   return this.map
+    //   return this.map
 };
-
-
-
-
-
-PlanetGenerator.prototype.square = function(x, y, size, offset) {
-    var neighbors = [
-        this.getVal(x - size, y - size),   // upper left
-        this.getVal(x + size, y - size),   // upper right
-        this.getVal(x + size, y + size),   // lower right
-        this.getVal(x - size, y + size)    // lower left
-    ];
-    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.map[this.size * y + x] = ave + offset;
-};
-
-PlanetGenerator.prototype.diamond = function(x, y, size, offset) {
-    var neighbors = [
-        this.getVal(x, y - size),      // top
-        this.getVal(x + size, y),      // right
-        this.getVal(x, y + size),      // bottom
-        this.getVal(x - size, y)       // left
-    ];
-    var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.map[this.size * y + x] = ave + offset;
-};
-
-PlanetGenerator.prototype.getVal = function(x, y) {
-    var size = this.size;
-    if (x >=0){
-        if(x<=size-1){ // x ok
-            if(y >=0 ){
-                if( y<=size-1){ // x ok, y ok
-                    return this.map[size*y + x ];
-                }
-                else{ //x ok,  y too big
-                    return this.map[size*(y-size)+x];
-                }
-            }
-            else{ //x ok,  y too small
-                return this.map[((size+y)*size)+x];
-            }
-        }
-        else{ // x too big
-            if(y >=0 ){
-                if( y<=this.size-1){ // x too big, y ok
-                    return this.map[size*y+(size-x)];
-                }
-                else{ //x too big, y too big
-                    return this.map[0];
-                }
-            }
-        }
-    }
-    else{ // x too small
-
-        if(y >=0 ){
-            if( y<=this.size-1){ // x too small, y ok
-                return this.map[((size+x)*size)+y];
-            }
-        }
-    }
-
-
-
-
-/**
-    if  (x >=0 && x<=this.size-1 && y >=0 && y<=this.size-1 ){ // not behind edge
-        return this.map[this.size*y + x ];
-    }
-    else if (y < 0 && x  <= this.size-1  &&x >=0){ //  top out
-        return this.map[((this.size+y)*this.size)+x];
-    }
-
-    else if (x > this.size-1 && y <= this.size-1 && y >=0 ){ // right out
-        return this.map[x % this.size  * y];
-    }
-
-    else if (y > this.size-1 && x <= this.size-1 && x >=0){ // bottom out
-        return this.map[y % this.size * x];
-    }
-
-    else if ( x < 0 && y <= this.size-1 &&y >=0){ // left out
-        return this.map[((this.size+x)*this.size)+y];
-    }
-
-    else if (x > this.size-1 && y > this.size-1){ // right and bottom out
-        return this.map[0];
-    }
- **/
-};
-
 
 PlanetGenerator.prototype.mapGenerationRoughnessMap = function(roughness) {
 
