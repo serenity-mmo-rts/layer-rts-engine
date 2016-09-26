@@ -9,23 +9,17 @@ var PlanetGenerator = function(seed,roughness,size,waterLevel,temperature) {
     this.temperature = temperature;
     this.maps = [];
     this.mapsCrop = [];
-
-    this.getMatrix(0,0,0.2,0.1,10); // x,y, width, height, depth
+    this.currIteration = 0;
 };
 
 PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n) {
-
-    // get size of requested area
-    this.zoomLevel = Math.pow(2,n-this.depthAtNormalZoom);
-    this.requestedTotalWidth = width*this.depthAtNormalZoom*this.zoomLevel;
-    this.requestedTotalHeight = height*this.depthAtNormalZoom*this.zoomLevel;
 
     // set initial parameters
     this.currIteration = 1;
     var scale = 1;
     var reshaped = false;
-    this.xSizePercent=1;
-    this.ySizePercent =1;
+   // this.xSizePercent=1;
+   // this.ySizePercent =1;
 
     // set seed
     Math.seedrandom(this.seed);
@@ -100,22 +94,28 @@ PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n) {
             }
 
             // put data into reshaped smaller array
-            var croppedMap = new Float32Array(newSizeX*newSizeY);
+            if (this.currIteration < n){ // crop target area +- 2 as long as its not the last iteration
+                var cropper =2
+                var croppedMap = new Float32Array(newSizeX*newSizeY);
+            }
+            else{
+                var cropper = 0;
+                this.sizeX = newSizeX-5;
+                this.sizeY = newSizeY-5;
+                var croppedMap = new Float32Array(this.sizeX*this.sizeY);
+            }
+
             var newY = -1;
-            var newX = -1;
-            for(var y=reqY1-2;y<=reqY2+2;y++ ){
+            for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
                 newY++;
-                newX = -1;
-                for(var x=(reqX1-2);x<=reqX2+2;x++ ){
+                var newX = -1;
+                for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
                     newX++;
                     croppedMap[(newY*newSizeX)+newX] = this.maps[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)]
                 }
             }
             this.maps[this.currIteration] = croppedMap;
-            // Hack, take additional -2 for first iteration
-            if (reshaped == false){
-                var substract = -2;
-            }
+
 
 
            this.mapsCrop.push({
@@ -154,6 +154,24 @@ PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n) {
         this.currIteration += 1;
     }
 
+    return this.maps[this.currIteration-1];
+
+};
+
+PlanetGenerator.prototype.getDepthAtNormalZoom =function(){
+    return  this.depthAtNormalZoom;
+};
+
+PlanetGenerator.prototype.getEdgeLength =function(n){
+    return  Math.pow(2,n)
+};
+
+PlanetGenerator.prototype.getZoomLevel =function(n){
+    return  Math.pow(2,n-this.depthAtNormalZoom);
+};
+
+PlanetGenerator.prototype.getCurrentDepth =function(){
+    return  this.currIteration;
 };
 
 PlanetGenerator.prototype.transfer = function() {
