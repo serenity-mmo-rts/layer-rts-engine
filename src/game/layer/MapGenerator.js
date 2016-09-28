@@ -26,19 +26,8 @@ var MapGenerator = function (seed, mapWidth, mapHeight) {
 
 
 
-    this.planetMap = new PlanetGenerator(2,200,15,50,20);  // height seed, roughness (in percent from seed), size (2^x edge length with zoom level 1), water Level (in percent min-max height), average temperature
-    var targetDepth = this.planetMap.getDepthAtNormalZoom();
-    var finalEdgeLength =this.planetMap.getEdgeLength(targetDepth);
-    var nrOfYPxl = window.innerHeight;
-    var nrOfXPxl = window.innerWidth;
-    var xPos = 0;
-    var yPos = 0;
-    var width = nrOfXPxl/finalEdgeLength;
-    var height = nrOfYPxl/finalEdgeLength;
-    var start = new Date();
-    this.dsMap = this.planetMap.getMatrix(xPos,yPos,width,height,targetDepth); // x,y, width, height, depth
-    var ende = new Date();
-    var timeNeeded = ende-start;
+    //this.planetMap = new PlanetGenerator(2,200,15,50,20);  // height seed, roughness (in percent from seed), size (2^x edge length with zoom level 1), water Level (in percent min-max height), average temperature
+
     this.genRes();
 }
 

@@ -21,6 +21,7 @@ if (node) {
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
         this.mapData = new MapData(gameData, this);
+        this.mapGenerator = new MapGenerator('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
 
         // init:
