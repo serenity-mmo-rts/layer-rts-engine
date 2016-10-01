@@ -124,7 +124,7 @@ PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
     return {r: this.mapR, g: this.mapG, b: this.mapB};
 
 
-}
+};
 
 PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
@@ -207,31 +207,16 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
                 }
             }
 
-            // put data into reshaped smaller array
-            if (this.currIteration < n){ // crop target area +- 2 as long as its not the last iteration
-                var cropper =2
-                var croppedMap = new Float32Array(newSizeX*newSizeY);
-            }
-            else{
-                var cropper = 0;
+            // select only required area in array
+            this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
+            // crop exact only for last iteration
+            if (this.currIteration == n){
+                this.crop(0,newSizeX-5,newSizeY-5,[reqX1,reqX2,reqY1,reqY2]);
                 this.sizeX = newSizeX-5;
                 this.sizeY = newSizeY-5;
-                var croppedMap = new Float32Array(this.sizeX*this.sizeY);
             }
 
-            var newY = -1;
-            for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
-                newY++;
-                var newX = -1;
-                for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
-                    newX++;
-                    croppedMap[(newY*newSizeX)+newX] = this.maps[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)]
-                }
-            }
-            this.mapHeight[this.currIteration] = croppedMap;
-
-
-
+            // calculate top left position in global integer values
            this.mapsCrop.push({
                 top: (((this.mapsCrop[this.currIteration-1].top+reqY1-2)+currSizeTotal)%currSizeTotal)*2,
                 left:(((this.mapsCrop[this.currIteration-1].left+reqX1-2)+currSizeTotal)%currSizeTotal)*2
@@ -268,7 +253,7 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
         this.currIteration += 1;
     }
 
-    return this.mapHeight[this.currIteration-1];
+    return this.mapHeight[this.currIteration];
 
 };
 
@@ -292,40 +277,67 @@ PlanetGenerator.prototype.transfer = function() {
 
     this.mapHeight.push(new Float32Array(this.sizeX*this.sizeY));
     for (var y = 0;y<this.oldsizeY;y++){
-        var oldRowIdx = this.oldsizeY*y;
-        var newRowIdx = this.sizeY*(y*2);
+        var oldRowIdx = this.oldsizeX*y;
+        var newRowIdx = this.sizeX*(y*2);
         for (var x = 0;x<this.oldsizeX;x++){
-            this.mapHeight[this.currIteration][x*2+newRowIdx] = this.mapHeight[this.currIteration-1][x+oldRowIdx];  // check if wrong!!!!
+            this.mapHeight[this.currIteration][x*2+newRowIdx] = this.mapHeight[this.currIteration-1][x+oldRowIdx];
         }
     }
 };
 
+PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
+    var sizeX = this.sizeX;
+    var sizeY = this.sizeY;
+    var reqX1 = cropRegion[0];
+    var reqX2 = cropRegion[1];
+    var reqY1 = cropRegion[2];
+    var reqY2 = cropRegion[3];
+
+    // put data into reshaped smaller array
+    var croppedMap = new Float32Array(newSizeX*newSizeY);
+    var newY = -1;
+    for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
+        newY++;
+        var newX = -1;
+        for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
+            newX++;
+            croppedMap[(newY*newSizeX)+newX] = this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
+        }
+    }
+    if (cropper>0){
+        this.mapHeight[this.currIteration] = croppedMap;
+    }
+    else{
+        this.mapHeight[this.currIteration+1] = croppedMap;
+    }
+
+};
 
 PlanetGenerator.prototype.square = function(x, y, offset) {
     var sizeX = this.sizeX;
     var sizeY = this.sizeY;
     var neighbors = [
 
-        this.mapHeight[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x-1+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x-1+sizeX)%sizeX]
+        this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX], // left up
+        this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right up
+        this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right down
+        this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX] // left down
     ];
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.mapHeight[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)] = ave + offset;
+    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + offset;
 };
 
 PlanetGenerator.prototype.diamond = function(x, y, offset) {
     var sizeX = this.sizeX;
     var sizeY = this.sizeY;
     var neighbors = [
-        this.mapHeight[this.currIteration][(((sizeX+y-1)%sizeX)*sizeY)+(x+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y)%sizeX)*sizeY)+(x+1+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y+1)%sizeX)*sizeY)+(x+sizeX)%sizeX],
-        this.mapHeight[this.currIteration][(((sizeX+y)%sizeX)*sizeY)+(x-1+sizeX)%sizeX]
+        this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // top
+        this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX],  // right
+        this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // bottom
+        this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX]   // left
     ];
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.mapHeight[this.currIteration][sizeY *((y+sizeX)%sizeX) + ((x+sizeX)%sizeX)] = ave + offset;
+    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + offset;
 };
 
 PlanetGenerator.prototype.getHeightVal = function(x, y) {
@@ -334,81 +346,7 @@ PlanetGenerator.prototype.getHeightVal = function(x, y) {
 };
 
 
-PlanetGenerator.prototype.initMapGeneration = function() {
 
-    var currIteration = 1;
-    var currSize = this.size;
-    var scale = 1;
-    var size = this.size;
-    var roughness = this.roughness;
-
-    Math.seedrandom(this.seed);
-    var normRand = (Math.random()-0.5)*2; // between -1 and 1
-    this.map[0] =this.seed+(normRand*roughness);
-
-    // iterate
-    while (currIteration <= this.nrOfIterations) {
-        var x = currSize / 2;
-        var y = currSize / 2;
-        var center = currSize / 2;
-
-        for (y = center; y < size; y += currSize) {
-            for (x = center; x < size; x += currSize) {
-                var normRand = (Math.random()-0.5)*2; // between -1 and 1
-                this.square(x, y, center, normRand*roughness*scale);
-            }
-        }
-
-        for (y = 0; y < size; y += center) {
-            for (x = (y + center) % currSize; x < size; x += currSize) {
-                var normRand = (Math.random()-0.5)*2; // between -1 and 1
-                this.diamond(x, y, center,normRand*roughness*scale);
-            }
-        }
-
-        scale /=2;
-        currSize /= 2;
-        currIteration += 1;
-    }
-    //   return this.map
-};
-
-PlanetGenerator.prototype.mapGenerationRoughnessMap = function(roughness) {
-
-    var currIteration = 1;
-    var currSize = this.size;
-    var scale = 1;
-    var size = this.size;
-
-    Math.seedrandom(this.seed);
-    this.map[0] = this.seed+roughness[0];
-
-    // iterate
-    while (currIteration <= this.nrOfIterations) {
-        var x = currSize / 2;
-        var y = currSize / 2;
-        var center = currSize / 2;
-
-        for (y = center; y < size; y += currSize) {
-            for (x = center; x < size; x += currSize) {
-                var posi = size * y + x;
-                this.square(x, y, center, this.roughness[posi]);
-            }
-        }
-
-        for (y = 0; y < size; y += center) {
-            for (x = (y + center) % currSize; x < size; x += currSize) {
-                var posi = size * y + x;
-                this.diamond(x, y, center, this.roughness[posi]);
-            }
-        }
-
-        scale /=2;
-        currSize /= 2;
-        currIteration += 1;
-    }
-    //   return this.map
-};
 
 PlanetGenerator.prototype.bgMapRenderer = function(){
     var noiseLevel = 0;

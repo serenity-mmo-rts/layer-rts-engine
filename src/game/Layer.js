@@ -5,6 +5,7 @@ if (node) {
     var TimeScheduler = require('./layer/TimeScheduler').TimeScheduler;
     var EventScheduler = require('./layer/EventScheduler').EventScheduler;
     var MapData = require('./layer/MapData').MapData;
+    var MapGenerator = require('./layer/MapGenerator').MapGenerator;
 }
 
 (function (exports) {
