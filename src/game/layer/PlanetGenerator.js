@@ -71,24 +71,33 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
         var currSizeTotal = Math.pow(2, this.currIteration);
         if (reshaped){ // if array already reshaped (not quadratic anymore)
 
-            // determine old of new size of array
+            // determine new size of array
             this.sizeX = newSizeX*2;
             this.sizeY = newSizeY*2;
 
             // make new array and copy old values into new array
-            //this.transfer();
+            var oldsizeX= newSizeX;
+            var oldsizeY= newSizeY;
+            this.transfer(oldsizeX,oldsizeY);
 
+            // get x and y position, and size of requested area
             var reqX1 = (Math.floor(currSizeTotal * xPos - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
             var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
             var reqY1 = (Math.floor(currSizeTotal * yPos - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
             var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
             var newSizeX = (reqX2 - reqX1+1)+4;
             var newSizeY = (reqY2 - reqY1+1)+4;
+
         }
         else{ // if still quadratic
             // determine old of new size of array
             this.sizeX =  Math.pow(2,this.currIteration);
             this.sizeY=  Math.pow(2,this.currIteration);
+
+            // make new array and copy old values into new array
+            var oldsizeX=  Math.pow(2,this.currIteration-1);
+            var oldsizeY=  Math.pow(2,this.currIteration-1);
+            this.transfer(oldsizeX,oldsizeY);
 
             // get x and y position, and size of requested area
             var reqX1 = Math.floor(this.sizeX * xPos);
@@ -97,12 +106,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             var reqY2 = Math.ceil(this.sizeY * (yPos + height));
             var newSizeX = (reqX2 - reqX1+1)+4;
             var newSizeY = (reqY2 - reqY1+1)+4;
-
-            // make new array and copy old values into new array
-            var oldsizeX=  Math.pow(2,this.currIteration-1);
-            var oldsizeY=  Math.pow(2,this.currIteration-1);
-            this.transfer(oldsizeX,oldsizeY);
-
 
         }
 
@@ -211,7 +214,7 @@ PlanetGenerator.prototype.transfer = function(oldSizeX,oldSizeY) {
         }
     }
 };
-/**
+
 PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
     var sizeX = this.sizeX;
     var sizeY = this.sizeY;
@@ -239,9 +242,9 @@ PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) 
     }
 
 };
-**/
 
 
+/**
 PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
 
     var oldSizeX = this.sizeX;
@@ -266,7 +269,7 @@ PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) 
         }
     }
  }
-
+**/
 
 
 PlanetGenerator.prototype.square = function(x, y, offset) {
@@ -431,7 +434,7 @@ PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
     this.mapB[this.currIteration] = (new Uint8Array(this.sizeX*this.sizeY));
 
     for (var y = 0;y<this.sizeY;y++){
-        var rowIdx = this.sizeY*y;
+        var rowIdx = this.sizeX*y;
         for (var x = 0;x<this.sizeX;x++){
             var rgb = convertToLandscape(this.mapHeight[this.currIteration][x+rowIdx]);
             this.mapR[this.currIteration][x+rowIdx] = rgb.r;
