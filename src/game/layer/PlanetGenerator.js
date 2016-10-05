@@ -65,6 +65,9 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
     this.mapsCrop.push({top: 0, left: 0});
 
+    var targetSizeTotal = Math.pow(2, n);
+
+
     // iterate
     while (this.currIteration <= n) {
 
@@ -81,10 +84,10 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             this.transfer(oldsizeX,oldsizeY);
 
             // get x and y position, and size of requested area
-            var reqX1 = (Math.floor(currSizeTotal * xPos - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-            var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-            var reqY1 = (Math.floor(currSizeTotal * yPos - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
-            var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
+            var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
+            var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
+            var reqY1 = (Math.floor(currSizeTotal * yPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
+            var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
             var newSizeX = (reqX2 - reqX1+1)+4;
             var newSizeY = (reqY2 - reqY1+1)+4;
 
@@ -100,10 +103,10 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             this.transfer(oldsizeX,oldsizeY);
 
             // get x and y position, and size of requested area
-            var reqX1 = Math.floor(this.sizeX * xPos);
-            var reqX2 = Math.ceil(this.sizeX * (xPos + width));
-            var reqY1 = Math.floor(this.sizeY * yPos);
-            var reqY2 = Math.ceil(this.sizeY * (yPos + height));
+            var reqX1 = Math.floor(this.sizeX * xPos / targetSizeTotal);
+            var reqX2 = Math.ceil(this.sizeX * (xPos + width) / targetSizeTotal);
+            var reqY1 = Math.floor(this.sizeY * yPos / targetSizeTotal);
+            var reqY2 = Math.ceil(this.sizeY * (yPos + height) / targetSizeTotal);
             var newSizeX = (reqX2 - reqX1+1)+4;
             var newSizeY = (reqY2 - reqY1+1)+4;
 
@@ -118,8 +121,7 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             // square
             for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
                 for(var x=(reqX1-3)+(reqX1%2);x<=(reqX2+3);x+=2 ){
-                    var normRand = (Math.random()-0.5)*2;
-                    this.square(x, y, normRand*this.roughness*scale);
+                    this.square(x, y, this.roughness*scale);
                 }
             }
 
@@ -127,12 +129,10 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             // ((y%2)+2)%2
             for(var y=reqY1-2;y<=reqY2+2;y+=2 ){
                 for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
-                    var normRand = (Math.random()-0.5)*2;
-                    this.diamond(x, y, normRand*this.roughness*scale);
+                    this.diamond(x, y, this.roughness*scale);
                 }
                 for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
-                    var normRand = (Math.random()-0.5)*2;
-                    this.diamond(x, y+1, normRand*this.roughness*scale);
+                    this.diamond(x, y+1, this.roughness*scale);
                 }
 
             }
@@ -159,15 +159,13 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             // square
             for (var y =1; y < this.sizeY; y += 2) {
                 for (var x = 1; x < this.sizeX; x += 2) {
-                    var normRand = (Math.random()-0.5)*2;
-                    this.square(x, y, normRand*this.roughness*scale);
+                    this.square(x, y, this.roughness*scale);
                 }
             }
             // diamond
             for (var y = 0; y < this.sizeY; y += 1) {
                 for (var x = (y+1)%2; x < this.sizeX; x += 2) {
-                    var normRand = (Math.random()-0.5)*2;
-                    this.diamond(x, y, normRand*this.roughness*scale);
+                    this.diamond(x, y, this.roughness*scale);
                 }
             }
             var reshaped = false;
@@ -282,8 +280,13 @@ PlanetGenerator.prototype.square = function(x, y, offset) {
         this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right down
         this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX] // left down
     ];
+
+    //var randnum = this.random(neighbors[0],neighbors[1],neighbors[2]);
+    var randnum = Math.random();
+    var normRand = (randnum-0.5)*2;
+
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + offset;
+    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + normRand*offset;
 };
 
 PlanetGenerator.prototype.diamond = function(x, y, offset) {
@@ -295,77 +298,34 @@ PlanetGenerator.prototype.diamond = function(x, y, offset) {
         this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // bottom
         this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX]   // left
     ];
+
+    //var randnum = this.random(neighbors[0],neighbors[1],neighbors[2]);
+    var randnum = Math.random();
+    //console.log(randnum);
+    var normRand = (randnum-0.5)*2;
+
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + offset;
+    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + normRand*offset;
 };
+
+PlanetGenerator.prototype.uint32 = function(seed1,seed2,seed3) {
+    //var t = (seed1 ^ (seed1 >>> 7)) >>> 0;
+    //var v = (seed2 ^ (seed2 << 6)) ^ (t ^ (t << 13)) >>> 0;
+    //return ((seed3 + seed3 + 1) * v) >>> 0;
+
+    var t = seed1 ^ (seed1 << 11);
+    return (seed2 ^ (seed2 >> 19)) ^ (t ^ (t >> 8));
+};
+
+PlanetGenerator.prototype.random = function (seed1,seed2,seed3) {
+    return this.uint32(seed1,seed2,seed3) * 2.3283064365386963e-10;
+};
+
 
 PlanetGenerator.prototype.getHeightVal = function(x, y) {
     var size = this.size;
     return this.mapHeight[this.currIteration][(((size+y)%size)*size)+(x+size)%size];
 };
-
-
-
-
-PlanetGenerator.prototype.bgMapRenderer = function(){
-    var noiseLevel = 0;
-
-    var deepwaterSize = 6;
-    var coastwaterSize = 4;
-    var beachSize = 2;
-    var valleySize = 5;
-    var greenSize = 5;
-    var mountainSize = 5;
-    var halficeSize = 5;
-    var iceSize = 20;
-
-    var sumSize = deepwaterSize + coastwaterSize + beachSize + valleySize + greenSize + mountainSize + iceSize;
-
-
-    var landscape = [];
-    landscape.push({maxV: deepwaterSize / sumSize,                                         c1: {r: 0, g: 0, b: 150}, c2: {r: 0, g: 0, b: 150}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "deepwater"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + coastwaterSize / sumSize, c1: {r: 0, g: 0, b: 150}, c2: {r: 56, g: 200, b: 200}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "coastwater"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + beachSize / sumSize,      c1: {r: 255, g: 255, b: 153}, c2: {r: 200, g: 120, b: 20}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "beach"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + valleySize / sumSize,     c1: {r: 200, g: 120, b: 20}, c2: {r: 50, g: 150, b: 50}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "valley"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 50, g: 150, b: 50}, c2: {r: 153, g: 76, b: 0}, cnoise: {r: 100, g: 120, b: 25, vol: 0.05}, name: "green"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + mountainSize / sumSize,   c1: {r: 153, g: 76, b: 0}, c2: {r: 102, g: 51, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "mountain"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + halficeSize / sumSize,   c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "halfice"});
-    landscape.push({maxV: landscape[landscape.length - 1].maxV + iceSize / sumSize,        c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "ice"});
-
-    var convertToLandscape = function(resDataScaled){
-        var resDataScaled = 1-1/(1+resDataScaled);
-        var c = {r: 1, g: 1, b: 1};
-
-        var i = 0;
-        while (i < landscape.length - 1 && landscape[i].maxV < resDataScaled) {
-            i++;
-        }
-        var minV = (i == 0 ? 0 : landscape[i - 1].maxV);
-        var a = (resDataScaled - minV) / (landscape[i].maxV - minV);
-        c.r = landscape[i].c1.r * (1 - a) + landscape[i].c2.r * (a);
-        c.g = landscape[i].c1.g * (1 - a) + landscape[i].c2.g * (a);
-        c.b = landscape[i].c1.b * (1 - a) + landscape[i].c2.b * (a);
-
-        if (landscape[i].cnoise.vol != 0) {
-            //Add Noise
-            var curNoiseLevel = Math.min(1,Math.max(0, Math.exp( - Math.random() / landscape[i].cnoise.vol )));
-            c.r = c.r * (1 - curNoiseLevel) + landscape[i].cnoise.r * curNoiseLevel;
-            c.g = c.g * (1 - curNoiseLevel) + landscape[i].cnoise.g * curNoiseLevel;
-            c.b = c.b * (1 - curNoiseLevel) + landscape[i].cnoise.b * curNoiseLevel;
-        }
-
-        if (noiseLevel) {
-            //Add Noise
-            c.r += noiseLevel * Math.random();
-            c.g += noiseLevel * Math.random();
-            c.b += noiseLevel * Math.random();
-        }
-
-        return c;
-    };
-    return convertToLandscape
-};
-
 
 PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
 
@@ -388,7 +348,7 @@ PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
         landscape.push({maxV: landscape[landscape.length - 1].maxV + coastwaterSize / sumSize, c1: {r: 0, g: 0, b: 150}, c2: {r: 56, g: 200, b: 200}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "coastwater"});
         landscape.push({maxV: landscape[landscape.length - 1].maxV + beachSize / sumSize,      c1: {r: 255, g: 255, b: 153}, c2: {r: 200, g: 120, b: 20}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "beach"});
         landscape.push({maxV: landscape[landscape.length - 1].maxV + valleySize / sumSize,     c1: {r: 200, g: 120, b: 20}, c2: {r: 50, g: 150, b: 50}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "valley"});
-        landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 50, g: 150, b: 50}, c2: {r: 153, g: 76, b: 0}, cnoise: {r: 100, g: 120, b: 25, vol: 0.05}, name: "green"});
+        landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 50, g: 150, b: 50}, c2: {r: 153, g: 76, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "green"});
         landscape.push({maxV: landscape[landscape.length - 1].maxV + mountainSize / sumSize,   c1: {r: 153, g: 76, b: 0}, c2: {r: 102, g: 51, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "mountain"});
         landscape.push({maxV: landscape[landscape.length - 1].maxV + halficeSize / sumSize,   c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "halfice"});
         landscape.push({maxV: landscape[landscape.length - 1].maxV + iceSize / sumSize,        c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "ice"});
