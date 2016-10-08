@@ -140,11 +140,13 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             // select only required area in array
             this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
             // crop exact only for last iteration
+            /**
             if (this.currIteration == n){
                 this.crop(0,newSizeX-5,newSizeY-5,[reqX1,reqX2,reqY1,reqY2]);
                 this.sizeX = newSizeX-5;
                 this.sizeY = newSizeY-5;
             }
+             **/
 
             // calculate top left position in global integer values
            this.mapsCrop.push({
@@ -153,6 +155,9 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             });
 
             var reshaped = true;
+
+         //   this.debugArray(newSizeX,newSizeY);
+
         }
 
         else{ // if area is still quadratic
@@ -168,19 +173,22 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
                     this.diamond(x, y, this.roughness*scale);
                 }
             }
-            var reshaped = false;
 
             this.mapsCrop.push({
                 top: 0,
                 left: 0
             });
 
+            var reshaped = false;
+
+          //  this.debugArray(this.sizeX,this.sizeY);
+
         }
 
         scale /=2;
         this.currIteration += 1;
     }
-
+    this.currIteration -= 1;
     return this.mapHeight[this.currIteration];
 
 };
@@ -232,12 +240,7 @@ PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) 
             croppedMap[(newY*newSizeX)+newX] = this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
         }
     }
-    if (cropper>0){
         this.mapHeight[this.currIteration] = croppedMap;
-    }
-    else{
-        this.mapHeight[this.currIteration+1] = croppedMap;
-    }
 
 };
 
@@ -284,9 +287,11 @@ PlanetGenerator.prototype.square = function(x, y, offset) {
     //var randnum = this.random(neighbors[0],neighbors[1],neighbors[2]);
     var randnum = Math.random();
     var normRand = (randnum-0.5)*2;
-
+    if (neighbors[0] == 0 ||neighbors[1] == 0 ||neighbors[2] == 0 ||neighbors[3] == 0) {
+        var stupid = true;
+    }
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + normRand*offset;
+    this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] =ave + normRand*offset;
 };
 
 PlanetGenerator.prototype.diamond = function(x, y, offset) {
@@ -303,10 +308,29 @@ PlanetGenerator.prototype.diamond = function(x, y, offset) {
     var randnum = Math.random();
     //console.log(randnum);
     var normRand = (randnum-0.5)*2;
-
+    if (neighbors[0] == 0 ||neighbors[1] == 0 ||neighbors[2] == 0 ||neighbors[3] == 0) {
+        var stupid = true;
+    }
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
     this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = ave + normRand*offset;
 };
+
+PlanetGenerator.prototype.debugArray = function(sizeX,sizeY) {
+    console.log('start')
+    for (var i = 0;i<sizeY;i++){
+        for (var k=0;k<sizeX;k++){
+            console.log(this.mapHeight[this.currIteration][i*sizeX+k]);
+        }
+    }
+    console.log('end')
+
+};
+
+PlanetGenerator.prototype.random = function (seed1,seed2,seed3) {
+    return this.uint32(seed1,seed2,seed3) * 2.3283064365386963e-10;
+};
+
+
 
 PlanetGenerator.prototype.uint32 = function(seed1,seed2,seed3) {
     //var t = (seed1 ^ (seed1 >>> 7)) >>> 0;
