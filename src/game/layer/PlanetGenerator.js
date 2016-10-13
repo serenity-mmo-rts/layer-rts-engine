@@ -117,6 +117,12 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
         if (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY){ // if area can be cropped
             var sizeX = this.sizeX;
             var sizeY = this.sizeY;
+            if (reqX1 == 5){
+                var stupid = true;
+            }
+            if (reqY1 == 5){
+                var stupid = true;
+            }
 
             // square
             for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
@@ -131,10 +137,11 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
                 for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
                     this.diamond(x, y, this.roughness*scale);
                 }
-                for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
-                    this.diamond(x, y+1, this.roughness*scale);
+                if (y+1<=reqY2+2){
+                    for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
+                        this.diamond(x, y+1, this.roughness*scale);
+                    }
                 }
-
             }
 
             // select only required area in array
@@ -156,7 +163,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
             var reshaped = true;
 
-         //   this.debugArray(newSizeX,newSizeY);
 
         }
 
@@ -181,7 +187,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
             var reshaped = false;
 
-          //  this.debugArray(this.sizeX,this.sizeY);
 
         }
 
@@ -189,6 +194,8 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
         this.currIteration += 1;
     }
     this.currIteration -= 1;
+    this.sizeX =newSizeX;
+    this.sizeY = newSizeY;
     return this.mapHeight[this.currIteration];
 
 };
