@@ -12,6 +12,7 @@ var PlanetGenerator = function(seed,roughness,size,waterLevel,temperature) {
     this.mapG = [];
     this.mapB = [];
     this.mapsCrop = [];
+    this.requestedAreaIdx = [];
     this.currIteration = 0;
     this.debugLog = false;
 
@@ -169,6 +170,8 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
             // select only required area in array
             this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
+            this.requestedAreaIdx.push({reqX1: 2, reqX2: 2, reqY1: newSizeX-2, reqY2: newSizeY-2});
+
             // crop exact only for last iteration
             /**
             if (this.currIteration == n){
@@ -217,6 +220,7 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             }
 
             var reshaped = false;
+            this.requestedAreaIdx.push({reqX1: reqX1, reqX2: reqX2, reqY1: reqY1, reqY2: reqY2});
 
             this.mapsCrop.push({
                 top: 0,
