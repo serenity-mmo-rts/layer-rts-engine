@@ -138,12 +138,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
         if (this.currIteration>=4 && (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY)){ // if area can be cropped
             var sizeX = this.sizeX;
             var sizeY = this.sizeY;
-            if (reqX1 == 5){
-                var stupid = true;
-            }
-            if (reqY1 == 5){
-                var stupid = true;
-            }
 
             // square
             for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
@@ -179,14 +173,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
             this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
             this.requestedAreaIdx.push({reqX1: 2, reqX2: 2, reqY1: newSizeX-2, reqY2: newSizeY-2});
 
-            // crop exact only for last iteration
-            /**
-            if (this.currIteration == n){
-                this.crop(0,newSizeX-5,newSizeY-5,[reqX1,reqX2,reqY1,reqY2]);
-                this.sizeX = newSizeX-5;
-                this.sizeY = newSizeY-5;
-            }
-             **/
 
             // calculate top left position in global integer values
            this.mapsCrop.push({
@@ -295,37 +281,7 @@ PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) 
         }
     }
         this.mapHeight[this.currIteration] = croppedMap;
-
-
 };
-
-
-/**
-PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
-
-    var oldSizeX = this.sizeX;
-    var oldSizeY = this.sizeY;
-    var reqX1 = cropRegion[0];
-    var reqX2 = cropRegion[1];
-    var reqY1 = cropRegion[2];
-    var reqY2 = cropRegion[3];
-
-    // make new array double double edge length
-    this.mapHeight.push(new Uint32Array(newSizeX*2*newSizeY*2));
-
-    // transfer data
-    var newY = -1;
-    for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
-        newY++;
-        var newRowIdx = this.sizeX*(newY*2);
-        var newX = -1;
-        for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
-            newX++;
-            this.mapHeight[this.currIteration+1][newRowIdx+newX*2] = this.mapHeight[this.currIteration][((y+oldSizeY)%oldSizeY)*oldSizeX + ((x+oldSizeX)%oldSizeX)];
-        }
-    }
- }
-**/
 
 
 PlanetGenerator.prototype.square = function(x, y, scaling) {
@@ -345,9 +301,6 @@ PlanetGenerator.prototype.square = function(x, y, scaling) {
     var randnum = this.randomUint32(neighbors[0],neighbors[1],neighbors[2],neighbors[3]);
     //var normRand = randnum - (1 << 30); // convert the unsigned int to int centered around 0
     //console.log(normRand);
-    if (neighbors[0] == 0 ||neighbors[1] == 0 ||neighbors[2] == 0 ||neighbors[3] == 0) {
-        var stupid = true;
-    }
 
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
     var newValue = ave + randnum*scaling;
@@ -383,9 +336,6 @@ PlanetGenerator.prototype.diamond = function(x, y, scaling) {
     var randnum = this.randomUint32(neighbors[0],neighbors[1],neighbors[2],neighbors[3]);
     //var normRand = randnum - (1 << 30); // convert the unsigned int to int centered around 0
     //console.log(normRand);
-    if (neighbors[0] == 0 ||neighbors[1] == 0 ||neighbors[2] == 0 ||neighbors[3] == 0) {
-        var stupid = true;
-    }
     var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
     
     var newValue = ave + randnum*scaling;
@@ -401,8 +351,6 @@ PlanetGenerator.prototype.diamond = function(x, y, scaling) {
     }
 
     this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
-
-    //this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = neighbors[0] + 1;
 };
 PlanetGenerator.prototype.debugArray = function(sizeX,sizeY) {
     console.log('start')
