@@ -27,7 +27,17 @@ var PlanetGenerator = function(seed,roughness,size,waterLevel,temperature) {
 
 PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type) {
 
+    var targetSizeTotal = Math.pow(2, n);
+    if (xPos<0){
+        var outOfBoundsX = Math.ceil(-xPos/targetSizeTotal);
+        xPos += outOfBoundsX*targetSizeTotal;
+    }
+    if (yPos<0){
+        var outOfBoundsY = Math.ceil(-yPos/targetSizeTotal);
+        yPos += outOfBoundsY*targetSizeTotal;
+    }
     switch (type) {
+
 
         case "roughness":
             break;
@@ -44,9 +54,6 @@ PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type) {
             break;
         case "water":
             break;
-
-
-
     }
 
 };
@@ -59,9 +66,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
     this.currIteration = 1;
     var scale = 1;
     var reshaped = false;
-   // this.xSizePercent=1;
-   // this.ySizePercent =1;
-
     // set seed
     Math.seedrandom(this.seed);
 
@@ -70,7 +74,6 @@ PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
     this.mapHeight[0][0] = this.seed;
 
     this.mapsCrop.push({top: 0, left: 0});
-
     var targetSizeTotal = Math.pow(2, n);
 
 
@@ -363,36 +366,10 @@ PlanetGenerator.prototype.dispArray = function(arr,width) {
 };
 
 
-// cf. http://jsperf.com/native-and-non-native-random-numbers/5
-// 16 bit Linear feedback shift register
-var lfsr = (function(){
-    var max = Math.pow(2, 16),
-        period = 0,
-        seed, out;
-    return {
-        setSeed : function(val) {
-            out = seed = val || Math.round(Math.random() * max);
-        },
-        getSeed : function() {
-            return seed;
-        },
-        getPeriod : function() {
-            return period;
-        },
-        rand : function() {
-            var bit;
-            // From http://en.wikipedia.org/wiki/Linear_feedback_shift_register
-            bit  = ((out >> 0) ^ (out >> 2) ^ (out >> 3) ^ (out >> 5) ) & 1;
-            out =  (out >> 1) | (bit << 15);
-            period++;
-            return out / max;
-        }
-    };
-}());
 
 
 PlanetGenerator.prototype.randomUint32 = function(seedArray) {
-
+    // cf. http://jsperf.com/native-and-non-native-random-numbers/5
     var seed1 = seedArray[0];
     var seed2 = seedArray[1];
     var seed3 = seedArray[2];
@@ -410,11 +387,6 @@ PlanetGenerator.prototype.randomUint32 = function(seedArray) {
 
     var newVal = shifted1 ^ shifted2 ^ shifted3 ^ shifted4;
 
-    //console.log( newVal.toString(2) );
-
-    //var t = seed1 ^ (seed1 << 11);
-    //var newVal = (seed2 ^ (seed2 >> 19)) ^ (t ^ (t >> 8));
-
     return newVal;
 };
 
@@ -426,8 +398,9 @@ PlanetGenerator.prototype.random = function (seedArray) {
 };
 
 PlanetGenerator.prototype.getHeightVal = function(x, y) {
-    var size = this.size;
-    return this.mapHeight[this.currIteration][(((size+y)%size)*size)+(x+size)%size];
+    var sizeX = this.sizeX;
+    var sizeY = this.sizeY;
+    return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
 };
 
 PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
