@@ -5,7 +5,7 @@ if (node) {
 
 (function (exports) {
 
-    var PlanetGenerator = function(layer) {
+    var CityGenerator = function(layer) {
 
         this.layer = layer;
         this.gameData = layer.gameData;
@@ -28,11 +28,12 @@ if (node) {
         this.maxVal = (1 << 31) >>> 0;
 
     };
-    PlanetGenerator.prototype.getWorldObjects = function(xPos,yPos,width,height,n,type) {
+
+    CityGenerator.prototype.getWorldObjects = function(xPos,yPos,width,height,n,type) {
         return [];
     };
 
-    PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type) {
+    CityGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type) {
 
         var targetSizeTotal = Math.pow(2, n);
         if (xPos<0){
@@ -66,7 +67,7 @@ if (node) {
     };
 
 
-    PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
+    CityGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
         // set initial parameters
         this.currIteration = 1;
@@ -184,7 +185,7 @@ if (node) {
 
 
                 // calculate top left position in global integer values
-               this.mapsCrop.push({
+                this.mapsCrop.push({
                     top: (((this.mapsCrop[this.currIteration-1].top+reqY1-2)+currSizeTotal)%currSizeTotal)*2,
                     left:(((this.mapsCrop[this.currIteration-1].left+reqX1-2)+currSizeTotal)%currSizeTotal)*2
                 });
@@ -242,23 +243,23 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.getDepthAtNormalZoom =function(){
+    CityGenerator.prototype.getDepthAtNormalZoom =function(){
         return  this.depthAtNormalZoom;
     };
 
-    PlanetGenerator.prototype.getEdgeLength =function(n){
+    CityGenerator.prototype.getEdgeLength =function(n){
         return  Math.pow(2,n)
     };
 
-    PlanetGenerator.prototype.getZoomLevel =function(n){
+    CityGenerator.prototype.getZoomLevel =function(n){
         return  Math.pow(2,n-this.depthAtNormalZoom);
     };
 
-    PlanetGenerator.prototype.getCurrentDepth =function(){
+    CityGenerator.prototype.getCurrentDepth =function(){
         return  this.currIteration;
     };
 
-    PlanetGenerator.prototype.transfer = function(oldSizeX,oldSizeY) {
+    CityGenerator.prototype.transfer = function(oldSizeX,oldSizeY) {
 
         this.mapHeight.push(new Uint32Array(this.sizeX*this.sizeY));
         for (var y = 0;y<oldSizeY;y++){
@@ -270,7 +271,7 @@ if (node) {
         }
     };
 
-    PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
+    CityGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
         var reqX1 = cropRegion[0];
@@ -289,11 +290,11 @@ if (node) {
                 croppedMap[(newY*newSizeX)+newX] = this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
             }
         }
-            this.mapHeight[this.currIteration] = croppedMap;
+        this.mapHeight[this.currIteration] = croppedMap;
     };
 
 
-    PlanetGenerator.prototype.square = function(x, y, scaling) {
+    CityGenerator.prototype.square = function(x, y, scaling) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
         var neighbors = [
@@ -320,7 +321,7 @@ if (node) {
         this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
     };
 
-    PlanetGenerator.prototype.diamond = function(x, y, scaling) {
+    CityGenerator.prototype.diamond = function(x, y, scaling) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
         var neighbors = [
@@ -347,7 +348,7 @@ if (node) {
         this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
     };
 
-    PlanetGenerator.prototype.debugArray = function(sizeX,sizeY) {
+    CityGenerator.prototype.debugArray = function(sizeX,sizeY) {
         console.log('start')
         for (var i = 0;i<sizeY;i++){
             for (var k=0;k<sizeX;k++){
@@ -358,7 +359,7 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.dispArray = function(arr,width) {
+    CityGenerator.prototype.dispArray = function(arr,width) {
 
         for (var y =0; y < arr.length/width; y ++) {
 
@@ -374,7 +375,7 @@ if (node) {
 
 
 
-    PlanetGenerator.prototype.randomUint32 = function(seedArray) {
+    CityGenerator.prototype.randomUint32 = function(seedArray) {
         // cf. http://jsperf.com/native-and-non-native-random-numbers/5
         var seed1 = seedArray[0];
         var seed2 = seedArray[1];
@@ -396,20 +397,20 @@ if (node) {
         return newVal;
     };
 
-    PlanetGenerator.prototype.random = function (seedArray) {
+    CityGenerator.prototype.random = function (seedArray) {
         var randnum = this.randomUint32(seedArray);
         randnum /= (1 << 30); // convert to number between 0 and 1
         //console.log( randnum );
         return randnum;
     };
 
-    PlanetGenerator.prototype.getHeightVal = function(x, y) {
+    CityGenerator.prototype.getHeightVal = function(x, y) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
         return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
     };
 
-    PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
+    CityGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
 
         var convertToLandscape = (function(){
             var noiseLevel = 0;
@@ -492,6 +493,6 @@ if (node) {
 
     };
 
-    exports.PlanetGenerator = PlanetGenerator;
+    exports.CityGenerator = CityGenerator;
 
 })(node ? exports : window);

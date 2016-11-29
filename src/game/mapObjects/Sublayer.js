@@ -43,7 +43,8 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {subLayerMapId: null}
+            {subLayerMapId: null},
+            {mapGeneratorParams: null}
         ];
     };
 

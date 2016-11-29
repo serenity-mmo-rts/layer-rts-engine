@@ -6,6 +6,10 @@ if (node) {
     var EventScheduler = require('./layer/EventScheduler').EventScheduler;
     var MapData = require('./layer/MapData').MapData;
     var MapGenerator = require('./layer/MapGenerator').MapGenerator;
+    var CityGenerator = require('./layer/CityGenerator').CityGenerator;
+    var PlanetGenerator = require('./layer/PlanetGenerator').PlanetGenerator;
+    var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
+    var GalaxyGenerator = require('./layer/GalaxyGenerator').GalaxyGenerator;
 }
 
 (function (exports) {
@@ -15,19 +19,40 @@ if (node) {
         this.parentObjId = null;
         this.width = 0;
         this.height = 0;
+        this.xPos = null;
+        this.yPos = null;
         this.mapTypeId = null;
         this.parentMapId = null;
+        this.mapGeneratorParams = null;
+
+        var seed = (1 << 30);
 
         // not serialized:
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
         this.mapData = new MapData(gameData, this);
-        this.mapGenerator = new MapGenerator('3',this.mapData.width,this.mapData.height);
+        //this.mapGenerator = new MapGenerator('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
 
         // init:
         if (Layer.arguments.length == 2) {
             this.load(initObj);
+        }
+
+        switch (this.mapTypeId){
+
+            case "cityMapType01":
+                this.mapGenerator = new CityGenerator(this);
+                break;
+            case "moonMapType01":
+                this.mapGenerator = new PlanetGenerator(this);
+                break;
+            case "solarMapType01":
+                this.mapGenerator = new SolarGenerator(this);
+                break;
+            case "galaxyMapType01":
+                this.mapGenerator = new GalaxyGenerator(this);
+                break;
         }
 
     };
@@ -43,7 +68,8 @@ if (node) {
                 this.width,
                 this.height,
                 this.mapTypeId,
-                this.parentMapId]
+                this.parentMapId,
+                this.mapGeneratorParams]
         };
         return o;
     };
@@ -56,6 +82,7 @@ if (node) {
             this.height = o.a[2];
             this.mapTypeId = o.a[3];
             this.parentMapId = o.a[4];
+            this.mapGeneratorParams = o.a[5];
         }
         else {
             for (var key in o) {
@@ -79,7 +106,7 @@ if (node) {
             height: 10000,
             mapTypeId: "cityMapType01",
             parentMapId: this._id,
-            gameData: this._gameData
+            mapGeneratorParams: this.mapData.mapObjects.get(parentObjId)._blocks.Sublayer.mapGeneratorParams
         });
 
         this.gameData.layers.add(newCityMap);
