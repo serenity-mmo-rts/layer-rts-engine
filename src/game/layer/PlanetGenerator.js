@@ -21,11 +21,7 @@ if (node) {
         this.mapB = [];
         this.mapsCrop = [];
         this.requestedAreaIdx = [];
-        this.currIteration = 0;
         this.debugLog = false;
-
-        this.minVal = 0;
-        this.maxVal = (1 << 31) >>> 0;
 
     };
     PlanetGenerator.prototype.getWorldObjects = function(xPos,yPos,width,height,n,type) {
@@ -68,177 +64,15 @@ if (node) {
 
     PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
-        // set initial parameters
-        this.currIteration = 1;
-        var scale = 1;
-        var reshaped = false;
-        // set seed
-        Math.seedrandom(this.seed);
-
-        // map for first iteration
-        this.mapHeight.push(new Uint32Array( this.currIteration * this.currIteration));
-        this.mapHeight[0][0] = this.seed;
-
-        this.mapsCrop.push({top: 0, left: 0});
-        var targetSizeTotal = Math.pow(2, n);
-
+        this.mapHeight = [];
+        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height );
 
         // iterate
-        while (this.currIteration <= n) {
-
-            var currSizeTotal = Math.pow(2, this.currIteration);
-            if (reshaped){ // if array already reshaped (not quadratic anymore)
-
-                // determine new size of array
-                this.sizeX = newSizeX*2;
-                this.sizeY = newSizeY*2;
-
-                // make new array and copy old values into new array
-                var oldsizeX= newSizeX;
-                var oldsizeY= newSizeY;
-                this.transfer(oldsizeX,oldsizeY);
-
-                // get x and y position, and size of requested area
-                var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-                var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-                var reqY1 = (Math.floor(currSizeTotal * yPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
-                var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
-                var newSizeX = (reqX2 - reqX1+1)+4;
-                var newSizeY = (reqY2 - reqY1+1)+4;
-
-                if (this.debugLog) {
-                    console.log('after transfer:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-            }
-            else{ // if still quadratic
-                // determine old of new size of array
-                this.sizeX =  Math.pow(2,this.currIteration);
-                this.sizeY=  Math.pow(2,this.currIteration);
-
-                // make new array and copy old values into new array
-                var oldsizeX=  Math.pow(2,this.currIteration-1);
-                var oldsizeY=  Math.pow(2,this.currIteration-1);
-                this.transfer(oldsizeX,oldsizeY);
-
-                // get x and y position, and size of requested area
-                var reqX1 = Math.floor(this.sizeX * xPos / targetSizeTotal);
-                var reqX2 = Math.ceil(this.sizeX * (xPos + width) / targetSizeTotal);
-                var reqY1 = Math.floor(this.sizeY * yPos / targetSizeTotal);
-                var reqY2 = Math.ceil(this.sizeY * (yPos + height) / targetSizeTotal);
-                var newSizeX = (reqX2 - reqX1+1)+4;
-                var newSizeY = (reqY2 - reqY1+1)+4;
-
-            }
-
-            // after the 4th iteration we constrain the minimum and maximum in the given data range of the 8x8 grid +-10%
-            if (this.currIteration==4) {
-                this.minVal = Math.min.apply(Math, this.mapHeight[3]);
-                this.maxVal = Math.max.apply(Math, this.mapHeight[3]);
-                this.range = this.maxVal - this.minVal;
-
-                this.maxVal += Math.ceil(this.range*0.01);
-                this.minVal -= Math.floor(this.range*0.01);
-                this.range = this.maxVal - this.minVal; // recalculate the range now including 10% buffer
-            }
-
-            // Diamond Square
-            if (this.currIteration>=4 && (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY)){ // if area can be cropped
-                var sizeX = this.sizeX;
-                var sizeY = this.sizeY;
-
-                // square
-                for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
-                    for(var x=(reqX1-3)+(reqX1%2);x<=(reqX2+3);x+=2 ){
-                        this.square(x, y, this.roughness*scale);
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after square:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // diamond
-                // ((y%2)+2)%2
-                for(var y=reqY1-2;y<=reqY2+2;y+=2 ){
-                    for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
-                        this.diamond(x, y, this.roughness*scale);
-                    }
-                    if (y+1<=reqY2+2){
-                        for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
-                            this.diamond(x, y+1, this.roughness*scale);
-                        }
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after diamond:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // select only required area in array
-                this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
-                this.requestedAreaIdx.push({reqX1: 2, reqX2: 2, reqY1: newSizeX-2, reqY2: newSizeY-2});
-
-
-                // calculate top left position in global integer values
-               this.mapsCrop.push({
-                    top: (((this.mapsCrop[this.currIteration-1].top+reqY1-2)+currSizeTotal)%currSizeTotal)*2,
-                    left:(((this.mapsCrop[this.currIteration-1].left+reqX1-2)+currSizeTotal)%currSizeTotal)*2
-                });
-
-                var reshaped = true;
-
-
-            }
-
-            else{ // if area is still quadratic
-                // square
-                for (var y =1; y < this.sizeY; y += 2) {
-                    for (var x = 1; x < this.sizeX; x += 2) {
-                        this.square(x, y, this.roughness*scale);
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after square:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // diamond
-                for (var y = 0; y < this.sizeY; y += 1) {
-                    for (var x = (y+1)%2; x < this.sizeX; x += 2) {
-                        this.diamond(x, y, this.roughness*scale);
-                    }
-                }
-
-
-                if (this.debugLog) {
-                    console.log('after diamong:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                var reshaped = false;
-                this.requestedAreaIdx.push({reqX1: reqX1, reqX2: reqX2, reqY1: reqY1, reqY2: reqY2});
-
-                this.mapsCrop.push({
-                    top: 0,
-                    left: 0
-                });
-
-
-
-            }
-
-            scale /=2;
-            this.currIteration += 1;
+        for (var iter = 1; iter <= n; iter++) {
+            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height, this.mapHeight[iter-1] );
         }
-        this.currIteration -= 1;
-        this.sizeX =newSizeX;
-        this.sizeY = newSizeY;
-        return this.mapHeight[this.currIteration];
+
+        return this.mapHeight[n];
 
     };
 
@@ -478,7 +312,7 @@ if (node) {
         for (var y = 0;y<this.sizeY;y++){
             var rowIdx = this.sizeX*y;
             for (var x = 0;x<this.sizeX;x++){
-                var height = this.mapHeight[this.currIteration][x+rowIdx];
+                var height = this.mapHeight[n].map[x+rowIdx];
                 var heightScaled = (height - this.minVal) / this.range;
                 var rgb = convertToLandscape(heightScaled);
                 this.mapR[this.currIteration][x+rowIdx] = rgb.r;
