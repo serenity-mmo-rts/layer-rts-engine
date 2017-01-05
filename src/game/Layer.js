@@ -5,7 +5,7 @@ if (node) {
     var TimeScheduler = require('./layer/TimeScheduler').TimeScheduler;
     var EventScheduler = require('./layer/EventScheduler').EventScheduler;
     var MapData = require('./layer/MapData').MapData;
-    var MapGenerator = require('./layer/MapGenerator').MapGenerator;
+    var MapProperties = require('./layer/MapProperties').MapProperties;
     var CityGenerator = require('./layer/CityGenerator').CityGenerator;
     var PlanetGenerator = require('./layer/PlanetGenerator').PlanetGenerator;
     var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
@@ -31,7 +31,7 @@ if (node) {
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
         this.mapData = new MapData(gameData, this);
-        //this.mapGenerator = new MapGenerator('3',this.mapData.width,this.mapData.height);
+        this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
 
         // init:

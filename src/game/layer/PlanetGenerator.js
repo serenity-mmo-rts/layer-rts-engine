@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-
+    var DiamondSquareMap = require('./DiamondSquareMap').DiamondSquareMap;
 }
 
 (function (exports) {
@@ -65,7 +65,7 @@ if (node) {
     PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
         this.mapHeight = [];
-        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height );
+        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,[],this.seed );
 
         // iterate
         for (var iter = 1; iter <= n; iter++) {

@@ -7,7 +7,7 @@ if (node) {
 (function (exports) {
 
 
-    var MapGenerator = function (seed, mapWidth, mapHeight) {
+    var MapProperties= function (seed, mapWidth, mapHeight) {
         this.seed = seed;
 
         this.mapWidth = mapWidth;
@@ -40,7 +40,7 @@ if (node) {
         this.genRes();
     };
 
-    MapGenerator.prototype.genRes = function () {
+    MapProperties.prototype.genRes = function () {
 
       //  Math.seedrandom(this.seed);
 
@@ -68,6 +68,6 @@ if (node) {
         }
     };
 
-    exports.MapGenerator = MapGenerator;
+    exports.MapProperties = MapProperties;
 
 })(node ? exports : window);

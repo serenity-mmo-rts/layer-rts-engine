@@ -32,10 +32,21 @@ if (node) {
      * This function defines the default type variables and returns them as an object.
      * @returns {{typeVarName: defaultValue, ...}}
      */
+    // ~14.3 % average weight
     proto.defineTypeVars = function () {
         return {
-
+            generalSkills: ["Strength","Intelligence","Agility","Leadership","Personage","Cogency","Strategic-Thinking"],
+            combatSkills: ["defenseAbility","attackAbility","maxArmor","maxHealth","attackSpeed","attackRange","movementSpeed","CommanderFatigue","RecoveryRate","Armor","Health"],
+            specialSkills: ["Scientific-Reputation","Market-Power","Construction-Expertise","Popularity"],
+            careerTypes: ["Merchant", "Pilot", "Soldier", "Researcher", "Explorer", "Manager", "Politician"],
+            careerSkillWeights:[[5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],
+                                [5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],
+                                [5,17.5,12.5,7.5,15,22.5,20]],
+            expPointsToCommanderLevel:[0,10,20,30,40,50,65,80,100,120],
+            levelToUpgradePoints:[20,4,4,4,4,4,4,4,3,3]
         };
+
+
     };
 
     /**
@@ -43,16 +54,13 @@ if (node) {
      * Within this function it is possible to read the type variables of the instance using this.typeVarName.
      * @returns {[{stateVarName: defaultValue},...]}
      */
-
-    // TODO: divide into type and state variables
     proto.defineStateVars = function () {
         return [
-            {generalSkills: ["Strength","Intelligence","Agility","Leadership","Personage","Cogency","Strategic-Thinking"]},
-            {combatSkills: ["defenseAbility","attackAbility","maxArmor","maxHealth","attackSpeed","attackRange","movementSpeed","CommanderFatigue","RecoveryRate","Armor","Health"]},
-            {specialSkills: ["Scientific-Reputation","Market-Power","Construction-Expertise","Popularity"]},
-            {generalSkillValues: [5,5,5,5,5,5,5,5]},
-            {combatSkillValues: [5,5,5,5,5,5,5,5,5,5,5]},
-            {specialSkillValues: [5,5,5,5]}
+            {generalSkillValues: [0,0,0,0,0,0,0,0]},
+            {combatSkillValues: [0,0,0,0,0,0,0,0,0,0,0]},
+            {specialSkillValues: [0,0,0,50]},
+            {experienccePoints:0},
+            {level:0}
         ];
     };
 
@@ -62,7 +70,7 @@ if (node) {
             for (var i=0;i<skillIds.length;i++){
                 var pos = this.generalSkills.indexOf(skillIds[i]);
                 if (pos != -1) {
-                   out.push(this.generalSkillValues[pos]);
+                   out.push(this.generalSkillValues()[pos]);
                 }
             }
             return out;
@@ -80,13 +88,13 @@ if (node) {
             for (var i=0;i<skillIds.length;i++){
                 var pos = this.combatSkills.indexOf(skillIds[i]);
                 if (pos != -1) {
-                    out.push(this.combatSkillValues[pos]);
+                    out.push(this.combatSkillValues()[pos]);
                 }
             }
             return out;
         }
         else{
-            return this.combatSkillValues
+            return this.combatSkillValues()
         }
     };
 
@@ -96,13 +104,13 @@ if (node) {
             for (var i=0;i<skillIds.length;i++){
                 var pos = this.specialSkills.indexOf(skillIds[i]);
                 if (pos != -1) {
-                    out.push(this.specialSkillValues[pos]);
+                    out.push(this.specialSkillValues()[pos]);
                 }
             }
             return out;
         }
         else{
-            return this.specialSkillValues
+            return this.specialSkillValues()
         }
     };
     /**

@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-
+    var DiamondSquareMap = require('./DiamondSquareMap').DiamondSquareMap;
 }
 
 (function (exports) {
@@ -69,177 +69,15 @@ if (node) {
 
     CityGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
-        // set initial parameters
-        this.currIteration = 1;
-        var scale = 1;
-        var reshaped = false;
-        // set seed
-        Math.seedrandom(this.seed);
-
-        // map for first iteration
-        this.mapHeight.push(new Uint32Array( this.currIteration * this.currIteration));
-        this.mapHeight[0][0] = this.seed;
-
-        this.mapsCrop.push({top: 0, left: 0});
-        var targetSizeTotal = Math.pow(2, n);
-
+        this.mapHeight = [];
+        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,[],this.seed);
 
         // iterate
-        while (this.currIteration <= n) {
-
-            var currSizeTotal = Math.pow(2, this.currIteration);
-            if (reshaped){ // if array already reshaped (not quadratic anymore)
-
-                // determine new size of array
-                this.sizeX = newSizeX*2;
-                this.sizeY = newSizeY*2;
-
-                // make new array and copy old values into new array
-                var oldsizeX= newSizeX;
-                var oldsizeY= newSizeY;
-                this.transfer(oldsizeX,oldsizeY);
-
-                // get x and y position, and size of requested area
-                var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-                var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) / targetSizeTotal - this.mapsCrop[this.currIteration-1].left)+currSizeTotal)%currSizeTotal;
-                var reqY1 = (Math.floor(currSizeTotal * yPos / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
-                var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) / targetSizeTotal - this.mapsCrop[this.currIteration-1].top)+currSizeTotal)%currSizeTotal;
-                var newSizeX = (reqX2 - reqX1+1)+4;
-                var newSizeY = (reqY2 - reqY1+1)+4;
-
-                if (this.debugLog) {
-                    console.log('after transfer:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-            }
-            else{ // if still quadratic
-                // determine old of new size of array
-                this.sizeX =  Math.pow(2,this.currIteration);
-                this.sizeY=  Math.pow(2,this.currIteration);
-
-                // make new array and copy old values into new array
-                var oldsizeX=  Math.pow(2,this.currIteration-1);
-                var oldsizeY=  Math.pow(2,this.currIteration-1);
-                this.transfer(oldsizeX,oldsizeY);
-
-                // get x and y position, and size of requested area
-                var reqX1 = Math.floor(this.sizeX * xPos / targetSizeTotal);
-                var reqX2 = Math.ceil(this.sizeX * (xPos + width) / targetSizeTotal);
-                var reqY1 = Math.floor(this.sizeY * yPos / targetSizeTotal);
-                var reqY2 = Math.ceil(this.sizeY * (yPos + height) / targetSizeTotal);
-                var newSizeX = (reqX2 - reqX1+1)+4;
-                var newSizeY = (reqY2 - reqY1+1)+4;
-
-            }
-
-            // after the 4th iteration we constrain the minimum and maximum in the given data range of the 8x8 grid +-10%
-            if (this.currIteration==4) {
-                this.minVal = Math.min.apply(Math, this.mapHeight[3]);
-                this.maxVal = Math.max.apply(Math, this.mapHeight[3]);
-                this.range = this.maxVal - this.minVal;
-
-                this.maxVal += Math.ceil(this.range*0.01);
-                this.minVal -= Math.floor(this.range*0.01);
-                this.range = this.maxVal - this.minVal; // recalculate the range now including 10% buffer
-            }
-
-            // Diamond Square
-            if (this.currIteration>=4 && (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY)){ // if area can be cropped
-                var sizeX = this.sizeX;
-                var sizeY = this.sizeY;
-
-                // square
-                for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
-                    for(var x=(reqX1-3)+(reqX1%2);x<=(reqX2+3);x+=2 ){
-                        this.square(x, y, this.roughness*scale);
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after square:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // diamond
-                // ((y%2)+2)%2
-                for(var y=reqY1-2;y<=reqY2+2;y+=2 ){
-                    for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
-                        this.diamond(x, y, this.roughness*scale);
-                    }
-                    if (y+1<=reqY2+2){
-                        for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
-                            this.diamond(x, y+1, this.roughness*scale);
-                        }
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after diamond:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // select only required area in array
-                this.crop(2,newSizeX,newSizeY,[reqX1,reqX2,reqY1,reqY2]);
-                this.requestedAreaIdx.push({reqX1: 2, reqX2: 2, reqY1: newSizeX-2, reqY2: newSizeY-2});
-
-
-                // calculate top left position in global integer values
-                this.mapsCrop.push({
-                    top: (((this.mapsCrop[this.currIteration-1].top+reqY1-2)+currSizeTotal)%currSizeTotal)*2,
-                    left:(((this.mapsCrop[this.currIteration-1].left+reqX1-2)+currSizeTotal)%currSizeTotal)*2
-                });
-
-                var reshaped = true;
-
-
-            }
-
-            else{ // if area is still quadratic
-                // square
-                for (var y =1; y < this.sizeY; y += 2) {
-                    for (var x = 1; x < this.sizeX; x += 2) {
-                        this.square(x, y, this.roughness*scale);
-                    }
-                }
-
-                if (this.debugLog) {
-                    console.log('after square:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                // diamond
-                for (var y = 0; y < this.sizeY; y += 1) {
-                    for (var x = (y+1)%2; x < this.sizeX; x += 2) {
-                        this.diamond(x, y, this.roughness*scale);
-                    }
-                }
-
-
-                if (this.debugLog) {
-                    console.log('after diamong:');
-                    this.dispArray(this.mapHeight[this.currIteration], this.sizeX);
-                }
-
-                var reshaped = false;
-                this.requestedAreaIdx.push({reqX1: reqX1, reqX2: reqX2, reqY1: reqY1, reqY2: reqY2});
-
-                this.mapsCrop.push({
-                    top: 0,
-                    left: 0
-                });
-
-
-
-            }
-
-            scale /=2;
-            this.currIteration += 1;
+        for (var iter = 1; iter <= n; iter++) {
+            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height, this.mapHeight[iter-1] );
         }
-        this.currIteration -= 1;
-        this.sizeX =newSizeX;
-        this.sizeY = newSizeY;
-        return this.mapHeight[this.currIteration];
+
+        return this.mapHeight[n];
 
     };
 
@@ -249,7 +87,7 @@ if (node) {
 
     CityGenerator.prototype.getEdgeLength =function(n){
         return  Math.pow(2,n)
-    };
+};
 
     CityGenerator.prototype.getZoomLevel =function(n){
         return  Math.pow(2,n-this.depthAtNormalZoom);
@@ -258,119 +96,12 @@ if (node) {
     CityGenerator.prototype.getCurrentDepth =function(){
         return  this.currIteration;
     };
-
-    CityGenerator.prototype.transfer = function(oldSizeX,oldSizeY) {
-
-        this.mapHeight.push(new Uint32Array(this.sizeX*this.sizeY));
-        for (var y = 0;y<oldSizeY;y++){
-            var oldRowIdx = oldSizeX*y;
-            var newRowIdx = this.sizeX*(y*2);
-            for (var x = 0;x<oldSizeX;x++){
-                this.mapHeight[this.currIteration][x*2+newRowIdx] = this.mapHeight[this.currIteration-1][x+oldRowIdx];
-            }
-        }
-    };
-
-    CityGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
+    CityGenerator.prototype.getHeightVal = function(x, y) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
-        var reqX1 = cropRegion[0];
-        var reqX2 = cropRegion[1];
-        var reqY1 = cropRegion[2];
-        var reqY2 = cropRegion[3];
-
-        // put data into reshaped smaller array
-        var croppedMap = new Uint32Array(newSizeX*newSizeY);
-        var newY = -1;
-        for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
-            newY++;
-            var newX = -1;
-            for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
-                newX++;
-                croppedMap[(newY*newSizeX)+newX] = this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
-            }
-        }
-        this.mapHeight[this.currIteration] = croppedMap;
+        return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
     };
 
-
-    CityGenerator.prototype.square = function(x, y, scaling) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        var neighbors = [
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX], // left up
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right up
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right down
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX] // left down
-        ];
-
-        var randnum = this.random(neighbors);
-        var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-        var newValue = ave + randnum*scaling;
-
-        // check for underflow:
-        if (newValue<this.minVal) {
-            newValue = this.minVal;
-        }
-
-        // check for overflow:
-        if (newValue>this.maxVal) {
-            newValue = this.maxVal;
-        }
-
-        this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
-    };
-
-    CityGenerator.prototype.diamond = function(x, y, scaling) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        var neighbors = [
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // top
-            this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX],  // right
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // bottom
-            this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX]   // left
-        ];
-
-        var randnum = this.random(neighbors);
-        var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-        var newValue = ave + 2*randnum*scaling;
-
-        // check for underflow:
-        if (newValue<this.minVal) {
-            newValue = this.minVal;
-        }
-
-        // check for overflow:
-        if (newValue>this.maxVal) {
-            newValue = this.maxVal;
-        }
-
-        this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
-    };
-
-    CityGenerator.prototype.debugArray = function(sizeX,sizeY) {
-        console.log('start')
-        for (var i = 0;i<sizeY;i++){
-            for (var k=0;k<sizeX;k++){
-                console.log(this.mapHeight[this.currIteration][i*sizeX+k]);
-            }
-        }
-        console.log('end')
-
-    };
-
-    CityGenerator.prototype.dispArray = function(arr,width) {
-
-        for (var y =0; y < arr.length/width; y ++) {
-
-            var output = '';
-            for (var x = 0; x < width; x ++) {
-                output += arr[y*width+x] + ' ';
-            }
-            console.log(output);
-        }
-
-    };
 
 
 
@@ -404,11 +135,7 @@ if (node) {
         return randnum;
     };
 
-    CityGenerator.prototype.getHeightVal = function(x, y) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
-    };
+
 
     CityGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
 
