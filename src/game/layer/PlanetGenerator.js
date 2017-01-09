@@ -65,11 +65,11 @@ if (node) {
     PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
         this.mapHeight = [];
-        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,[],this.seed );
+        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,n,[],this.seed,this.roughness);
 
         // iterate
         for (var iter = 1; iter <= n; iter++) {
-            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height, this.mapHeight[iter-1] );
+            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height,n,this.mapHeight[iter-1] );
         }
 
         return this.mapHeight[n];

@@ -6,24 +6,26 @@ if (node) {
 (function (exports) {
 
 
-    var DiamondSquareMap = function(iteration,xPos,yPos,width,height,lowResMap,seed) {
+    var DiamondSquareMap = function(iteration,xPos,yPos,width,height,finalIteration,lowResMap,seed,roughness) {
 
         this.currIteration = iteration;
         this.mapsCropsTop = 0;
         this.mapsCropsLeft = 0;
         this.lowResMap = null;
         this.seed = seed;
+        this.roughness =roughness
         this.scale = 1;
         this.reshaped = false;
         this.minVal = 0;
         this.maxVal = (1 << 31) >>> 0;
 
-        var targetSizeTotal = Math.pow(2,this.currIteration);
+        var targetSizeTotal = Math.pow(2,finalIteration);
 
         if (iteration>0) {
             this.lowResMap = lowResMap;
             this.scale = this.lowResMap.scale / 2;
             this.seed = this.lowResMap.seed;
+            this.roughness = this.lowResMap.roughness;
             this.reshaped = this.lowResMap.reshaped;
             this.minVal = this.lowResMap.minVal;
             this.maxVal = this.lowResMap.maxVal;
@@ -126,14 +128,14 @@ if (node) {
             // square
             for (var y =1; y < this.sizeY; y += 2) {
                 for (var x = 1; x < this.sizeX; x += 2) {
-                    this.square(x, y, this.roughness*scale);
+                    this.square(x, y, this.roughness*this.scale);
                 }
             }
 
             // diamond
             for (var y = 0; y < this.sizeY; y += 1) {
                 for (var x = (y+1)%2; x < this.sizeX; x += 2) {
-                    this.diamond(x, y, this.roughness*scale);
+                    this.diamond(x, y, this.roughness*this.scale);
                 }
             }
 
