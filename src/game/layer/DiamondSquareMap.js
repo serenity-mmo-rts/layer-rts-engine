@@ -57,7 +57,7 @@ if (node) {
 
             // make new array and copy old values into new array
             var oldsizeX=  Math.pow(2,this.currIteration-1);
-            var oldsizeY=  Math.pow(2,this.currIteration-1);
+            var coldsizeY=  Math.pow(2,this.currIteration-1);
 
             // get x and y position, and size of requested area
             var reqX1 = Math.floor(this.sizeX * xPos / targetSizeTotal);
