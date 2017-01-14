@@ -304,24 +304,34 @@ if (node) {
 
         })();
 
+        var sizeX = this.mapHeight[n].newSizeX;
+        var sizeY = this.mapHeight[n].newSizeY;
 
-        this.mapR[this.currIteration] = (new Uint8Array(this.sizeX*this.sizeY));
-        this.mapG[this.currIteration] = (new Uint8Array(this.sizeX*this.sizeY));
-        this.mapB[this.currIteration] = (new Uint8Array(this.sizeX*this.sizeY));
+        var mapR = new Uint8Array(sizeX*sizeY);
+        var mapG = new Uint8Array(sizeX*sizeY);
+        var mapB = new Uint8Array(sizeX*sizeY);
 
-        for (var y = 0;y<this.sizeY;y++){
-            var rowIdx = this.sizeX*y;
-            for (var x = 0;x<this.sizeX;x++){
-                var height = this.mapHeight[n].map[x+rowIdx];
-                var heightScaled = (height - this.minVal) / this.range;
+        var currMapHeight = this.mapHeight[n].map;
+        var minVal = this.mapHeight[n].minVal;
+        var range = this.mapHeight[n].maxVal - this.mapHeight[n].minVal;
+
+        for (var y = 0;y<sizeY;y++){
+            var rowIdx = sizeX*y;
+            for (var x = 0;x<sizeX;x++){
+                var height = currMapHeight[x+rowIdx];
+                var heightScaled = (height - minVal) / range;
                 var rgb = convertToLandscape(heightScaled);
-                this.mapR[this.currIteration][x+rowIdx] = rgb.r;
-                this.mapG[this.currIteration][x+rowIdx] = rgb.g;
-                this.mapB[this.currIteration][x+rowIdx] = rgb.b;
+                mapR[x+rowIdx] = rgb.r;
+                mapG[x+rowIdx] = rgb.g;
+                mapB[x+rowIdx] = rgb.b;
             }
         }
 
-        return {r: this.mapR, g: this.mapG, b: this.mapB};
+        this.mapR[n] = mapR;
+        this.mapG[n] = mapG;
+        this.mapB[n] = mapB;
+
+        return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
 
 
     };

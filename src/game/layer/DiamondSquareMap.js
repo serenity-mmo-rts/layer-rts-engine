@@ -13,7 +13,7 @@ if (node) {
         this.mapsCropsLeft = 0;
         this.lowResMap = null;
         this.seed = seed;
-        this.roughness =roughness
+        this.roughness =roughness;
         this.scale = 1;
         this.reshaped = false;
         this.minVal = 0;
@@ -57,7 +57,7 @@ if (node) {
 
             // make new array and copy old values into new array
             var oldsizeX=  Math.pow(2,this.currIteration-1);
-            var coldsizeY=  Math.pow(2,this.currIteration-1);
+            var oldsizeY=  Math.pow(2,this.currIteration-1);
 
             // get x and y position, and size of requested area
             var reqX1 = Math.floor(this.sizeX * xPos / targetSizeTotal);
@@ -80,19 +80,10 @@ if (node) {
         this.newSizeX = (reqX2 - reqX1+1)+4;
         this.newSizeY = (reqY2 - reqY1+1)+4;
 
-        // after the 4th iteration we constrain the minimum and maximum in the given data range of the 8x8 grid +-10%
-        if (this.currIteration==4) {
-            this.minVal = Math.min.apply(Math, this.map);
-            this.maxVal = Math.max.apply(Math, this.map);
-            this.range = this.maxVal - this.minVal;
 
-            this.maxVal += Math.ceil(this.range*0.01);
-            this.minVal -= Math.floor(this.range*0.01);
-            this.range = this.maxVal - this.minVal; // recalculate the range now including 10% buffer
-        }
 
         // Diamond Square
-        if (this.currIteration>=4 && (this.newSizeX+2<this.sizeX || this.newSizeY+2<this.sizeY)){ // if area can be cropped
+        if (this.currIteration>=5 && (this.newSizeX+2<this.sizeX || this.newSizeY+2<this.sizeY)){ // if area can be cropped
             var sizeX = this.sizeX;
             var sizeY = this.sizeY;
 
@@ -120,7 +111,7 @@ if (node) {
 
             // calculate top left position in global integer values
             this.mapsCropsTop = (((this.lowResMap.mapsCropsTop+reqY1-2)+currSizeTotal)%currSizeTotal)*2;
-            this.mapsCropsLeft =(((this.lowResMap.mapsCropLeft+reqX1-2)+currSizeTotal)%currSizeTotal)*2;
+            this.mapsCropsLeft =(((this.lowResMap.mapsCropsLeft+reqX1-2)+currSizeTotal)%currSizeTotal)*2;
             this.reshaped = true;
 
         }
@@ -145,11 +136,24 @@ if (node) {
         }
         else{ // only for first iteration
 
-            this.map[0] = this.seed;
+            this.map[0] = this.seed + (1 << 30);
             this.mapsCropsTop = 0;
             this.mapsCropsLeft = 0;
             this.reshaped = false;
         }
+
+
+        // after the 4th iteration we constrain the minimum and maximum in the given data range of the 8x8 grid +-1%
+        if (this.currIteration==4) {
+            this.minVal = Math.min.apply(Math, this.map);
+            this.maxVal = Math.max.apply(Math, this.map);
+            this.range = this.maxVal - this.minVal;
+
+            this.maxVal += Math.ceil(this.range*0.01);
+            this.minVal -= Math.floor(this.range*0.01);
+            this.range = this.maxVal - this.minVal; // recalculate the range now including 10% buffer
+        }
+
 
 
     };
