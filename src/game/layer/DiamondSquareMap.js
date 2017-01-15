@@ -133,6 +133,11 @@ if (node) {
             this.mapsCropsTop = 0;
             this.mapsCropsLeft = 0;
             this.reshaped = false;
+
+            this.newSizeX = this.sizeX;
+            this.newSizeY = this.sizeY;
+
+
         }
         else{ // only for first iteration
 
