@@ -20,6 +20,12 @@ if (node) {
         // this.generateGalaxy();
     };
 
+
+    GalaxyGenerator.prototype.init = function () {
+        this.generateGalaxy();
+    };
+
+
     GalaxyGenerator.prototype.generateGalaxy = function(){
         RandomNumber.setSeed(this.seed);
         var numArms = 5;

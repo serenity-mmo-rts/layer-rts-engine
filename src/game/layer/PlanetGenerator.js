@@ -14,16 +14,42 @@ if (node) {
         this.depthAtNormalZoom = layer.mapGeneratorParams[2];
         this.waterlevel = layer.mapGeneratorParams[3];
         this.temperature = layer.mapGeneratorParams[4];
+        this.initDepth = 5;
+
+        this.currIteration = 0;
 
         this.mapHeight = [];
-        this.mapR = [];
-        this.mapG = [];
-        this.mapB = [];
-        this.mapsCrop = [];
-        this.requestedAreaIdx = [];
         this.debugLog = false;
 
     };
+
+    PlanetGenerator.prototype.getSeededCopy = function(iter) {
+
+        var iter = iter || this.currIteration;
+
+        var planetGen = new PlanetGenerator(this.layer);
+        planetGen.mapHeight[iter] = this.mapHeight[iter];
+        planetGen.currIteration = this.currIteration;
+        return planetGen;
+
+    };
+
+    PlanetGenerator.prototype.init = function() {
+
+        var xpos = 0;
+        var ypos = 0;
+        var width = Math.pow(2,this.initDepth);
+        var height = Math.pow(2,this.initDepth);
+
+        this.mapHeight = [];
+        this.mapHeight[0] = new DiamondSquareMap(0,xpos,ypos,width,height,this.initDepth,[],this.seed,this.roughness);
+        for (var iter = 1; iter <= this.initDepth; iter++) {
+            this.mapHeight[iter] = new DiamondSquareMap(iter,xpos,ypos,width,height,this.initDepth,this.mapHeight[iter-1] );
+            this.currIteration = iter;
+        }
+
+    };
+
     PlanetGenerator.prototype.getWorldObjects = function(xPos,yPos,width,height,n,type) {
         return [];
     };
@@ -64,14 +90,16 @@ if (node) {
 
     PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
 
-        this.mapHeight = [];
-        this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,n,[],this.seed,this.roughness);
-
-        // iterate
-        for (var iter = 1; iter <= n; iter++) {
-            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height,n,this.mapHeight[iter-1] );
+        if (this.currIteration==0) {
+            this.mapHeight = [];
+            this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,n,[],this.seed,this.roughness);
+            this.currIteration = 1;
         }
 
+        for (var iter = this.currIteration+1; iter <= n; iter++) {
+            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height,n,this.mapHeight[iter-1] );
+            this.currIteration = iter;
+        }
         return this.mapHeight[n];
 
     };
@@ -91,122 +119,6 @@ if (node) {
     PlanetGenerator.prototype.getCurrentDepth =function(){
         return  this.currIteration;
     };
-
-    PlanetGenerator.prototype.transfer = function(oldSizeX,oldSizeY) {
-
-        this.mapHeight.push(new Uint32Array(this.sizeX*this.sizeY));
-        for (var y = 0;y<oldSizeY;y++){
-            var oldRowIdx = oldSizeX*y;
-            var newRowIdx = this.sizeX*(y*2);
-            for (var x = 0;x<oldSizeX;x++){
-                this.mapHeight[this.currIteration][x*2+newRowIdx] = this.mapHeight[this.currIteration-1][x+oldRowIdx];
-            }
-        }
-    };
-
-    PlanetGenerator.prototype.crop = function(cropper,newSizeX,newSizeY,cropRegion) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        var reqX1 = cropRegion[0];
-        var reqX2 = cropRegion[1];
-        var reqY1 = cropRegion[2];
-        var reqY2 = cropRegion[3];
-
-        // put data into reshaped smaller array
-        var croppedMap = new Uint32Array(newSizeX*newSizeY);
-        var newY = -1;
-        for(var y=reqY1-cropper;y<=reqY2+cropper;y++ ){
-            newY++;
-            var newX = -1;
-            for(var x=(reqX1-cropper);x<=reqX2+cropper;x++ ){
-                newX++;
-                croppedMap[(newY*newSizeX)+newX] = this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
-            }
-        }
-            this.mapHeight[this.currIteration] = croppedMap;
-    };
-
-
-    PlanetGenerator.prototype.square = function(x, y, scaling) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        var neighbors = [
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX], // left up
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right up
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX], // right down
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX] // left down
-        ];
-
-        var randnum = this.random(neighbors);
-        var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-        var newValue = ave + randnum*scaling;
-
-        // check for underflow:
-        if (newValue<this.minVal) {
-            newValue = this.minVal;
-        }
-
-        // check for overflow:
-        if (newValue>this.maxVal) {
-            newValue = this.maxVal;
-        }
-
-        this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
-    };
-
-    PlanetGenerator.prototype.diamond = function(x, y, scaling) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        var neighbors = [
-            this.mapHeight[this.currIteration][(((y-1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // top
-            this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x+1+sizeX)%sizeX],  // right
-            this.mapHeight[this.currIteration][(((y+1+sizeY)%sizeY)*sizeX)+(x+sizeX)%sizeX],  // bottom
-            this.mapHeight[this.currIteration][(((y+sizeY)%sizeY)*sizeX)+(x-1+sizeX)%sizeX]   // left
-        ];
-
-        var randnum = this.random(neighbors);
-        var ave = (neighbors[0]+neighbors[1]+neighbors[2]+neighbors[3])/4;
-        var newValue = ave + 2*randnum*scaling;
-
-        // check for underflow:
-        if (newValue<this.minVal) {
-            newValue = this.minVal;
-        }
-
-        // check for overflow:
-        if (newValue>this.maxVal) {
-            newValue = this.maxVal;
-        }
-
-        this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
-    };
-
-    PlanetGenerator.prototype.debugArray = function(sizeX,sizeY) {
-        console.log('start')
-        for (var i = 0;i<sizeY;i++){
-            for (var k=0;k<sizeX;k++){
-                console.log(this.mapHeight[this.currIteration][i*sizeX+k]);
-            }
-        }
-        console.log('end')
-
-    };
-
-    PlanetGenerator.prototype.dispArray = function(arr,width) {
-
-        for (var y =0; y < arr.length/width; y ++) {
-
-            var output = '';
-            for (var x = 0; x < width; x ++) {
-                output += arr[y*width+x] + ' ';
-            }
-            console.log(output);
-        }
-
-    };
-
-
-
 
     PlanetGenerator.prototype.randomUint32 = function(seedArray) {
         // cf. http://jsperf.com/native-and-non-native-random-numbers/5
@@ -304,8 +216,8 @@ if (node) {
 
         })();
 
-        var sizeX = this.mapHeight[n].newSizeX;
-        var sizeY = this.mapHeight[n].newSizeY;
+        var sizeX = this.mapHeight[n].sizeX;
+        var sizeY = this.mapHeight[n].sizeY;
 
         var mapR = new Uint8Array(sizeX*sizeY);
         var mapG = new Uint8Array(sizeX*sizeY);
@@ -326,10 +238,6 @@ if (node) {
                 mapB[x+rowIdx] = rgb.b;
             }
         }
-
-        this.mapR[n] = mapR;
-        this.mapG[n] = mapG;
-        this.mapB[n] = mapB;
 
         return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
 

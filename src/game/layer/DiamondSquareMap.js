@@ -34,13 +34,13 @@ if (node) {
         var currSizeTotal = Math.pow(2, this.currIteration);
         if (this.reshaped){ // if array already reshaped (not quadratic anymore)
 
-            // determine new size of array
-            this.sizeX = this.lowResMap.newSizeX*2;
-            this.sizeY = this.lowResMap.newSizeY*2;
-
             // make new array and copy old values into new array
-            var oldsizeX= this.lowResMap.newSizeX;
-            var oldsizeY= this.lowResMap.newSizeY;
+            var oldsizeX = this.lowResMap.sizeX;
+            var oldsizeY = this.lowResMap.sizeY;
+
+            // determine new size of array
+            this.sizeX = oldsizeX*2;
+            this.sizeY = oldsizeY*2;
 
             // get x and y position, and size of requested area
             var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.lowResMap.mapsCropsLeft)+currSizeTotal)%currSizeTotal;
@@ -77,13 +77,11 @@ if (node) {
             }
         }
 
-        this.newSizeX = (reqX2 - reqX1+1)+4;
-        this.newSizeY = (reqY2 - reqY1+1)+4;
-
-
+        var newSizeX = (reqX2 - reqX1+1)+4;
+        var newSizeY = (reqY2 - reqY1+1)+4;
 
         // Diamond Square
-        if (this.currIteration>=5 && (this.newSizeX+2<this.sizeX || this.newSizeY+2<this.sizeY)){ // if area can be cropped
+        if (this.currIteration>=5 && (newSizeX+2<this.sizeX || newSizeY+2<this.sizeY)){ // if area can be cropped
             var sizeX = this.sizeX;
             var sizeY = this.sizeY;
 
@@ -107,7 +105,7 @@ if (node) {
             }
 
             // select only required area in array
-            this.crop([reqX1,reqX2,reqY1,reqY2]);
+            this.crop(reqX1-2,reqX2+2,reqY1-2,reqY2+2);
 
             // calculate top left position in global integer values
             this.mapsCropsTop = (((this.lowResMap.mapsCropsTop+reqY1-2)+currSizeTotal)%currSizeTotal)*2;
@@ -134,10 +132,6 @@ if (node) {
             this.mapsCropsLeft = 0;
             this.reshaped = false;
 
-            this.newSizeX = this.sizeX;
-            this.newSizeY = this.sizeY;
-
-
         }
         else{ // only for first iteration
 
@@ -162,6 +156,29 @@ if (node) {
 
 
     };
+
+
+    DiamondSquareMap.prototype.initSeed = function(seed,roughness) {
+
+        this.seed = seed;
+        this.roughness =roughness;
+
+        this.map[0] = this.seed + (1 << 30);
+        this.mapsCropsTop = 0;
+        this.mapsCropsLeft = 0;
+        this.reshaped = false;
+
+
+    };
+
+    DiamondSquareMap.prototype.initNextIter = function() {
+
+    };
+
+    DiamondSquareMap.prototype.run = function() {
+
+    };
+
 
     DiamondSquareMap.prototype.square = function(x, y, scaling) {
         var sizeX = this.sizeX;
@@ -218,28 +235,27 @@ if (node) {
         this.map[((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)] = newValue;
     };
 
-    DiamondSquareMap.prototype.crop = function(cropRegion) {
+    DiamondSquareMap.prototype.crop = function(cropX1,cropX2,cropY1,cropY2) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
-        var reqX1 = cropRegion[0];
-        var reqX2 = cropRegion[1];
-        var reqY1 = cropRegion[2];
-        var reqY2 = cropRegion[3];
-        var newSizeX = this.newSizeX;
-        var newSizeY = this.newSizeY;
+        var newSizeX = cropX2 - cropX1 + 1;
+        var newSizeY = cropY2 - cropY1 + 1;
 
         // put data into reshaped smaller array
         var croppedMap = new Uint32Array(newSizeX*newSizeY);
         var newY = -1;
-        for(var y=reqY1-2;y<=reqY2+2;y++ ){
+        for(var y=cropY1;y<=cropY2+2;y++ ){
             newY++;
             var newX = -1;
-            for(var x=(reqX1-2);x<=reqX2+2;x++ ){
+            for(var x=cropX1;x<=cropX2;x++ ){
                 newX++;
                 croppedMap[(newY*newSizeX)+newX] = this.map[((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
             }
         }
         this.map = croppedMap;
+
+        this.sizeX = newSizeX;
+        this.sizeY = newSizeY;
     };
 
     DiamondSquareMap.prototype.randomUint32 = function(seedArray) {

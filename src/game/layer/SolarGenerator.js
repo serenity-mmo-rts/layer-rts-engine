@@ -19,7 +19,11 @@ if (node) {
         this.planetSizeStd = layer.mapGeneratorParams[5];
         RandomNumber.setSeed(this.seed);
         this.worldObjects = [];
-    }
+    };
+
+    SolarGenerator.prototype.init = function () {
+
+    };
 
 
     SolarGenerator.prototype.generateSolarSystem = function(){

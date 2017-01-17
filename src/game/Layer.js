@@ -55,6 +55,8 @@ if (node) {
                 break;
         }
 
+        this.mapGenerator.init();
+
     };
 
     var proto = Layer.prototype;
