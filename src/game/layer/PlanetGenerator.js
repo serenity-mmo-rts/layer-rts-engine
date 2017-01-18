@@ -23,17 +23,6 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.getSeededCopy = function(iter) {
-
-        var iter = iter || this.currIteration;
-
-        var planetGen = new PlanetGenerator(this.layer);
-        planetGen.mapHeight[iter] = this.mapHeight[iter];
-        planetGen.currIteration = this.currIteration;
-        return planetGen;
-
-    };
-
     PlanetGenerator.prototype.init = function() {
 
         var xpos = 0;
@@ -42,11 +31,28 @@ if (node) {
         var height = Math.pow(2,this.initDepth);
 
         this.mapHeight = [];
-        this.mapHeight[0] = new DiamondSquareMap(0,xpos,ypos,width,height,this.initDepth,[],this.seed,this.roughness);
+
+        this.mapHeight[0] = new DiamondSquareMap();
+        this.mapHeight[0].initSeed(this.seed,this.roughness);
+
         for (var iter = 1; iter <= this.initDepth; iter++) {
-            this.mapHeight[iter] = new DiamondSquareMap(iter,xpos,ypos,width,height,this.initDepth,this.mapHeight[iter-1] );
+            this.mapHeight[iter] = new DiamondSquareMap();
+            this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
+            this.mapHeight[iter].run(xpos,ypos,width,height,this.initDepth);
             this.currIteration = iter;
         }
+
+    };
+
+
+    PlanetGenerator.prototype.getSeededCopy = function(iter) {
+
+        var iter = iter || this.currIteration;
+
+        var planetGen = new PlanetGenerator(this.layer);
+        planetGen.mapHeight[iter] = this.mapHeight[iter];
+        planetGen.currIteration = this.currIteration;
+        return planetGen;
 
     };
 
@@ -88,19 +94,15 @@ if (node) {
     };
 
 
-    PlanetGenerator.prototype.getHeight = function(xPos,yPos,width,height,n) {
+    PlanetGenerator.prototype.getHeight = function(xpos,ypos,width,height,depth) {
 
-        if (this.currIteration==0) {
-            this.mapHeight = [];
-            this.mapHeight[0] = new DiamondSquareMap(0,xPos,yPos,width,height,n,[],this.seed,this.roughness);
-            this.currIteration = 1;
-        }
-
-        for (var iter = this.currIteration+1; iter <= n; iter++) {
-            this.mapHeight[iter] = new DiamondSquareMap(iter,xPos,yPos,width,height,n,this.mapHeight[iter-1] );
+        for (var iter = this.currIteration+1; iter <= depth; iter++) {
+            this.mapHeight[iter] = new DiamondSquareMap();
+            this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
+            this.mapHeight[iter].run(xpos,ypos,width,height,depth);
             this.currIteration = iter;
         }
-        return this.mapHeight[n];
+        return this.mapHeight[depth];
 
     };
 
