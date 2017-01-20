@@ -44,11 +44,12 @@ if (node) {
 
     };
 
-    DiamondSquareMap.prototype.run = function(xPos,yPos,width,height,finalIteration) {
+    DiamondSquareMap.prototype.run = function(xPos,yPos,width,height,finalIteration,skipRows) {
 
         var targetSizeTotal = Math.pow(2,finalIteration);
         var currSizeTotal = Math.pow(2, this.currIteration);
         this.currSizeTotal = currSizeTotal;
+        this.skipRows = skipRows || false;
 
         var oldsizeX = this.lowResMap.sizeX;
         var oldsizeY = this.lowResMap.sizeY;
@@ -158,7 +159,7 @@ if (node) {
             for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
                 this.diamond(x, y, this.roughness*this.scale);
             }
-            if (y+1<=reqY2+2){
+            if (y+1<=reqY2+2 && !this.skipRows){
                 for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
                     this.diamond(x, y+1, this.roughness*this.scale);
                 }

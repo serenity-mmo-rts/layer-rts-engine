@@ -60,7 +60,7 @@ if (node) {
         return [];
     };
 
-    PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type) {
+    PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type,skipRows) {
 
         var targetSizeTotal = Math.pow(2, n);
         if (xPos<0){
@@ -77,15 +77,15 @@ if (node) {
             case "roughness":
                 break;
             case "height":
-                return this.getHeight(xPos,yPos,width,height,n);
+                return this.getHeight(xPos,yPos,width,height,n,skipRows);
                 break;
             case "temp":
                 break;
             case "vegetation":
                 break;
             case "rgb":
-                this.getHeight(xPos,yPos,width,height,n);
-                return this.getRGB(xPos,yPos,width,height,n);
+                this.getHeight(xPos,yPos,width,height,n,skipRows);
+                return this.getRGB(xPos,yPos,width,height,n,skipRows);
                 break;
             case "water":
                 break;
@@ -94,12 +94,19 @@ if (node) {
     };
 
 
-    PlanetGenerator.prototype.getHeight = function(xpos,ypos,width,height,depth) {
+    PlanetGenerator.prototype.getHeight = function(xpos,ypos,width,height,depth,skipRows) {
 
         for (var iter = this.currIteration+1; iter <= depth; iter++) {
             this.mapHeight[iter] = new DiamondSquareMap();
             this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
-            this.mapHeight[iter].run(xpos,ypos,width,height,depth);
+
+            if (skipRows&&(iter==depth)){
+                this.mapHeight[iter].run(xpos,ypos,width,height,depth,true);
+            }
+            else {
+                this.mapHeight[iter].run(xpos,ypos,width,height,depth,false);
+            }
+
             this.currIteration = iter;
         }
         return this.mapHeight[depth];
@@ -107,7 +114,7 @@ if (node) {
     };
 
     PlanetGenerator.prototype.getDepthAtNormalZoom =function(){
-        return  this.depthAtNormalZoom;
+        return this.depthAtNormalZoom;
     };
 
     PlanetGenerator.prototype.getEdgeLength =function(n){
@@ -157,7 +164,7 @@ if (node) {
         return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
     };
 
-    PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n) {
+    PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n,skipRows) {
 
         var convertToLandscape = (function(){
             var noiseLevel = 0;
@@ -229,7 +236,11 @@ if (node) {
         var minVal = this.mapHeight[n].minVal;
         var range = this.mapHeight[n].maxVal - this.mapHeight[n].minVal;
 
-        for (var y = 0;y<sizeY;y++){
+        var yIncrement = 1;
+        if (skipRows) {
+            yIncrement=2;
+        }
+        for (var y = 0;y<sizeY;y+=yIncrement){
             var rowIdx = sizeX*y;
             for (var x = 0;x<sizeX;x++){
                 var height = currMapHeight[x+rowIdx];
