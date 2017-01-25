@@ -2,7 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var User = require('../User').User;
-    var Commander = require('../user/Commander').Commander;
+    var Commander = require('../user/Skills').Skills;
 }
 
 (function (exports) {

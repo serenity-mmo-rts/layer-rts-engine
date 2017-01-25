@@ -8,6 +8,7 @@ if (node) {
     var RessourceType = require('./types/ResourceType').RessourceType;
     var TechnologyType = require('./types/TechnologyType').TechnologyType;
     var ItemType = require('./types/ItemType').ItemType;
+    var UserType = require('./types/UserType').UserType;
     //var FeatureType = require('./types/FeatureType').FeatureType;
 
     var Spritesheet = require('./Spritesheet').Spritesheet;
@@ -24,6 +25,7 @@ if (node) {
         this.ressourceTypes = new GameList(this,RessourceType,false,false,this);
         this.technologyTypes = new GameList(this,TechnologyType,false,false,this);
         this.itemTypes = new GameList(this,ItemType,false,false,this);
+        this.userTypes = new GameList(this,UserType,false,false,this);
         //this.featureTypes = new GameList(this,FeatureType,false,false,this);
 
 
@@ -42,6 +44,7 @@ if (node) {
                 this.ressourceTypes.save(),
                 this.technologyTypes.save(),
                 this.itemTypes.save(),
+                this.userTypes.save(),
              //   this.featureTypes.save(),
                 this.spritesheets.save(),
                 this.layers.save(),
@@ -56,10 +59,11 @@ if (node) {
             this.ressourceTypes.load(a[2]);
             this.technologyTypes.load(a[3]);
             this.itemTypes.load(a[4]);
+            this.userTypes.load(a[5]);
           //  this.featureTypes.load(a[5]);
-            this.spritesheets.load(a[5]);
-            this.layers.load(a[6]);
-            this.users.load(a[7]);
+            this.spritesheets.load(a[6]);
+            this.layers.load(a[7]);
+            this.users.load(a[8]);
         };
 
 

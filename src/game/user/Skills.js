@@ -11,7 +11,7 @@ if (node) {
      * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
      * @constructor
      */
-    var Commander = function (parent, type) {
+    var Skills = function (parent, type) {
 
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
@@ -24,9 +24,9 @@ if (node) {
     /**
      * Inherit from AbstractBlock and add the correct constructor method to the prototype:
      */
-    Commander.prototype = Object.create(AbstractBlock.prototype);
-    var proto = Commander.prototype;
-    proto.constructor = Commander;
+    Skills.prototype = Object.create(AbstractBlock.prototype);
+    var proto = Skills.prototype;
+    proto.constructor = Skills;
 
     /**
      * This function defines the default type variables and returns them as an object.
@@ -36,7 +36,6 @@ if (node) {
     proto.defineTypeVars = function () {
         return {
             generalSkills: ["Strength","Intelligence","Agility","Leadership","Personage","Cogency","Strategic-Thinking"],
-            combatSkills: ["defenseAbility","attackAbility","maxArmor","maxHealth","attackSpeed","attackRange","movementSpeed","CommanderFatigue","RecoveryRate","Armor","Health"],
             specialSkills: ["Scientific-Reputation","Market-Power","Construction-Expertise","Popularity"],
             careerTypes: ["Merchant", "Pilot", "Soldier", "Researcher", "Explorer", "Manager", "Politician"],
             careerSkillWeights:[[5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],[5,17.5,12.5,7.5,15,22.5,20],
@@ -56,9 +55,8 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {generalSkillValues: [0,0,0,0,0,0,0,0]},
-            {combatSkillValues: [0,0,0,0,0,0,0,0,0,0,0]},
-            {specialSkillValues: [0,0,0,50]},
+            {UpgradePointValues: [0,0,0,0,0,0,0,0]},
+            {specialSkillValues: [0,0,0,0]},
             {experienccePoints:0},
             {level:0}
         ];
@@ -70,33 +68,19 @@ if (node) {
             for (var i=0;i<skillIds.length;i++){
                 var pos = this.generalSkills.indexOf(skillIds[i]);
                 if (pos != -1) {
-                   out.push(this.generalSkillValues()[pos]);
+                   out.push(this.UpgradePointValues()[pos]);
                 }
             }
             return out;
         }
 
         else{
-            return this.generalSkillValues
+            return this.UpgradePointValues
         }
 
     };
 
-    proto.getCombatSkillValues = function (skillIds) {
-        if (arguments.length>0){
-            var out = [];
-            for (var i=0;i<skillIds.length;i++){
-                var pos = this.combatSkills.indexOf(skillIds[i]);
-                if (pos != -1) {
-                    out.push(this.combatSkillValues()[pos]);
-                }
-            }
-            return out;
-        }
-        else{
-            return this.combatSkillValues()
-        }
-    };
+
 
     proto.getSpecialSkillValues = function (skillIds) {
         if (arguments.length>0){
@@ -116,7 +100,7 @@ if (node) {
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
-    Commander.prototype.finalizeBlockClass('Commander');
-    exports.Commander = Commander
+    Skills.prototype.finalizeBlockClass('Skills');
+    exports.Skills = Skills
 
 })(typeof exports === 'undefined' ? window : exports);

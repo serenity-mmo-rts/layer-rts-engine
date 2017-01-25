@@ -55,7 +55,7 @@ if (node) {
                 break;
         }
 
-        this.mapGenerator.init();
+       // this.mapGenerator.init();
 
     };
 
