@@ -2,6 +2,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('./AbstractBlock').AbstractBlock;
+    var createBlockInstance = require('./AbstractBlock').createBlockInstance;
     var Skills = require('./user/Skills').Skills;
 }
 
@@ -51,23 +52,23 @@ if (node) {
         }
     };
 
-    User.prototype = Object.create(AbstractBlock.prototype);
-    var proto = User.prototype;
-    proto.constructor = User;
-
-    proto.createBuildingBlocks = function() {
-        this._blocks = {};
-        for (var blockName in this.objType._blocks) {
-            this._blocks[blockName] = createBlockInstance(blockName,this,this.userType._blocks[blockName]);
-        }
-    };
-
     /**
      * Inherit from AbstractBlock and add the correct constructor method to the prototype:
      */
     User.prototype = Object.create(AbstractBlock.prototype);
     var proto = User.prototype;
     proto.constructor = User;
+
+    /**
+     * create the sub building blocks
+     */
+    proto.createBuildingBlocks = function() {
+        this._blocks = {};
+        for (var blockName in this.userType._blocks) {
+            this._blocks[blockName] = createBlockInstance(blockName,this,this.userType._blocks[blockName]);
+        }
+    };
+
 
     /**
      * This function defines the default type variables and returns them as an object.

@@ -20,6 +20,7 @@ if (node) {
 
         this.mapHeight = [];
         this.debugLog = false;
+        this.isInitialized = false;
 
     };
 
@@ -46,6 +47,10 @@ if (node) {
 
 
     PlanetGenerator.prototype.getSeededCopy = function(iter) {
+
+        if (!this.isInitialized){
+            this.init();
+        }
 
         var iter = iter || this.currIteration;
 

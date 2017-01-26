@@ -16,11 +16,23 @@ if (node) {
 
         save: function () {
             var o = this._super();
+            o.a2 = [this._blocks
+            ];
             return o;
         },
 
         load: function (o) {
             this._super(o);
+            if (o.hasOwnProperty("a2")) {
+                this._blocks = o.a2[0];
+            }
+            else {
+                for (var key in o) {
+                    if (o.hasOwnProperty(key)) {
+                        this[key] = o[key];
+                    }
+                }
+            }
         }
 
     });
