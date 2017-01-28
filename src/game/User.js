@@ -87,37 +87,16 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {loginId: null},
-            {researchedTechnologies: []},
-            {_id: null},
-            {userTypeId: null},
+            {
+                _id: null,
+                userTypeId: null,
+                loginId: null
+            },
             {name: null}
         ];
     };
 
-    proto.addTechnology= function (techId) {
-        var pos =  this._appliedItemIds.indexOf(techId);
-        if (pos == -1) {
-            this.researchedTechnologies.push(techId);
-        }
-    };
 
-    proto.removeTechnology= function(techId){
-        var pos = this._appliedItemIds.indexOf(techId);
-        if (this.lookUpTechnology(techId)) {
-            this.researchedTechnologies.splice(pos, 1);
-        }
-    };
-
-    proto.lookUpTechnology= function (techId) {
-        var pos =  this.researchedTechnologies.indexOf(techId);
-        if (pos == -1) {
-            return false;
-        }
-        else{
-            return true;
-        }
-    };
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.

@@ -26,12 +26,13 @@ if (node) {
         this.technologyTypes = new GameList(this,TechnologyType,false,false,this);
         this.itemTypes = new GameList(this,ItemType,false,false,this);
         this.userTypes = new GameList(this,UserType,false,false,this);
-        //this.featureTypes = new GameList(this,FeatureType,false,false,this);
 
+        //this.featureTypes = new GameList(this,FeatureType,false,false,this);
+        this.users = new GameList(this,User,false,false,this);
 
         this.spritesheets = new GameList(this,Spritesheet,false,false,this);
         this.layers = new GameList(this,Layer,false,false,this);
-        this.users = new GameList(this,User,false,false,this);
+
         if (GameData.arguments.length == 1) {
             this.load(initObj);
         }
@@ -45,10 +46,11 @@ if (node) {
                 this.technologyTypes.save(),
                 this.itemTypes.save(),
                 this.userTypes.save(),
+                this.users.save(),
              //   this.featureTypes.save(),
                 this.spritesheets.save(),
-                this.layers.save(),
-                this.users.save()
+                this.layers.save()
+
             ];
             return a;
         };
@@ -60,10 +62,11 @@ if (node) {
             this.technologyTypes.load(a[3]);
             this.itemTypes.load(a[4]);
             this.userTypes.load(a[5]);
+            this.users.load(a[6]);
           //  this.featureTypes.load(a[5]);
-            this.spritesheets.load(a[6]);
-            this.layers.load(a[7]);
-            this.users.load(a[8]);
+            this.spritesheets.load(a[7]);
+            this.layers.load(a[8]);
+
         };
 
 

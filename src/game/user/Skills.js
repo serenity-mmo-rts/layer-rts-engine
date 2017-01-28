@@ -45,7 +45,6 @@ if (node) {
             levelToUpgradePoints:[20,4,4,4,4,4,4,4,3,3]
         };
 
-
     };
 
     /**
