@@ -38,7 +38,7 @@ if (node) {
         },
 
         setPointers: function() {
-            this._super( );
+            this._super();
             this._parentObject = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._parentObjectId);
         },
 
@@ -55,6 +55,7 @@ if (node) {
         },
 
         executeOnOthers: function() {
+            this.setPointers(); // TODO HACK NEED TO LOOK AT THIS!
             this.execute();
         },
 
