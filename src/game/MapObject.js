@@ -65,21 +65,20 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        if (type){
-            this.objTypeId(type._id);
-        }
+
         this._blocks = {};
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
         this.map = this.getMap();
-        this.objType = type;
         this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
         this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
         this.items = {};
 
-        this.createBuildingBlocks();
-
-
+        if (type){
+            this.objTypeId(type._id);
+            this.objType = type;
+            this.createBuildingBlocks();
+        }
 
 
         if (arg1.constructor.name === "GameData"){
