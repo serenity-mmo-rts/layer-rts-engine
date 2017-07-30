@@ -191,6 +191,7 @@ if (node) {
         for (var i=0;i<BlockNames.length;i++) {
             var currentBlock = toBeAdded[BlockNames[i]];
             var properties = Object.keys(currentBlock);
+            this.parent._blocks[BlockNames[i]].setInitTypeVars();
             for (var k=0;k<properties.length;k++) {
                 var base= this.parent.objType._blocks[BlockNames[i]][properties[k]];
                 this.parent._blocks[BlockNames[i]]._typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;

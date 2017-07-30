@@ -219,7 +219,7 @@ if (node) {
 
         if (this._timeCallbackId !=null){ // re-enter with call back
             this._timeCallbackId = null;
-            this._processedStack().lastActivationTime(this._processedStack().dueTime);
+            this._processedStack().lastActivationTime(this._processedStack().dueTime());
             this._processedStack().dueTime(null);
             return true;
         }
