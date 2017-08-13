@@ -196,8 +196,8 @@ if (node) {
         var inRange = [];
         var collidingMapObjects = this.collisionDetection(mapObj);
         for (var index in collidingMapObjects) {
-            var dx = collidingMapObjects[index].x - mapObj.x;
-            var dy = collidingMapObjects[index].y - mapObj.y;
+            var dx = collidingMapObjects[index].x() - mapObj.x();
+            var dy = collidingMapObjects[index].y() - mapObj.y();
             if (type == 0) { // all objects
                 if (dx * dx + dy * dy < range * range) {
                     inRange.push(collidingMapObjects[index]);

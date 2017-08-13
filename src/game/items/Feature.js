@@ -182,6 +182,7 @@ if (node) {
     proto.activatePerClick = function(target,range){
 
         this._processedStack().targetType(target);
+
         if (this._processedStack().isActivated()){
             this._processedStack().canBeActivated(false);
         }
@@ -196,11 +197,11 @@ if (node) {
 
         else if (target == "object"){
 
-            if (this._processedStack().target(null)){
-                return [null, false];
+            if (this._processedStack().target()){
+                return [this._processedStack().target(), true];
             }
             else{
-                return [this._processedStack().target(), true];
+                return [null, false];
             }
         }
         else if (target == "item"){
@@ -287,10 +288,10 @@ if (node) {
 
     proto.getObjInRange = function(MapObjOrCoordinate,range){
         if (MapObjOrCoordinate == null || MapObjOrCoordinate instanceof Boolean){
-            var currentLocation= [this.parent._mapObj.x,this.parent._mapObj.y];
+            var currentLocation= [this.parent._mapObj.x(),this.parent._mapObj.y()];
         }
         else {
-            var currentLocation = [MapObjOrCoordinate.x, MapObjOrCoordinate.y];
+            var currentLocation = [MapObjOrCoordinate.x(), MapObjOrCoordinate.y()];
         }
         return this._layer.mapData.getObjectsInRange(currentLocation,range,1);
     };
