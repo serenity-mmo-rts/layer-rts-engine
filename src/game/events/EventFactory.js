@@ -8,6 +8,7 @@ if (node) {
     var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
     var MoveThroughLayerEvent = require('./MoveThroughLayerEvent').MoveThroughLayerEvent;
     var ResearchEvent = require('./ResearchEvent').ResearchEvent;
+    var MoveItemEvent = require('./MoveItemEvent').MoveItemEvent;
 }
 
 (function (exports) {
@@ -28,6 +29,9 @@ if (node) {
         }
         else if (initObj._type == "MoveThroughLayerEvent") {
             event = new MoveThroughLayerEvent(gameData,initObj);
+        }
+        else if (initObj._type == "MoveItemEvent") {
+            event = new MoveItemEvent(gameData,initObj);
         }
         else if (initObj._type == "ResearchEvent") {
             event = new ResearchEvent(gameData,initObj);

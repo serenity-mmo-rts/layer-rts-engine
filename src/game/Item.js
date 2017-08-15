@@ -160,6 +160,12 @@ if (node) {
         });
     };
 
+    proto.removePointers = function () {
+        for (var blockName in this.itemType._blocks) {
+            this._blocks[blockName].removePointers();
+        }
+    };
+
     proto.createBuildingBlocks = function () {
         this._blocks = {};
         for (var blockName in this.itemType._blocks) {

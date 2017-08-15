@@ -3,7 +3,7 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
-    var ActivateFeatureEvent = require('../events/ActivateFeatureEvent').ActivateFeatureEvent;
+    //var MoveItemEvent = require('../events/MoveItemEvent').MoveItemEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
 }
 
@@ -23,6 +23,10 @@ if (node) {
         // Define helper member variables:
         this._mapObject = null;
         this._timeCallbackId = null;
+        this.startedTime = null;
+        this.dueTime = null;
+        this.distance = null;
+        this.travelingTime = null;
     };
 
     /**
@@ -38,6 +42,8 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
+            maxRange: 0,
+            movementSpeed: 0
         };
     };
 
@@ -61,91 +67,46 @@ if (node) {
 
     };
 
-    proto.activatePerClick = function(target,range){
-
-        this._processedStack.targetType = target;
-        if (this._processedStack.isActivated){
-            this._processedStack.canBeActivated = false;
-        }
-        else{
-            this._processedStack.canBeActivated = true;
-        }
-
-
-        if (target == "self") {
-            return [null, this._processedStack.isActivated];
-        }
-
-        else if (target == "object"){
-
-            if (this._processedStack.target ==null){
-                return [null, false];
-            }
-            else{
-                return [this._processedStack.target, true];
-            }
-        }
-        else if (target == "item"){
-
-
-        }
-        else if (target == "coordinate"){
-
-
-        }
-
+    proto.updateDueTime= function(evt) {
+        this.startedTime = evt._startedTime;
+        // notify time scheduler:
+        console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + this.travelTime);
+        // update Due Time
+        this.dueTime = this.startedTime + this.travelTime;
+        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime);
     };
 
 
-    proto.wait = function(waitingTime){
+    proto.moveItem  = function(startedTime,origin,target){
 
-        if (this._timeCallbackId !=null){ // re-enter with call back
-            this._timeCallbackId = null;
-            this._processedStack.lastActivationTime = this._processedStack.dueTime;
-            this._processedStack.dueTime = null;
-            return true;
-        }
-        else{ // enter first time, calculate dueTime and create callback
+        // calcualte distance between origin and target, from there calculate due Time
+        this.distance = Math.sqrt(Math.pow(target.x() - origin.x(),2)+ Math.pow(target.y() - origin.y(),2));
+        this.travelTime= distance/this.movementSpeed;
+        this.startedTime = startedTime;
+        this.dueTime = startedTime + this.travelTime;
+        var self = this;
+        // remove Item from Object, remove feature and from object Context menu
+        this.origin.removeItem(this._itemId);
+        this.parent.removePointers();
 
-            this._processedStack.dueTime =  this._processedStack.lastActivationTime+waitingTime;
+        // create dashed line between origin and target
+        // render  moving icon on that line,
 
-            var self = this;
-            var callback = function(dueTime,callbackId){
-                //TO DO check whether event is really due
-                self._layer.timeScheduler.removeCallback(callbackId);
-                self.checkStackExecution(false,self._processedStack.lastActivationTime);
-                return Infinity
+        // in call back add item to other  Obejct context menu
+
+            var callback = function(dueTime,callbackId) {
+                self.layer.timeScheduler.removeCallback(callbackId);
+                this.parent._objectId(target);
+                this.parent.setPointers();
+                console.log("item: "+evt._itemId+" production completed");
+                return Infinity;
             };
-            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this._processedStack.dueTime);
-            return false;
-        }
+            this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+            console.log("I start moving  a " + parent.itemTypeId + " from " +origin._id + " to " +target._id);
+
     };
 
 
-
-
-
-    proto.checkRange = function(currentTarget){
-        if (this._properties._range > 0){
-            if(this.validCoordinate(currentTarget)){
-                var featureTargets = this._layer.mapData.getObjectsInRange(currentTarget,this._properties._range);
-                return featureTargets;
-            }
-        }
-    };
-
-
-    proto.validCoordinate = function (currentTarget){
-        // check whether user has mouse on map (current Target = coordinate)
-    };
-
-    proto.validMapObject = function (currentTarget){
-        // check whether user has mouse over map Object (current Target = map Obj)
-    };
-
-    proto.validItem = function (currentTarget){
-        // check whether use has mouse over Item (current Target = Item)
-    };
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.

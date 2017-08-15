@@ -240,6 +240,9 @@ if (node) {
         // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this._id;
     };
 
+    proto.removePointers = function(){
+
+    };
 
     /**
      * this function automatically saves all state variables to a key-compressed format.

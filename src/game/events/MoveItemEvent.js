@@ -33,35 +33,22 @@ if (node) {
             return true;
         },
 
-        setParameters: function (item,operation) {
+        setParameters: function (item) {
             this._item = item;
-            this._mapObj = this._item._mapObj;
-            this._range = operation.activatePerClick.range;
             this._itemId = this._item._id;
-            this._targetType = operation.activatePerClick.targetType;
+            this._origin = this._item._mapObj;
         },
 
 
         setTarget: function (targetId) {
             this._targetId = targetId;
-            if (this._targetType =="self"){
-                this._target = null;
-            }
-            else if (this._targetType =="object"){
-                this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(targetId);
-            }
-            else if (this._targetType =="item"){
-                this._target = this._gameData.layers.get(this._mapId).mapData.items.get(targetId);
-            }
-            else if (this._targetType =="coordinate"){
-            }
+            this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(targetId);
         },
 
         setPointers: function(){
             this._super();
             this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-
-            this._mapObj = this._item._mapObj;
+            this._origin = this._item._mapObj;
             this.setTarget(this._targetId);
         },
 
@@ -80,13 +67,13 @@ if (node) {
         },
 
         execute: function () {
-            this._item._blocks.Feature.activate(this._startedTime,this._target);
+            this._item._blocks.Movable.moveItem(this._startedTime,this._origin,this._target);
             this.setFinished();
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            this._item._blocks.Feature.activate(event._startedTime,this._target);
+            this._item._blocks.Movable.updateDueTime(event);
         },
 
         revert: function() {
@@ -96,8 +83,7 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this._itemId,
-                this._targetId,
-                this._targetType
+                this._targetId
             ];
             return o;
         },
@@ -107,7 +93,6 @@ if (node) {
             if (o.hasOwnProperty("a2")) {
                 this._itemId = o.a2[0];
                 this._targetId = o.a2[1];
-                this._targetType = o.a2[2];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();
