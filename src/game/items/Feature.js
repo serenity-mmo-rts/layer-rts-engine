@@ -380,8 +380,8 @@ if (node) {
     proto.removeItemFromFeatureManagers= function() {
 
         for (var i = 0; i<this._processedStack().effects().length;i++){
-            var objectIds= this._processedStack().effects()[i].currentTargetObjectIds();
-            var itemIds= this._processedStack().effects()[i].currentTargetItemIds();
+            var objectIds= this._processedStack().effects()[i].currentTargetObjectIds;
+            var itemIds= this._processedStack().effects()[i].currentTargetItemIds;
 
                 for (var k = 0; k<objectIds.length;k++){
                     var object=  this._layer.mapData.mapObjects.get(objectIds[k]);

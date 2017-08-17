@@ -35,9 +35,9 @@ if (node) {
         setParameters: function (item) {
             this._item = item;
             this._parentObject = this._item._mapObj;
-            this._parentObjectId = this._parentObject._id;
-            this._itemId = this._item._id;
-            this.itemTypeId = this._item.itemTypeId;
+            this._parentObjectId = this._parentObject._id();
+            this._itemId = this._item._id();
+            this.itemTypeId = this._item.itemTypeId();
 },
 
         setPointers: function(){

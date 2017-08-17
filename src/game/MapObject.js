@@ -198,8 +198,9 @@ if (node) {
     };
 
     proto.removeItem = function (itemId){
-        var idx = this.items.indexOf(itemId)
-        this.items.splice(idx,1);
+        if(this.items.hasOwnProperty(itemId)){
+           delete this.items[itemId];
+        }
     };
 
     proto.getItems = function (){
