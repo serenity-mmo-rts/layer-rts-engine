@@ -27,6 +27,7 @@ if (node) {
         this.dueTime = null;
         this.distance = null;
         this.travelingTime = null;
+
     };
 
     /**
@@ -58,23 +59,17 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
-        this._mapObject = this.parent._mapObj;
+        this.itemId = this.parent._id();
+        this.layer = this.parent.gameData.layers.get(this.parent.mapId());
+        this.mapObject = this.parent._mapObj;
+        this.gameData= this.parent.gameData;
+        this.mapId= this.parent.mapId();
     };
 
     proto.removePointers  = function(){
 
     };
 
-    proto.updateDueTime= function(evt) {
-        this.startedTime = evt._startedTime;
-        // notify time scheduler:
-        console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + this.travelTime);
-        // update Due Time
-        this.dueTime = this.startedTime + this.travelTime;
-        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime);
-    };
 
 
     proto.renderDashedLine =  function(x1, y1, x2, y2, dashLen) {
@@ -104,42 +99,57 @@ if (node) {
         this.dueTime = startedTime + this.travelTime;
         var self = this;
         // remove Item from Object, remove feature and from object Context menu
-        origin.removeItem(this._itemId());
+        origin.removeItem(this.itemId);
         this.parent.removePointers();
 
 
         // render  moving icon on that line,
-        var movingItem = new createjs.Sprite(uc.spritesheets[this.parent._typeCache._iconSpritesheetId]);
-        movingItem.x = this.gameCoord2RenderX(origin.x(), origin.y());
-        movingItem.y = this.gameCoord2RenderY(origin.x(), origin.y());
-        movingItem.originId = origin._id();
-        movingItem.targetId = target._id();
-        movingItem.id = this.parent._id();
-        this.obj_container.addChild(objectBitmap);
+        if (!node){
+            var movingItem = new createjs.Sprite(uc.spritesheets[this.parent._itemType._iconSpritesheetId]);
+            movingItem.gotoAndStop(this.parent._itemType._iconSpriteFrame);
+            movingItem.x = uc.layerView.mapContainer.map.gameCoord2RenderX(origin.x(), origin.y());
+            movingItem.y = uc.layerView.mapContainer.map.gameCoord2RenderY(origin.x(), origin.y());
+            movingItem.originId = origin._id();
+            movingItem.targetId = target._id();
+            movingItem.name = this.parent._id();
+            movingItem.id = this.parent._id();
+            uc.layerView.mapContainer.map.mov_container.addChild(movingItem);
+        }
 
         // create dashed line between origin and target
-        var shape = new createjs.Shape();
-        shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
-        shape.graphics.dashedLineTo(100,100,200,300, 4);
-        stage.addChild(shape);
+       // var shape = new createjs.Shape();
+       // shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
+       // shape.graphics.dashedLineTo(100,100,200,300, 4);
+      //  stage.addChild(shape);
 
 
-
-        // in call back add item to other  Obejct context menu
-
-            var callback = function(dueTime,callbackId) {
-                self.layer.timeScheduler.removeCallback(callbackId);
-                this.parent._objectId(target);
-                this.parent.setPointers();
-                console.log("item: "+evt._itemId+" production completed");
-                return Infinity;
-            };
-            this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-            console.log("I start moving  a " + parent.itemTypeId + " from " +origin._id + " to " +target._id);
+    // in call back add item to other  Obejct context menu
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            self.layer.timeScheduler.removeCallback(callbackId);
+            var toRemoveChild = uc.layerView.mapContainer.map.mov_container.getChildByName(self.parent._id());
+            uc.layerView.mapContainer.map.mov_container.removeChild(toRemoveChild);
+            self.parent._objectId(target._id());
+            self.parent.setPointers();
+            if (self.parent._blocks.hasOwnProperty("Feature")){
+                self.parent._blocks.Feature.startExecution(dueTime);
+            }
+            console.log("moving of item :''"+self.parent.itemTypeId()+"'' completed");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        console.log("I start moving  a " + this.parent.itemTypeId() + " from " +origin._id() + " to " +target._id());
 
     };
 
-
+    proto.updateDueTime= function(evt) {
+        this.startedTime = evt._startedTime;
+        // notify time scheduler:
+        console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + this.travelTime);
+        // update Due Time
+        this.dueTime = this.startedTime + this.travelTime;
+        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
+    };
 
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
