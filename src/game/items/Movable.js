@@ -77,20 +77,53 @@ if (node) {
     };
 
 
+    proto.renderDashedLine =  function(x1, y1, x2, y2, dashLen) {
+        this.moveTo(x1, y1);
+
+        var dX = x2 - x1;
+        var dY = y2 - y1;
+        var dashes = Math.floor(Math.sqrt(dX * dX + dY * dY) / dashLen);
+        var dashX = dX / dashes;
+        var dashY = dY / dashes;
+
+        var q = 0;
+        while (q++ < dashes) {
+            x1 += dashX;
+            y1 += dashY;
+            this[q % 2 == 0 ? 'moveTo' : 'lineTo'](x1, y1);
+        }
+        this[q % 2 == 0 ? 'moveTo' : 'lineTo'](x2, y2);
+    };
+
     proto.moveItem  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time
         this.distance = Math.sqrt(Math.pow(target.x() - origin.x(),2)+ Math.pow(target.y() - origin.y(),2));
-        this.travelTime= distance/this.movementSpeed;
+        this.travelTime= this.distance/this.movementSpeed;
         this.startedTime = startedTime;
         this.dueTime = startedTime + this.travelTime;
         var self = this;
         // remove Item from Object, remove feature and from object Context menu
-        this.origin.removeItem(this._itemId);
+        origin.removeItem(this._itemId());
         this.parent.removePointers();
 
-        // create dashed line between origin and target
+
         // render  moving icon on that line,
+        var movingItem = new createjs.Sprite(uc.spritesheets[this.parent._typeCache._iconSpritesheetId]);
+        movingItem.x = this.gameCoord2RenderX(origin.x(), origin.y());
+        movingItem.y = this.gameCoord2RenderY(origin.x(), origin.y());
+        movingItem.originId = origin._id();
+        movingItem.targetId = target._id();
+        movingItem.id = this.parent._id();
+        this.obj_container.addChild(objectBitmap);
+
+        // create dashed line between origin and target
+        var shape = new createjs.Shape();
+        shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
+        shape.graphics.dashedLineTo(100,100,200,300, 4);
+        stage.addChild(shape);
+
+
 
         // in call back add item to other  Obejct context menu
 
