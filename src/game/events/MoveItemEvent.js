@@ -19,8 +19,8 @@ if (node) {
         _itemId: null,
 
         // helpers
-        _originMapObj: null,
-        _targetMapObj:null,
+        _origin: null,
+        _target:null,
         _item:null,
         _range: null,
 
@@ -36,6 +36,7 @@ if (node) {
         setParameters: function (item) {
             this._item = item;
             this._itemId = this._item._id();
+            this._originId = this._item._mapObj._id();
             this._origin = this._item._mapObj;
         },
 
@@ -48,7 +49,7 @@ if (node) {
         setPointers: function(){
             this._super();
             this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-            this._origin = this._item._mapObj;
+            this._origin = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._originId);
             this.setTarget(this._targetId);
         },
 
@@ -83,7 +84,8 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this._itemId,
-                this._targetId
+                this._targetId,
+                this._originId
             ];
             return o;
         },
@@ -93,6 +95,7 @@ if (node) {
             if (o.hasOwnProperty("a2")) {
                 this._itemId = o.a2[0];
                 this._targetId = o.a2[1];
+                this._originId = o.a2[2];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

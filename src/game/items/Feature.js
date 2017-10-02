@@ -377,7 +377,9 @@ if (node) {
         }
     };
 
-    proto.removeItemFromFeatureManagers= function() {
+    proto.removeItemFromFeatureManagers= function(timeStamp) {
+
+        this._processedStack().lastActivationTime(timeStamp);
 
         for (var i = 0; i<this._processedStack().effects().length;i++){
             var objectIds= this._processedStack().effects()[i].currentTargetObjectIds;

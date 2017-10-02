@@ -21,12 +21,11 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this._mapObject = null;
-        this._timeCallbackId = null;
+        this.timeCallbackId = null;
         this.startedTime = null;
         this.dueTime = null;
         this.distance = null;
-        this.travelingTime = null;
+        this.travelTime = null;
 
     };
 
@@ -55,6 +54,8 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
+            {targetId: null},
+            {originId: null}
         ];
     };
 
@@ -93,17 +94,29 @@ if (node) {
     proto.moveItem  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time
+        this.targetId(target._id());
+        this.originId(origin._id());
         this.distance = Math.sqrt(Math.pow(target.x() - origin.x(),2)+ Math.pow(target.y() - origin.y(),2));
         this.travelTime= this.distance/this.movementSpeed;
         this.startedTime = startedTime;
         this.dueTime = startedTime + this.travelTime;
+
+    // in call back add item to other  Obejct context menu
         var self = this;
-        // remove Item from Object, remove feature and from object Context menu
-        origin.removeItem(this.itemId);
-        this.parent.removePointers();
+        var callback = function(dueTime,callbackId) {
+            if (!node) {
+                var toRemoveChild = uc.layerView.mapContainer.map.mov_container.getChildByName(self.parent._id());
+                uc.layerView.mapContainer.map.mov_container.removeChild(toRemoveChild);
+            }
+            self.layer.timeScheduler.removeCallback(callbackId);
+            self.parent.addToParentObject(self.targetId(),dueTime);
+            console.log("moving of item :''"+self.parent.itemTypeId()+"'' completed");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
 
 
-        // render  moving icon on that line,
         if (!node){
             var movingItem = new createjs.Sprite(uc.spritesheets[this.parent._itemType._iconSpritesheetId]);
             movingItem.gotoAndStop(this.parent._itemType._iconSpriteFrame);
@@ -114,31 +127,18 @@ if (node) {
             movingItem.name = this.parent._id();
             movingItem.id = this.parent._id();
             uc.layerView.mapContainer.map.mov_container.addChild(movingItem);
-        }
-
-        // create dashed line between origin and target
-       // var shape = new createjs.Shape();
-       // shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
-       // shape.graphics.dashedLineTo(100,100,200,300, 4);
-      //  stage.addChild(shape);
-
-
-    // in call back add item to other  Obejct context menu
-        var self = this;
-        var callback = function(dueTime,callbackId) {
-            self.layer.timeScheduler.removeCallback(callbackId);
-            var toRemoveChild = uc.layerView.mapContainer.map.mov_container.getChildByName(self.parent._id());
-            uc.layerView.mapContainer.map.mov_container.removeChild(toRemoveChild);
-            self.parent._objectId(target._id());
-            self.parent.setPointers();
-            if (self.parent._blocks.hasOwnProperty("Feature")){
-                self.parent._blocks.Feature.startExecution(dueTime);
+            var targetCoords = {
+                x: uc.layerView.mapContainer.map.gameCoord2RenderX(target.x()),
+                y: uc.layerView.mapContainer.map.gameCoord2RenderY(target.y())
             }
-            console.log("moving of item :''"+self.parent.itemTypeId()+"'' completed");
-            return Infinity;
-        };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-        console.log("I start moving  a " + this.parent.itemTypeId() + " from " +origin._id() + " to " +target._id());
+
+          //  createjs.Tween.get(movingItem,{override: true}).to(targetCoords,this.travelTime);
+            // create dashed line between origin and target
+            // var shape = new createjs.Shape();
+            // shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
+            // shape.graphics.dashedLineTo(100,100,200,300, 4);
+            //  stage.addChild(shape);
+        }
 
     };
 
@@ -149,6 +149,8 @@ if (node) {
         // update Due Time
         this.dueTime = this.startedTime + this.travelTime;
         this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
+        // remove Item and feature from Object, remove item object Context menu
+        this.parent.removeFromParentObject(this.dueTime);
     };
 
     /**

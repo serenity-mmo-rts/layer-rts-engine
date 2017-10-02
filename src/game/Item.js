@@ -160,6 +160,25 @@ if (node) {
         });
     };
 
+
+    proto.addToParentObject = function (objectId,timeStamp) {
+        this._objectId(objectId);
+        this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
+        this._mapObj.addItem(this);
+        if (this._blocks.hasOwnProperty("Feature")){
+            this._blocks.Feature.startExecution(timeStamp);
+        }
+    };
+
+
+    proto.removeFromParentObject = function (timeStamp) {
+        this._mapObj.removeItem(this._id());
+        this._objectId(null);
+        this._mapObj = null;
+        if (this._blocks.hasOwnProperty("Feature")){
+            this._blocks.Feature.removeItemFromFeatureManagers(timeStamp);
+        }
+    };
     proto.removePointers = function () {
         for (var blockName in this.itemType._blocks) {
             this._blocks[blockName].removePointers();
