@@ -81,6 +81,10 @@ if (node) {
         for (var i = 0; i < this.buildQueueIds().length; i++) {
             this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
         }
+        var self = this;
+        this.parent._id.subscribe(function(newValue){
+            self.mapObjectId = newValue;
+        });
     };
 
 

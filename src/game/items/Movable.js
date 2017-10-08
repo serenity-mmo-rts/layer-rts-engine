@@ -110,7 +110,7 @@ if (node) {
             }
             self.layer.timeScheduler.removeCallback(callbackId);
             self.parent.addToParentObject(self.targetId(),dueTime);
-            console.log("moving of item :''"+self.parent.itemTypeId()+"'' completed");
+            console.log("moving of item :'"+self.parent.itemTypeId()+"' completed");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
@@ -128,12 +128,12 @@ if (node) {
             movingItem.id = this.parent._id();
             uc.layerView.mapContainer.map.mov_container.addChild(movingItem);
             var targetCoords = {
-                x: uc.layerView.mapContainer.map.gameCoord2RenderX(target.x()),
-                y: uc.layerView.mapContainer.map.gameCoord2RenderY(target.y())
-            }
+                x: uc.layerView.mapContainer.map.gameCoord2RenderX(target.x(),target.y()),
+                y: uc.layerView.mapContainer.map.gameCoord2RenderY(target.x(),target.y())
+            };
 
-          //  createjs.Tween.get(movingItem,{override: true}).to(targetCoords,this.travelTime);
-            // create dashed line between origin and target
+           createjs.Tween.get(movingItem,{override: false}).to(targetCoords,this.travelTime);
+            // create dashed line between origin and target ONLY on click
             // var shape = new createjs.Shape();
             // shape.graphics.setStrokeStyle(2).beginStroke("#ff0000").moveTo(origin.x(),origin.y()).lineTo(target.x(),target.y());
             // shape.graphics.dashedLineTo(100,100,200,300, 4);
