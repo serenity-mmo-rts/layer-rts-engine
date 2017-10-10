@@ -120,6 +120,8 @@ if (node) {
          * @ Returns the index element for a given callback into the sorted array
          */
         findCallbackLocation: function(callbackId) {
+            // TODO @Holger due time is undefined, the sort seems to be imperfect
+            // TODO overall there are many different indicies, that makes it hard to track. simplification is needed here!
             var dueTime = this.sortedDueTimes[callbackId];
 
             var tmpEventLoc = this.quicksortLocationOf(dueTime);
@@ -139,8 +141,13 @@ if (node) {
 
             // search upward:
             var eventLoc = tmpEventLoc;
+
+            // TODO @Holger here the game goes to infinity becuase this is always true!!!
             while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]==dueTime) {
                 eventLoc++;
+                if (eventLoc>1000) {
+                    throw new Error("could not find event in list of sorted due times in 1000 runs, now running to infinity");
+                }
             }
             if (this.sortedCallbackIds[eventLoc]==callbackId) {
                 return eventLoc;
