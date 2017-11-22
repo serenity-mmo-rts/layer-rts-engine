@@ -222,27 +222,6 @@ if (node) {
         }
     };
 
-    proto.getAxes = function() {
-        this.axes = new Array(2);
-        this.axes[0] = new Vector(1, 0);
-        this.axes[1] = new Vector(0, -1);
-        if(this.ori() != 0) {
-            this.axes[0].rotate(this.ori());
-            this.axes[1].rotate(this.ori());
-        }
-        return this.axes;
-    };
-
-    proto.getRect = function() {
-        this.rect = {
-            left:   this.x()-this.width()/2,
-            top:    this.y()-this.height()/2,
-            right:  this.x()+this.width()/2,
-            bottom: this.y()+this.height()/2
-        };
-        return this.rect;
-    };
-
     proto.setSubItem = function(subItemId) {
         this.subItemId(subItemId);
         this.removeItem(subItemId);
@@ -252,81 +231,6 @@ if (node) {
         return this.subItemId();
     };
 
-    proto.isColliding = function(b) {
-
-        if (this.ori()==0 && b.ori()==0) {
-            // do a more simple and faster check if both boxes are aligned with x and y axes of map
-
-            var r1 = this.getRect();
-            var r2 = b.getRect();
-
-            if (r2.left > r1.right ||
-                r2.right < r1.left ||
-                r2.top > r1.bottom ||
-                r2.bottom < r1.top) {
-                return false;
-            }
-            else {
-                return true;
-            }
-
-        }
-
-        // for the following more complex check see the references:
-        // see http://jsbin.com/esubuw/4/edit?html,js,output
-        // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-
-        var axesA = this.getAxes();
-        var axesB = b.getAxes();
-
-        var posA = new Vector(this.x(), this.y());
-        var posB = new Vector(b.x(), b.y());
-
-        var t = new Vector(b.x(), b.y());
-        t.subtract(posA);
-        var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
-
-        var d = new Array(4);
-        d[0] = axesA[0].dot(axesB[0]);
-        d[1] = axesA[0].dot(axesB[1]);
-        d[2] = axesA[1].dot(axesB[0]);
-        d[3] = axesA[1].dot(axesB[1]);
-
-        var ra = 0, rb = 0;
-
-        ra = this.width() * 0.5;
-        rb = Math.abs(d[0])*b.width()*0.5 + Math.abs(d[1])*b.height()*0.5;
-        if(Math.abs(s1.x) > ra+rb) {
-            return false;
-        }
-
-        ra = this.height() * 0.5;
-        rb = Math.abs(d[2])*b.width()*0.5 + Math.abs(d[3])*b.height()*0.5;
-        if(Math.abs(s1.y) > ra+rb) {
-            return false;
-        }
-
-
-        t.set(posA);
-        t.subtract(posB);
-        var s2 = new Vector(t.dot(axesB[0]), t.dot(axesB[1]));
-
-
-        ra = Math.abs(d[0])*this.width()*0.5 + Math.abs(d[2])*this.height()*0.5;
-        rb = b.width()*0.5;
-        if(Math.abs(s2.x) > ra+rb) {
-            return false;
-        }
-
-        ra = Math.abs(d[1])*this.width()*0.5 + Math.abs(d[3])*this.height()*0.5;
-        rb = b.height()*0.5;
-        if(Math.abs(s2.y) > ra+rb) {
-            return false;
-        }
-
-        // collision detected:
-        return true;
-    };
 
 
     /**

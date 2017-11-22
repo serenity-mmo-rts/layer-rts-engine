@@ -19,6 +19,7 @@ if (node) {
         this.gameData = gameData;
         this.objectChangedCallback = null;
         this.itemChangedCallback = null;
+        this.events = {};
 
 
     }
@@ -74,10 +75,24 @@ if (node) {
             width: width,
             height: height,
             obj: mapObject
-        }
+        };
         return treeItem;
     };
 
+    /*
+
+     */
+    proto.listenForChangesInArea = function(callback, x, y, width, height){
+
+
+
+    };
+
+    proto.posChangedEvent = function(entity) {
+
+        // entity can be a mapObject or item
+
+    };
 
     proto.addObject = function (mapObject) {
         //check if object is already in list:
@@ -173,7 +188,7 @@ if (node) {
         var ids = {};
         for (var i = 0, l = candidates.length; i < l; i++) {
             var candidate = candidates[i];
-            if (mapObject.isColliding(candidate.obj)) {
+            if (this.isColliding(mapObject, candidate.obj)) {
                 if (!ids.hasOwnProperty(candidate.obj._id)) {
                     collidingItems.push(candidate.obj);
                     ids[candidate.obj._id] = null;
@@ -184,6 +199,112 @@ if (node) {
 
         return collidingItems;
     };
+
+
+    proto.getRect = function(x,y,width,height) {
+        var rect = {
+            left:   x-width/2,
+            top:    y-height/2,
+            right:  x+width/2,
+            bottom: y+height/2
+        };
+        return rect;
+    };
+
+
+
+    proto.getAxes = function(ori) {
+        var axes = new Array(2);
+        axes[0] = new Vector(1, 0);
+        axes[1] = new Vector(0, -1);
+        if(ori != 0) {
+            axes[0].rotate(ori);
+            axes[1].rotate(ori);
+        }
+        return axes;
+    };
+
+
+
+    proto.isColliding = function(a,b) {
+
+        if (a.ori()==0 && b.ori()==0) {
+            // do a more simple and faster check if both boxes are aligned with x and y axes of map
+
+            var r1 = this.getRect(a.x(), a.y(), a.width(), a.height());
+            var r2 = this.getRect(b.x(), b.y(), b.width(), b.height());
+
+            if (r2.left > r1.right ||
+                r2.right < r1.left ||
+                r2.top > r1.bottom ||
+                r2.bottom < r1.top) {
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        }
+
+        // for the following more complex check see the references:
+        // see http://jsbin.com/esubuw/4/edit?html,js,output
+        // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+
+        var axesA = this.getAxes(a.ori());
+        var axesB = this.getAxes(b.ori());
+
+        var posA = new Vector(a.x(), a.y());
+        var posB = new Vector(b.x(), b.y());
+
+        var t = new Vector(b.x(), b.y());
+        t.subtract(posA);
+        var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
+
+        var d = new Array(4);
+        d[0] = axesA[0].dot(axesB[0]);
+        d[1] = axesA[0].dot(axesB[1]);
+        d[2] = axesA[1].dot(axesB[0]);
+        d[3] = axesA[1].dot(axesB[1]);
+
+        var ra = 0, rb = 0;
+
+        ra = a.width() * 0.5;
+        rb = Math.abs(d[0])*b.width()*0.5 + Math.abs(d[1])*b.height()*0.5;
+        if(Math.abs(s1.x) > ra+rb) {
+            return false;
+        }
+
+        ra = a.height() * 0.5;
+        rb = Math.abs(d[2])*b.width()*0.5 + Math.abs(d[3])*b.height()*0.5;
+        if(Math.abs(s1.y) > ra+rb) {
+            return false;
+        }
+
+
+        t.set(posA);
+        t.subtract(posB);
+        var s2 = new Vector(t.dot(axesB[0]), t.dot(axesB[1]));
+
+
+        ra = Math.abs(d[0])*a.width()*0.5 + Math.abs(d[2])*a.height()*0.5;
+        rb = b.width()*0.5;
+        if(Math.abs(s2.x) > ra+rb) {
+            return false;
+        }
+
+        ra = Math.abs(d[1])*a.width()*0.5 + Math.abs(d[3])*a.height()*0.5;
+        rb = b.height()*0.5;
+        if(Math.abs(s2.y) > ra+rb) {
+            return false;
+        }
+
+        // collision detected:
+        return true;
+    };
+
+
+
+
 
     proto.getObjectsInRange = function (coord, range, type) {
         var mapObj = new MapObject(this.gameData, {
