@@ -107,13 +107,18 @@ if (node) {
             {_objectId: 0},
             {x: 0},
             {y: 0},
+            {width:0 },
+            {height: 0},
+            {ori: 0},
             {state: itemStates.TEMP},
             {_level: 1}
 
         ];
     };
 
+    proto.applyItemToMap = function () {
 
+    };
 
 
     proto.getLevel = function () {
@@ -144,6 +149,8 @@ if (node) {
         this.map = this.getMap();
         this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
         this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
+        this.x(this._mapObj.x);
+        this.y(this._mapObj.y);
         this._mapObj.addItem(this);
 
         // call all setPointer functions of the building blocks:

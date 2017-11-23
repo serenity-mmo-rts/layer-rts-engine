@@ -30,11 +30,8 @@ if (node) {
         // Define helper member variables:
         this.helperVar = 22;
         this._timeCallbackId = null;
-        this.startedTime = null;
-        this.dueTime = null;
 
         this.gameData = null;
-        this.mapObjectId = null;
         this.mapId = null;
         this.layer= null;
 
@@ -68,13 +65,14 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {buildQueueIds: []},
-            {isRunning: false}
+            {isRunning: false},
+            {startedTime: null},
+            {dueTime: null}
         ];
     };
 
     proto.setPointers = function () {
         this.gameData = this.parent.gameData;
-        this.mapObjectId = this.parent._id();
         this.mapId = this.parent.mapId();
         this.layer= this.parent.gameData.layers.get(this.parent.mapId());
         this.buildQueue = [];
@@ -82,9 +80,7 @@ if (node) {
             this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
         }
         var self = this;
-        this.parent._id.subscribe(function(newValue){
-            self.mapObjectId = newValue;
-        });
+
     };
 
 
@@ -102,7 +98,7 @@ if (node) {
 
 
     proto.updateDueTime= function(evt) {
-        this.startedTime = evt._startedTime;
+        this.startedTime(evt._startedTime) ;
 
         // get building time
         if (evt._type=="BuildUpgradeEvent"){
@@ -119,9 +115,9 @@ if (node) {
             var buildTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
         }
         // notify time scheduler:
-        console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
-        this.dueTime = this.startedTime + buildTime;
-        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime);
+        console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + buildTime);
+        this.dueTime(this.startedTime() + buildTime);
+        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTime());
 
     };
 
@@ -133,12 +129,12 @@ if (node) {
             // building upgrade
             if (evt._type=="BuildUpgradeEvent"){
                 var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[0];
-                this.startedTime = startedTime;
-                this.dueTime = startedTime + buildTime;
+                this.startedTime(startedTime);
+                this.dueTime(this.startedTime() + buildTime);
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
-                    var item = new Item(self.gameData, {_id: evt._itemId, _objectId: self.mapObjectId, itemTypeId: evt.itemTypeId, mapId: evt._mapId});
+                    var item = new Item(self.gameData, {_id: evt._itemId, _objectId: self.parent._id(), itemTypeId: evt.itemTypeId, mapId: evt._mapId});
 
                     console.log("item: "+evt._itemId+" production completed");
                     self.layer.mapData.addItem(item);
@@ -150,14 +146,14 @@ if (node) {
                     self.checkQueue(dueTime);
                     return Infinity;
                 };
-                this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.mapObjectId);
+                this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent._id());
             }
             // upgrading  upgrade
             else if (evt._type=="LevelUpgradeEvent"){
                 var buildTime = this.gameData.itemTypes.get(evt._item.itemTypeId())._buildTime[evt._item._level()];
-                this.startedTime = startedTime;
-                this.dueTime = startedTime + buildTime;
+                this.startedTime(startedTime);
+                this.dueTime(this.startedTime() + buildTime);
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
@@ -172,15 +168,15 @@ if (node) {
                     self.checkQueue(dueTime);
                     return Infinity;
                 };
-                this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.mapObjectId);
+                this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent._id());
 
             }
             // building map object
             else if (evt._type=="BuildObjectEvent"){
                 var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId)._buildTime;
-                this.startedTime = startedTime;
-                this.dueTime = startedTime + buildTime;
+                this.startedTime(startedTime);
+                this.dueTime(this.startedTime() + buildTime);
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
@@ -200,8 +196,8 @@ if (node) {
                 this.parent.setState(0);
                 var objType = this.gameData.objectTypes.get(this.parent._id());
                 var deployTime = objType.Unit.deployTime;
-                this.startedTime = startedTime;
-                this.dueTime = startedTime + deployTime;
+                this.startedTime(startedTime);
+                this.dueTime(this.startedTime() + deployTime);
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
@@ -211,7 +207,7 @@ if (node) {
                     self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
                     return Infinity;
                 };
-                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }
 
@@ -220,8 +216,8 @@ if (node) {
             else if (evt._type=="ResearchEvent"){
                 this.parent.setState(0);
                 var techTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
-                this.startedTime = startedTime;
-                this.dueTime = startedTime + techTime;
+                this.startedTime(startedTime);
+                this.dueTime(this.startedTime() + techTime);
                 var self = this;
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
@@ -231,7 +227,7 @@ if (node) {
                     User.addTechnology(evt.techTypeId);
                     return Infinity;
                 };
-                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+                this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
                 console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }
 
@@ -243,9 +239,9 @@ if (node) {
 
 
     proto.progress= function(){
-        var totalTimeNeeded = this.dueTime -this.startedTime;
+        var totalTimeNeeded = this.dueTime() -this.startedTime();
         var currentTime  = Date.now();
-        var timeLeft =  this.dueTime-currentTime;
+        var timeLeft =  this.dueTime()-currentTime;
         var percent = (timeLeft/totalTimeNeeded)*100;
         return 100-percent
     };
