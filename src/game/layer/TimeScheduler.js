@@ -16,6 +16,7 @@ if (node) {
 
         // do not serialize:
         this.callbacks = {};
+        this.callbacksDueTimes = {};
         this.sortedDueTimes = [];
         this.sortedCallbackIds = [];
         this.idx = -1;
@@ -34,7 +35,8 @@ if (node) {
             this.idx +=1;
             var callbackId = this.idx;
             this.callbacks[callbackId] = callback;
-            this._addDueTimeAndID(callbackId,dueTime);
+            this.callbacksDueTimes[callbackId] = dueTime;
+            this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
             return callbackId;
         },
 
@@ -44,8 +46,9 @@ if (node) {
         removeCallback: function (callbackId) {
             var callback = this.callbacks[callbackId];
             if(callback) {
+                this._removeDueTimeAndIdFromSortedArrays(callbackId);
                 delete this.callbacks[callbackId];
-                this._removeDueTimeAndID(callbackId);
+                delete this.callbacksDueTimes[callbackId];
             }
             else{
                 console.log("Error no callback found with callbackId:"+callbackId);
@@ -55,7 +58,7 @@ if (node) {
         /**
          * Adds Id and DueTime of existing Callback to sorted Arrays
          */
-        _addDueTimeAndID: function(callbackId,dueTime) {
+        _addDueTimeAndIdToSortedArrays: function(callbackId,dueTime) {
             var addAtLocation = this.quicksortLocationOf(dueTime);
             this.sortedDueTimes.splice(addAtLocation, 0,dueTime);
             this.sortedCallbackIds.splice(addAtLocation, 0, callbackId);
@@ -64,7 +67,7 @@ if (node) {
         /**
          * Removes Id and DueTime of existing Callback from sorted Arrays
          */
-        _removeDueTimeAndID: function (callbackId) {
+        _removeDueTimeAndIdFromSortedArrays: function (callbackId) {
             var loc = this.findCallbackLocation(callbackId);
             this.sortedDueTimes.splice(loc, 1);
             this.sortedCallbackIds.splice(loc, 1);
@@ -78,10 +81,10 @@ if (node) {
             // this function is doing nothing if the event does not exist in scheduler:
             var callback = this.callbacks[callbackId];
             if(callback) {
-                this._removeDueTimeAndID(callbackId);
-                this._addDueTimeAndID(callbackId,dueTime);
+                this._removeDueTimeAndIdFromSortedArrays(callbackId);
+                this.callbacksDueTimes[callbackId] = dueTime;
+                this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
             }
-
         },
 
         /**
@@ -122,7 +125,10 @@ if (node) {
         findCallbackLocation: function(callbackId) {
             // TODO @Holger due time is undefined, the sort seems to be imperfect
             // TODO overall there are many different indicies, that makes it hard to track. simplification is needed here!
-            var dueTime = this.sortedDueTimes[callbackId];
+            var dueTime = this.callbacksDueTimes[callbackId];
+            if (!dueTime) {
+                console.log('dueTime is undefined')
+            }
 
             var tmpEventLoc = this.quicksortLocationOf(dueTime);
             if (this.sortedCallbackIds[tmpEventLoc]==callbackId) {
@@ -134,6 +140,9 @@ if (node) {
             var eventLoc = tmpEventLoc;
             while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]==dueTime) {
                 eventLoc--;
+                if (eventLoc<0) {
+                    throw new Error("could not find event in list of sorted due times");
+                }
             }
             if (this.sortedCallbackIds[eventLoc]==callbackId) {
                 return eventLoc;
@@ -145,8 +154,8 @@ if (node) {
             // TODO @Holger here the game goes to infinity becuase this is always true!!!
             while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]==dueTime) {
                 eventLoc++;
-                if (eventLoc>1000) {
-                    throw new Error("could not find event in list of sorted due times in 1000 runs, now running to infinity");
+                if (eventLoc>this.sortedCallbackIds.length) {
+                    throw new Error("could not find event in list of sorted due times");
                 }
             }
             if (this.sortedCallbackIds[eventLoc]==callbackId) {
