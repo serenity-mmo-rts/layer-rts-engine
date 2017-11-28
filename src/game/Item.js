@@ -116,7 +116,12 @@ if (node) {
         ];
     };
 
-    proto.applyItemToMap = function () {
+    proto.applyItemToMap = function (x,y,w,h,o) {
+        this.x(x);
+        this.y(y);
+        this.width(w);
+        this.height(h);
+        this.ori(o);
 
     };
 

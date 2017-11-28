@@ -22,8 +22,6 @@ if (node) {
 
         // Define helper member variables:
         this.timeCallbackId = null;
-        this.startedTime = null;
-        this.dueTime = null;
         this.distance = null;
         this.travelTime = null;
 
@@ -83,7 +81,7 @@ if (node) {
     };
 
 
-    Map.prototype.getCurrentPositionOfItem =  function(currTime) {
+    proto.getCurrentPositionOfItem =  function(currTime) {
 
         var neededTime = this.dueTime()-this.startedTime();
         var passedSinceStart = currTime -this.startedTime();
@@ -95,8 +93,11 @@ if (node) {
         var offsetX =  target.x()-origin.x();
         var offsetY =  target.y()-origin.y();
 
-        position.x = origin.x()+(percentMoved*offsetX);
-        position.y = origin.y()+(percentMoved*offsetY);
+        var position ={
+            x : origin.x()+(percentMoved*offsetX),
+            y : origin.y()+(percentMoved*offsetY)
+        };
+
 
         return position;
     };
@@ -125,17 +126,18 @@ if (node) {
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
         console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
 
-        var centerX= (target.x() -origin.x())/2;
-        var centerY= (target.y() -origin.y())/2;
-        var width = Math.max([target.width(),origin.width()]);
-        this.parent.applyItemToMap(centerX,centerY)
+        var centerX= (origin.x()+ target.x())/2;
+        var centerY= (origin.y()+ target.y())/2;
+        var width = target.y() -origin.y();
+        var height =  target.y() -origin.y();
+        this.parent.applyItemToMap(centerX,centerY,width,height,0);
         this.isMoving(true);
     };
 
     proto.updateDueTime= function(evt) {
         this.startedTime(evt._startedTime);
         // notify time scheduler:
-        console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime());
+        console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime);
         // update Due Time
         this.dueTime(this.startedTime() + this.travelTime);
         this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
