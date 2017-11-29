@@ -133,7 +133,8 @@ if (node) {
             {ori: 0},
             {state: mapObjectStates.TEMP},
             {sublayerId: null},
-            {subItemId: null}
+            {subItemId: null},
+            {mapGeneratorParams: null}
 
         ];
     };

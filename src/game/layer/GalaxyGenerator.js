@@ -15,7 +15,7 @@ if (node) {
 
         this.nrOfSolarSystems = 2000;
         this.starTypes = ["redDwarf","normalStar","doubleSystem","neutronStar","blackHole"];
-        this.distributionofStarTypes = [0.2,0.7,0.95,0.09,1];
+        this.distributionofStarTypes = [0.3,0,0.5,0.1,0.1];
         this.worldObjects = [];
         // this.generateGalaxy();
     };
@@ -63,19 +63,20 @@ if (node) {
             var starSize = usedStar._StarSizesMean+(RandomNumber.randn()*usedStar._StarSizesStd);
             var planetAmount = usedStar._PlanetAmountMean+(RandomNumber.randn()*usedStar._PlanetAmountStd);
 
-            this.worldObjects.push(new MapObject(this.gameData,{
+            // create solar system Object
+            var mapObj =new MapObject(this.gameData,{
                 _id: "galaxyStar01inst" + i,
                 mapId: this.layer._id,
                 x: posx,
                 y: posy,
                 objTypeId: usedStar._id,
                 userId: 0,
-                _blocks: {
-                    Sublayer: {
-                        mapGeneratorParams: [subLayerSeed,starTemperature,starSize,planetAmount,usedStar._PlanetSizesMean,usedStar._PlanetSizesStd]
-                    }
-                }
-            }));
+                mapGeneratorParams: [subLayerSeed,starTemperature,starSize,planetAmount,usedStar._PlanetSizesMean,usedStar._PlanetSizesStd]
+
+            });
+            mapObj.setPointers();
+            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
+            this.worldObjects.push(mapObj);
         }
     };
 

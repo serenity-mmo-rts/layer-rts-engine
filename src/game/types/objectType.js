@@ -20,6 +20,14 @@ if (node) {
         _spritesheetId: null,
         _spriteFrame: null,
         _spriteAnimation: null,
+        _StarSizesMean : null,
+        _StarSizesStd :null,
+        _StarHeatMean : null,
+        _StarHeatStd : null,
+        _PlanetAmountMean : null,
+        _PlanetAmountStd : null,
+        _PlanetSizesMean : null, // in 2 pow n
+        _PlanetSizesStd : null,
 
         init: function (gameData, initObj) {
 
@@ -43,7 +51,15 @@ if (node) {
                 this._spriteFrame,
                 this._hasChildMapTypeId,
                 this._className,
-                this._spriteAnimation
+                this._spriteAnimation,
+                this._StarSizesMean,
+                this._StarSizesStd,
+                this._StarHeatMean,
+                this._StarHeatStd,
+                this._PlanetAmountMean,
+                this._PlanetAmountStd,
+                this._PlanetSizesMean,
+                this._PlanetSizesStd
             ];
 
 
@@ -66,6 +82,14 @@ if (node) {
                 this._hasChildMapTypeId = o.a2[8];
                 this._className = o.a2[9];
                 this._spriteAnimation = o.a2[10];
+                this._StarSizesMean= o.a2[11];
+                this._StarSizesStd= o.a2[12];
+                this._StarHeatMean= o.a2[13];
+                this._StarHeatStd= o.a2[14];
+                this._PlanetAmountMean= o.a2[15];
+                this._PlanetAmountStd= o.a2[16];
+                this._PlanetSizesMean= o.a2[17];
+                this._PlanetSizesStd= o.a2[18];
             }
 
             else {
