@@ -244,15 +244,6 @@ if (node) {
         return this.rect;
     };
 
-    proto.setSubItem = function(subItemId) {
-        this.subItemId(subItemId);
-        this.removeItem(subItemId);
-    };
-
-    proto.getSubItem = function(subItemId) {
-        return this.subItemId();
-    };
-
     proto.isColliding = function(b) {
 
         if (this.ori()==0 && b.ori()==0) {

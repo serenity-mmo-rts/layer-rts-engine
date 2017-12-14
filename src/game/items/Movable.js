@@ -103,6 +103,40 @@ if (node) {
     };
 
 
+    proto.moveSubObject  = function(startedTime){
+
+        // calcualte distance between origin and target, from there calculate due Time
+        this.targetMapId(this.gameData.layers.get(this.mapId).parentMapId);
+      //  this.targetId(this.gameData.layers.get(this.mapId).parentObjId);
+        this.originId(this.parent._objectId());
+
+        this.distance = 100; //TODO calculate from  mapObject to border
+        this.travelTime= this.distance/this.movementSpeed;
+        this.startedTime(startedTime);
+        this.dueTime(this.startedTime() + this.travelTime);
+
+
+        // in call back add item to other  Obejct context menu
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            self.isMoving(false);
+            self.layer.timeScheduler.removeCallback(callbackId);
+            self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
+            console.log("moving of item :'"+self.parent.itemTypeId()+"' completed");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
+
+        var centerX= (origin.x()+ target.x())/2;
+        var centerY= (origin.y()+ target.y())/2;
+        var width = target.y() -origin.y();
+        var height =  target.y() -origin.y();
+        this.parent.applyItemToMap(centerX,centerY,width,height,0);
+        this.isMoving(true);
+    };
+
+
     proto.moveItem  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time

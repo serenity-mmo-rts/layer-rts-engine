@@ -153,10 +153,14 @@ if (node) {
     proto.setPointers = function () {
         this.map = this.getMap();
         this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
-        this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
-        this.x(this._mapObj.x);
-        this.y(this._mapObj.y);
-        this._mapObj.addItem(this);
+        if (this._objectId()){
+            this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
+            this.x(this._mapObj.x);
+            this.y(this._mapObj.y);
+            this._mapObj.addItem(this);
+        }
+
+
 
         // call all setPointer functions of the building blocks:
         for (var blockName in this._blocks) {

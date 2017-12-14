@@ -194,7 +194,7 @@ if (node) {
             // dismantle map Object
            else if (evt._type=="MoveThroughLayerEvent"){
                 this.parent.setState(0);
-                var objType = this.gameData.objectTypes.get(this.parent._id());
+                var objType = this.gameData.objectTypes.get(this.parent.objTypeId());
                 var deployTime = objType.Unit.deployTime;
                 this.startedTime(startedTime);
                 this.dueTime(this.startedTime() + deployTime);
@@ -204,7 +204,8 @@ if (node) {
                     self.parent.state(mapObjectStates.HIDDEN);
                     self.parent.notifyStateChange();
                     console.log("Dismantling of Map Object: "+self.parent._id()+" done.");
-                    self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
+                    var item = self.layer.mapData.items.get(self._mapObj.subItemId());
+                    item._blocks.Movable.moveSubObject(this._startedTime);
                     return Infinity;
                 };
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());

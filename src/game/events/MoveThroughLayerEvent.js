@@ -32,7 +32,7 @@ if (node) {
         },
 
         setParameters: function (mapObj) {
-            this.mapObjIdStay = mapObj._id;
+            this.mapObjIdStay = mapObj._id();
             this.setPointers();
         },
 
@@ -59,6 +59,12 @@ if (node) {
         },
 
         execute: function () {
+            if (this._mapObj._blocks.hasOwnProperty("MoveThroughLayerEvent")){
+                this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
+                this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            }
+
+            /**
             var parentMapId =  this._gameData.layers.get(this._mapId).parentMapId;
             var parentObjId =  this._gameData.layers.get(this._mapId).parentObjId;
 
@@ -68,7 +74,7 @@ if (node) {
             this.mapObjTmp.setPointers();
 
             // get item corresponding to map Object
-            var subItemId = this._mapObj.getSubItem();
+            var subItemId = this._mapObj.getSubItemId();
             var item = this.gameData.layers.get(this.mapId).mapData.items.get(subItemId);
 
             // change Map Ids
@@ -89,6 +95,7 @@ if (node) {
 
             this.mapObjTmp._blocks.UpgradeProduction.addEventToQueue(this);
             this.mapObjTmp._blocks.UpgradeProduction.checkQueue(this._startedTime);
+             **/
         },
 
         updateFromServer: function (event) {
