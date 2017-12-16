@@ -47,8 +47,8 @@ if (node) {
             // calc planet Angle
             this.planetAnlges.push(RandomNumber.rand() * (2 * Math.PI));
             // calc X and Y position from radius and angle
-            this.planetXPos.push(this.planetRadius[i] * Math.cos(this.planetAnlges[i]));
-            this.planetYPos.push(this.planetRadius[i] * Math.sin(this.planetAnlges[i]));
+            this.planetXPos.push(this.planetRadius[i] * Math.cos(this.planetAnlges[i])*100); // -Hack
+            this.planetYPos.push(this.planetRadius[i] * Math.sin(this.planetAnlges[i])*100); // -Hack
 
             // calc planet Size
             var size = Math.round((this.planetSizeMean) + (RandomNumber.randn()*this.planetSizeStd) + (this.planetRadius[i]*this.planetSizeLinearIncrease));
@@ -66,36 +66,35 @@ if (node) {
             }
             // random seed for sublayer
             var subLayerSeed = RandomNumber.rand();
-            // add planet Objects
-            this.worldObjects.push(new MapObject(this.gameData, {
+            // create planet Object
+            var mapObj = new MapObject(this.gameData, {
                 _id: "planet" + i + "In" + this.layer._id,
                 mapId: this.layer._id,
                 x: this.planetXPos[i],
                 y: this.planetYPos[i],
-                objTypeId: "firstPlanet",  ///TODO here we must add a selection mechanism for different planet types
+                objTypeId: "earthPlanet",  ///TODO here we must add a selection mechanism for different planet types
                 userId: 0,
-                _blocks: {
-                    Sublayer: {
-                        mapGeneratorParams: [subLayerSeed,this.planetTemperatures[i],this.planetSizes[i]]
-                    }
-                }
-            }));
+                mapGeneratorParams: [subLayerSeed,this.planetTemperatures[i],this.planetSizes[i]]
+
+            });
+            mapObj.setPointers();
+            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
+            this.worldObjects.push(mapObj);
         }
 
         // add sun
+        /**
         this.worldObjects.push(new MapObject(this.gameData, {
             _id: "sunIn" + this.layer._id,
             mapId: this.layer._id,
             x: 0,
             y: 0,
-            objTypeId: "sun01",
+            objTypeId: "sunPlanet",
             userId: 0,
-            _blocks: {
-                Sublayer: {
-                    mapGeneratorParams: [subLayerSeed, this.starTemperature, this.starSize]
-                }
-            }
+            mapGeneratorParams: [subLayerSeed, this.starTemperature, this.starSize]
+
         }));
+         **/
     };
 
     SolarGenerator.prototype.getWorldObjects = function () {
@@ -104,6 +103,9 @@ if (node) {
         }
         return this.worldObjects;
     };
+
+
+
 
 
 

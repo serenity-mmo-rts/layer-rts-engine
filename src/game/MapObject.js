@@ -133,7 +133,8 @@ if (node) {
             {ori: 0},
             {state: mapObjectStates.TEMP},
             {sublayerId: null},
-            {subItemId: null}
+            {subItemId: null},
+            {mapGeneratorParams: null}
 
         ];
     };
@@ -220,15 +221,6 @@ if (node) {
         for (var blockName in this.objType._blocks) {
             this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
         }
-    };
-
-    proto.setSubItem = function(subItemId) {
-        this.subItemId(subItemId);
-        this.removeItem(subItemId);
-    };
-
-    proto.getSubItem = function(subItemId) {
-        return this.subItemId();
     };
 
 

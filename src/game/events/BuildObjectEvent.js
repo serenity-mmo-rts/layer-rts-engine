@@ -209,14 +209,6 @@ if (node) {
                 this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
 
-            if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
-                var itemTypeId = this._mapObj.Unit.itemTypeId;
-                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: this.mapObjId, itemTypeId: itemTypeId, _mapId: this._mapId, _state: itemStates.HIDDEN});
-                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
-                this.item.setPointers();
-                this._mapObj.setSubItem(this.itemId);
-            }
-
             if (this._mapObj._blocks.hasOwnProperty("UpgradeProduction")){
                 this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
                 this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
@@ -225,6 +217,14 @@ if (node) {
             this.isValid();
             this._mapObj.embedded(true);
             this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+
+            if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
+                var itemTypeId = this._mapObj._blocks.Unit.itemTypeId;
+                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: null, itemTypeId: itemTypeId, mapId: this._mapId, state: itemStates.HIDDEN});
+                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+                this.item.setPointers();
+                this._mapObj.subItemId(this.itemId);
+            }
 
         },
 
@@ -239,6 +239,7 @@ if (node) {
             if (this._mapObj._blocks.hasOwnProperty("Unit")){
                 this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
                 this.item._id(event.itemId);
+                this.item._objectId(event.mapObjId);
                 this.itemId = event.itemId;
                 this._mapObj.setSubItem(event.itemId);
             }

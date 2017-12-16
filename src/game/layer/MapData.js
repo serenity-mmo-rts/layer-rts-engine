@@ -96,7 +96,7 @@ if (node) {
 
     proto.addObject = function (mapObject) {
         //check if object is already in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id)) {
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
             console.log("map object was already in list.")
         }
         else {
