@@ -59,13 +59,19 @@ if (node) {
         },
 
         execute: function () {
-            if (this._mapObj._blocks.hasOwnProperty("MoveThroughLayerEvent")){
-                this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
-                this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
-            }
+
+
+
+          //  this._gameData.layers.get(parentMapId).mapData.addObject(this.mapObj);
+          //  this._gameData.layers.get(parentMapId).mapData.addItem(item);
+
+
+            this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
+            this.mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+
 
             /**
-            var parentMapId =  this._gameData.layers.get(this._mapId).parentMapId;
+
             var parentObjId =  this._gameData.layers.get(this._mapId).parentObjId;
 
             // create temporary map object in lower layer for rendering moving
@@ -85,9 +91,7 @@ if (node) {
             this._gameData.layers.get(this._mapId).mapData.removeObject(this.mapObj);
             this._gameData.layers.get(this._mapId).mapData.removeItem(item);
 
-            // add item and object to  parent layer
-            this._gameData.layers.get(parentMapId).mapData.addObject(this.mapObj);
-            this._gameData.layers.get(parentMapId).mapData.addItem(item);
+
 
 
             this.item._blocks.SubObject.addMovementProps(this._mapObj);
@@ -100,7 +104,7 @@ if (node) {
 
         updateFromServer: function (event) {
             this._super(event);
-            this._mapObj._blocks.Unit.updateDueTime(event._startedTime);
+            this.mapObj._blocks.UpgradeProduction.updateDueTime(event._startedTime);
         },
 
         revert: function() {
