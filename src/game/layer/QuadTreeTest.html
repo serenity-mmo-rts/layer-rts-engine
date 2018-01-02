@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+<head>
+    <title>Quadtree-js</title>
+    <link rel="stylesheet" type="text/css" href="QuadTreeTest.css"/>
+</head>
+<body>
+
+<div class="outer">
+
+    <h1>
+        <small>simple example</small>
+    </h1>
+
+    <div id="canvasContainer">
+        <canvas id="canvas" width="640" height="480"></canvas>
+    </div>
+
+    <div class="ctrl">
+        <div class="ctrl-left">
+            <button id="btn_addAlignedRect">add aligned rectangle.</button>
+            <button id="btn_addAlignedRect_10">add 10 aligned rectangles</button>
+            <br>
+            <button id="btn_addOriRect">add oriented rectangle.</button>
+            <button id="btn_addOriRect_10">add 10 oriented rectangles</button>
+            <br>
+            <button id="btn_addCircle">add circle.</button>
+            <button id="btn_addCircle_10">add 10 circles</button>
+
+            <span>
+            <h3>Tree parameters: </h3>
+                <p>periodic (TODO): <input type="checkbox" id="periodic"></p>
+                <p>maxDepth: <input type="number" id="maxDepth" value="10"></p>
+                <p>maxChildren: <input type="number" id="maxChildren" value="8"></p>
+            <br>
+            <button id="btn_clear">clear tree</button>
+            <br>
+            </span>
+
+            <span>
+            <h3>Cursor parameters: </h3>
+            <p>Cursor Size: <input type="number" id="cursorSize" value="50"></p>
+            Cursor Type:
+            <select id="cursorMode">
+                <option value="rectAligned">aligned rectangle
+                <option value="rectOriented">oriented rectangle
+                <option value="circle">circle
+            </select>
+            </span>
+
+        </div>
+
+        <div class="ctrl-right">
+            Retrievel Time: <span id="retrievelTime">0</span> ns<br/>
+            Total Objects: <span id="cnt_total">0</span><br/>
+            Candidates: <span id="cnt_cand">0</span> (<span id="cnt_perc">0</span>%)
+        </div>
+    </div>
+
+</div>
+
+<script src="./QuadTree.js"></script>
+<script src="./Vector.js"></script>
+
+<script>
+
+    (function (w, M) {
+
+        w.requestAnimFrame = (function () {
+            return w.requestAnimationFrame ||
+                    w.webkitRequestAnimationFrame ||
+                    w.mozRequestAnimationFrame ||
+                    w.oRequestAnimationFrame ||
+                    w.msRequestAnimationFrame ||
+                    function (callback) {
+                        w.setTimeout(callback, 1000 / 60);
+                    };
+        })();
+
+
+        var bounds = new Bounds().initRectByCenter(0, 0, 640, 480, 0);
+        var myObjects = [];
+        var periodic = false;
+        var maxDepth = document.getElementById("maxDepth").value;
+        var maxChildren = document.getElementById("maxChildren").value;
+        var myTree = null;
+        var rebuildTree = function () {
+            myTree = new CollisionQuadTree(bounds, periodic, maxChildren, maxDepth);
+            for (var i=myObjects.length-1; i>=0; i--){
+                myTree.insert(myObjects[i]);
+            }
+        };
+        rebuildTree();
+
+
+        /*
+         * our "hero", aka the mouse cursor.
+         * He is not in the quadtree, we only use this object to retrieve objects from a certain area
+         */
+        var cursorMode = 0;
+        var mouseX = 0;
+        var mouseY = 0;
+        var cursorOri = 0;
+        var cursorSize = document.getElementById("cursorSize").value;
+        var curserIsCircle = false;
+        var myCursor = null;
+        var createCursor = function () {
+            if (curserIsCircle) {
+                myCursor = new Bounds().initCircle(mouseX, mouseY, cursorSize / 2);
+            }
+            else {
+                myCursor = new Bounds().initRectByCenter(mouseX, mouseY, cursorSize, cursorSize, cursorOri);
+            }
+        };
+        createCursor();
+
+        var isMouseover = false;
+        var ctx = document.getElementById('canvas').getContext('2d');
+        ctx.translate(320, 240)
+        var cnt_total = document.querySelector('#cnt_total');
+        var cnt_cand = document.querySelector('#cnt_cand');
+        var cnt_perc = document.querySelector('#cnt_perc');
+        var retrievelTime = document.querySelector('#retrievelTime');
+        var meanRetrievelTime = 0;
+
+        var handleMousemove = function (e) {
+            isMouseover = true;
+            if (!e.offsetX) {
+                e.offsetX = e.layerX - e.target.offsetLeft;
+                e.offsetY = e.layerY - e.target.offsetTop;
+            }
+            mouseX = e.offsetX - 320;
+            mouseY = e.offsetY - 240;
+            createCursor();
+        };
+
+        var handleMouseout = function (e) {
+            isMouseover = false;
+        };
+
+        /*
+         * add a random rectangle to our simulation
+         */
+        var handleAddRect = function (useOrientation) {
+
+            var w = 2 * randMinMax(4, 30, true);
+            var h = 2 * randMinMax(4, 30, true);
+
+            var ori;
+            if (useOrientation) {
+                ori = randMinMax(0, 2 * Math.PI, false);
+            }
+            else {
+                ori = 0;
+            }
+
+            var rndObj = new Bounds().initRectByCenter(
+                    randMinMax(-myTree.bounds.w / 2 + w / 2, myTree.bounds.w / 2 - w / 2, true),
+                    randMinMax(-myTree.bounds.h / 2 + h / 2, myTree.bounds.h / 2 - h / 2, true),
+                    w,
+                    h,
+                    ori);
+
+            rndObj.check = false; // for rendering in color
+            myObjects.push(rndObj);
+            myTree.insert(rndObj);
+            updateTotal();
+        };
+
+        /*
+         * add a random circle to our simulation
+         */
+        var handleAddCircle = function () {
+
+            var r = randMinMax(4, 30, true);
+
+            var rndObj = new Bounds().initCircle(
+                    randMinMax(-myTree.bounds.w / 2 + r, myTree.bounds.w / 2 - r, true),
+                    randMinMax(-myTree.bounds.h / 2 + r, myTree.bounds.h / 2 - r, true),
+                    r);
+
+            rndObj.check = false; // for rendering in color
+            myObjects.push(rndObj);
+            myTree.insert(rndObj);
+            updateTotal();
+        };
+
+        /*
+         * clear the tree
+         */
+        var handleClear = function () {
+            //empty our array
+            myObjects = [];
+            //empty our quadtree
+            myTree.clear();
+            //update total counter
+            updateTotal();
+        };
+
+
+        /*
+         * draw Quadtree nodes
+         */
+        var drawQuadtree = function (node) {
+            var bounds = node.bounds;
+
+            //no subnodes? draw the current node
+            if (node.nodes.length === 0) {
+                ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+                ctx.strokeRect(bounds.x1, bounds.y1, bounds.w, bounds.h);
+
+                //has subnodes? drawQuadtree them!
+            } else {
+                for (var i = 0; i < node.nodes.length; i = i + 1) {
+                    drawQuadtree(node.nodes[i]);
+                }
+            }
+        };
+
+        /*
+         * draw all objects
+         */
+        var drawObjects = function () {
+
+            var obj;
+
+            for (var i = 0; i < myObjects.length; i = i + 1) {
+
+                obj = myObjects[i];
+
+                if (obj.r) {
+
+                    ctx.save();
+                    ctx.translate(obj.x, obj.y);
+                    ctx.beginPath();
+                    ctx.arc(0, 0, obj.r, 0, 2 * Math.PI, false);
+                    if (obj.check) {
+                        ctx.fillStyle = 'rgba(48,255,48,0.5)';
+                        ctx.fill();
+                    } else {
+                        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+
+                }
+                else {
+
+                    ctx.save();
+                    ctx.translate(obj.x, obj.y);
+                    if (obj.o) {
+                        ctx.rotate(-obj.o);
+                    }
+                    if (obj.check) {
+                        ctx.fillStyle = 'rgba(48,255,48,0.5)';
+                        ctx.fillRect(-obj.w / 2, -obj.h / 2, obj.w, obj.h);
+                    } else {
+                        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(-obj.w / 2, -obj.h / 2, obj.w, obj.h);
+                    }
+                    ctx.restore();
+
+                }
+
+
+            }
+        };
+
+        /**
+         * return a random number within given boundaries.
+         *
+         * @param {number} min        the lowest possible number
+         * @param {number} max        the highest possible number
+         * @param {boolean} round    if true, return integer
+         * @return {number}        a random number
+         */
+        randMinMax = function (min, max, round) {
+            var val = min + (Math.random() * (max - min));
+
+            if (round) val = Math.round(val);
+
+            return val;
+        };
+
+        /*
+         * our main loop
+         */
+        var loop = function () {
+
+            var candidates = [];
+
+            ctx.clearRect(-320, -240, 640, 480);
+
+            //reset myObjects check flag
+            for (var i = 0; i < myObjects.length; i = i + 1) {
+                myObjects[i].check = false;
+            }
+
+            if (isMouseover) {
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+
+                if (myCursor.r) {
+                    ctx.save();
+                    ctx.translate(myCursor.x, myCursor.y);
+                    ctx.beginPath();
+                    ctx.arc(0, 0, myCursor.r, 0, 2 * Math.PI, false);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                else {
+                    ctx.save();
+                    ctx.translate(myCursor.x, myCursor.y);
+                    if (myCursor.o) {
+                        ctx.rotate(-myCursor.o);
+                    }
+                    ctx.fillRect(-myCursor.w / 2, -myCursor.h / 2, myCursor.w, myCursor.h);
+                    ctx.restore();
+                }
+
+                //retrieve all objects in the bounds
+                var startTime = +new Date();
+                candidates = myTree.retrieve(myCursor);
+                var endTime = +new Date();
+                meanRetrievelTime = 0.02 * (endTime - startTime) + 0.98*meanRetrievelTime;
+                retrievelTime.innerHTML = Math.round(meanRetrievelTime*1000);
+
+                //flag retrieved objects
+                for (i = 0; i < candidates.length; i = i + 1) {
+                    candidates[i].check = true;
+                }
+            }
+            updateCandidatesInfo(candidates);
+
+            drawQuadtree(myTree.root);
+            drawObjects();
+
+            requestAnimFrame(loop);
+        };
+        var updateTotal = function () {
+            cnt_total.innerHTML = myObjects.length;
+
+        }
+        var updateCandidatesInfo = function (candidates) {
+            cnt_cand.innerHTML = candidates.length;
+            if (!myObjects.length) return;
+            cnt_perc.innerHTML = Math.round((candidates.length / myObjects.length) * 100);
+        }
+
+        //init first loop
+        loop();
+
+        //set eventListener for mousemove
+        document.getElementById('canvas').addEventListener('mousemove', handleMousemove);
+        document.getElementById('canvas').addEventListener('mouseout', handleMouseout);
+        //set eventListener for buttons
+
+        document.getElementById('btn_addAlignedRect').addEventListener('click', function () {
+            handleAddRect(false);
+        });
+        document.getElementById('btn_addAlignedRect_10').addEventListener('click', function () {
+            for (var i = 0; i < 10; i++) {
+                handleAddRect(false)
+            }
+        });
+
+        document.getElementById('btn_addOriRect').addEventListener('click', function () {
+            handleAddRect(true);
+        });
+        document.getElementById('btn_addOriRect_10').addEventListener('click', function () {
+            for (var i = 0; i < 10; i++) {
+                handleAddRect(true)
+            }
+        });
+
+        document.getElementById('btn_addCircle').addEventListener('click', function () {
+            handleAddCircle();
+        });
+        document.getElementById('btn_addCircle_10').addEventListener('click', function () {
+            for (var i = 0; i < 10; i++) {
+                handleAddCircle()
+            }
+        });
+
+        document.getElementById("periodic").addEventListener("change", function (e) {
+            periodic = this.value;
+            rebuildTree();
+        }, false);
+
+        document.getElementById("maxDepth").addEventListener("input", function (e) {
+            maxDepth = this.value;
+            rebuildTree();
+        }, false);
+
+        document.getElementById("maxChildren").addEventListener("input", function (e) {
+            maxChildren = this.value;
+            rebuildTree();
+        }, false);
+
+        document.getElementById('btn_clear').addEventListener('click', handleClear);
+
+        document.getElementById("cursorSize").addEventListener("input", function (e) {
+            cursorSize = this.value;
+            createCursor();
+        }, false);
+
+        document.getElementById('cursorMode').addEventListener('change', function () {
+            switch (this.value) {
+                case "rectAligned":
+                    curserIsCircle = false;
+                    cursorOri = 0;
+                    break;
+                case "rectOriented":
+                    curserIsCircle = false;
+                    cursorOri = randMinMax(0, 2 * Math.PI, false);
+                    break;
+                case "circle":
+                    curserIsCircle = true;
+                    cursorOri = 0;
+                    break;
+            }
+            createCursor();
+        });
+
+    })(window, Math);
+</script>
+</body>
+</html>

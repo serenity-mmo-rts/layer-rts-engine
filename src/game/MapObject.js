@@ -4,7 +4,7 @@ if (node) {
     var GameData = require('./GameData').GameData;
     var ItemModel = require('./Item').ItemModel;
     var GameList = require('./GameList').GameList;
-    var Vector = require('./layer/Vector').Vector;
+
 
     var UserObject = require('./mapObjects/UserObject').UserObject;
     var Environment = require('./mapObjects/Environment').Environment;
