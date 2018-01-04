@@ -196,8 +196,6 @@ if (node) {
                 // set map object state to dismantle
                 this.parent.setState(1);
                 this.parent.notifyStateChange();
-                // add target map id to movable building block of the item
-                this.layer.mapData.items.get(this.parent.subItemId())._blocks.Movable.targetMapId(this.layer.parentMapId);
                 var objType = this.gameData.objectTypes.get(this.parent.objTypeId());
                 var deployTime = objType._blocks.Unit.deployTime;
                 this.startedTime(startedTime);

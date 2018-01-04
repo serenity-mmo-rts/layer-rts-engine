@@ -37,6 +37,10 @@ if (node) {
             }
         },
 
+        notifyServer: function() {
+            return null;
+        },
+
         isValid: function () {
             //overwrite
         },

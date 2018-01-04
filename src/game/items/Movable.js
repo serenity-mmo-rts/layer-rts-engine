@@ -56,8 +56,7 @@ if (node) {
             {originId: null},
             {isMoving: false},
             {startedTime: null},
-            {dueTime: null},
-            {targetMapId: null}
+            {dueTime: null}
 
 
         ];

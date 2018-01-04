@@ -38,7 +38,12 @@ if (node) {
             this.gameData = arg1;
             initObj = arg2;
             type = this.gameData.itemTypes.get(initObj.itemTypeId);
-            parent = this.gameData.layers.get(initObj.mapId).mapData.items;
+            if (this.gameData.layers.get(initObj.mapId)) {
+                parent = this.gameData.layers.get(initObj.mapId).mapData.items;
+            }
+            else {
+                parent = this.gameData.layers.get(initObj.targetMapId).mapData.items;
+            }
         }
         else {
             parent = arg1;
@@ -102,6 +107,7 @@ if (node) {
             {
                 _id: 0,
                 mapId: 0,
+                targetMapId: 0,
                 itemTypeId: 0
             },
             {_objectId: 0},
@@ -211,9 +217,9 @@ if (node) {
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.notifyStateChange = function () {
+    /*proto.notifyStateChange = function () {
         this.map.mapData.items.notifyStateChange(this._id());
-    };
+    };*/
 
 
     //exports.itemStates = itemStates;

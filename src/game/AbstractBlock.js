@@ -27,6 +27,9 @@ if (node) {
         this.parent = parent;
         this.type = type;
         this.embedded = ko.observable(false);
+        this.mykey = null;
+        this.blockname = null;
+        this.mutatedChilds = [];
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -107,6 +110,14 @@ if (node) {
         return this;
     };
 
+    proto.resetState = function() {
+
+        // TODO: use oldValue in all state variables to reset to the previous snapshot:
+
+
+
+    };
+
     /**
      * This function sets the state vars first with the hardcoded defaults and then overwrites them with the given this.type
      */
@@ -115,14 +126,16 @@ if (node) {
 
         ko.extenders.logChange = function(target, options) {
             target.oldValue = null;
-            target.changedChilds = [];
+            target.mutatedChilds = [];
+            target.notifyStateChange = function(childKey) {
+                target.mutatedChilds[childKey] = true;
+                options.parent.notifyStateChange(options.key);
+            };
             target.subscribe(function(oldValue) {
                 if (target.oldValue == null) {
                     target.oldValue = oldValue;
-                    if (!options.parent.hasOwnProperty("mutatedChilds")) {
-                        options.parent.mutatedChilds = [];
-                    }
-                    options.parent.mutatedChilds[options.key] = target;
+                    //options.parent.mutatedChilds[options.key] = target;
+                    options.parent.notifyStateChange(options.key);
                 }
             }, null, "beforeChange");
             return target;
@@ -142,11 +155,10 @@ if (node) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
                             var elm = makeObservable(data[arr]);
-                            newLen = vm.push(elm);
-                            elm.extend({logChange: {parent: vm, key: newLen}})
+                            var newLen = vm.push(elm);
+                            elm.extend({logChange: {parent: vm, key: newLen}});
                         }
                     }
-
                 }
                 else if (dataType === Object) {
 
@@ -176,15 +188,22 @@ if (node) {
         }
 
         //var viewModel = makeObservable(data, {});
-
         var states = this.defineStateVars();
         for (var i=0; i<=states.length; i++) {
             for (var stateVarName in states[i]) {
                 //this[stateVarName] = states[i][stateVarName];
-
                 this[stateVarName] = makeObservable(states[i][stateVarName]);
-                this[stateVarName].extend({logChange: {parent: this.parent, key: stateVarName}})
+                this[stateVarName].extend({logChange: {parent: this, key: stateVarName}})
             }
+        }
+
+        if (this.hasOwnProperty("_id")) {
+            // if this is a game instance with an id. For example item or mapObject:
+            this.mykey = this._id;
+        }
+        else {
+            // if this is a building block without id. For example UpgradeProdcution:
+            this.mykey = this.constructor.name;
         }
 
         return this;
@@ -214,6 +233,8 @@ if (node) {
             }
         }
 
+        this.blockname = blockname;
+
         Object.seal(this);
 
         registeredBlockClasses[blockname] = this.constructor;
@@ -226,8 +247,14 @@ if (node) {
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.notifyStateChange = function(){
-        this.parent.notifyStateChange();
+    proto.notifyStateChange = function(childKey){
+
+        if (childKey) {
+            this.mutatedChilds[childKey] = true;
+        }
+
+        this.parent.notifyStateChange(this.mykey);
+
     };
 
     /**

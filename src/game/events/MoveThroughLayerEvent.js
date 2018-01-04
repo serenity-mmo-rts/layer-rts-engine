@@ -21,6 +21,8 @@ if (node) {
 
         // helpers
         mapObj: null,
+        item: null,
+        targetMapId: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -40,6 +42,7 @@ if (node) {
         setPointers: function(){
             this._super();
             this.mapObj = this.map.mapData.mapObjects.get(this.mapObjIdStay);
+            this.item = this.map.mapData.items.get(this.mapObj.subItemId());
         },
 
         executeOnClient: function () {
@@ -52,6 +55,9 @@ if (node) {
             this.mapObjIdTmp = (new mongodb.ObjectID()).toHexString();
             this.start(Date.now());
             this.execute();
+
+
+
         },
 
         executeOnOthers: function() {
@@ -64,6 +70,11 @@ if (node) {
 
           //  this._gameData.layers.get(parentMapId).mapData.addObject(this.mapObj);
           //  this._gameData.layers.get(parentMapId).mapData.addItem(item);
+
+
+            this.targetMapId = this.map.parentMapId;
+            this.mapObj.targetMapId(this.targetMapId);
+            this.item.targetMapId(this.targetMapId);
 
 
             this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
@@ -100,6 +111,16 @@ if (node) {
             this.mapObjTmp._blocks.UpgradeProduction.addEventToQueue(this);
             this.mapObjTmp._blocks.UpgradeProduction.checkQueue(this._startedTime);
              **/
+        },
+
+        notifyServer: function() {
+            var msgData = {
+                targetMapId: this.targetMapId,
+                event: "loadFromDb",
+                objectIds: [this.mapObj._id()],
+                itemIds: [this.item._id()]
+            };
+            return msgData;
         },
 
         updateFromServer: function (event) {
