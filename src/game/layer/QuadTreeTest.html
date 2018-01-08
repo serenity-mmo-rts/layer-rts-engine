@@ -80,12 +80,12 @@
 
         var bounds = new Bounds().initRectByCenter(0, 0, 640, 480, 0);
         var myObjects = [];
-        var periodic = false;
+        var periodicBounds = false;
         var maxDepth = document.getElementById("maxDepth").value;
         var maxChildren = document.getElementById("maxChildren").value;
         var myTree = null;
         var rebuildTree = function () {
-            myTree = new CollisionQuadTree(bounds, periodic, maxChildren, maxDepth);
+            myTree = new CollisionQuadTree(bounds, periodicBounds, maxChildren, maxDepth);
             for (var i=myObjects.length-1; i>=0; i--){
                 myTree.insert(myObjects[i]);
             }
@@ -384,7 +384,13 @@
         });
 
         document.getElementById("periodic").addEventListener("change", function (e) {
-            periodic = this.value;
+            if (this.value=="on")
+            {
+                periodicBounds = bounds;
+            }
+            else {
+                periodicBounds = false;
+            }
             rebuildTree();
         }, false);
 

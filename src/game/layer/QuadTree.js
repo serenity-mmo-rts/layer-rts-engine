@@ -31,11 +31,11 @@ if (node) {
      * @param {Number} maxDepth The maximum number of levels that the CollisionQuadTree will create. Default is 4.
      * @param {Number} maxChildren The maximum number of children that a node can contain before it is split into sub-nodes.
      **/
-    function CollisionQuadTree(bounds, periodic, maxDepth, maxChildren)
+    function CollisionQuadTree(bounds, periodicBounds, maxDepth, maxChildren)
     {
         this.bounds = bounds;
-        this.periodic = periodic;
-        this.root = new Quadrant(bounds, 0, maxDepth, maxChildren, periodic);
+        this.periodicBounds = periodicBounds;
+        this.root = new Quadrant(bounds, 0, maxDepth, maxChildren, periodicBounds);
     }
 
 
@@ -211,23 +211,55 @@ if (node) {
     Bounds.prototype.y2 = null; // y-coordinate of bottom edge of grid-aligned-outer-rectangle
 
 
-    Bounds.prototype.isOuterRectColliding = function(item) {
-        if (item.x1 > this.x2 ||
-            item.x2 < this.x1 ||
-            item.y1 > this.y2 ||
-            item.y2 < this.y1) {
-            return false;
+    Bounds.prototype.isOuterRectColliding = function(item, periodicBounds) {
+        if (periodicBounds) {
+            // we assume that both center coordinates are within the inner period...
+
+            // X Axis:
+            var periodMoveItemX = periodicBounds.w;
+            if (item.x > this.x) {
+                periodMoveItemX = -periodMoveItemX;
+            }
+            if (item.x1 > this.x2 && item.x2+periodMoveItemX < this.x1) {
+                return false;
+            }
+            if (item.x2 < this.x1 && item.x1+periodMoveItemX > this.x2) {
+                return false;
+            }
+
+            // Y Axis:
+            var periodMoveItemY = periodicBounds.h;
+            if (item.y > this.y) {
+                periodMoveItemY = -periodMoveItemY;
+            }
+            if (item.y1 > this.y2 && item.y2+periodMoveItemY < this.y1) {
+                return false;
+            }
+            if (item.y2 < this.y1 && item.y1+periodMoveItemY > this.y2) {
+                return false;
+            }
+
+            return true;
+
         }
         else {
-            return true;
+            if (item.x1 > this.x2 ||
+                item.x2 < this.x1 ||
+                item.y1 > this.y2 ||
+                item.y2 < this.y1) {
+                return false;
+            }
+            else {
+                return true;
+            }
         }
     };
 
 
-    Bounds.prototype.isColliding = function(item) {
+    Bounds.prototype.isColliding = function(item, periodicBounds) {
 
         // first, just check if outerRects are colliding, because this is very fast:
-        var outerCollision = this.isOuterRectColliding(item);
+        var outerCollision = this.isOuterRectColliding(item, periodicBounds);
 
         if (!outerCollision) {
             // if the outerRect is not colliding, then collision is not possible, so directly return:
@@ -246,10 +278,53 @@ if (node) {
         if(this.r && item.r) {
             // two circles
 
-            var xDist = this.x-item.x;
-            var yDist = this.y-item.y;
-            var rBoth = this.r+item.r;
-            return (rBoth*rBoth > xDist*xDist+yDist*yDist);
+            if (periodicBounds){
+
+                // X Axis:
+                var periodMoveItemX = periodicBounds.w;
+                if (item.x > this.x) {
+                    periodMoveItemX = -periodMoveItemX;
+                }
+
+                // Y Axis:
+                var periodMoveItemY = periodicBounds.h;
+                if (item.y > this.y) {
+                    periodMoveItemY = -periodMoveItemY;
+                }
+
+                var rBoth = this.r + item.r;
+                var xDist = this.x - item.x;
+                var yDist = this.y - item.y;
+                var xDistPeriod = this.x - (item.x+periodMoveItemX);
+                var yDistPeriod = this.y - (item.y+periodMoveItemY);
+
+                // check both direct
+                if (rBoth * rBoth > xDist * xDist + yDist * yDist) {
+                    return true;
+                }
+                // check both indirect
+                if (rBoth * rBoth > xDistPeriod * xDistPeriod + yDistPeriod * yDistPeriod){
+                    return true;
+                }
+                // check one direct and one indirect
+                if (rBoth * rBoth > xDistPeriod * xDistPeriod + yDist * yDist){
+                    return true;
+                }
+                // check one direct and one indirect
+                if (rBoth * rBoth > xDist * xDist + yDistPeriod * yDistPeriod){
+                    return true;
+                }
+
+                // TODO
+                return false;
+
+            }
+            else {
+                var xDist = this.x - item.x;
+                var yDist = this.y - item.y;
+                var rBoth = this.r + item.r;
+                return (rBoth * rBoth > xDist * xDist + yDist * yDist);
+            }
 
         }
         else if (!this.r && !item.r) {
@@ -355,12 +430,12 @@ if (node) {
      * @class Quadrant
      * @constructor
      **/
-    function Quadrant(bounds, depth, maxChildren, maxDepth, periodic)
+    function Quadrant(bounds, depth, maxChildren, maxDepth, periodicBounds)
     {
         this.bounds = bounds;
         this.children = [];
         this.nodes = [];
-        this.periodic = periodic;
+        this.periodicBounds = periodicBounds;
 
         if(maxChildren)
         {
@@ -381,7 +456,7 @@ if (node) {
     Quadrant.prototype.nodes = null;
     Quadrant.prototype.children = null; //children contained directly in the node
     Quadrant.prototype.bounds = null;
-    Quadrant.prototype.periodic = 0;
+    Quadrant.prototype.periodicBounds = 0;
     Quadrant.prototype.depth = 0;
     Quadrant.prototype.maxChildren = 4;
     Quadrant.prototype.maxDepth = 4;
@@ -400,9 +475,9 @@ if (node) {
      */
     Quadrant.prototype.findAllCollidingQuadrants = function(item)
     {
-        var indices=[];
-        for (var i=this.nodes.length-1; i>=0; i--) {
-            if (item.isOuterRectColliding(this.nodes[i].bounds)) {
+        var indices = [];
+        for (var i = this.nodes.length - 1; i >= 0; i--) {
+            if (item.isOuterRectColliding(this.nodes[i].bounds, this.periodicBounds)) {
                 indices.push(i);
             }
         }
@@ -421,13 +496,13 @@ if (node) {
         var yCenter = this.bounds.y;
 
         //item can completely fit within the top quadrants
-        var topQuadrant = (item.y2 < yCenter);
+        var topQuadrant = (item.y2 < yCenter && item.y1 > this.bounds.y1);
 
         //item can completely fit within the bottom quadrants
-        var bottomQuadrant = (item.y1 > yCenter);
+        var bottomQuadrant = (item.y1 > yCenter && item.y2 < this.bounds.y2);
 
         // check for left/right quadrants:
-        if (item.x2 < xCenter) {
+        if (item.x2 < xCenter && item.x1 > this.bounds.x1) {
             //item can completely fit within the left quadrants
             if (topQuadrant) {
                 return Quadrant.TOP_LEFT;
@@ -435,7 +510,7 @@ if (node) {
                 return Quadrant.BOTTOM_LEFT;
             }
         }
-        else if (item.x1 > xCenter) {
+        else if (item.x1 > xCenter && item.x2 < this.bounds.x2) {
             //item can completely fit within the right quadrants
             if (topQuadrant) {
                 return Quadrant.TOP_RIGHT;
@@ -466,23 +541,23 @@ if (node) {
         //top left
         this.nodes[Quadrant.TOP_LEFT] = new Quadrant(
             new Bounds().initRectByOuterCoord(x1,xC,y1,yC),
-            depth, this.maxChildren, this.maxDepth, false);
+            depth, this.maxChildren, this.maxDepth, this.periodicBounds);
 
         //top right
         this.nodes[Quadrant.TOP_RIGHT] = new Quadrant(
             new Bounds().initRectByOuterCoord(xC,x2,y1,yC),
-            depth, this.maxChildren, this.maxDepth, false);
+            depth, this.maxChildren, this.maxDepth, this.periodicBounds);
 
         //bottom left
         this.nodes[Quadrant.BOTTOM_LEFT] = new Quadrant(
             new Bounds().initRectByOuterCoord(x1,xC,yC,y2),
-            depth, this.maxChildren, this.maxDepth, false);
+            depth, this.maxChildren, this.maxDepth, this.periodicBounds);
 
 
         //bottom right
         this.nodes[Quadrant.BOTTOM_RIGHT] = new Quadrant(
             new Bounds().initRectByOuterCoord(xC,x2,yC,y2),
-            depth, this.maxChildren, this.maxDepth, false);
+            depth, this.maxChildren, this.maxDepth, this.periodicBounds);
 
         //add all objects to the corresponding subnodes
         var i = 0;
@@ -556,7 +631,7 @@ if (node) {
         }
 
         for (var i=this.children.length-1; i>=0; i--) {
-            if (this.children[i].isColliding(item)) {
+            if (this.children[i].isColliding(item, this.periodicBounds)) {
                 out = out.concat(this.children[i]);
             }
         }
