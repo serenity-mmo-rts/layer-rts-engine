@@ -56,24 +56,17 @@ if (node) {
             {originId: null},
             {isMoving: false},
             {startedTime: null},
-            {dueTime: null}
+            {dueTime: null},
+            {targetMapId: null}
+
 
         ];
     };
 
     proto.setPointers  = function(){
-        this.itemId = this.parent._id();
-        this.layer = this.parent.gameData.layers.get(this.parent.mapId());
         this.mapObject = this.parent._mapObj;
-        this.gameData= this.parent.gameData;
-        this.mapId= this.parent.mapId();
-
-        var self = this;
-        this.isMoving.subscribe(function(newValue){
-            self.parent.notifyStateChange();
-            // call gui here
-            // call only this item to be  checked (new rendered)
-        });
+        this.gameData= this.getGameData();
+        this.layer = this.gameData.layers.get(this.parent.mapId());
     };
 
     proto.removePointers  = function(){
@@ -103,37 +96,24 @@ if (node) {
     };
 
 
-    proto.moveSubObject  = function(startedTime){
+    proto.moveObjectUp  = function(startedTime){
 
-        // calcualte distance between origin and target, from there calculate due Time
-        this.targetMapId(this.gameData.layers.get(this.mapId).parentMapId);
-      //  this.targetId(this.gameData.layers.get(this.mapId).parentObjId);
-        this.originId(this.parent._objectId());
-
-        this.distance = 100; //TODO calculate from  mapObject to border
-        this.travelTime= this.distance/this.movementSpeed;
+        this.isMovingUp = true;
+        var movingTime = 5000;
         this.startedTime(startedTime);
-        this.dueTime(this.startedTime() + this.travelTime);
-
-
-        // in call back add item to other  Obejct context menu
+        this.dueTime(startedTime + movingTime);
         var self = this;
         var callback = function(dueTime,callbackId) {
-            self.isMoving(false);
             self.layer.timeScheduler.removeCallback(callbackId);
-            self.parent._blocks.Unit.moveObjectToUpperLayer(dueTime);
-            console.log("moving of item :'"+self.parent.itemTypeId()+"' completed");
+            self.isMovingUp = false;
+            console.log("map Object moved to Upper Layer");
+            var object = self.layer.mapData.mapObjects.get(self.parent._objectId());
+            self.layer.mapData.removeObject(object);
+            self.layer.mapData.removeItem(self.parent);
             return Infinity;
         };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-        console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
-
-        var centerX= (origin.x()+ target.x())/2;
-        var centerY= (origin.y()+ target.y())/2;
-        var width = target.y() -origin.y();
-        var height =  target.y() -origin.y();
-        this.parent.applyItemToMap(centerX,centerY,width,height,0);
-        this.isMoving(true);
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+        console.log("Map Object" + this.parent._id()+ "started moving");
     };
 
 
@@ -157,7 +137,7 @@ if (node) {
             console.log("moving of item :'"+self.parent.itemTypeId()+"' completed");
             return Infinity;
         };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
         console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
 
         var centerX= (origin.x()+ target.x())/2;
@@ -174,7 +154,7 @@ if (node) {
         console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime);
         // update Due Time
         this.dueTime(this.startedTime() + this.travelTime);
-        this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
+        this.gameData.layers.get(this.parent.mapId()).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
         // remove Item and feature from Object, remove item object Context menu
         this.parent.removeFromParentObject(this.dueTime());
     };

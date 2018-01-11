@@ -193,9 +193,13 @@ if (node) {
 
             // dismantle map Object
            else if (evt._type=="MoveThroughLayerEvent"){
-                this.parent.setState(0);
+                // set map object state to dismantle
+                this.parent.setState(1);
+                this.parent.notifyStateChange();
+                // add target map id to movable building block of the item
+                this.layer.mapData.items.get(this.parent.subItemId())._blocks.Movable.targetMapId(this.layer.parentMapId);
                 var objType = this.gameData.objectTypes.get(this.parent.objTypeId());
-                var deployTime = objType.Unit.deployTime;
+                var deployTime = objType._blocks.Unit.deployTime;
                 this.startedTime(startedTime);
                 this.dueTime(this.startedTime() + deployTime);
                 var self = this;
@@ -203,9 +207,8 @@ if (node) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.parent.state(mapObjectStates.HIDDEN);
                     self.parent.notifyStateChange();
-                    console.log("Dismantling of Map Object: "+self.parent._id()+" done.");
-                    var item = self.layer.mapData.items.get(self._mapObj.subItemId());
-                    item._blocks.Movable.moveSubObject(this._startedTime);
+                    console.log("Dismantling of Map Object: "+self.parent._id()+" done. Now start moving upwards...");
+                    self.layer.mapData.items.get(self.parent.subItemId())._blocks.Movable.moveObjectUp(dueTime);
                     return Infinity;
                 };
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
@@ -215,7 +218,8 @@ if (node) {
 
             // research technology
             else if (evt._type=="ResearchEvent"){
-                this.parent.setState(0);
+                this.parent.setState(1);
+                this.parent.notifyStateChange();
                 var techTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
                 this.startedTime(startedTime);
                 this.dueTime(this.startedTime() + techTime);

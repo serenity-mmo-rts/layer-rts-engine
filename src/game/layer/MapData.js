@@ -3,7 +3,7 @@ if (node) {
     var GameList = require('../GameList').GameList;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
-    var Vector = require('./layer/Vector').Vector;
+    var Vector = require('../layer/Vector').Vector;
 }
 
 (function (exports) {

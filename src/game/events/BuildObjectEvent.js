@@ -241,7 +241,7 @@ if (node) {
                 this.item._id(event.itemId);
                 this.item._objectId(event.mapObjId);
                 this.itemId = event.itemId;
-                this._mapObj.setSubItem(event.itemId);
+                this._mapObj.subItemId(event.itemId);
             }
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){
