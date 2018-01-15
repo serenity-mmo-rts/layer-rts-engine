@@ -1,7 +1,31 @@
 var node = !(typeof exports === 'undefined');
+var ko;
 if (node) {
-    var ko = require('../client/lib/knockout-3.3.0.debug.js');
+    ko = require('../client/lib/knockout-3.3.0.debug.js');
 }
+
+ko.extenders.logChange = function(target, options) {
+    target.oldValue = null;
+    target.mutatedChilds = [];
+    target.notifyStateChange = function(childKey) {
+        target.mutatedChilds[childKey] = true;
+        options.parent.notifyStateChange(options.key);
+    };
+    target.newSnapshot = function() {
+        // TODO: delete all the oldValue fields here and in all mutatedChilds recursively.
+    };
+    target.revertChanges = function() {
+        // TODO: reset the states to oldValue here and in all mutatedChilds recursively.
+    };
+    target.subscribe(function(oldValue) {
+        if (target.oldValue == null) {
+            target.oldValue = oldValue;
+            //options.parent.mutatedChilds[options.key] = target;
+            options.parent.notifyStateChange(options.key);
+        }
+    }, null, "beforeChange");
+    return target;
+};
 
 
 (function (exports) {
@@ -27,9 +51,8 @@ if (node) {
         this.parent = parent;
         this.type = type;
         this.embedded = ko.observable(false);
-        this.mykey = null;
         this.blockname = null;
-        this.mutatedChilds = [];
+        this.mutatedChilds = {};
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -124,22 +147,7 @@ if (node) {
     proto.setInitStateVars = function() {
 
 
-        ko.extenders.logChange = function(target, options) {
-            target.oldValue = null;
-            target.mutatedChilds = [];
-            target.notifyStateChange = function(childKey) {
-                target.mutatedChilds[childKey] = true;
-                options.parent.notifyStateChange(options.key);
-            };
-            target.subscribe(function(oldValue) {
-                if (target.oldValue == null) {
-                    target.oldValue = oldValue;
-                    //options.parent.mutatedChilds[options.key] = target;
-                    options.parent.notifyStateChange(options.key);
-                }
-            }, null, "beforeChange");
-            return target;
-        };
+
 
         // recursive function to create deep observable objects / arrays:
         function makeObservable(data) {
@@ -197,15 +205,6 @@ if (node) {
             }
         }
 
-        if (this.hasOwnProperty("_id")) {
-            // if this is a game instance with an id. For example item or mapObject:
-            this.mykey = this._id;
-        }
-        else {
-            // if this is a building block without id. For example UpgradeProdcution:
-            this.mykey = this.constructor.name;
-        }
-
         return this;
 
     };
@@ -253,7 +252,16 @@ if (node) {
             this.mutatedChilds[childKey] = true;
         }
 
-        this.parent.notifyStateChange(this.mykey);
+        // Now notify the parent:
+
+        if (this.hasOwnProperty("_id")) {
+            // if this is a game instance with an id. For example item or mapObject:
+            this.parent.notifyStateChange(this._id());
+        }
+        else {
+            // if this is a building block without id. For example UpgradeProdcution:
+            this.parent.notifyStateChange(this.constructor.prototype.blockname);
+        }
 
     };
 

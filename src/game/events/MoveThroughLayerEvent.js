@@ -16,8 +16,7 @@ if (node) {
 
         // states
         _type: "MoveThroughLayerEvent",
-        mapObjIdStay: null,
-        mapObjIdTmp: null,
+        mapObjId: null,
 
         // helpers
         mapObj: null,
@@ -34,29 +33,25 @@ if (node) {
         },
 
         setParameters: function (mapObj) {
-            this.mapObjIdStay = mapObj._id();
+            this.mapObjId = mapObj._id();
             this.setPointers();
         },
 
 
         setPointers: function(){
             this._super();
-            this.mapObj = this.map.mapData.mapObjects.get(this.mapObjIdStay);
+            this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
             this.item = this.map.mapData.items.get(this.mapObj.subItemId());
         },
 
         executeOnClient: function () {
-            this.mapObjIdTmp  = 'tmpObjId'+Math.random();
             this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
         executeOnServer: function () {
-            this.mapObjIdTmp = (new mongodb.ObjectID()).toHexString();
             this.start(Date.now());
             this.execute();
-
-
 
         },
 
@@ -134,7 +129,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.mapObjIdStay,
+            o.a2 = [this.mapObjId,
             ];
             return o;
         },
@@ -143,7 +138,7 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this.mapObjIdStay = o.a2[0];
+                this.mapObjId = o.a2[0];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

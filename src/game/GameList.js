@@ -20,7 +20,7 @@ if (node) {
         this.ClassType = ClassType;
         this.gameData = gameData;
         this.parent = parent;
-        this.recentlyChanged = {};
+        this.mutatedChilds = {};
 
         // init:
         if (initObj) {
@@ -71,7 +71,7 @@ if (node) {
             }
             //console.log("adding to GameList by appending object")
             this.hashList[id] = o;
-            this.recentlyChanged[id] = true;
+            this.mutatedChilds[id] = true;
             return this.hashList[id];
         }
         else {
@@ -92,7 +92,7 @@ if (node) {
      */
     proto.notifyStateChange = function (id) {
         if (this.hashList.hasOwnProperty(id)) {
-            this.recentlyChanged[id] = true;
+            this.mutatedChilds[id] = true;
         }
     };
 
@@ -100,8 +100,8 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     proto.getAndResetStateChanges = function () {
-        var oldStateChanges = this.recentlyChanged;
-        this.recentlyChanged = {};
+        var oldStateChanges = this.mutatedChilds;
+        this.mutatedChilds = {};
         return oldStateChanges;
     };
 
