@@ -4,6 +4,12 @@ if (node) {
     ko = require('../client/lib/knockout-3.3.0.debug.js');
 }
 
+/**
+ * This is our custom extension to knockout, which logs all state changes
+ * @param target this is the knockout observable
+ * @param options = {parent: the parent entity in the hierarchy, key: how to identify this observable from the parent}
+ * @returns {*}
+ */
 ko.extenders.logChange = function(target, options) {
     target.oldValue = null;
     target.mutatedChilds = [];
@@ -12,12 +18,30 @@ ko.extenders.logChange = function(target, options) {
         options.parent.notifyStateChange(options.key);
     };
     target.newSnapshot = function() {
-        // TODO: delete all the oldValue fields here and in all mutatedChilds recursively.
+        // delete all the oldValue fields here and in all mutatedChilds recursively.
+        if (target.mutatedChilds.length > 0) {
+            for (var key in target.mutatedChilds) {
+                if(target.mutatedChilds.hasOwnProperty(key)){
+                    target[key].newSnapshot();
+                }
+            }
+            target.oldValue = null;
+        }
     };
     target.revertChanges = function() {
-        // TODO: reset the states to oldValue here and in all mutatedChilds recursively.
+        // reset the states to oldValue here and in all mutatedChilds recursively.
+        if (target.mutatedChilds.length > 0) {
+            for (var key in target.mutatedChilds) {
+                if(target.mutatedChilds.hasOwnProperty(key)){
+                    target[key].revertChanges();
+                }
+            }
+            target(target.oldValue);
+            target.oldValue = null;
+        }
     };
     target.subscribe(function(oldValue) {
+        // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
         if (target.oldValue == null) {
             target.oldValue = oldValue;
             //options.parent.mutatedChilds[options.key] = target;
@@ -264,6 +288,52 @@ ko.extenders.logChange = function(target, options) {
         }
 
     };
+
+    /**
+     * TODO: reset the states to oldValue here and in all mutatedChilds recursively.
+     */
+    proto.revertChanges = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].revertChanges();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].revertChanges();
+                    }
+                }
+            }
+        }
+
+    };
+
+
+    /**
+     * TODO: delete all the oldValue fields here and in all mutatedChilds recursively.
+     */
+    proto.newSnapshot = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].newSnapshot();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].newSnapshot();
+                    }
+                }
+            }
+        }
+
+    };
+
 
     /**
      * This function sets member variable pointers to other game instances and sets pointers at other instances to this instance.
