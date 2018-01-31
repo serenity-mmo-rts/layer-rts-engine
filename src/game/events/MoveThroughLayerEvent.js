@@ -61,51 +61,12 @@ if (node) {
 
         execute: function () {
 
-
-
-          //  this._gameData.layers.get(parentMapId).mapData.addObject(this.mapObj);
-          //  this._gameData.layers.get(parentMapId).mapData.addItem(item);
-
-
             this.targetMapId = this.map.parentMapId;
             this.mapObj.targetMapId(this.targetMapId);
             this.item.targetMapId(this.targetMapId);
 
-
             this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
             this.mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
-
-
-            /**
-
-            var parentObjId =  this._gameData.layers.get(this._mapId).parentObjId;
-
-            // create temporary map object in lower layer for rendering moving
-            this.mapObjTmp = new MapObject(this._gameData, {_id: this.mapObjIdTmp, mapId: this._mapId, x: this._mapObj.x, y: this._mapObj.y, objTypeId: this._mapObj.objTypeId, userId: this._userId, state: mapObjectStates.TEMP});
-            this._gameData.layers.get(this._mapId).mapData.addObject(this.mapObjTmp);
-            this.mapObjTmp.setPointers();
-
-            // get item corresponding to map Object
-            var subItemId = this._mapObj.getSubItemId();
-            var item = this.gameData.layers.get(this.mapId).mapData.items.get(subItemId);
-
-            // change Map Ids
-            this._mapObj.mapId = parentMapId;
-            item._mapId = parentMapId;
-
-            // remove item and object from current layer
-            this._gameData.layers.get(this._mapId).mapData.removeObject(this.mapObj);
-            this._gameData.layers.get(this._mapId).mapData.removeItem(item);
-
-
-
-
-            this.item._blocks.SubObject.addMovementProps(this._mapObj);
-            this.item._blocks.SubObject.lockItem(this._startedTime);
-
-            this.mapObjTmp._blocks.UpgradeProduction.addEventToQueue(this);
-            this.mapObjTmp._blocks.UpgradeProduction.checkQueue(this._startedTime);
-             **/
         },
 
         notifyServer: function() {

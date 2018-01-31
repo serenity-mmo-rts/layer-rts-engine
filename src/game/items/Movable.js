@@ -24,7 +24,6 @@ if (node) {
         this.timeCallbackId = null;
         this.distance = null;
         this.travelTime = null;
-
     };
 
     /**
@@ -55,6 +54,7 @@ if (node) {
             {targetId: null},
             {originId: null},
             {isMoving: false},
+            {isMovingUp: false},
             {startedTime: null},
             {dueTime: null}
 
@@ -97,21 +97,21 @@ if (node) {
 
     proto.moveObjectUp  = function(startedTime){
 
-        this.isMovingUp = true;
-        var movingTime = 5000;
+        var movingUpTime = 5000;
         this.startedTime(startedTime);
-        this.dueTime(startedTime + movingTime);
+        this.dueTime(startedTime + movingUpTime);
         var self = this;
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
-            self.isMovingUp = false;
-            console.log("map Object moved to Upper Layer");
+            self.isMovingUp(false);
             var object = self.layer.mapData.mapObjects.get(self.parent._objectId());
             self.layer.mapData.removeObject(object);
             self.layer.mapData.removeItem(self.parent);
+            console.log("map Object moved to Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+        this.isMovingUp(true);
         console.log("Map Object" + this.parent._id()+ "started moving");
     };
 
