@@ -157,6 +157,7 @@ if (node) {
         },
 
         setPointers: function () {
+            this._super();
             this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
             if (this._mapObj._blocks.hasOwnProperty("Connection")){
                 this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
@@ -221,6 +222,7 @@ if (node) {
             if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
                 var itemTypeId = this._mapObj._blocks.Unit.itemTypeId;
                 this.item = new Item(this._gameData, {_id: this.itemId, _objectId: null, itemTypeId: itemTypeId, mapId: this._mapId, state: itemStates.HIDDEN});
+                this.item.subObjectId(this.mapObjId);
                 this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
                 this.item.setPointers();
                 this._mapObj.subItemId(this.itemId);
@@ -239,8 +241,8 @@ if (node) {
             if (this._mapObj._blocks.hasOwnProperty("Unit")){
                 this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
                 this.item._id(event.itemId);
-                this.item._objectId(event.mapObjId);
                 this.itemId = event.itemId;
+                this.item.subObjectId(event.mapObjId);
                 this._mapObj.subItemId(event.itemId);
             }
 

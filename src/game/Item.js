@@ -111,6 +111,7 @@ if (node) {
                 itemTypeId: 0
             },
             {_objectId: 0},
+            {subObjectId: null},
             {x: 0},
             {y: 0},
             {width:0 },
@@ -161,9 +162,14 @@ if (node) {
         this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
         if (this._objectId()){
             this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
-            this.x(this._mapObj.x);
-            this.y(this._mapObj.y);
+            this.x(this._mapObj.x());
+            this.y(this._mapObj.y());
             this._mapObj.addItem(this);
+        }
+        else if (this.subObjectId()){
+            var obj = this.map.mapData.mapObjects.get(this.subObjectId());
+            this.x(obj.x());
+            this.y(obj.y());
         }
 
 

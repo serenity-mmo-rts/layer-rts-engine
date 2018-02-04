@@ -40,7 +40,8 @@ if (node) {
     proto.defineTypeVars = function () {
         return {
             maxRange: 0,
-            movementSpeed: 0
+            movementSpeed: 0,
+            movingUpTime: 0
         };
     };
 
@@ -97,20 +98,21 @@ if (node) {
 
     proto.moveObjectUp  = function(startedTime){
 
-        var movingUpTime = 5000;
+        this.targetId(this.parent.targetMapId());
+        this.originId(this.parent.mapId());
         this.startedTime(startedTime);
-        this.dueTime(startedTime + movingUpTime);
+        this.dueTime(startedTime+this.movingUpTime);
         var self = this;
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
             self.isMovingUp(false);
-            var object = self.layer.mapData.mapObjects.get(self.parent._objectId());
-            self.layer.mapData.removeObject(object);
             self.layer.mapData.removeItem(self.parent);
             console.log("map Object moved to Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+        var object = this.layer.mapData.mapObjects.get(this.parent.subObjectId());
+        this.layer.mapData.removeObject(object);
         this.isMovingUp(true);
         console.log("Map Object" + this.parent._id()+ "started moving");
     };

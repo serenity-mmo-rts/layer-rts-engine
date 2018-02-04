@@ -127,8 +127,8 @@ if (node) {
 
     proto.removeObject = function (mapObject) {
         //check if object is in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id)) {
-            this.mapObjects.deleteById(mapObject._id);
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
+            this.mapObjects.deleteById(mapObject._id());
         }
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);

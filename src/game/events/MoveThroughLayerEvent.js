@@ -19,8 +19,9 @@ if (node) {
         mapObjId: null,
 
         // helpers
-        mapObj: null,
+        itemId: null,
         item: null,
+        mapObj: null,
         targetMapId: null,
 
         init: function(gameData, initObj){
@@ -41,7 +42,9 @@ if (node) {
         setPointers: function(){
             this._super();
             this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
-            this.item = this.map.mapData.items.get(this.mapObj.subItemId());
+            this.itemId = this.mapObj.subItemId();
+            this.item = this.map.mapData.items.get(this.itemId);
+            this.targetMapId = this.map.parentMapId;
         },
 
         executeOnClient: function () {
@@ -61,7 +64,6 @@ if (node) {
 
         execute: function () {
 
-            this.targetMapId = this.map.parentMapId;
             this.mapObj.targetMapId(this.targetMapId);
             this.item.targetMapId(this.targetMapId);
 
@@ -90,7 +92,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.mapObjId,
+            o.a2 = [this.mapObjId
             ];
             return o;
         },
