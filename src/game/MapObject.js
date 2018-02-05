@@ -148,7 +148,7 @@ if (node) {
 
     proto.setPointers = function(){
 
-        this.map = this.gameData.layers.get(this.mapId());
+        this.map = this.getMap();
         this.objType = this.gameData.objectTypes.get(this.objTypeId());
 
         // call all setPointer functions of the building blocks:

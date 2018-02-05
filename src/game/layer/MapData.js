@@ -189,9 +189,9 @@ if (node) {
         for (var i = 0, l = candidates.length; i < l; i++) {
             var candidate = candidates[i];
             if (this.isColliding(mapObject, candidate.obj)) {
-                if (!ids.hasOwnProperty(candidate.obj._id)) {
+                if (!ids.hasOwnProperty(candidate.obj._id())) {
                     collidingItems.push(candidate.obj);
-                    ids[candidate.obj._id] = null;
+                    ids[candidate.obj._id()] = null;
                 }
             }
 
