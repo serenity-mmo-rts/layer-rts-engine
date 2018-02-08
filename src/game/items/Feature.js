@@ -261,6 +261,14 @@ if (node) {
         return null;
     };
 
+    proto.removeItemFromFeatureManagers= function(timeStamp) {
+        this._processedStack().lastActivationTime(timeStamp);
+
+        for (var i = 0; i<this._processedStack().effects().length;i++){
+            this.clear(i);
+        }
+    };
+
     proto.deactivate = function(){
         this._processedStack().isActivated(false);
         return true;
@@ -377,26 +385,7 @@ if (node) {
         }
     };
 
-    proto.removeItemFromFeatureManagers= function(timeStamp) {
 
-        this._processedStack().lastActivationTime(timeStamp);
-
-        for (var i = 0; i<this._processedStack().effects().length;i++){
-            var objectIds= this._processedStack().effects()[i].currentTargetObjectIds;
-            var itemIds= this._processedStack().effects()[i].currentTargetItemIds;
-
-                for (var k = 0; k<objectIds.length;k++){
-                    var object=  this._layer.mapData.mapObjects.get(objectIds[k]);
-                    object._blocks.FeatureManager.removeItem(this._itemId);
-                }
-
-                for (var k = 0; k<itemIds.length;k++){
-                    var item =  this._layer.mapData.items.get(itemIds[k]);
-                    item._blocks.FeatureManager.removeItem(this._itemId);
-                }
-
-        }
-    };
 
 
     proto.addItemToFeatureManagers= function() {

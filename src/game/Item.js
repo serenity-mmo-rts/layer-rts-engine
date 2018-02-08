@@ -200,9 +200,12 @@ if (node) {
 
 
     proto.removeFromParentObject = function (timeStamp) {
-        this._mapObj.removeItem(this._id());
-        this._objectId(null);
-        this._mapObj = null;
+       if (this._mapObj){
+           this._mapObj.removeItem(this._id());
+           this._objectId(null);
+           this._mapObj = null;
+       }
+
         if (this._blocks.hasOwnProperty("Feature")){
             this._blocks.Feature.removeItemFromFeatureManagers(timeStamp);
         }

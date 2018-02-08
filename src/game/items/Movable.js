@@ -146,6 +146,7 @@ if (node) {
         var width = target.y() -origin.y();
         var height =  target.y() -origin.y();
         this.parent.applyItemToMap(centerX,centerY,width,height,0);
+        this.parent.removeFromParentObject(this.dueTime());
         this.isMoving(true);
     };
 
@@ -155,7 +156,7 @@ if (node) {
         console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime);
         // update Due Time
         this.dueTime(this.startedTime() + this.travelTime);
-        this.gameData.layers.get(this.parent.mapId()).timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
+        this.layer.timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
         // remove Item and feature from Object, remove item object Context menu
         this.parent.removeFromParentObject(this.dueTime());
     };

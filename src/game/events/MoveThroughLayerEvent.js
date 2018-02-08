@@ -71,12 +71,41 @@ if (node) {
             this.mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
+        getSubItems: function(itemInput, objectInput) {
+            var itemList = [];
+            var objList= [];
+            itemList.push(itemInput._id());
+            objList.push(objectInput._id());
+
+            var itemsInObj = objectInput.getItems();
+            for (var i=itemsInObj.length-1;i>=0;i--) {
+                var item = itemsInObj[i];
+                itemList.push(item._id());
+                if (item.subObjectId()) {
+                    objList.push(item.subObjectId());
+                    var mapObj = this.map.mapData.mapObjects.get(item.subObjectId());
+                    var subList = this.getSubItems(item, mapObj);
+
+                    itemList.splice(0,0,subList.itemList);
+                    objList.splice(0,0,subList.objList);
+
+                }
+            }
+
+            return {itemList: itemList, objList: objList};
+
+
+        },
+
         notifyServer: function() {
+            // put both object and item in array that will be transferred to other server
+           var movingEntities =  this.getSubItems(this.item,this.mapObj);
+
             var msgData = {
                 targetMapId: this.targetMapId,
                 event: "loadFromDb",
-                objectIds: [this.mapObj._id()],
-                itemIds: [this.item._id()]
+                objectIds: objList,
+                itemIds: itemList
             };
             return msgData;
         },

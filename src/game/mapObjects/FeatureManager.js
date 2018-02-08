@@ -122,10 +122,13 @@ if (node) {
      */
     proto.removeItem= function(itemId){
         var positions = this._appliedItemIds.indexOf(itemId);
-        this._appliedItemIds.splice(positions, 1);
-        this._appliedEffectIndex.splice(positions, 1);
-        this.notifyStateChange();
-        this.updateObjectProperties();
+        if (!positions==-1) {
+            this._appliedItemIds.splice(positions, 1);
+            this._appliedEffectIndex.splice(positions, 1);
+            this.notifyStateChange();
+            this.updateObjectProperties();
+        }
+
     };
 
     proto.updateObjectProperties = function () {

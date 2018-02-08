@@ -49,6 +49,9 @@ if (node) {
         setPointers: function(){
             this._super();
             this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
+            if (!this._item){
+                console.log("Error Item no in database, but should be there");
+            }
             this._origin = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._originId);
             this.setTarget(this._targetId);
         },
