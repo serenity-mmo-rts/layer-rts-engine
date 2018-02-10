@@ -1,6 +1,6 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Vector = require('./layer/Vector').Vector;
+    var Vector = require('./Vector').Vector;
 }
 
 (function (exports) {
@@ -8,7 +8,7 @@ if (node) {
 
     /*
     This file contains three classes:
-    1. CollisionQuadTree is just the outer interface to handle array inserts etc.
+    1. QuadTreeCollision is just the outer interface to handle array inserts etc.
     2. Bounds defines entities that can be inserted into the quad-tree.
     3. Quadrant defines a quadrant within the quad-tree.
      */
@@ -17,21 +17,21 @@ if (node) {
 
 
     /********************************
-     * CollisionQuadTree Class Definition:
+     * QuadTreeCollision Class Definition:
      *******************************/
 
 
     /**
-     * CollisionQuadTree data structure.
-     * @class CollisionQuadTree
+     * QuadTreeCollision data structure.
+     * @class QuadTreeCollision
      * @constructor
-     * @param {Object} An object representing the bounds of the top level of the CollisionQuadTree. The object
+     * @param {Object} An object representing the bounds of the top level of the QuadTreeCollision. The object
      * should contain the following properties : x, y, width, height
      * (width / height)(false). Default value is false.
-     * @param {Number} maxDepth The maximum number of levels that the CollisionQuadTree will create. Default is 4.
+     * @param {Number} maxDepth The maximum number of levels that the QuadTreeCollision will create. Default is 4.
      * @param {Number} maxChildren The maximum number of children that a node can contain before it is split into sub-nodes.
      **/
-    function CollisionQuadTree(bounds, periodicBounds, maxDepth, maxChildren)
+    function QuadTreeCollision(bounds, periodicBounds, maxDepth, maxChildren)
     {
         this.bounds = bounds;
         this.periodicBounds = periodicBounds;
@@ -40,22 +40,22 @@ if (node) {
 
 
     /**
-     * The root node of the CollisionQuadTree which covers the entire area being segmented.
+     * The root node of the QuadTreeCollision which covers the entire area being segmented.
      * @property root
      * @type Node
      **/
-    CollisionQuadTree.prototype.root = null;
+    QuadTreeCollision.prototype.root = null;
 
-    CollisionQuadTree.prototype.periodic = null;
+    QuadTreeCollision.prototype.periodic = null;
 
 
     /**
-     * Inserts an item into the CollisionQuadTree.
+     * Inserts an item into the QuadTreeCollision.
      * @method insert
-     * @param {Object|Array} item The item or Array of items to be inserted into the CollisionQuadTree. The item should expose x, y
+     * @param {Object|Array} item The item or Array of items to be inserted into the QuadTreeCollision. The item should expose x, y
      * properties that represents its position in 2D space.
      **/
-    CollisionQuadTree.prototype.insert = function(item)
+    QuadTreeCollision.prototype.insert = function(item)
     {
         if(item instanceof Array)
         {
@@ -73,10 +73,10 @@ if (node) {
     };
 
     /**
-     * Clears all nodes and children from the CollisionQuadTree
+     * Clears all nodes and children from the QuadTreeCollision
      * @method clear
      **/
-    CollisionQuadTree.prototype.clear = function()
+    QuadTreeCollision.prototype.clear = function()
     {
         this.root.clear();
     };
@@ -88,10 +88,10 @@ if (node) {
      * @param {Object} item An object representing a 2D coordinate point (with x, y properties), or a shape
      * with dimensions (x, y, width, height) properties.
      **/
-    CollisionQuadTree.prototype.retrieve = function(item)
+    QuadTreeCollision.prototype.retrieve = function(item,preCollisionCheck)
     {
         //get a copy of the array of items
-        var out = this.root.retrieve(item).slice(0);
+        var out = this.root.retrieve(item, preCollisionCheck).slice(0);
         return out;
     };
 
@@ -608,7 +608,7 @@ if (node) {
         return this.children;
     };
 
-    Quadrant.prototype.retrieve = function(item)
+    Quadrant.prototype.retrieve = function(item, preCollisionCheck)
     {
 
         // TODO: Retrieval of entities in a certain request area is as follows:
@@ -626,12 +626,19 @@ if (node) {
         {
             var indices = this.findAllCollidingQuadrants(item);
             for (var i=indices.length-1; i>=0; i--) {
-                out = out.concat(this.nodes[indices[i]].retrieve(item));
+                out = out.concat(this.nodes[indices[i]].retrieve(item, preCollisionCheck));
             }
         }
 
         for (var i=this.children.length-1; i>=0; i--) {
-            if (this.children[i].isColliding(item, this.periodicBounds)) {
+
+            if (preCollisionCheck != null) {
+                if (!preCollisionCheck(this.children[i])) {
+                    continue;
+                }
+            }
+
+            if (this.children[i].isColliding(item, this.periodicBounds, preCollisionCheck)) {
                 out = out.concat(this.children[i]);
             }
         }
@@ -664,7 +671,7 @@ if (node) {
 
 
     exports.Bounds = Bounds;
-    exports.CollisionQuadTree = CollisionQuadTree;
+    exports.QuadTreeCollision = QuadTreeCollision;
 
 })(node ? exports : window);
 
