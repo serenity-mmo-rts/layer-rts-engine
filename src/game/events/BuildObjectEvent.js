@@ -232,15 +232,14 @@ if (node) {
 
 
         updateFromServer: function (event) {
+            this._super(event);
             console.log("replace tmp Object ID: "+this.mapObjId+" by new id from server: "+event.mapObjId);
             this._gameData.layers.get(this._mapId).mapData.mapObjects.updateId(this.mapObjId,event.mapObjId);
-            this._mapObj._id(event.mapObjId);
             this.mapObjId = event.mapObjId;
-            this._super(event);
+
 
             if (this._mapObj._blocks.hasOwnProperty("Unit")){
                 this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
-                this.item._id(event.itemId);
                 this.itemId = event.itemId;
                 this.item.subObjectId(event.mapObjId);
                 this._mapObj.subItemId(event.itemId);
