@@ -27,6 +27,13 @@ if (node) {
 
     var proto = MapData.prototype;
 
+    MapData.COLLISION_OBJ = 0;
+    MapData.COLLISION_ITEM = 1;
+    MapData.COLLISION_LISTEN_ALL = 2;
+    MapData.COLLISION_LISTEN_OBJ = 3;
+    MapData.COLLISION_LISTEN_ITEM = 4;
+
+
 
     /**
      * get the gameData
@@ -67,7 +74,7 @@ if (node) {
             height,
             mapObject.ori());
         treeItem.obj = mapObject;
-        treeItem.type = 'obj';
+        treeItem.type = MapData.COLLISION_OBJ;
 
         return treeItem;
     };
@@ -83,27 +90,53 @@ if (node) {
      * @param listenForObj Boolean check if the callback should listen for newly added objects
      * @param listenForItem Boolean true if callback should listen for newly added items
      */
-    proto.listenForChangesInArea = function(callback, x, y, width, height, orientation, listenForObj, listenForItem){
+    proto.addListenerForArea = function(callback, bounds, listenForObj, listenForItem, executeOnce){
 
-        var treeItem = new Bounds().initRectByCenter(
-            x,
-            y,
-            width,
-            height,
-            orientation);
 
         if (listenForObj && listenForItem) {
-            treeItem.type = 'listenAll';
+            bounds.type = MapData.COLLISION_LISTEN_ALL;
         }
         else if (listenForObj){
-            treeItem.type = 'listenObj';
+            bounds.type = MapData.COLLISION_LISTEN_OBJ;
         }
         else {
-            treeItem.type = 'listenItem';
+            bounds.type = MapData.COLLISION_LISTEN_ITEM;
         }
 
-        treeItem.callback = callback;
+        bounds.callback = callback;
+        this.quadTree.insert(bounds);
 
+        // Shall we execute once in the beginning for all items in range?
+        if (executeOnce) {
+            var preCollisionCheck;
+            if (listenForObj && listenForItem) {
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
+                };
+            }
+            else if (listenForObj){
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_OBJ;
+                };
+            }
+            else {
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_ITEM;
+                };
+            }
+            var collidingBounds = this.quadTree.retrieve( bounds, preCollisionCheck );
+            var collidingItems = [];
+            for (var i=collidingBounds.length-1; i>=0; i--){
+                callback('adding', collidingBounds[i].obj);
+            }
+        }
+
+        return bounds;
+
+    };
+
+    proto.removeListenerForArea = function(treeItem){
+        this.quadTree.remove(treeItem);
     };
 
 
@@ -119,13 +152,15 @@ if (node) {
             // notify map listeners:
             var treeItem = this.createTreeObject(mapObject);
             var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
-                return bounds.type == "listenAll" || bounds.type == "listenObj";
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
             });
             for (var i=collidingBounds.length-1; i>=0; i--){
-                collidingBounds[i].callback();
+                collidingBounds[i].callback('adding',mapObject);
             }
 
             //addObjectToTree:
+            mapObject.treeItem = treeItem;
             this.quadTree.insert(treeItem);
         }
 
@@ -151,6 +186,18 @@ if (node) {
         if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
             this.mapObjects.deleteById(mapObject._id());
         }
+
+        var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
+            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+        });
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            collidingBounds[i].callback('removing',mapObject);
+        }
+
+        // remove from quadtree
+        this.quadTree.remove(mapObject.treeItem);
+        delete mapObject[treeItem];
+
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);
         }
@@ -201,7 +248,9 @@ if (node) {
     proto.collisionDetection = function (mapObject) {
         // retrieve from quad tree all candidates:
         var testBounds = this.createTreeObject(mapObject);
-        var collidingBounds = this.quadTree.retrieve(testBounds);
+        var collidingBounds = this.quadTree.retrieve(testBounds,function(bounds) {
+            return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
+        });
         var collidingItems = [];
         for (var i=collidingBounds.length-1; i>=0; i--){
             collidingItems.push(collidingBounds[i].obj);
@@ -214,7 +263,9 @@ if (node) {
     proto.getObjectsInRange = function (coord, range, type) {
 
         var testBounds = new Bounds().initCircle(coord[0],coord[1],range);
-        var collidingBounds = this.quadTree.retrieve(testBounds);
+        var collidingBounds = this.quadTree.retrieve(testBounds,function(bounds) {
+            return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
+        });
         var inRange = [];
         for (var i=collidingBounds.length-1; i>=0; i--){
             var obj = collidingBounds[i];

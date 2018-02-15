@@ -72,6 +72,14 @@ if (node) {
         }
     };
 
+
+
+    QuadTreeCollision.prototype.remove = function(item)
+    {
+        this.root.remove(item);
+    };
+
+
     /**
      * Clears all nodes and children from the QuadTreeCollision
      * @method clear
@@ -94,7 +102,6 @@ if (node) {
         var out = this.root.retrieve(item, preCollisionCheck).slice(0);
         return out;
     };
-
 
 
 
@@ -599,6 +606,26 @@ if (node) {
         if (!this.nodes.length && this.children.length > this.maxChildren && this.depth < this.maxDepth) {
             this.subdivide();
         }
+    };
+
+
+    Quadrant.prototype.remove = function( item ) {
+
+        var index;
+
+        //if we have subnodes ...
+        if( this.nodes.length ) {
+            index = this.findSubquadrant( item );
+
+            if( index !== -1 ) {
+                this.nodes[index].remove( item );
+                return;
+            }
+        }
+
+        var i = this.children.indexOf( item );
+        this.children.splice(i, 1);
+
     };
 
 
