@@ -3,7 +3,9 @@ if (node) {
     var GameList = require('../GameList').GameList;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
-    var Vector = require('../layer/Vector').Vector;
+    var Vector = require('./Vector').Vector;
+    var QuadTreeCollision = require('./QuadTreeCollision').QuadTreeCollision;
+    var Bounds = require('./QuadTreeCollision').Bounds;
 }
 
 (function (exports) {
@@ -21,10 +23,16 @@ if (node) {
         this.itemChangedCallback = null;
         this.events = {};
 
-
-    }
+    };
 
     var proto = MapData.prototype;
+
+    MapData.COLLISION_OBJ = 0;
+    MapData.COLLISION_ITEM = 1;
+    MapData.COLLISION_LISTEN_ALL = 2;
+    MapData.COLLISION_LISTEN_OBJ = 3;
+    MapData.COLLISION_LISTEN_ITEM = 4;
+
 
 
     /**
@@ -59,40 +67,78 @@ if (node) {
             height = this.gameData.objectTypes.get(mapObject.objTypeId())._initHeight;
         }
 
-        // now calculate the width and heigth in the global map coordinate system after rotating the object by ori:
-        if (mapObject.hasOwnProperty('ori') && mapObject.ori() != 0) {
-            var cosOri = Math.cos(mapObject.ori());
-            var sinOri = Math.sin(mapObject.ori());
-            var w = mapObject.width();
-            var h = mapObject.height();
-            width = Math.abs(cosOri * w + sinOri * h);
-            height = Math.abs(sinOri * w + cosOri * h);
-        }
+        var treeItem = new Bounds().initRectByCenter(
+            mapObject.x(),
+            mapObject.y(),
+            width,
+            height,
+            mapObject.ori());
+        treeItem.obj = mapObject;
+        treeItem.type = MapData.COLLISION_OBJ;
 
-        var treeItem = {
-            x: mapObject.x() - width / 2,
-            y: mapObject.y() - height / 2,
-            width: width,
-            height: height,
-            obj: mapObject
-        };
         return treeItem;
     };
 
-    /*
-
+    /**
+     * add a listener for a specific area in the map
+     * @param callback
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param orientation
+     * @param listenForObj Boolean check if the callback should listen for newly added objects
+     * @param listenForItem Boolean true if callback should listen for newly added items
      */
-    proto.listenForChangesInArea = function(callback, x, y, width, height){
+    proto.addListenerForArea = function(callback, bounds, listenForObj, listenForItem, executeOnce){
 
 
+        if (listenForObj && listenForItem) {
+            bounds.type = MapData.COLLISION_LISTEN_ALL;
+        }
+        else if (listenForObj){
+            bounds.type = MapData.COLLISION_LISTEN_OBJ;
+        }
+        else {
+            bounds.type = MapData.COLLISION_LISTEN_ITEM;
+        }
+
+        bounds.callback = callback;
+        this.quadTree.insert(bounds);
+
+        // Shall we execute once in the beginning for all items in range?
+        if (executeOnce) {
+            var preCollisionCheck;
+            if (listenForObj && listenForItem) {
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
+                };
+            }
+            else if (listenForObj){
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_OBJ;
+                };
+            }
+            else {
+                preCollisionCheck = function(bounds){
+                    return bounds.type == MapData.COLLISION_ITEM;
+                };
+            }
+            var collidingBounds = this.quadTree.retrieve( bounds, preCollisionCheck );
+            var collidingItems = [];
+            for (var i=collidingBounds.length-1; i>=0; i--){
+                callback('adding', collidingBounds[i].obj);
+            }
+        }
+
+        return bounds;
 
     };
 
-    proto.posChangedEvent = function(entity) {
-
-        // entity can be a mapObject or item
-
+    proto.removeListenerForArea = function(treeItem){
+        this.quadTree.remove(treeItem);
     };
+
 
     proto.addObject = function (mapObject) {
         //check if object is already in list:
@@ -103,8 +149,18 @@ if (node) {
             //addObjectToMapData:
             this.mapObjects.add(mapObject);
 
-            //addObjectToTree:
+            // notify map listeners:
             var treeItem = this.createTreeObject(mapObject);
+            var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+            });
+            for (var i=collidingBounds.length-1; i>=0; i--){
+                collidingBounds[i].callback('adding',mapObject);
+            }
+
+            //addObjectToTree:
+            mapObject.treeItem = treeItem;
             this.quadTree.insert(treeItem);
         }
 
@@ -130,6 +186,18 @@ if (node) {
         if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
             this.mapObjects.deleteById(mapObject._id());
         }
+
+        var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
+            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+        });
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            collidingBounds[i].callback('removing',mapObject);
+        }
+
+        // remove from quadtree
+        this.quadTree.remove(mapObject.treeItem);
+        delete mapObject[treeItem];
+
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);
         }
@@ -158,12 +226,12 @@ if (node) {
     };
 
     proto.rebuildQuadTree = function () {
-        this.quadTree = new window.QuadTree({
-            x: -this.layer.width / 2,
-            y: -this.layer.height / 2,
-            width: this.layer.width,
-            height: this.layer.height
-        }, false);
+
+        var bounds = new Bounds().initRectByCenter(0, 0, this.layer.width, this.layer.height, 0);
+        var periodicBounds = false;
+        var maxDepth = 10;
+        var maxChildren = 5;
+        this.quadTree = new QuadTreeCollision(bounds, periodicBounds, maxChildren, maxDepth);
 
         for (var id in this.mapObjects.hashList) {
             var treeItem = this.createTreeObject(this.mapObjects.hashList[id]);
@@ -179,157 +247,40 @@ if (node) {
      */
     proto.collisionDetection = function (mapObject) {
         // retrieve from quad tree all candidates:
-        var testItem = this.createTreeObject(mapObject);
-        var candidates = this.quadTree.retrieve(testItem);
-
+        var testBounds = this.createTreeObject(mapObject);
+        var collidingBounds = this.quadTree.retrieve(testBounds,function(bounds) {
+            return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
+        });
         var collidingItems = [];
-
-        // detect collisions with candidates:
-        var ids = {};
-        for (var i = 0, l = candidates.length; i < l; i++) {
-            var candidate = candidates[i];
-            if (this.isColliding(mapObject, candidate.obj)) {
-                if (!ids.hasOwnProperty(candidate.obj._id())) {
-                    collidingItems.push(candidate.obj);
-                    ids[candidate.obj._id()] = null;
-                }
-            }
-
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            collidingItems.push(collidingBounds[i].obj);
         }
-
         return collidingItems;
     };
 
 
-    proto.getRect = function(x,y,width,height) {
-        var rect = {
-            left:   x-width/2,
-            top:    y-height/2,
-            right:  x+width/2,
-            bottom: y+height/2
-        };
-        return rect;
-    };
-
-
-
-    proto.getAxes = function(ori) {
-        var axes = new Array(2);
-        axes[0] = new Vector(1, 0);
-        axes[1] = new Vector(0, -1);
-        if(ori != 0) {
-            axes[0].rotate(ori);
-            axes[1].rotate(ori);
-        }
-        return axes;
-    };
-
-
-
-    proto.isColliding = function(a,b) {
-
-        if (a.ori()==0 && b.ori()==0) {
-            // do a more simple and faster check if both boxes are aligned with x and y axes of map
-
-            var r1 = this.getRect(a.x(), a.y(), a.width(), a.height());
-            var r2 = this.getRect(b.x(), b.y(), b.width(), b.height());
-
-            if (r2.left > r1.right ||
-                r2.right < r1.left ||
-                r2.top > r1.bottom ||
-                r2.bottom < r1.top) {
-                return false;
-            }
-            else {
-                return true;
-            }
-
-        }
-
-        // for the following more complex check see the references:
-        // see http://jsbin.com/esubuw/4/edit?html,js,output
-        // see http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-
-        var axesA = this.getAxes(a.ori());
-        var axesB = this.getAxes(b.ori());
-
-        var posA = new Vector(a.x(), a.y());
-        var posB = new Vector(b.x(), b.y());
-
-        var t = new Vector(b.x(), b.y());
-        t.subtract(posA);
-        var s1 = new Vector(t.dot(axesA[0]), t.dot(axesA[1]));
-
-        var d = new Array(4);
-        d[0] = axesA[0].dot(axesB[0]);
-        d[1] = axesA[0].dot(axesB[1]);
-        d[2] = axesA[1].dot(axesB[0]);
-        d[3] = axesA[1].dot(axesB[1]);
-
-        var ra = 0, rb = 0;
-
-        ra = a.width() * 0.5;
-        rb = Math.abs(d[0])*b.width()*0.5 + Math.abs(d[1])*b.height()*0.5;
-        if(Math.abs(s1.x) > ra+rb) {
-            return false;
-        }
-
-        ra = a.height() * 0.5;
-        rb = Math.abs(d[2])*b.width()*0.5 + Math.abs(d[3])*b.height()*0.5;
-        if(Math.abs(s1.y) > ra+rb) {
-            return false;
-        }
-
-
-        t.set(posA);
-        t.subtract(posB);
-        var s2 = new Vector(t.dot(axesB[0]), t.dot(axesB[1]));
-
-
-        ra = Math.abs(d[0])*a.width()*0.5 + Math.abs(d[2])*a.height()*0.5;
-        rb = b.width()*0.5;
-        if(Math.abs(s2.x) > ra+rb) {
-            return false;
-        }
-
-        ra = Math.abs(d[1])*a.width()*0.5 + Math.abs(d[3])*a.height()*0.5;
-        rb = b.height()*0.5;
-        if(Math.abs(s2.y) > ra+rb) {
-            return false;
-        }
-
-        // collision detected:
-        return true;
-    };
-
-
-
-
 
     proto.getObjectsInRange = function (coord, range, type) {
-        var mapObj = new MapObject(this.gameData, {
-            x: coord[0],
-            y: coord[1],
-            width: range * 2,
-            height: range * 2,
-            mapId: this.layer._id
+
+        var testBounds = new Bounds().initCircle(coord[0],coord[1],range);
+        var collidingBounds = this.quadTree.retrieve(testBounds,function(bounds) {
+            return bounds.type == MapData.COLLISION_OBJ || bounds.type == MapData.COLLISION_ITEM;
         });
         var inRange = [];
-        var collidingMapObjects = this.collisionDetection(mapObj);
-        for (var index in collidingMapObjects) {
-            var dx = collidingMapObjects[index].x() - mapObj.x();
-            var dy = collidingMapObjects[index].y() - mapObj.y();
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            var obj = collidingBounds[i];
+            var dx = obj.x() - coord[0];
+            var dy = obj.y() - coord[1];
             if (type == 0) { // all objects
                 if (dx * dx + dy * dy < range * range) {
-                    inRange.push(collidingMapObjects[index]);
+                    inRange.push(obj);
                 }
             }
             else if (type == 1) { // take only user objects
-                if (collidingMapObjects[index]._blocks.hasOwnProperty("UserObject") && dx * dx + dy * dy < range * range) {
-                    inRange.push(collidingMapObjects[index]);
+                if (obj._blocks.hasOwnProperty("UserObject") && dx * dx + dy * dy < range * range) {
+                    inRange.push(obj);
                 }
             }
-
         }
         return inRange;
     };

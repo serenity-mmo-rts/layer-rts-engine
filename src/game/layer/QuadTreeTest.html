@@ -59,7 +59,7 @@
 
 </div>
 
-<script src="./QuadTree.js"></script>
+<script src="./QuadTreeCollision.js"></script>
 <script src="./Vector.js"></script>
 
 <script>
@@ -85,7 +85,7 @@
         var maxChildren = document.getElementById("maxChildren").value;
         var myTree = null;
         var rebuildTree = function () {
-            myTree = new CollisionQuadTree(bounds, periodicBounds, maxChildren, maxDepth);
+            myTree = new QuadTreeCollision(bounds, periodicBounds, maxChildren, maxDepth);
             for (var i=myObjects.length-1; i>=0; i--){
                 myTree.insert(myObjects[i]);
             }
