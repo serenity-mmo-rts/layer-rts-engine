@@ -138,7 +138,7 @@ if (node) {
     };
 
     proto.setState = function (state) {
-        this._state(state)
+        this.state(state)
         this._mapObj.notifyChange();
     };
 

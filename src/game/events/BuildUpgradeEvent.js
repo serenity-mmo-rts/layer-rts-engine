@@ -39,7 +39,7 @@ if (node) {
 
         setPointers: function() {
             this._super();
-            this._parentObject = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._parentObjectId);
+            this._parentObject = this.map.mapData.mapObjects.get(this._parentObjectId);
         },
 
         executeOnClient: function () {
@@ -60,15 +60,22 @@ if (node) {
         },
 
         execute: function () {
+            this.item = new Item(this._gameData, {_id: this._itemId, _objectId: this._parentObjectId, itemTypeId: this.itemTypeId, mapId: this._mapId});
+            this.item.setPointers();
+
+            this.isValid();
+            this.item.embedded(true);
+            this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+
             this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
             this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
         updateFromServer: function (event) {
-            console.log("replace tmp Item ID: "+this._itemId+" by new id from server: "+event._itemId);
-           // this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
-            this._itemId = event._itemId;
             this._super(event);
+            console.log("replace tmp Item ID: "+this._itemId+" by new id from server: "+event._itemId);
+            this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
+            this._itemId = event._itemId;
             this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
         },
 

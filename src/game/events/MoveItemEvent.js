@@ -36,24 +36,22 @@ if (node) {
         setParameters: function (item) {
             this._item = item;
             this._itemId = this._item._id();
-            this._originId = this._item._mapObj._id();
-            this._origin = this._item._mapObj;
+            this._originId = this._item._objectId();
         },
 
 
         setTarget: function (targetId) {
             this._targetId = targetId;
-            this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(targetId);
         },
 
         setPointers: function(){
             this._super();
+            this._origin =  this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._originId);
+            this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._targetId);
             this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
             if (!this._item){
-                console.log("Error Item no in database, but should be there");
+                throw new Error("Item not in database, but should be there");
             }
-            this._origin = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._originId);
-            this.setTarget(this._targetId);
         },
 
         executeOnClient: function () {
@@ -71,6 +69,7 @@ if (node) {
         },
 
         execute: function () {
+            this.setPointers();
             this._item._blocks.Movable.moveItem(this._startedTime,this._origin,this._target);
             this.setFinished();
         },
