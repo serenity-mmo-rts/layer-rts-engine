@@ -158,6 +158,7 @@ if (node) {
     };
 
     proto.setPointers = function () {
+        var self = this;
         this.map = this.getMap();
         this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
         if (this._objectId()){
@@ -171,6 +172,12 @@ if (node) {
             this.x(obj.x());
             this.y(obj.y());
         }
+        this._id.subscribe(function(oldValue){
+            self._mapObj.removeItem(oldValue);
+        }, this, "beforeChange");
+        this._id.subscribe(function(newValue){
+            self._mapObj.addItem(self);
+        }, this);
 
 
 
@@ -187,7 +194,6 @@ if (node) {
             }
         });
     };
-
 
     proto.addToParentObject = function (objectId,timeStamp) {
         this._objectId(objectId);

@@ -58,8 +58,6 @@ if (node) {
             {isMovingUp: false},
             {startedTime: null},
             {dueTime: null}
-
-
         ];
     };
 

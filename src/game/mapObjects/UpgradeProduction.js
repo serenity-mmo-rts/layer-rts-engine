@@ -156,7 +156,6 @@ if (node) {
                     if (self.buildQueue.length>0){
                         self.checkQueue(self.dueTimes()[0]);
                     }
-
                     return Infinity;
                 };
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
