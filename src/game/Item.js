@@ -166,18 +166,19 @@ if (node) {
             this.x(this._mapObj.x());
             this.y(this._mapObj.y());
             this._mapObj.addItem(this);
+            this._id.subscribe(function(oldValue){
+                self._mapObj.removeItem(oldValue);
+            }, this, "beforeChange");
+            this._id.subscribe(function(newValue){
+                self._mapObj.addItem(self);
+            }, this);
+
         }
         else if (this.subObjectId()){
             var obj = this.map.mapData.mapObjects.get(this.subObjectId());
             this.x(obj.x());
             this.y(obj.y());
         }
-        this._id.subscribe(function(oldValue){
-            self._mapObj.removeItem(oldValue);
-        }, this, "beforeChange");
-        this._id.subscribe(function(newValue){
-            self._mapObj.addItem(self);
-        }, this);
 
 
 
