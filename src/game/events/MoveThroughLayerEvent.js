@@ -66,9 +66,7 @@ if (node) {
 
             this.mapObj.targetMapId(this.targetMapId);
             this.item.targetMapId(this.targetMapId);
-
-            this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
-            this.mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            this.mapObj._blocks.UpgradeProduction.startProduction(this);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {

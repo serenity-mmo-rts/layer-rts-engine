@@ -210,8 +210,8 @@ if (node) {
                 this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
 
-            this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
-            this._mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            this._mapObj._blocks.UpgradeProduction.startProduction(this);
+
 
             this.isValid();
             this._mapObj.embedded(true);

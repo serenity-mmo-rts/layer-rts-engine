@@ -67,8 +67,8 @@ if (node) {
             this.item.embedded(true);
             this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
 
-            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
-            this._parentObject._blocks.UpgradeProduction.checkQueue(this._startedTime);
+            this._parentObject._blocks.UpgradeProduction.startProduction(this);
+
         },
 
         updateFromServer: function (event) {
