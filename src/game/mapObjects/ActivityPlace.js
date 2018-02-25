@@ -46,7 +46,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {customerHumans: []}
+            {customerHumanIds: []}
         ];
     };
 
