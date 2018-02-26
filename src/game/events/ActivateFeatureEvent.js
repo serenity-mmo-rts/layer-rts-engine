@@ -22,7 +22,6 @@ if (node) {
         _target:null,
         _item:null,
         _range: null,
-        _mapObj: null,
 
 
         init: function(gameData, initObj){
@@ -35,10 +34,9 @@ if (node) {
         },
 
         setParameters: function (item,operation) {
+            this._itemId = item._id();
             this._item = item;
-            this._mapObj = this._item._mapObj;
             this._range = operation.activatePerClick.range;
-            this._itemId = this._item._id;
             this._targetType = operation.activatePerClick.targetType;
         },
 
@@ -61,8 +59,9 @@ if (node) {
         setPointers: function(){
             this._super();
             this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-
-            this._mapObj = this._item._mapObj;
+            if (!this._item){
+                throw new Error("Item not in database, but should be there");
+            }
             this.setTarget(this._targetId);
         },
 

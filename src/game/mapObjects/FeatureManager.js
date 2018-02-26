@@ -62,7 +62,7 @@ if (node) {
 
     proto.addItemId = function(itemId,stackIdx){
 
-        var positions = this._appliedItemIds.indexOf(itemId);
+        var positions = this._appliedItemIds().indexOf(itemId);
         if (positions == -1) {
             this.insertItem(itemId,stackIdx);
         }
@@ -85,8 +85,8 @@ if (node) {
     };
 
     proto.insertItem = function(itemId,stackIdx){
-        this._appliedItemIds.push(itemId);
-        this._appliedEffectIndex.push(stackIdx);
+        this._appliedItemIds().push(itemId);
+        this._appliedEffectIndex().push(stackIdx);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
@@ -100,17 +100,17 @@ if (node) {
      * removes single ItemId, same item with other stackIdx can still be included.
      */
     proto.removeItemId = function(itemId,stackIdx){
-        var positions = this._appliedItemIds.indexOf(itemId);
+        var positions = this._appliedItemIds().indexOf(itemId);
         if (positions instanceof Array){
             var helpArray = this._appliedEffectIndex()[positions];
-            var subPosition = this._appliedEffectIndex.indexOf(stackIdx);
+            var subPosition = this._appliedEffectIndex().indexOf(stackIdx);
             var finalPosition = positions[subPosition];
         }
         else{
             var finalPosition = positions;
         }
-        this._appliedItemIds.splice(finalPosition, 1);
-        this._appliedEffectIndex.splice(finalPosition, 1);
+        this._appliedItemIds().splice(finalPosition, 1);
+        this._appliedEffectIndex().splice(finalPosition, 1);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
@@ -121,10 +121,10 @@ if (node) {
      * removes all itemIds that are the same.
      */
     proto.removeItem= function(itemId){
-        var positions = this._appliedItemIds.indexOf(itemId);
+        var positions = this._appliedItemIds().indexOf(itemId);
         if (!positions==-1) {
-            this._appliedItemIds.splice(positions, 1);
-            this._appliedEffectIndex.splice(positions, 1);
+            this._appliedItemIds().splice(positions, 1);
+            this._appliedEffectIndex().splice(positions, 1);
             this.notifyStateChange();
             this.updateObjectProperties();
         }

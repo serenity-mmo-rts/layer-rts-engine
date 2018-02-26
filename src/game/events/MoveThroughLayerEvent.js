@@ -71,15 +71,15 @@ if (node) {
             this.mapObj._blocks.UpgradeProduction.checkQueue(this._startedTime);
         },
 
-        getSubItems: function(itemInput, objectInput) {
+        getSubItemsAndObject: function(itemInput, objectInput) {
             var itemList = [];
             var objList= [];
             itemList.push(itemInput._id());
             objList.push(objectInput._id());
 
             var itemsInObj = objectInput.getItems();
-            for (var i=itemsInObj.length-1;i>=0;i--) {
-                var item = itemsInObj[i];
+            for (var itemid in itemsInObj) {
+                var item = itemsInObj[itemid];
                 itemList.push(item._id());
                 if (item.subObjectId()) {
                     objList.push(item.subObjectId());
@@ -99,13 +99,13 @@ if (node) {
 
         notifyServer: function() {
             // put both object and item in array that will be transferred to other server
-           var movingEntities =  this.getSubItems(this.item,this.mapObj);
+           var movingEntities =  this.getSubItemsAndObject(this.item,this.mapObj);
 
             var msgData = {
                 targetMapId: this.targetMapId,
                 event: "loadFromDb",
-                objectIds: objList,
-                itemIds: itemList
+                objectIds: movingEntities["objList"],
+                itemIds: movingEntities["itemList"]
             };
             return msgData;
         },

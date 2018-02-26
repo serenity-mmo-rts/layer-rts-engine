@@ -138,7 +138,7 @@ if (node) {
     };
 
     proto.setState = function (state) {
-        this._state(state)
+        this.state(state)
         this._mapObj.notifyChange();
     };
 
@@ -158,6 +158,7 @@ if (node) {
     };
 
     proto.setPointers = function () {
+        var self = this;
         this.map = this.getMap();
         this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
         if (this._objectId()){
@@ -165,6 +166,13 @@ if (node) {
             this.x(this._mapObj.x());
             this.y(this._mapObj.y());
             this._mapObj.addItem(this);
+            this._id.subscribe(function(oldValue){
+                self._mapObj.removeItem(oldValue);
+            }, this, "beforeChange");
+            this._id.subscribe(function(newValue){
+                self._mapObj.addItem(self);
+            }, this);
+
         }
         else if (this.subObjectId()){
             var obj = this.map.mapData.mapObjects.get(this.subObjectId());
@@ -187,7 +195,6 @@ if (node) {
             }
         });
     };
-
 
     proto.addToParentObject = function (objectId,timeStamp) {
         this._objectId(objectId);

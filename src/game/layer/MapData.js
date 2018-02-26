@@ -269,8 +269,19 @@ if (node) {
         var inRange = [];
         for (var i=collidingBounds.length-1; i>=0; i--){
             var obj = collidingBounds[i];
-            var dx = obj.x() - coord[0];
-            var dy = obj.y() - coord[1];
+            if (ko.isObservable(obj.x)){
+                var dx = obj.x() - coord[0];
+            }
+            else{
+                var dx = obj.x - coord[0];
+            }
+            if (ko.isObservable(obj.y)){
+                var dy = obj.y() - coord[1];
+            }
+            else{
+                var dy = obj.y - coord[1];
+            }
+
             if (type == 0) { // all objects
                 if (dx * dx + dy * dy < range * range) {
                     inRange.push(obj);
