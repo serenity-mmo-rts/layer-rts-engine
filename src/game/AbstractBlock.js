@@ -80,6 +80,7 @@ ko.utils.arrayForEach(["push", "unshift", "splice"], function (methodName) {
         }
     }
 });
+ko.utils.setPrototypeOfOrExtend(stateVarArrayMethods, ko.observableArray['fn']);
 
 /**
  * This is our custom extension to knockout, which logs all state changes and is lockable for outside changes
@@ -148,9 +149,10 @@ ko.extenders.stateVar = function(target, options) {
     // if the original target observable was an observable array, then we have to extend it with array functions:
     if (ko.isObservableArray(target)) {
 
-        ko.utils.setPrototypeOfOrExtend(stateVar, ko.observableArray['fn']);
+        //ko.utils.setPrototypeOfOrExtend(stateVar, ko.observableArray['fn']);
+        ko.utils.setPrototypeOfOrExtend(stateVar, stateVarArrayMethods);
 
-        //extend(result, ko.observableArray['fn'], newMethods);
+        //extend(result, ko.observableArray['fn'], stateVarArrayMethods);
     }
     stateVar.target = target;
 

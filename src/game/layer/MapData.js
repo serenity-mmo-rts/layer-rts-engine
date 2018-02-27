@@ -6,6 +6,7 @@ if (node) {
     var Vector = require('./Vector').Vector;
     var QuadTreeCollision = require('./QuadTreeCollision').QuadTreeCollision;
     var Bounds = require('./QuadTreeCollision').Bounds;
+    var ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
@@ -268,7 +269,7 @@ if (node) {
         });
         var inRange = [];
         for (var i=collidingBounds.length-1; i>=0; i--){
-            var obj = collidingBounds[i];
+            var obj = collidingBounds[i].obj;
             if (ko.isObservable(obj.x)){
                 var dx = obj.x() - coord[0];
             }

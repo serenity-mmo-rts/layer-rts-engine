@@ -149,13 +149,13 @@ if (node) {
             var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this._appliedItemIds()[i]);
             // sanity Check
 
-            if (item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this._appliedItemIds()[i])){
+            if (item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this._appliedItemIds()[i])){
 
                 // get block values
-                var variables = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].variables;
-                var blocks = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].blocks;
-                var operators = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].operators;
-                var changes = item._blocks.Feature._processedStack().effects()[this._appliedEffectIndex()[i]].changes;
+                var variables = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].variables;
+                var blocks = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].blocks;
+                var operators = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].operators;
+                var changes = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].changes;
 
                 // loop over block type variables
                 for (var k=0; k< blocks.length; k++) {
