@@ -33,7 +33,7 @@ if (node) {
         this.mapData = new MapData(gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
-        this.isLocked = false;
+        this.lockObject = { isLocked: false };
 
         // init:
         if (Layer.arguments.length == 2) {

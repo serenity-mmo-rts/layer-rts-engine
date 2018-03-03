@@ -16,6 +16,7 @@ if (node) {
 
         // not serialized:
         this.layer = layer;
+        this.lockObject = layer;
         this.mapObjects = new GameList(gameData, MapObject, false, false, this);
         this.items = new GameList(gameData, Item, false, false, this);
         this.quadTree = null;
@@ -23,6 +24,7 @@ if (node) {
         this.objectChangedCallback = null;
         this.itemChangedCallback = null;
         this.events = {};
+
 
     };
 

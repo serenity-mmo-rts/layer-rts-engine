@@ -119,8 +119,8 @@ ko.extenders.stateVar = function(target, options) {
                     target[key].newSnapshot();
                 }
             }
-            target.oldValue = null;
         }
+        target.oldValue = null;
     };
 
     stateVar.revertChanges = function() {
@@ -131,9 +131,9 @@ ko.extenders.stateVar = function(target, options) {
                     target[key].revertChanges();
                 }
             }
-            target(target.oldValue);
-            target.oldValue = null;
         }
+        target(target.oldValue);
+        target.oldValue = null;
     };
 
     // here we subscribe to the original observable:
@@ -351,6 +351,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         this.embedded = ko.observable(false);
         this.blockname = null;
         this.mutatedChilds = {};
+        this.lockObject = parent.lockObject;
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -445,6 +446,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     proto.setInitStateVars = function() {
 
 
+        var self = this;
 
 
         // recursive function to create deep observable objects / arrays:
@@ -461,7 +463,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
                             var elm = makeObservable(data[arr]);
-                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: {isLocked: false} }});
+                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject }});
                             vm.push(elm);
                         }
                     }
@@ -475,7 +477,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
                             // recursive call to create observable sub-object:
                             var innerState = makeObservable(data[prop]);
-                            vm()[prop] = innerState.extend({stateVar: {parent: vm, key: prop, lockObject: {isLocked: false}}})
+                            vm()[prop] = innerState.extend({stateVar: {parent: vm, key: prop, lockObject: self.lockObject}})
 
                         }
                     }
@@ -499,7 +501,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
             for (var stateVarName in states[i]) {
                 //this[stateVarName] = states[i][stateVarName];
                 this[stateVarName] = makeObservable(states[i][stateVarName]);
-                this[stateVarName] = this[stateVarName].extend({stateVar: {parent: this, key: stateVarName, lockObject: {isLocked: false}}})
+                this[stateVarName] = this[stateVarName].extend({stateVar: {parent: this, key: stateVarName, lockObject: self.lockObject}})
             }
         }
 

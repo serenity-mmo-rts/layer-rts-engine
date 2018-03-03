@@ -21,6 +21,13 @@ if (node) {
         this.gameData = gameData;
         this.parent = parent;
         this.mutatedChilds = {};
+        this.sinceSnapshotRemoved = [];
+        this.sinceSnapshotAdded = [];
+
+        if (parent) {
+            this.lockObject = parent.lockObject;
+        }
+
 
         // init:
         if (initObj) {
@@ -90,18 +97,60 @@ if (node) {
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.notifyStateChange = function (id) {
-        if (this.hashList.hasOwnProperty(id)) {
-            this.mutatedChilds[id] = true;
+    proto.notifyStateChange = function (childKey) {
+        if (this.hashList.hasOwnProperty(childKey)) {
+            this.mutatedChilds[childKey] = true;
         }
     };
+
+
+
+    proto.newSnapshot = function() {
+        // delete all the oldValue fields here and in all mutatedChilds recursively.
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    this.hashList[key].newSnapshot();
+                }
+            }
+        }
+        this.mutatedChilds = {};
+        this.sinceSnapshotRemoved = [];
+        this.sinceSnapshotAdded = [];
+    };
+
+
+
+    proto.revertChanges = function() {
+        // reset the states to oldValue here and in all mutatedChilds recursively.
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    this.hashList[key].revertChanges();
+                }
+            }
+        }
+        this.mutatedChilds = {};
+
+        for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
+            this.add(this.sinceSnapshotRemoved[i]);
+        }
+        this.sinceSnapshotRemoved = [];
+
+        for (var i=this.sinceSnapshotAdded.length-1; i>=0; i--) {
+            this.delete(this.sinceSnapshotAdded[i]);
+        }
+        this.sinceSnapshotAdded = [];
+    };
+
 
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
     proto.getAndResetStateChanges = function () {
         var oldStateChanges = this.mutatedChilds;
-        this.mutatedChilds = {};
+        //this.mutatedChilds = {};
+        this.newSnapshot();
         return oldStateChanges;
     };
 
