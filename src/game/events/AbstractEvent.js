@@ -12,6 +12,7 @@ if (node) {
 
        // serialized
         _id: null,
+        oldId: null,
         _userId: null,
         _mapId: null,
         _type: "AbstractEvent",
@@ -97,6 +98,7 @@ if (node) {
                     _mapId: this._mapId,
                     _type: this._type,
                     a: [
+                        this.oldId,
                         this._startedTime,
                         this._isFinished
                     ]};
@@ -109,8 +111,9 @@ if (node) {
                 this._userId = o._userId;
                 this._mapId = o._mapId;
                 this._type = o._type;
-                this._startedTime = o.a[0];
-                this._isFinished = o.a[1];
+                this.oldId = o.a[0];
+                this._startedTime = o.a[1];
+                this._isFinished = o.a[2];
             }
             else {
                 for (var key in o) {

@@ -9,7 +9,7 @@ if (node) {
 
 (function (exports) {
 
-    var GameList = function (gameData, ClassType, initObj, factoryMethod, parent) {
+    var GameList = function (gameData, ClassType, initObj, factoryMethod, parent, childKey) {
 
 
         // serialized:
@@ -23,6 +23,7 @@ if (node) {
         this.mutatedChilds = {};
         this.sinceSnapshotRemoved = [];
         this.sinceSnapshotAdded = [];
+        this.childKey = childKey;
 
         if (parent) {
             this.lockObject = parent.lockObject;
@@ -97,12 +98,24 @@ if (node) {
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.notifyStateChange = function (childKey) {
-        if (this.hashList.hasOwnProperty(childKey)) {
-            this.mutatedChilds[childKey] = true;
-        }
-    };
+    proto.notifyStateChange = function(childKey){
 
+        if (childKey) {
+            if (this.hashList.hasOwnProperty(childKey)) {
+                this.mutatedChilds[childKey] = true;
+            }
+        }
+
+        // Now notify the parent:
+        if (!this.isMutated) {
+            this.isMutated = true;
+            if (typeof this.parent.notifyStateChange === "function") {
+                this.parent.notifyStateChange(this.childKey);
+            }
+
+        }
+
+    };
 
 
     proto.newSnapshot = function() {
@@ -117,6 +130,7 @@ if (node) {
         this.mutatedChilds = {};
         this.sinceSnapshotRemoved = [];
         this.sinceSnapshotAdded = [];
+        this.isMutated = false;
     };
 
 
@@ -141,6 +155,7 @@ if (node) {
             this.delete(this.sinceSnapshotAdded[i]);
         }
         this.sinceSnapshotAdded = [];
+        this.isMutated = false;
     };
 
 

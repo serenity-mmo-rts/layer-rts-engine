@@ -352,6 +352,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         this.blockname = null;
         this.mutatedChilds = {};
         this.lockObject = parent.lockObject;
+        this.isMutated = false;
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -553,20 +554,22 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         }
 
         // Now notify the parent:
-
-        if (this.hasOwnProperty("_id")) {
-            // if this is a game instance with an id. For example item or mapObject:
-            this.parent.notifyStateChange(this._id());
-        }
-        else {
-            // if this is a building block without id. For example UpgradeProdcution:
-            this.parent.notifyStateChange(this.constructor.prototype.blockname);
+        if (!this.isMutated) {
+            this.isMutated = true;
+            if (this.hasOwnProperty("_id")) {
+                // if this is a game instance with an id. For example item or mapObject:
+                this.parent.notifyStateChange(this._id());
+            }
+            else {
+                // if this is a building block without id. For example UpgradeProdcution:
+                this.parent.notifyStateChange(this.constructor.prototype.blockname);
+            }
         }
 
     };
 
     /**
-     * TODO: reset the states to oldValue here and in all mutatedChilds recursively.
+     * reset the states to oldValue here and in all mutatedChilds recursively.
      */
     proto.revertChanges = function(){
 
@@ -585,11 +588,13 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
             }
         }
 
+        this.isMutated = false;
+        this.mutatedChilds = {}
     };
 
 
     /**
-     * TODO: delete all the oldValue fields here and in all mutatedChilds recursively.
+     * delete all the oldValue fields here and in all mutatedChilds recursively.
      */
     proto.newSnapshot = function(){
 
@@ -607,6 +612,9 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
                 }
             }
         }
+
+        this.isMutated = false;
+        this.mutatedChilds = {}
 
     };
 
