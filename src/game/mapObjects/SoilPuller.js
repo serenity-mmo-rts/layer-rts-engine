@@ -33,7 +33,8 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            soilTypeIds: []
+            ressourceTypeIds: [],
+            ressourceMaxInPerSec: []
         };
     };
 

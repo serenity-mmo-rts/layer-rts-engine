@@ -10,6 +10,7 @@ if (node) {
     var PlanetGenerator = require('./layer/PlanetGenerator').PlanetGenerator;
     var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
     var GalaxyGenerator = require('./layer/GalaxyGenerator').GalaxyGenerator;
+    var HubSystem = require('./layer/HubSystem').HubSystem;
 }
 
 (function (exports) {
@@ -31,6 +32,7 @@ if (node) {
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
         this.mapData = new MapData(gameData, this);
+        this.hubSystem = new HubSystem(gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
         this.lockObject = { isLocked: false };
