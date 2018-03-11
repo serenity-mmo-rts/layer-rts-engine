@@ -664,6 +664,15 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
             }
         }
 
+        // TODO: now save sub blocks:
+        if (this.hasOwnProperty("_blocks")){
+            o._blocks = {};
+            for (var key in this._blocks){
+                o._blocks[key] = this._blocks[key].save();
+            }
+        }
+
+
         return o;
     };
 
@@ -706,6 +715,15 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
                 }
             }
         }
+
+        // TODO: load the sub blocks:
+        if (o.hasOwnProperty("_blocks")){
+            for (var key in o._blocks){
+                this._blocks[key].load(o._blocks[key]);
+            }
+        }
+
+
     };
 
     exports.createBlockInstance = createBlockInstance;

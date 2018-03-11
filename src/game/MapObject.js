@@ -102,7 +102,7 @@ if (node) {
     proto.constructor = MapObject;
 
 
-    proto.mapObjectStates = mapObjectStates;
+    MapObject.mapObjectStates = mapObjectStates;
 
 
     /**

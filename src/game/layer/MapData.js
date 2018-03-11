@@ -183,6 +183,7 @@ if (node) {
      * this function assumes that all the rest of the layer is already loaded. The function will create all pointers between objects
      */
     proto.setPointers = function () {
+        this.rebuildQuadTree();
         this.mapObjects.each(function (mapObject) {
             mapObject.setPointers()
         });

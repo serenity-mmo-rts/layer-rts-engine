@@ -60,6 +60,7 @@ if (node) {
         this.embedded.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
+        self.setConnectionPoints();
     };
 
     proto.setConnectionPoints = function(){
