@@ -19,6 +19,10 @@ if (node) {
 
 (function (exports) {
     var GameData = function GameData(initObj) {
+
+        this.lockObject = { isLocked: false };
+
+
         this.layerTypes = new GameList(this,LayerType,false,false,this);
 
         this.objectTypes = new GameList(this,ObjectType,false,false,this);

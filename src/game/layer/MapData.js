@@ -6,6 +6,7 @@ if (node) {
     var Vector = require('./Vector').Vector;
     var QuadTreeCollision = require('./QuadTreeCollision').QuadTreeCollision;
     var Bounds = require('./QuadTreeCollision').Bounds;
+    var ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
@@ -15,13 +16,22 @@ if (node) {
 
         // not serialized:
         this.layer = layer;
-        this.mapObjects = new GameList(gameData, MapObject, false, false, this);
-        this.items = new GameList(gameData, Item, false, false, this);
+        this.lockObject = layer;
+        this.mapObjects = new GameList(gameData, MapObject, false, false, this, 'mapObjects');
+        this.items = new GameList(gameData, Item, false, false, this, 'items');
         this.quadTree = null;
         this.gameData = gameData;
         this.objectChangedCallback = null;
         this.itemChangedCallback = null;
         this.events = {};
+
+        this.mutatedChilds = {};
+        this.isMutated = false;
+        this.parent = layer;
+
+        this.blockname = 'mapData';
+
+
 
     };
 
@@ -173,6 +183,7 @@ if (node) {
      * this function assumes that all the rest of the layer is already loaded. The function will create all pointers between objects
      */
     proto.setPointers = function () {
+        this.rebuildQuadTree();
         this.mapObjects.each(function (mapObject) {
             mapObject.setPointers()
         });
@@ -268,7 +279,7 @@ if (node) {
         });
         var inRange = [];
         for (var i=collidingBounds.length-1; i>=0; i--){
-            var obj = collidingBounds[i];
+            var obj = collidingBounds[i].obj;
             if (ko.isObservable(obj.x)){
                 var dx = obj.x() - coord[0];
             }
@@ -295,6 +306,86 @@ if (node) {
         }
         return inRange;
     };
+
+
+
+    /**
+     * call this function if a state variable has changed to notify db sync later.
+     */
+    proto.notifyStateChange = function(childKey){
+
+        if (childKey) {
+            this.mutatedChilds[childKey] = true;
+        }
+
+        // Now notify the parent:
+        if (!this.isMutated) {
+            this.isMutated = true;
+            if (this.hasOwnProperty("_id")) {
+                // if this is a game instance with an id. For example item or mapObject:
+                this.parent.notifyStateChange(this._id());
+            }
+            else {
+                // if this is a building block without id. For example UpgradeProdcution:
+                this.parent.notifyStateChange(this.blockname);
+            }
+        }
+
+    };
+
+    /**
+     * reset the states to oldValue here and in all mutatedChilds recursively.
+     */
+    proto.revertChanges = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].revertChanges();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].revertChanges();
+                    }
+                }
+            }
+        }
+
+        this.isMutated = false;
+        this.mutatedChilds = {}
+
+    };
+
+
+    /**
+     * delete all the oldValue fields here and in all mutatedChilds recursively.
+     */
+    proto.newSnapshot = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].newSnapshot();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].newSnapshot();
+                    }
+                }
+            }
+        }
+
+        this.isMutated = false;
+        this.mutatedChilds = {}
+
+    };
+
+
+
 
 
     exports.MapData = MapData;

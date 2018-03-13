@@ -49,19 +49,16 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_executeIndex:0},
-            {_processedStack:{
-                effects: [],
-                isActivated: false,
-                canBeActivated: false,
-                lastActivationTime:null,
-                dueTime:null,
-                parentItem:null,
-                isHidden: false,
-                targetType: null,
-                target: null
-                }
-            }
+            {_executeIndex: 0},
+            {effects: []},
+            {isActivated: false},
+            {canBeActivated: false},
+            {lastActivationTime: null},
+            {dueTime: null},
+            {parentItem: null},
+            {isHidden: false},
+            {targetType: null},
+            {target: null}
         ];
     };
 
@@ -81,15 +78,15 @@ if (node) {
      */
     proto.activate = function(startedTime,target) {
         if (arguments[1]!=null){
-            this._processedStack().target(target);
+            this.target(target);
         }
-        this._processedStack().lastActivationTime(startedTime);
-        this._processedStack().isActivated(true);
+        this.lastActivationTime(startedTime);
+        this.isActivated(true);
         this.checkStackExecution();
     };
 
     proto.startExecution = function(startedTime) {
-        this._processedStack().lastActivationTime(startedTime);
+        this.lastActivationTime(startedTime);
         this.removeItemFromFeatureManagers();
         this.setInitStateVars();
         this.checkStackExecution();
@@ -180,24 +177,24 @@ if (node) {
 
     proto.activatePerClick = function(target,range){
 
-        this._processedStack().targetType(target);
+        this.targetType(target);
 
-        if (this._processedStack().isActivated()){
-            this._processedStack().canBeActivated(false);
+        if (this.isActivated()){
+            this.canBeActivated(false);
         }
         else{
-            this._processedStack().canBeActivated(true);
+            this.canBeActivated(true);
         }
 
 
         if (target == "self") {
-            return [null, this._processedStack().isActivated()];
+            return [null, this.isActivated()];
         }
 
         else if (target == "object"){
 
-            if (this._processedStack().target()){
-                return [this._processedStack().target(), true];
+            if (this.target()){
+                return [this.target(), true];
             }
             else{
                 return [null, false];
@@ -219,30 +216,30 @@ if (node) {
 
         if (this._timeCallbackId !=null){ // re-enter with call back
             this._timeCallbackId = null;
-            this._processedStack().lastActivationTime(this._processedStack().dueTime());
-            this._processedStack().dueTime(null);
+            this.lastActivationTime(this.dueTime());
+            this.dueTime(null);
             return true;
         }
         else{ // enter first time, calculate dueTime and create callback
 
-            this._processedStack().dueTime(this._processedStack().lastActivationTime()+waitingTime);
+            this.dueTime(this.lastActivationTime()+waitingTime);
 
             var self = this;
             var callback = function(dueTime,callbackId){
                 //TO DO check whether event is really due
                 self._layer.timeScheduler.removeCallback(callbackId);
-                self.checkStackExecution(false,self._processedStack().lastActivationTime());
+                self.checkStackExecution(false,self.lastActivationTime());
                 return Infinity
             };
-            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this._processedStack().dueTime());
+            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this.dueTime());
             return false;
         }
     };
 
     proto.clear = function(effectIdx){
 
-        var objects = this._processedStack().effects()[effectIdx].currentTargetObjectIds;
-        var items = this._processedStack().effects()[effectIdx].currentTargetItemIds;
+        var objects = this.effects()[effectIdx].currentTargetObjectIds;
+        var items = this.effects()[effectIdx].currentTargetItemIds;
 
         // delete feature from all objects and items that used it
         for (var i = 0; i<objects.length; i++) {
@@ -255,21 +252,21 @@ if (node) {
             item._blocks.FeatureManager.removeItemId(this.parent._id(),effectIdx);
         }
 
-        this._processedStack().effects().splice(effectIdx,1);
+        this.effects().splice(effectIdx,1);
 
         return null;
     };
 
     proto.removeItemFromFeatureManagers= function(timeStamp) {
-        this._processedStack().lastActivationTime(timeStamp);
+        this.lastActivationTime(timeStamp);
 
-        for (var i = 0; i<this._processedStack().effects().length;i++){
+        for (var i = 0; i<this.effects().length;i++){
             this.clear(i);
         }
     };
 
     proto.deactivate = function(){
-        this._processedStack().isActivated(false);
+        this.isActivated(false);
         return true;
     };
 
@@ -283,7 +280,7 @@ if (node) {
     };
 
     proto.getParentItem = function(){
-        this._processedStack().parentItem(this.parent);
+        this.parentItem(this.parent);
         return this.parent;
     };
 
@@ -313,7 +310,7 @@ if (node) {
             currentTargetObjectIds: [],
             currentTargetItemIds: []
         };
-        this._processedStack().effects().push(changeObj);
+        this.effects().push(changeObj);
 
         if (itemsOrObjects instanceof Array) {
             for (var i = 0; i < itemsOrObjects.length; i++) {
@@ -357,9 +354,9 @@ if (node) {
 
     proto.addObjTargets= function(object,changeObj){
         var targetId = object._id();
-        var effectCounter = this._processedStack().effects().length-1;
-        if (this._processedStack().effects()[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
-            this._processedStack().effects()[effectCounter].currentTargetObjectIds.push(targetId);
+        var effectCounter = this.effects().length-1;
+        if (this.effects()[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
+            this.effects()[effectCounter].currentTargetObjectIds.push(targetId);
             object._blocks.FeatureManager.addItemId(this.parent._id(),effectCounter);
         }
         object._blocks.FeatureManager.setState(true);
@@ -367,9 +364,9 @@ if (node) {
 
     proto.addItemTargets= function(item,changeObj){
         var targetId = item._id();
-        var effectCounter = this._processedStack().effects().length-1;
-        if (this._processedStack().effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
-            this._processedStack().effects()[effectCounter].currentTargetItemIds.push(targetId);
+        var effectCounter = this.effects().length-1;
+        if (this.effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
+            this.effects()[effectCounter].currentTargetItemIds.push(targetId);
             item._blocks.FeatureManager.addItemId(this.parent._id(),effectCounter);
         }
         item._blocks.FeatureManager.setState(true);
@@ -389,9 +386,9 @@ if (node) {
 
     proto.addItemToFeatureManagers= function() {
 
-        for (var i = 0; i<this._processedStack().effects().length;i++){
-            var objectIds= this._processedStack().effects()[i].currentTargetObjectIds;
-            var itemIds= this._processedStack().effects()[i].currentTargetItemIds;
+        for (var i = 0; i<this.effects().length;i++){
+            var objectIds= this.effects()[i].currentTargetObjectIds;
+            var itemIds= this.effects()[i].currentTargetItemIds;
 
             for (var k = 0; k<objectIds.length;k++){
                 var object=  this._layer.mapData.mapObjects.get(objectIds[k]);

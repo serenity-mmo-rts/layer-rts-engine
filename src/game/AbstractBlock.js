@@ -4,6 +4,11 @@ if (node) {
     ko = require('../client/lib/knockout-3.3.0.debug.js');
 }
 
+
+ko.isObservableArray = function (obj) {
+    return ko.isObservable(obj) && !(obj.destroyAll === undefined);
+};
+
 /**
  * This is our custom extension to knockout, which logs all state changes
  * @param target this is the knockout observable
@@ -52,6 +57,275 @@ ko.extenders.logChange = function(target, options) {
 };
 
 
+
+
+/**
+ *
+ *    Try using an extender to have state vars that can be reverted to a snapshot and locked and unlocked for writes.
+ *
+ */
+
+var stateVarArrayMethods = {};
+ko.utils.arrayForEach(['remove','removeAll','destroy','destroyAll','replace'],function(methodName){
+    stateVarArrayMethods[methodName] = function () {
+        var target = this.target;
+        target[methodName].apply(target,arguments);
+    }
+});
+ko.utils.arrayForEach(["push", "unshift", "splice"], function (methodName) {
+    stateVarArrayMethods[methodName] = function () {
+        var target = this.target;
+        if (!target.lockObject.isLocked) {
+            target[methodName].apply(target,arguments);
+        }
+    }
+});
+ko.utils.setPrototypeOfOrExtend(stateVarArrayMethods, ko.observableArray['fn']);
+
+/**
+ * This is our custom extension to knockout, which logs all state changes and is lockable for outside changes
+ * @param target this is the knockout observable
+ * @param options = {   parent: the parent entity in the hierarchy,
+ *                      key: how to identify this observable from the parent,
+ *                      lockObject: { isLocked: true/false } determines if the state can be written or not.
+ *                  }
+ * @returns {*} a writable computed observable
+ */
+ko.extenders.stateVar = function(target, options) {
+    target.oldValue = null;
+    target.lockObject = options.lockObject;
+    target.mutatedChilds = [];
+
+    //computed observable that we will return
+    var stateVar = ko.computed({
+        read: target,
+        write: function(newValue) {
+            if (!target.lockObject.isLocked) {
+                target(newValue);
+            }
+        }
+    }).extend({ notify: "always" });
+
+    stateVar.notifyStateChange = function(childKey) {
+        target.mutatedChilds[childKey] = true;
+        options.parent.notifyStateChange(options.key);
+    };
+
+    stateVar.newSnapshot = function() {
+        // delete all the oldValue fields here and in all mutatedChilds recursively.
+        if (target.mutatedChilds.length > 0) {
+            for (var key in target.mutatedChilds) {
+                if(target.mutatedChilds.hasOwnProperty(key)){
+                    target[key].newSnapshot();
+                }
+            }
+        }
+        target.oldValue = null;
+    };
+
+    stateVar.revertChanges = function() {
+        // reset the states to oldValue here and in all mutatedChilds recursively.
+        if (target.mutatedChilds.length > 0) {
+            for (var key in target.mutatedChilds) {
+                if(target.mutatedChilds.hasOwnProperty(key)){
+                    target[key].revertChanges();
+                }
+            }
+        }
+        target(target.oldValue);
+        target.oldValue = null;
+    };
+
+    // here we subscribe to the original observable:
+    target.subscribe(function(oldValue) {
+        // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
+        if (target.oldValue == null) {
+            target.oldValue = oldValue;
+            //options.parent.mutatedChilds[options.key] = target;
+            options.parent.notifyStateChange(options.key);
+        }
+    }, null, "beforeChange");
+
+    // if the original target observable was an observable array, then we have to extend it with array functions:
+    if (ko.isObservableArray(target)) {
+
+        //ko.utils.setPrototypeOfOrExtend(stateVar, ko.observableArray['fn']);
+        ko.utils.setPrototypeOfOrExtend(stateVar, stateVarArrayMethods);
+
+        //extend(result, ko.observableArray['fn'], stateVarArrayMethods);
+    }
+    stateVar.target = target;
+
+    //return the new computable observable
+    return stateVar;
+};
+
+
+/**
+ *
+ *    Try using an extender to have observables/observable arrays, that can be locked and unlocked
+ *
+ */
+
+/*
+var newMethods = {};
+ko.each(['remove','removeAll','destroy','destroyAll','replace'],function(methodName){
+    newMethods[methodName] = function () {
+        var target = this.target;
+        target[methodName].apply(target,arguments);
+    }
+});
+ko.each(["push", "unshift", "splice"], function (methodName) {
+    newMethods[methodName] = function () {
+        var target = this.target;
+        if (!target.lockOptions.isLocked) {
+            target[methodName].apply(target,arguments);
+        }
+    }
+});
+*/
+
+/**
+ *
+ * @param target
+ * @param options should be an object containing the key isLocked.
+ * @returns {*}
+ */
+/*
+ko.extenders.lockable = function(target, options) {
+    //add some sub-observables to our observable
+    target.lockOptions = options;
+
+    //computed observable that we will return
+    var result = ko.computed({
+        read: function() {
+            return target();
+        },
+        write: function(newValue) {
+            if (!target.lockOptions.isLocked) {
+                target(newValue);
+            }
+        }
+    }).extend({ notify: "always" });
+
+    // if the original target observable was an observable array, then we have to extend it with array functions:
+    if (ko.isObservableArray(target)) {
+        extend(result, ko.observableArray['fn'], newMethods);
+    }
+    result.target = target;
+
+    //return the new computable observable
+    return result;
+};
+*/
+
+/*
+//wrapper to an observable that requires
+ko.lockableObservable = function(initialValue) {
+    //private variables
+    var _actualValue = ko.observable(initialValue),
+        isLocked = false;
+
+    //computed observable that we will return
+    var result = ko.computed({
+        read: function() {
+            return _actualValue();
+        },
+        write: function(newValue) {
+            if (!isLocked) {
+                _actualValue(newValue);
+            }
+        }
+    }).extend({ notify: "always" });
+
+    result.lock = function() {
+        isLocked = true;
+    };
+
+    result.unlock = function() {
+        isLocked = false;
+    };
+
+    return result;
+};
+
+
+
+//wrapper to an observable that requires accept/cancel
+ko.protectedObservable = function(initialValue) {
+    //private variables
+    var _actualValue = ko.observable(initialValue),
+        _tempValue = initialValue;
+
+    //computed observable that we will return
+    var result = ko.computed({
+        //always return the actual value
+        read: function() {
+            return _actualValue();
+        },
+        //stored in a temporary spot until commit
+        write: function(newValue) {
+            _tempValue = newValue;
+        }
+    }).extend({ notify: "always" });
+
+    //if different, commit temp value
+    result.commit = function() {
+        if (_tempValue !== _actualValue()) {
+            _actualValue(_tempValue);
+        }
+    };
+
+    //force subscribers to take original
+    result.reset = function() {
+        _actualValue.valueHasMutated();
+        _tempValue = _actualValue();   //reset temp value
+    };
+
+    return result;
+};
+
+
+
+//wrapper for a computed observable that can pause its subscriptions
+ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
+    var _cachedValue = "";
+    var _isPaused = ko.observable(false);
+
+    //the computed observable that we will return
+    var result = ko.computed(function() {
+        if (!_isPaused()) {
+            //call the actual function that was passed in
+            return evaluatorFunction.call(evaluatorFunctionTarget);
+        }
+        return _cachedValue;
+    }, evaluatorFunctionTarget);
+
+    //keep track of our current value and set the pause flag to release our actual subscriptions
+    result.pause = function() {
+        _cachedValue = this();
+        _isPaused(true);
+    }.bind(result);
+
+    //clear the cached value and allow our computed observable to be re-evaluated
+    result.resume = function() {
+        _cachedValue = "";
+        _isPaused(false);
+    }
+
+    return result;
+};
+*/
+
+
+// see http://tech.pro/tutorial/1417/working-with-typed-arrays-in-knockoutjs
+
+
+
+
+
+
+
 (function (exports) {
 
     var registeredBlockClasses = {};
@@ -77,6 +351,8 @@ ko.extenders.logChange = function(target, options) {
         this.embedded = ko.observable(false);
         this.blockname = null;
         this.mutatedChilds = {};
+        this.lockObject = parent.lockObject;
+        this.isMutated = false;
 
         this.setInitTypeVars();
         this.setInitStateVars();
@@ -171,6 +447,7 @@ ko.extenders.logChange = function(target, options) {
     proto.setInitStateVars = function() {
 
 
+        var self = this;
 
 
         // recursive function to create deep observable objects / arrays:
@@ -187,8 +464,8 @@ ko.extenders.logChange = function(target, options) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
                             var elm = makeObservable(data[arr]);
-                            var newLen = vm.push(elm);
-                            elm.extend({logChange: {parent: vm, key: newLen}});
+                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject }});
+                            vm.push(elm);
                         }
                     }
                 }
@@ -200,8 +477,8 @@ ko.extenders.logChange = function(target, options) {
                         if (data.hasOwnProperty(prop)) {
 
                             // recursive call to create observable sub-object:
-                            vm()[prop] = makeObservable(data[prop]);
-                            vm()[prop].extend({logChange: {parent: vm, key: prop}})
+                            var innerState = makeObservable(data[prop]);
+                            vm()[prop] = innerState.extend({stateVar: {parent: vm, key: prop, lockObject: self.lockObject}})
 
                         }
                     }
@@ -225,7 +502,7 @@ ko.extenders.logChange = function(target, options) {
             for (var stateVarName in states[i]) {
                 //this[stateVarName] = states[i][stateVarName];
                 this[stateVarName] = makeObservable(states[i][stateVarName]);
-                this[stateVarName].extend({logChange: {parent: this, key: stateVarName}})
+                this[stateVarName] = this[stateVarName].extend({stateVar: {parent: this, key: stateVarName, lockObject: self.lockObject}})
             }
         }
 
@@ -277,20 +554,22 @@ ko.extenders.logChange = function(target, options) {
         }
 
         // Now notify the parent:
-
-        if (this.hasOwnProperty("_id")) {
-            // if this is a game instance with an id. For example item or mapObject:
-            this.parent.notifyStateChange(this._id());
-        }
-        else {
-            // if this is a building block without id. For example UpgradeProdcution:
-            this.parent.notifyStateChange(this.constructor.prototype.blockname);
+        if (!this.isMutated) {
+            this.isMutated = true;
+            if (this.hasOwnProperty("_id")) {
+                // if this is a game instance with an id. For example item or mapObject:
+                this.parent.notifyStateChange(this._id());
+            }
+            else {
+                // if this is a building block without id. For example UpgradeProdcution:
+                this.parent.notifyStateChange(this.constructor.prototype.blockname);
+            }
         }
 
     };
 
     /**
-     * TODO: reset the states to oldValue here and in all mutatedChilds recursively.
+     * reset the states to oldValue here and in all mutatedChilds recursively.
      */
     proto.revertChanges = function(){
 
@@ -309,11 +588,13 @@ ko.extenders.logChange = function(target, options) {
             }
         }
 
+        this.isMutated = false;
+        this.mutatedChilds = {}
     };
 
 
     /**
-     * TODO: delete all the oldValue fields here and in all mutatedChilds recursively.
+     * delete all the oldValue fields here and in all mutatedChilds recursively.
      */
     proto.newSnapshot = function(){
 
@@ -331,6 +612,9 @@ ko.extenders.logChange = function(target, options) {
                 }
             }
         }
+
+        this.isMutated = false;
+        this.mutatedChilds = {}
 
     };
 
@@ -380,6 +664,15 @@ ko.extenders.logChange = function(target, options) {
             }
         }
 
+        // TODO: now save sub blocks:
+        if (this.hasOwnProperty("_blocks")){
+            o._blocks = {};
+            for (var key in this._blocks){
+                o._blocks[key] = this._blocks[key].save();
+            }
+        }
+
+
         return o;
     };
 
@@ -422,6 +715,15 @@ ko.extenders.logChange = function(target, options) {
                 }
             }
         }
+
+        // TODO: load the sub blocks:
+        if (o.hasOwnProperty("_blocks")){
+            for (var key in o._blocks){
+                this._blocks[key].load(o._blocks[key]);
+            }
+        }
+
+
     };
 
     exports.createBlockInstance = createBlockInstance;

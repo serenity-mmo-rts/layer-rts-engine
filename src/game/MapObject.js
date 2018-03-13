@@ -17,7 +17,7 @@ if (node) {
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;
     var FeatureManager = require('./mapObjects/FeatureManager').FeatureManager;
-    var SoilProduction = require('./mapObjects/SoilProduction').SoilProduction;
+    var SoilProduction = require('./mapObjects/SoilPuller').SoilProduction;
     var WorkingPlace = require('./mapObjects/WorkingPlace').WorkingPlace;
     var Connection = require('./mapObjects/Connection').Connection;
     var ProductivityCalculator = require('./mapObjects/ProductivityCalculator').ProductivityCalculator;
@@ -100,6 +100,10 @@ if (node) {
     MapObject.prototype = Object.create(AbstractBlock.prototype);
     var proto = MapObject.prototype;
     proto.constructor = MapObject;
+
+
+    MapObject.mapObjectStates = mapObjectStates;
+
 
     /**
      * This function defines the default type variables and returns them as an object.

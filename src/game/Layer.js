@@ -10,6 +10,7 @@ if (node) {
     var PlanetGenerator = require('./layer/PlanetGenerator').PlanetGenerator;
     var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
     var GalaxyGenerator = require('./layer/GalaxyGenerator').GalaxyGenerator;
+    var HubSystem = require('./layer/HubSystem').HubSystem;
 }
 
 (function (exports) {
@@ -31,8 +32,11 @@ if (node) {
         this.timeScheduler = new TimeScheduler(gameData);
         this.eventScheduler = new EventScheduler(gameData);
         this.mapData = new MapData(gameData, this);
+        this.hubSystem = new HubSystem(gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
+        this.lockObject = { isLocked: false };
+        this.mutatedChilds = {};
 
         // init:
         if (Layer.arguments.length == 2) {
@@ -62,6 +66,19 @@ if (node) {
     var proto = Layer.prototype;
 
 
+    proto.initialize = function () {
+        // now call setPointers() for everything
+        this.mapData.setPointers(); // this will call setPointer() on all mapObjects and items
+        this.eventScheduler.events.setPointers();
+
+        // now embed into game:
+        this.mapData.mapObjects.each(function(mapObj){
+            mapObj.embedded(true);
+        });
+        this.mapData.items.each(function(item){
+            item.embedded(true);
+        });
+    };
 
     proto.save = function () {
         var o = {
@@ -113,6 +130,72 @@ if (node) {
 
         this.gameData.layers.add(newCityMap);
     };
+
+
+
+
+    /**
+     * call this function if a state variable has changed to notify db sync later.
+     */
+    proto.notifyStateChange = function(childKey){
+
+        if (childKey) {
+            this.mutatedChilds[childKey] = true;
+        }
+
+    };
+
+    /**
+     * reset the states to oldValue here and in all mutatedChilds recursively.
+     */
+    proto.revertChanges = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].revertChanges();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].revertChanges();
+                    }
+                }
+            }
+        }
+
+        this.mutatedChilds = {};
+
+    };
+
+
+    /**
+     * delete all the oldValue fields here and in all mutatedChilds recursively.
+     */
+    proto.newSnapshot = function(){
+
+        if (this.mutatedChilds.length > 0) {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].newSnapshot();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].newSnapshot();
+                    }
+                }
+            }
+        }
+
+        this.mutatedChilds = {};
+
+    };
+
+
+
 
     exports.Layer = Layer;
 
