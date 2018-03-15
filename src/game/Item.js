@@ -17,12 +17,12 @@ if (node) {
 (function (exports) {
 
     var itemStates = {};
-    itemStates.TEMP = 0;
-    itemStates.WORKING = 1;
-    itemStates.FINSEHD = 2;
-    itemStates.HIDDEN = 3;
-    itemStates.BLOCKED = 4;
-
+    itemStates.TEMP = 0; // as long as item in only in production cue
+    itemStates.CONSTRUCTION = 1; // during item production,
+    itemStates.NORMAL = 2; // normal phase
+    itemStates.UPDATING =3; // during item updating
+    itemStates.HIDDEN = 4; // item not rendered but in game data
+    itemStates.BLOCKED = 5; // item rendered in greyscale, cannot be used
     /*
      constructor(gameData,initObj)
      or

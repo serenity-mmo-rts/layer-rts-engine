@@ -140,7 +140,6 @@ if (node) {
     proto._checkQueue = function () {
         if (this.buildQueue.length > 0 && !this.isRunning()) {
             this.isRunning(true);
-            this.parent.setState(1);
             var evt = this.buildQueue[0];
             var dueTime = this.dueTimes()[0];
 
@@ -153,8 +152,8 @@ if (node) {
                     console.log("item: "+evt._itemId+" production completed");
                     var item = self.layer.mapData.items.get(evt._itemId);
                     item._blocks.Feature.startExecution(dueTime);
-                    item.setState(2);
-                    self.parent.setState(2);
+                    item.setState(itemStates.NORMAL);
+                    self.parent.setState(mapObjectStates.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -162,8 +161,9 @@ if (node) {
                     }
                     return Infinity;
                 };
+                this.parent.setState(mapObjectStates.UPDATING);
                 var item = this.layer.mapData.items.get(evt._itemId);
-                item.setState(1);
+                item.setState(itemStates.CONSTRUCTION);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent._id());
             }
@@ -177,7 +177,8 @@ if (node) {
                     var level = item.getLevel()+1;
                     item.setLevel(level);
                     item._blocks.Feature.startExecution(dueTime);
-                    self.parent.setState(2);
+                    item.setState(itemStates.NORMAL);
+                    self.parent.setState(mapObjectStates.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -185,6 +186,8 @@ if (node) {
                     }
                     return Infinity;
                 };
+                this.parent.setState(mapObjectStates.UPDATING);
+                item.setState(itemStates.UPDATING);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(dueTime);
                 console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent._id());
 
@@ -195,7 +198,7 @@ if (node) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
                     console.log("I finished building a " + self.parent.objTypeId() + " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
-                    self.parent.setState(2);
+                    self.parent.setState(mapObjectStates.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -203,6 +206,7 @@ if (node) {
                     }
                     return Infinity;
                 };
+                this.parent.setState(mapObjectStates.CONSTRUCTION);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("I start building an" + self.parent.objTypeId() +  " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
             }
@@ -214,13 +218,11 @@ if (node) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
                     self.parent.state(mapObjectStates.HIDDEN);
-                    self.parent.notifyStateChange();
                     console.log("Dismantling of Map Object: "+self.parent._id()+" done. Now start moving upwards...");
                     self.layer.mapData.items.get(self.parent.subItemId())._blocks.Movable.moveObjectUp(dueTime);
                     return Infinity;
                 };
-                this.parent.setState(1);
-                this.parent.notifyStateChange();
+                this.parent.setState(mapObjectStates.CONSTRUCTION);
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }
@@ -230,8 +232,7 @@ if (node) {
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
-                    self.parent.state(2);
-                    self.parent.notifyStateChange();
+                    self.parent.setState(mapObjectStates.NORMAL);
                     console.log("Fished research:"+evt.techTypeId+" in Map Object: "+self.parent._id());
                     User.addTechnology(evt.techTypeId);
                     if (self.buildQueue.length>0){
@@ -239,8 +240,7 @@ if (node) {
                     }
                     return Infinity;
                 };
-                this.parent.setState(1);
-                this.parent.notifyStateChange();
+                this.parent.setState(mapObjectStates.UPDATING);
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }

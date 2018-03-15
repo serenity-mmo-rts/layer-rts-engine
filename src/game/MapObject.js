@@ -33,12 +33,12 @@ if (node) {
 (function (exports) {
 
     var mapObjectStates = {};
-    mapObjectStates.TEMP = 0;
-    mapObjectStates.WORKING = 1;
-    mapObjectStates.FINISHED = 2;
-    mapObjectStates.UPDATING =3;
-    mapObjectStates.HIDDEN =4;
-
+    mapObjectStates.TEMP = 0; // during place selection, map object at mouse position
+    mapObjectStates.CONSTRUCTION = 1; // during construction phase, de-construction phase
+    mapObjectStates.NORMAL = 2; // normal phase
+    mapObjectStates.UPDATING =3; // during active production
+    mapObjectStates.HIDDEN =4;  // not rendered but in gameData
+    mapObjectStates.BLOCKED =5;  // mapObject rendered in greyscale, cannot be used
 
     /*
      constructor(gameData,initObj)

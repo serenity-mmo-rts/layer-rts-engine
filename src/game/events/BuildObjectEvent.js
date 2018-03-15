@@ -158,7 +158,7 @@ if (node) {
 
         setPointers: function () {
             this._super();
-            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING});
+            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.TEMP});
             if (this._mapObj._blocks.hasOwnProperty("Connection")){
                 this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
                 this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
@@ -196,7 +196,7 @@ if (node) {
         execute: function () {
 
             this._mapObj = null;
-            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.WORKING, sublayerId: this.sublayerId});
+            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: mapObjectStates.TEMP, sublayerId: this.sublayerId});
             this._mapObj.setPointers();
 
             if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
