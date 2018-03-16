@@ -135,6 +135,10 @@ if (node) {
      */
     proto.revertChanges = function(){
 
+        // first lock all the state variables, so that during revert the change of one state variables cannot change another state variable:
+        this.lockObject.isLocked = true;
+
+        // do the revert recursively
         if (this.mutatedChilds.length > 0) {
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
@@ -149,6 +153,7 @@ if (node) {
                 }
             }
         }
+        this.lockObject.isLocked = false;
 
         this.mutatedChilds = {};
 
