@@ -34,7 +34,8 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-
+            ressourceTypeIds: [],
+            ressourceCapacity: []
         };
     };
 
@@ -45,7 +46,9 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-
+            {ressourceStored: []},
+            {ressourceLastUpdated: []},
+            {ressourceChangePerSec: []}
         ];
     };
 
