@@ -80,6 +80,17 @@ if (node) {
         }
         var self = this;
 
+        this.embedded.subscribe(function(newValue) {
+            if (newValue) {
+                // this object should now be included into the game
+                self._checkQueue();
+            }
+            else {
+                // remove this object from the game:
+                self.gameData.layers.get(self.mapId).timeScheduler.removeCallback(self._timeCallbackId);
+            }
+        })
+
     };
 
 

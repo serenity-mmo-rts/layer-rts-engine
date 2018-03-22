@@ -166,6 +166,17 @@ if (node) {
             for (var blockName in self._blocks) {
                 self._blocks[blockName].embedded(newValue);
             }
+
+            if(newValue){
+                // add this object to game
+
+            }
+            else {
+                // remove this object from game (i.e. clean up)
+                if (self.hasOwnProperty("treeItem")) {
+                    self.getMap().mapData.removeObject(self);
+                }
+            }
         });
 
     };

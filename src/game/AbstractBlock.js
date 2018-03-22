@@ -35,15 +35,16 @@ ko.extenders.logChange = function(target, options) {
     };
     target.revertChanges = function() {
         // reset the states to oldValue here and in all mutatedChilds recursively.
-        if (target.mutatedChilds.length > 0) {
+        //if (target.mutatedChilds.length > 0) {
             for (var key in target.mutatedChilds) {
                 if(target.mutatedChilds.hasOwnProperty(key)){
                     target[key].revertChanges();
                 }
             }
+        target.mutatedChilds = {};
             target(target.oldValue);
             target.oldValue = null;
-        }
+        //}
     };
     target.subscribe(function(oldValue) {
         // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:

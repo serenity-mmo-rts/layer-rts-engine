@@ -78,6 +78,7 @@ if (node) {
     var proto = Item.prototype;
     proto.constructor = Item;
 
+    Item.itemStates = itemStates;
 
 
     /**
