@@ -10,10 +10,12 @@ if (node) {
 (function (exports) {
 
 
-    var EventScheduler = function (gameData) {
+    var EventScheduler = function (gameData,parent) {
+        this.lockObject = parent.lockObject;
+
         // serialize
-        this.events = new GameList(gameData,AbstractEvent,false,EventFactory,this);
-        this.eventsFinished = new GameList(gameData,AbstractEvent,false,EventFactory,this);
+        this.events = new GameList(gameData,AbstractEvent,false,EventFactory,this,'events');
+        this.eventsFinished = new GameList(gameData,AbstractEvent,false,EventFactory,this,'eventsFinished');
     };
 
     EventScheduler.prototype = {
@@ -59,7 +61,85 @@ if (node) {
                     console.log("WARNING: updateEventId in EventScheduler: could not find old event Id " + oldId);
                 }
             }
+        },
+
+
+
+
+        /**
+         * call this function if a state variable has changed to notify db sync later.
+         */
+        notifyStateChange: function (childKey) {
+
+            if (childKey) {
+                this.mutatedChilds[childKey] = true;
+            }
+
+            // Now notify the parent:
+            if (!this.isMutated) {
+                this.isMutated = true;
+                if (this.hasOwnProperty("_id")) {
+                    // if this is a game instance with an id. For example item or mapObject:
+                    this.parent.notifyStateChange(this._id());
+                }
+                else {
+                    // if this is a building block without id. For example UpgradeProdcution:
+                    this.parent.notifyStateChange(this.blockname);
+                }
+            }
+
+        },
+
+        /**
+         * reset the states to oldValue here and in all mutatedChilds recursively.
+         */
+        revertChanges: function () {
+
+            for (var key in this.mutatedChilds) {
+                if (this.mutatedChilds.hasOwnProperty(key)) {
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].revertChanges();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this._blocks[key].revertChanges();
+                    }
+                }
+            }
+
+            this.isMutated = false;
+            this.mutatedChilds = {}
+
+        },
+
+
+        /**
+         * delete all the oldValue fields here and in all mutatedChilds recursively.
+         */
+        newSnapshot: function () {
+
+            if (this.mutatedChilds.length > 0) {
+                for (var key in this.mutatedChilds) {
+                    if (this.mutatedChilds.hasOwnProperty(key)) {
+                        if (key in this) {
+                            // this key is a ko.observable
+                            this[key].newSnapshot();
+                        }
+                        else {
+                            // this key is a sub building block
+                            this._blocks[key].newSnapshot();
+                        }
+                    }
+                }
+            }
+
+            this.isMutated = false;
+            this.mutatedChilds = {}
+
         }
+
+
     };
 
     exports.EventScheduler = EventScheduler;

@@ -65,9 +65,16 @@ if (node) {
         }
     };
 
+    /*
+     this function also calls embedded(true) of the objects
+     */
     proto.add = function (o) {
+
+
+
         if (o instanceof Class || o instanceof this.ClassType) {
             var id;
+
             if (ko.isObservable(o._id)) {
                 id = o._id();
             }
@@ -79,7 +86,13 @@ if (node) {
             }
             //console.log("adding to GameList by appending object")
             this.hashList[id] = o;
-            this.mutatedChilds[id] = true;
+            if (!this.lockObject.isLocked) {
+                this.mutatedChilds[id] = true;
+                this.sinceSnapshotAdded.push(o);
+            }
+            if (typeof o.embedded === "function") {
+                o.embedded(true);
+            }
             return this.hashList[id];
         }
         else {
@@ -90,8 +103,19 @@ if (node) {
             else {
                 var objInstance = new this.ClassType(this.gameData, o);
             }
+            if (!this.lockObject.isLocked) {
+                this.mutatedChilds[objInstance._id()] = true;
+                this.sinceSnapshotAdded.push(objInstance);
+            }
+            if (typeof objInstance.embedded === "function") {
+                objInstance.embedded(true);
+            }
             return this.add(objInstance);
         }
+
+
+
+
 
     };
 
@@ -137,24 +161,28 @@ if (node) {
 
     proto.revertChanges = function() {
         // reset the states to oldValue here and in all mutatedChilds recursively.
-        if (this.mutatedChilds.length > 0) {
+        //if (this.mutatedChilds.length > 0) {
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
                     this.hashList[key].revertChanges();
                 }
             }
-        }
+        //}
         this.mutatedChilds = {};
 
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
             this.add(this.sinceSnapshotRemoved[i]);
+            //this.sinceSnapshotRemoved[i].embedded(true);
         }
         this.sinceSnapshotRemoved = [];
+        // TODO the above add operations should not change this.sinceSnapshotAdded!!!!
 
         for (var i=this.sinceSnapshotAdded.length-1; i>=0; i--) {
             this.delete(this.sinceSnapshotAdded[i]);
+            //this.sinceSnapshotAdded[i].embedded(false);
         }
         this.sinceSnapshotAdded = [];
+        this.sinceSnapshotRemoved = [];
         this.isMutated = false;
     };
 
@@ -190,11 +218,35 @@ if (node) {
     };
 
     proto.deleteById = function (id) {
+        if (!this.lockObject.isLocked) {
+            this.sinceSnapshotRemoved.push(this.hashList[id]);
+        }
+
+
+        if (typeof this.hashList[id].embedded === "function") {
+            this.hashList[id].embedded(false);
+        }
+
         delete this.hashList[id];
     };
 
     proto.delete = function (o) {
-        delete this.hashList[o._id];
+
+        if (!this.lockObject.isLocked) {
+            this.sinceSnapshotRemoved.push(o);
+        }
+
+        if (ko.isObservable(o._id)) {
+            delete this.hashList[o._id()];
+        }
+        else {
+            delete this.hashList[o._id];
+        }
+
+        if (typeof o.embedded === "function") {
+            o.embedded(false);
+        }
+
     };
 
     proto.get = function (id) {

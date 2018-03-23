@@ -15,6 +15,9 @@ if (node) {
 
 (function (exports) {
     var Layer = function (gameData, initObj) {
+
+        this.lockObject = { isLocked: false };
+
         // serialized:
         this._id = 0;
         this.parentObjId = null;
@@ -30,12 +33,11 @@ if (node) {
 
         // not serialized:
         this.timeScheduler = new TimeScheduler(gameData);
-        this.eventScheduler = new EventScheduler(gameData);
+        this.eventScheduler = new EventScheduler(gameData,this);
         this.mapData = new MapData(gameData, this);
         this.hubSystem = new HubSystem(gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
         this.gameData = gameData;
-        this.lockObject = { isLocked: false };
         this.mutatedChilds = {};
 
         // init:
@@ -150,7 +152,10 @@ if (node) {
      */
     proto.revertChanges = function(){
 
-        if (this.mutatedChilds.length > 0) {
+        // first lock all the state variables, so that during revert the change of one state variables cannot change another state variable:
+        this.lockObject.isLocked = true;
+
+        // do the revert recursively
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
                     if (key in this) {
@@ -163,7 +168,7 @@ if (node) {
                     }
                 }
             }
-        }
+        this.lockObject.isLocked = false;
 
         this.mutatedChilds = {};
 
