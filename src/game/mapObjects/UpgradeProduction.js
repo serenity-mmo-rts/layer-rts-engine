@@ -1,15 +1,16 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var State = require('../AbstractBlock').State;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('../MapObject').MapObject;
-    var Item = require('../Item').Item;
+   // var MapObject = require('../MapObject').MapObject;
+ //   var Item = require('../Item').Item;
     var User = require('../User').User;
-    var mapObjectStates = require('../MapObject').mapObjectStates;
-    var BuildUpgradeEvent = require('../events/BuildUpgradeEvent').BuildUpgradeEvent;
-    var LevelUpgradeEvent = require('../events/LevelUpgradeEvent').LevelUpgradeEvent;
-    var BuildObjectEvent = require('../events/BuildObjectEvent').BuildObjectEvent;
-    var ResearchEvent = require('../events/ResearchEvent').ResearchEvent;
+   // var mapObjectStates = require('../MapObject').mapObjectStates;
+ //   var BuildUpgradeEvent = require('../events/BuildUpgradeEvent').BuildUpgradeEvent;
+ //   var LevelUpgradeEvent = require('../events/LevelUpgradeEvent').LevelUpgradeEvent;
+ //   var BuildObjectEvent = require('../events/BuildObjectEvent').BuildObjectEvent;
+ //   var ResearchEvent = require('../events/ResearchEvent').ResearchEvent;
 
 }
 
@@ -163,8 +164,8 @@ if (node) {
                     console.log("item: "+evt._itemId+" production completed");
                     var item = self.layer.mapData.items.get(evt._itemId);
                     item._blocks.Feature.startExecution(dueTime);
-                    item.setState(itemStates.NORMAL);
-                    self.parent.setState(mapObjectStates.NORMAL);
+                    item.setState(State.NORMAL);
+                    self.parent.setState(State.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -172,9 +173,9 @@ if (node) {
                     }
                     return Infinity;
                 };
-                this.parent.setState(mapObjectStates.UPDATING);
+                this.parent.setState(State.UPDATING);
                 var item = this.layer.mapData.items.get(evt._itemId);
-                item.setState(itemStates.CONSTRUCTION);
+                item.setState(State.CONSTRUCTION);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent._id());
             }
@@ -188,8 +189,8 @@ if (node) {
                     var level = item.getLevel()+1;
                     item.setLevel(level);
                     item._blocks.Feature.startExecution(dueTime);
-                    item.setState(itemStates.NORMAL);
-                    self.parent.setState(mapObjectStates.NORMAL);
+                    item.setState(State.NORMAL);
+                    self.parent.setState(State.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -197,8 +198,8 @@ if (node) {
                     }
                     return Infinity;
                 };
-                this.parent.setState(mapObjectStates.UPDATING);
-                item.setState(itemStates.UPDATING);
+                this.parent.setState(State.UPDATING);
+                item.setState(State.UPDATING);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(dueTime);
                 console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent._id());
 
@@ -209,7 +210,7 @@ if (node) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
                     console.log("I finished building a " + self.parent.objTypeId() + " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
-                    self.parent.setState(mapObjectStates.NORMAL);
+                    self.parent.setState(State.NORMAL);
                     self.removeItemFromQueue(0);
                     self.isRunning(false);
                     if (self.buildQueue.length>0){
@@ -217,7 +218,7 @@ if (node) {
                     }
                     return Infinity;
                 };
-                this.parent.setState(mapObjectStates.CONSTRUCTION);
+                this.parent.setState(State.CONSTRUCTION);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("I start building an" + self.parent.objTypeId() +  " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
             }
@@ -228,12 +229,12 @@ if (node) {
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
-                    self.parent.state(mapObjectStates.HIDDEN);
+                    self.parent.state(State.HIDDEN);
                     console.log("Dismantling of Map Object: "+self.parent._id()+" done. Now start moving upwards...");
                     self.layer.mapData.items.get(self.parent.subItemId())._blocks.Movable.moveObjectUp(dueTime);
                     return Infinity;
                 };
-                this.parent.setState(mapObjectStates.CONSTRUCTION);
+                this.parent.setState(State.CONSTRUCTION);
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }
@@ -243,7 +244,7 @@ if (node) {
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
-                    self.parent.setState(mapObjectStates.NORMAL);
+                    self.parent.setState(State.NORMAL);
                     console.log("Fished research:"+evt.techTypeId+" in Map Object: "+self.parent._id());
                     User.addTechnology(evt.techTypeId);
                     if (self.buildQueue.length>0){
@@ -251,7 +252,7 @@ if (node) {
                     }
                     return Infinity;
                 };
-                this.parent.setState(mapObjectStates.UPDATING);
+                this.parent.setState(State.UPDATING);
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }

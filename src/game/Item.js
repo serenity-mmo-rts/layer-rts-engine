@@ -12,17 +12,11 @@ if (node) {
 
     var AbstractBlock = require('./AbstractBlock').AbstractBlock;
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;
+    var State = require('./AbstractBlock').State;
 }
 
 (function (exports) {
-
-    var itemStates = {};
-    itemStates.TEMP = 0; // as long as item in only in production cue
-    itemStates.CONSTRUCTION = 1; // during item production,
-    itemStates.NORMAL = 2; // normal phase
-    itemStates.UPDATING =3; // during item updating
-    itemStates.HIDDEN = 4; // item not rendered but in game data
-    itemStates.BLOCKED = 5; // item rendered in greyscale, cannot be used
+    
     /*
      constructor(gameData,initObj)
      or
@@ -78,7 +72,7 @@ if (node) {
     var proto = Item.prototype;
     proto.constructor = Item;
 
-    Item.itemStates = itemStates;
+//    Item.itemStates = itemStates;
 
 
     /**
@@ -118,7 +112,7 @@ if (node) {
             {width:0 },
             {height: 0},
             {ori: 0},
-            {state: itemStates.TEMP},
+            {state: State.TEMP},
             {_level: 1}
 
         ];
@@ -240,7 +234,7 @@ if (node) {
 
 
     //exports.itemStates = itemStates;
-    exports.itemStates = itemStates;
+//    exports.itemStates = itemStates;
     exports.Item = Item;
 
 

@@ -329,6 +329,14 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
 (function (exports) {
 
+    var State = {};
+    State.TEMP = 0; // during place selection, map object at mouse position
+    State.CONSTRUCTION = 1; // during construction phase, de-construction phase
+    State.NORMAL = 2; // normal phase
+    State.UPDATING =3; // during active production
+    State.HIDDEN =4;  // not rendered but in gameData
+    State.BLOCKED =5;  // mapObject rendered in greyscale, cannot be used
+
     var registeredBlockClasses = {};
 
 
@@ -727,6 +735,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
     };
 
+    exports.State = State;
     exports.createBlockInstance = createBlockInstance;
     exports.AbstractBlock = AbstractBlock;
 

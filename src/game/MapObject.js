@@ -27,18 +27,12 @@ if (node) {
 
     var AbstractBlock = require('./AbstractBlock').AbstractBlock;
     var createBlockInstance = require('./AbstractBlock').createBlockInstance;
+    var State = require('./AbstractBlock').State;
 }
 
 
 (function (exports) {
 
-    var mapObjectStates = {};
-    mapObjectStates.TEMP = 0; // during place selection, map object at mouse position
-    mapObjectStates.CONSTRUCTION = 1; // during construction phase, de-construction phase
-    mapObjectStates.NORMAL = 2; // normal phase
-    mapObjectStates.UPDATING =3; // during active production
-    mapObjectStates.HIDDEN =4;  // not rendered but in gameData
-    mapObjectStates.BLOCKED =5;  // mapObject rendered in greyscale, cannot be used
 
     /*
      constructor(gameData,initObj)
@@ -102,7 +96,7 @@ if (node) {
     proto.constructor = MapObject;
 
 
-    MapObject.mapObjectStates = mapObjectStates;
+   // MapObject.mapObjectStates = mapObjectStates;
 
 
     /**
@@ -142,7 +136,7 @@ if (node) {
             {width: this._initWidth},
             {height: this._initHeight},
             {ori: 0},
-            {state: mapObjectStates.TEMP},
+            {state: State.TEMP},
             {sublayerId: null},
             {subItemId: null},
             {mapGeneratorParams: null}
@@ -250,8 +244,8 @@ if (node) {
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
-    MapObject.prototype.finalizeBlockClass('MapObject');
-    exports.mapObjectStates = mapObjectStates;
+   // MapObject.prototype.finalizeBlockClass('MapObject');
+ //   exports.mapObjectStates = mapObjectStates;
     exports.MapObject = MapObject;
 
 })(typeof exports === 'undefined' ? window : exports);

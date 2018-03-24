@@ -22,7 +22,7 @@ if (node) {
 
         // Define helper member variables:
         this.parent.state.subscribe(function(newValue){
-            if (newValue==MapObject.mapObjectStates.FINISHED) {
+            if (newValue==MapObject.State.NORMAL) {
                 // ok, start production:
                 self.soilEffectiveIn(self.ressourceMaxInPerSec);
             }

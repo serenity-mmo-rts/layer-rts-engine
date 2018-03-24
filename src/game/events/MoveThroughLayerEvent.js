@@ -3,8 +3,6 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var Item =require('../Item').Item;
     var MapObject = require('../MapObject').MapObject;
-    var itemStates =require('../Item').itemStates;
-    var mapObjectStates = require('../MapObject').mapObjectStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');

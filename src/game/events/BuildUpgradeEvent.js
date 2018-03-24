@@ -3,7 +3,7 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
     var Item =require('../Item').Item;
-    var itemStates =require('../Item').itemStates;
+    var State = require('../AbstractBlock').State;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
@@ -74,8 +74,8 @@ if (node) {
         updateFromServer: function (event) {
             this._super(event);
             console.log("replace tmp Item ID: "+this._itemId+" by new id from server: "+event._itemId);
-            this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
             this._itemId = event._itemId;
+            this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
             this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
         },
 

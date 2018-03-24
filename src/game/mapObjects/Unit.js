@@ -2,9 +2,8 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var GameData = require('../GameData').GameData;
-    var MapObject = require('./../MapObject').MapObject;
-    var mapObjectStates = require('../MapObject').mapObjectStates;
-    var itemStates = require('../item').itemStates;
+    var MapObject = require('../MapObject').MapObject;
+    var State = require('../AbstractBlock').State;
     var MoveThroughLayerEvent = require('../events/MoveThroughLayerEvent').MoveThroughLayerEvent;
     var Item = require('./../Item').Item;
 }

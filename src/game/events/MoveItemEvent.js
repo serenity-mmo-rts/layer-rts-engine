@@ -2,7 +2,6 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var GameData = require('../GameData').GameData;
     var Item =require('../Item').Item;
-    var itemStates =require('../Item').itemStates;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
