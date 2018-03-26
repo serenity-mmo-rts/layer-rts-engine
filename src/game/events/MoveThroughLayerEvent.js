@@ -3,6 +3,7 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var Item =require('../Item').Item;
     var MapObject = require('../MapObject').MapObject;
+    var State = require('../AbstractBlock').State;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
     var dbConn = require('../../server/dbConnection');
@@ -43,6 +44,7 @@ if (node) {
             this.itemId = this.mapObj.subItemId();
             this.item = this.map.mapData.items.get(this.itemId);
             this.targetMapId = this.map.parentMapId;
+            this.targetMapObjectId = this.map.parentObjId;
         },
 
         executeOnClient: function () {
@@ -58,12 +60,17 @@ if (node) {
 
         executeOnOthers: function() {
             this.execute();
+            // for rendering
+            this.mapObj.setState(State.CONSTRUCTION);
         },
 
         execute: function () {
 
             this.mapObj.targetMapId(this.targetMapId);
+            this.mapObj.setState(State.HIDDEN);
+            this.item.objectId(this.targetMapObjectId);
             this.item.targetMapId(this.targetMapId);
+            this.item.setState(State.BLOCKED);
             this.mapObj._blocks.UpgradeProduction.startProduction(this);
         },
 
@@ -94,8 +101,11 @@ if (node) {
         },
 
         notifyServer: function() {
+
             // put both object and item in array that will be transferred to other server
-           var movingEntities =  this.getSubItemsAndObject(this.item,this.mapObj);
+            var movingEntities =  this.getSubItemsAndObject(this.item,this.mapObj);
+            // for rendering
+            this.mapObj.setState(State.CONSTRUCTION);
 
             var msgData = {
                 targetMapId: this.targetMapId,

@@ -3,7 +3,7 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
-    var itemStates =require('../Item').itemStates;
+    var State = require('./AbstractBlock').State;
     var ActivateFeatureEvent = require('../events/ActivateFeatureEvent').ActivateFeatureEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
 }
@@ -24,7 +24,7 @@ if (node) {
         // Define helper member variables:
         this._mapObject = null;
         this._timeCallbackId = null;
-        this.startedTime = null;
+
         this.deployTime= null;
         this.travelTime= null;
     };
@@ -52,36 +52,40 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
+            {startedTime: null},
+            {dueTime: null}
         ];
     };
 
     proto.setPointers  = function(){
-        this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
-        this._mapObject = this.parent._mapObj;
+        this.layer= this.getMap();
+        this.mapObject = this.parent._mapObj;
+        if (this.parent.state()==State.BLOCKED){
+            this.addMovementProps();
+            var date = new Date();
+            this.unlockItem(date);
+        }
     };
 
     proto.removePointers  = function(){
 
     };
 
-    proto.addMovementProps = function (mapObj) {
-       this.deployTime = this.gameData.objectTypes.get(mapObj.objTypeId).Unit.deployTime;
-       this.travelTime = mapObj._blocks.Unit.getTravelTime();
+    proto.addMovementProps = function () {
+       this.deployTime = this.gameData.objectTypes.get(this.mapObject.objTypeId())._blocks.Unit.deployTime;
+       this.travelTime = this.parent._blocks.Movable.movingUpTime;
     };
 
-    proto.lockItem = function (startedTime) {
-        this.startedTime = startedTime;
-        this.dueTime = this.startedTime + this.deployTime + this.travelTime;
-        var self = this;
+    proto.unlockItem = function (startedTime) {
+        this.startedTime(startedTime);
+        this.dueTime(this.startedTime + this.deployTime + this.travelTime);
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
-            self.parent.state(itemStates.FINISHED);
-            self.parent.notifyStateChange();
+            self.parent.setState(State.NORMAL);
             console.log("Unit: "+self.parent._id+" ready in Upper Layer");
             return Infinity;
         };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
         console.log("Unit" +this.parent._id + "blocks space on upper layer");
 
     };

@@ -16,7 +16,7 @@ if (node) {
 }
 
 (function (exports) {
-    
+
     /*
      constructor(gameData,initObj)
      or
@@ -133,7 +133,7 @@ if (node) {
     };
 
     proto.setState = function (state) {
-        this.state(state)
+        this.state(state);
         this._mapObj.notifyChange();
     };
 

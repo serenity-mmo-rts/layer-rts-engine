@@ -229,12 +229,11 @@ if (node) {
                 var callback = function(dueTime,callbackId) {
                     self.layer.timeScheduler.removeCallback(callbackId);
                     self.updateCounter(self.updateCounter()-1);
-                    self.parent.state(State.HIDDEN);
+                    self.parent.setState(State.HIDDEN);
                     console.log("Dismantling of Map Object: "+self.parent._id()+" done. Now start moving upwards...");
                     self.layer.mapData.items.get(self.parent.subItemId())._blocks.Movable.moveObjectUp(dueTime);
                     return Infinity;
                 };
-                this.parent.setState(State.CONSTRUCTION);
                 this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }

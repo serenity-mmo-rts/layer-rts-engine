@@ -55,7 +55,7 @@ if (node) {
         },
 
         executeOnOthers: function() {
-            this.setPointers(); // TODO HACK NEED TO LOOK AT THIS!
+            this.setPointers();
             this.execute();
         },
 
