@@ -72,14 +72,32 @@ if (node) {
     };
 
     proto.setPointers = function () {
+        var self = this;
+
         this.gameData = this.parent.gameData;
         this.mapId = this.parent.mapId();
         this.layer= this.parent.gameData.layers.get(this.parent.mapId());
+
         this.buildQueue = [];
         for (var i = 0; i < this.buildQueueIds().length; i++) {
             this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
         }
-        var self = this;
+
+        // subscribe to any changes of the array:
+        this.buildQueueIds.subscribe(function(newValue){
+            self.buildQueue = [];
+            for (var i = 0; i < newValue.length; i++) {
+                self.buildQueue.push(self.gameData.layers.get(self.mapId).eventScheduler.events.get(newValue[i]));
+            }
+        });
+
+        // We should directly subscribe to arrayChange events (we have to use arr.target.subscribe()):
+        this.buildQueueIds.target.subscribe(function(changes) {
+            for (var i=0, len=changes.length; i<len; i++) {
+                console.log('buildQueueIds['+changes[i].index+'] was '+changes[i].status);
+                // TODO: update self.buildQueue to reflect the changes in self.buildQueueIds
+            }
+        }, null, "arrayChange");
 
         this.embedded.subscribe(function(newValue) {
             if (newValue) {
@@ -96,16 +114,17 @@ if (node) {
 
 
     proto.startProduction = function (evt) {
-        // TODO serialize global event list
-        this.buildQueue.push(evt);
-        this.buildQueueIds().push(evt._id);
+
+        //this.buildQueue.push(evt); // this list is now automatically updated using ko.subscribe()...
+
+        this.buildQueueIds.push(evt._id);
         this.addDueTime(evt._startedTime);
         this._checkQueue();
         evt.setFinished();
     };
 
     proto.removeItemFromQueue = function (idx) {
-        this.buildQueueIds().splice(idx, 1);
+        this.buildQueueIds.splice(idx, 1);
         this.startedTimes().splice(idx, 1);
         this.dueTimes().splice(idx, 1);
         this.buildQueue.splice(idx, 1);

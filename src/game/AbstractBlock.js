@@ -15,38 +15,34 @@ ko.isObservableArray = function (obj) {
  * @param options = {parent: the parent entity in the hierarchy, key: how to identify this observable from the parent}
  * @returns {*}
  */
-ko.extenders.logChange = function(target, options) {
+ko.extenders.logChange = function (target, options) {
     target.oldValue = null;
-    target.mutatedChilds = [];
-    target.notifyStateChange = function(childKey) {
+    target.mutatedChilds = {};
+    target.notifyStateChange = function (childKey) {
         target.mutatedChilds[childKey] = true;
         options.parent.notifyStateChange(options.key);
     };
-    target.newSnapshot = function() {
+    target.newSnapshot = function () {
         // delete all the oldValue fields here and in all mutatedChilds recursively.
-        if (target.mutatedChilds.length > 0) {
-            for (var key in target.mutatedChilds) {
-                if(target.mutatedChilds.hasOwnProperty(key)){
-                    target[key].newSnapshot();
-                }
+        for (var key in target.mutatedChilds) {
+            if (target.mutatedChilds.hasOwnProperty(key)) {
+                target[key].newSnapshot();
             }
-            target.oldValue = null;
         }
+        target.oldValue = null;
     };
-    target.revertChanges = function() {
+    target.revertChanges = function () {
         // reset the states to oldValue here and in all mutatedChilds recursively.
-        //if (target.mutatedChilds.length > 0) {
-            for (var key in target.mutatedChilds) {
-                if(target.mutatedChilds.hasOwnProperty(key)){
-                    target[key].revertChanges();
-                }
+        for (var key in target.mutatedChilds) {
+            if (target.mutatedChilds.hasOwnProperty(key)) {
+                target[key].revertChanges();
             }
+        }
         target.mutatedChilds = {};
-            target(target.oldValue);
-            target.oldValue = null;
-        //}
+        target(target.oldValue);
+        target.oldValue = null;
     };
-    target.subscribe(function(oldValue) {
+    target.subscribe(function (oldValue) {
         // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
         if (target.oldValue == null) {
             target.oldValue = oldValue;
@@ -58,8 +54,6 @@ ko.extenders.logChange = function(target, options) {
 };
 
 
-
-
 /**
  *
  *    Try using an extender to have state vars that can be reverted to a snapshot and locked and unlocked for writes.
@@ -67,17 +61,30 @@ ko.extenders.logChange = function(target, options) {
  */
 
 var stateVarArrayMethods = {};
-ko.utils.arrayForEach(['remove','removeAll','destroy','destroyAll','replace'],function(methodName){
+ko.utils.arrayForEach(['remove', 'removeAll', 'destroy', 'destroyAll', 'replace'], function (methodName) {
     stateVarArrayMethods[methodName] = function () {
         var target = this.target;
-        target[methodName].apply(target,arguments);
+        target[methodName].apply(target, arguments);
     }
 });
 ko.utils.arrayForEach(["push", "unshift", "splice"], function (methodName) {
     stateVarArrayMethods[methodName] = function () {
         var target = this.target;
+
+        //console.log("changing array with " + methodName)
+
+        // only mutate the array if the array is not locked:
         if (!target.lockObject.isLocked) {
-            target[methodName].apply(target,arguments);
+
+            // notify parent that something within this array has changed:
+            if (target.oldValue == null) {
+                // we have to create a deep copy of the array (using slice), otherwise later changes would also effect the oldValue:
+                target.oldValue = target.peek().slice(0);
+                //options.parent.mutatedChilds[options.key] = target;
+                target.parent.notifyStateChange(target.key);
+            }
+
+            target[methodName].apply(target, arguments);
         }
     }
 });
@@ -92,58 +99,61 @@ ko.utils.setPrototypeOfOrExtend(stateVarArrayMethods, ko.observableArray['fn']);
  *                  }
  * @returns {*} a writable computed observable
  */
-ko.extenders.stateVar = function(target, options) {
+ko.extenders.stateVar = function (target, options) {
     target.oldValue = null;
     target.lockObject = options.lockObject;
-    target.mutatedChilds = [];
+    target.mutatedChilds = {};
+    target.parent = options.parent;
+    target.key = options.key;
 
     //computed observable that we will return
     var stateVar = ko.computed({
         read: target,
-        write: function(newValue) {
+        write: function (newValue) {
             if (!target.lockObject.isLocked) {
                 target(newValue);
             }
         }
-    }).extend({ notify: "always" });
+    }).extend({notify: "always"});
 
-    stateVar.notifyStateChange = function(childKey) {
+    stateVar.notifyStateChange = function (childKey) {
         target.mutatedChilds[childKey] = true;
-        options.parent.notifyStateChange(options.key);
+        target.parent.notifyStateChange(target.key);
     };
 
-    stateVar.newSnapshot = function() {
+    stateVar.newSnapshot = function () {
         // delete all the oldValue fields here and in all mutatedChilds recursively.
-        if (target.mutatedChilds.length > 0) {
-            for (var key in target.mutatedChilds) {
-                if(target.mutatedChilds.hasOwnProperty(key)){
-                    target[key].newSnapshot();
-                }
+        for (var key in target.mutatedChilds) {
+            if (target.mutatedChilds.hasOwnProperty(key)) {
+                target[key].newSnapshot();
             }
         }
         target.oldValue = null;
     };
 
-    stateVar.revertChanges = function() {
+    stateVar.revertChanges = function () {
         // reset the states to oldValue here and in all mutatedChilds recursively.
-        if (target.mutatedChilds.length > 0) {
-            for (var key in target.mutatedChilds) {
-                if(target.mutatedChilds.hasOwnProperty(key)){
-                    target[key].revertChanges();
-                }
+        for (var key in target.mutatedChilds) {
+            if (target.mutatedChilds.hasOwnProperty(key)) {
+                target[key].revertChanges();
             }
         }
-        target(target.oldValue);
-        target.oldValue = null;
+
+        // only revert this if there was a change:
+        if (target.oldValue) {
+            target(target.oldValue);
+            target.oldValue = null;
+        }
+
     };
 
     // here we subscribe to the original observable:
-    target.subscribe(function(oldValue) {
+    target.subscribe(function (oldValue) {
         // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
         if (target.oldValue == null) {
             target.oldValue = oldValue;
             //options.parent.mutatedChilds[options.key] = target;
-            options.parent.notifyStateChange(options.key);
+            target.parent.notifyStateChange(target.key);
         }
     }, null, "beforeChange");
 
@@ -169,22 +179,22 @@ ko.extenders.stateVar = function(target, options) {
  */
 
 /*
-var newMethods = {};
-ko.each(['remove','removeAll','destroy','destroyAll','replace'],function(methodName){
-    newMethods[methodName] = function () {
-        var target = this.target;
-        target[methodName].apply(target,arguments);
-    }
-});
-ko.each(["push", "unshift", "splice"], function (methodName) {
-    newMethods[methodName] = function () {
-        var target = this.target;
-        if (!target.lockOptions.isLocked) {
-            target[methodName].apply(target,arguments);
-        }
-    }
-});
-*/
+ var newMethods = {};
+ ko.each(['remove','removeAll','destroy','destroyAll','replace'],function(methodName){
+ newMethods[methodName] = function () {
+ var target = this.target;
+ target[methodName].apply(target,arguments);
+ }
+ });
+ ko.each(["push", "unshift", "splice"], function (methodName) {
+ newMethods[methodName] = function () {
+ var target = this.target;
+ if (!target.lockOptions.isLocked) {
+ target[methodName].apply(target,arguments);
+ }
+ }
+ });
+ */
 
 /**
  *
@@ -193,138 +203,133 @@ ko.each(["push", "unshift", "splice"], function (methodName) {
  * @returns {*}
  */
 /*
-ko.extenders.lockable = function(target, options) {
-    //add some sub-observables to our observable
-    target.lockOptions = options;
+ ko.extenders.lockable = function(target, options) {
+ //add some sub-observables to our observable
+ target.lockOptions = options;
 
-    //computed observable that we will return
-    var result = ko.computed({
-        read: function() {
-            return target();
-        },
-        write: function(newValue) {
-            if (!target.lockOptions.isLocked) {
-                target(newValue);
-            }
-        }
-    }).extend({ notify: "always" });
+ //computed observable that we will return
+ var result = ko.computed({
+ read: function() {
+ return target();
+ },
+ write: function(newValue) {
+ if (!target.lockOptions.isLocked) {
+ target(newValue);
+ }
+ }
+ }).extend({ notify: "always" });
 
-    // if the original target observable was an observable array, then we have to extend it with array functions:
-    if (ko.isObservableArray(target)) {
-        extend(result, ko.observableArray['fn'], newMethods);
-    }
-    result.target = target;
+ // if the original target observable was an observable array, then we have to extend it with array functions:
+ if (ko.isObservableArray(target)) {
+ extend(result, ko.observableArray['fn'], newMethods);
+ }
+ result.target = target;
 
-    //return the new computable observable
-    return result;
-};
-*/
+ //return the new computable observable
+ return result;
+ };
+ */
 
 /*
-//wrapper to an observable that requires
-ko.lockableObservable = function(initialValue) {
-    //private variables
-    var _actualValue = ko.observable(initialValue),
-        isLocked = false;
+ //wrapper to an observable that requires
+ ko.lockableObservable = function(initialValue) {
+ //private variables
+ var _actualValue = ko.observable(initialValue),
+ isLocked = false;
 
-    //computed observable that we will return
-    var result = ko.computed({
-        read: function() {
-            return _actualValue();
-        },
-        write: function(newValue) {
-            if (!isLocked) {
-                _actualValue(newValue);
-            }
-        }
-    }).extend({ notify: "always" });
+ //computed observable that we will return
+ var result = ko.computed({
+ read: function() {
+ return _actualValue();
+ },
+ write: function(newValue) {
+ if (!isLocked) {
+ _actualValue(newValue);
+ }
+ }
+ }).extend({ notify: "always" });
 
-    result.lock = function() {
-        isLocked = true;
-    };
+ result.lock = function() {
+ isLocked = true;
+ };
 
-    result.unlock = function() {
-        isLocked = false;
-    };
+ result.unlock = function() {
+ isLocked = false;
+ };
 
-    return result;
-};
-
-
-
-//wrapper to an observable that requires accept/cancel
-ko.protectedObservable = function(initialValue) {
-    //private variables
-    var _actualValue = ko.observable(initialValue),
-        _tempValue = initialValue;
-
-    //computed observable that we will return
-    var result = ko.computed({
-        //always return the actual value
-        read: function() {
-            return _actualValue();
-        },
-        //stored in a temporary spot until commit
-        write: function(newValue) {
-            _tempValue = newValue;
-        }
-    }).extend({ notify: "always" });
-
-    //if different, commit temp value
-    result.commit = function() {
-        if (_tempValue !== _actualValue()) {
-            _actualValue(_tempValue);
-        }
-    };
-
-    //force subscribers to take original
-    result.reset = function() {
-        _actualValue.valueHasMutated();
-        _tempValue = _actualValue();   //reset temp value
-    };
-
-    return result;
-};
+ return result;
+ };
 
 
 
-//wrapper for a computed observable that can pause its subscriptions
-ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
-    var _cachedValue = "";
-    var _isPaused = ko.observable(false);
+ //wrapper to an observable that requires accept/cancel
+ ko.protectedObservable = function(initialValue) {
+ //private variables
+ var _actualValue = ko.observable(initialValue),
+ _tempValue = initialValue;
 
-    //the computed observable that we will return
-    var result = ko.computed(function() {
-        if (!_isPaused()) {
-            //call the actual function that was passed in
-            return evaluatorFunction.call(evaluatorFunctionTarget);
-        }
-        return _cachedValue;
-    }, evaluatorFunctionTarget);
+ //computed observable that we will return
+ var result = ko.computed({
+ //always return the actual value
+ read: function() {
+ return _actualValue();
+ },
+ //stored in a temporary spot until commit
+ write: function(newValue) {
+ _tempValue = newValue;
+ }
+ }).extend({ notify: "always" });
 
-    //keep track of our current value and set the pause flag to release our actual subscriptions
-    result.pause = function() {
-        _cachedValue = this();
-        _isPaused(true);
-    }.bind(result);
+ //if different, commit temp value
+ result.commit = function() {
+ if (_tempValue !== _actualValue()) {
+ _actualValue(_tempValue);
+ }
+ };
 
-    //clear the cached value and allow our computed observable to be re-evaluated
-    result.resume = function() {
-        _cachedValue = "";
-        _isPaused(false);
-    }
+ //force subscribers to take original
+ result.reset = function() {
+ _actualValue.valueHasMutated();
+ _tempValue = _actualValue();   //reset temp value
+ };
 
-    return result;
-};
-*/
+ return result;
+ };
+
+
+
+ //wrapper for a computed observable that can pause its subscriptions
+ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
+ var _cachedValue = "";
+ var _isPaused = ko.observable(false);
+
+ //the computed observable that we will return
+ var result = ko.computed(function() {
+ if (!_isPaused()) {
+ //call the actual function that was passed in
+ return evaluatorFunction.call(evaluatorFunctionTarget);
+ }
+ return _cachedValue;
+ }, evaluatorFunctionTarget);
+
+ //keep track of our current value and set the pause flag to release our actual subscriptions
+ result.pause = function() {
+ _cachedValue = this();
+ _isPaused(true);
+ }.bind(result);
+
+ //clear the cached value and allow our computed observable to be re-evaluated
+ result.resume = function() {
+ _cachedValue = "";
+ _isPaused(false);
+ }
+
+ return result;
+ };
+ */
 
 
 // see http://tech.pro/tutorial/1417/working-with-typed-arrays-in-knockoutjs
-
-
-
-
-
 
 
 (function (exports) {
@@ -333,27 +338,27 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     State.TEMP = 0; // during place selection, map object at mouse position
     State.CONSTRUCTION = 1; // during construction phase, de-construction phase
     State.NORMAL = 2; // normal phase
-    State.UPDATING =3; // during active production
-    State.HIDDEN =4;  // not rendered but in gameData
-    State.BLOCKED =5;  // mapObject rendered in greyscale, cannot be used
+    State.UPDATING = 3; // during active production
+    State.HIDDEN = 4;  // not rendered but in gameData
+    State.BLOCKED = 5;  // mapObject rendered in greyscale, cannot be used
 
     var registeredBlockClasses = {};
 
 
     function createBlockInstance(blockname, parent, type) {
 
-        if (!registeredBlockClasses.hasOwnProperty(blockname)){
+        if (!registeredBlockClasses.hasOwnProperty(blockname)) {
             console.error("Tried to create block " + blockname + " which is not registered as a valid buildingBlock.")
             return null;
         }
 
-        var block = new registeredBlockClasses[blockname](parent,type);
+        var block = new registeredBlockClasses[blockname](parent, type);
         return block;
 
     };
 
 
-    var AbstractBlock = function(parent, type) {
+    var AbstractBlock = function (parent, type) {
 
         this.parent = parent;
         this.type = type;
@@ -374,28 +379,24 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     /**
      * This function defines the default type variables and returns them as an object.
      */
-    proto.defineTypeVars = function() {
-        return {
-
-        };
+    proto.defineTypeVars = function () {
+        return {};
     };
 
 
     /**
      * This function defines the default state variables and returns them as an array of objects where each object contains the state-variable-name as key and the default as value.
      */
-    proto.defineStateVars = function() {
-        return [
-
-        ];
+    proto.defineStateVars = function () {
+        return [];
     };
 
     /**
      * get the gameData
      * @returns {*}
      */
-    proto.getGameData = function() {
-        if (this.hasOwnProperty("gameData")){
+    proto.getGameData = function () {
+        if (this.hasOwnProperty("gameData")) {
             return this.gameData;
         }
         else {
@@ -407,8 +408,8 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
      * get the map
      * @returns {*}
      */
-    proto.getMap = function() {
-        if (this.hasOwnProperty("map")){
+    proto.getMap = function () {
+        if (this.hasOwnProperty("map")) {
             return this.map;
         }
         else {
@@ -419,17 +420,17 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     /**
      * This function sets the type vars first with the hardcoded defaults and then overwrites them with the given this.type
      */
-    proto.setInitTypeVars = function() {
+    proto.setInitTypeVars = function () {
         this._typeCache = this.defineTypeVars();
 
         var typeDef = this.type;
         if (typeDef instanceof Array) {
             var myLevel = this.parent.getLevel();
-            if (typeDef.length < myLevel){
-                typeDef = typeDef[typeDef.length-1];
+            if (typeDef.length < myLevel) {
+                typeDef = typeDef[typeDef.length - 1];
             }
             else {
-                typeDef = typeDef[myLevel-1];
+                typeDef = typeDef[myLevel - 1];
             }
         }
 
@@ -442,10 +443,9 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         return this;
     };
 
-    proto.resetState = function() {
+    proto.resetState = function () {
 
         // TODO: use oldValue in all state variables to reset to the previous snapshot:
-
 
 
     };
@@ -453,7 +453,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     /**
      * This function sets the state vars first with the hardcoded defaults and then overwrites them with the given this.type
      */
-    proto.setInitStateVars = function() {
+    proto.setInitStateVars = function () {
 
 
         var self = this;
@@ -473,7 +473,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
                             var elm = makeObservable(data[arr]);
-                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject }});
+                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject}});
                             vm.push(elm);
                         }
                     }
@@ -487,7 +487,13 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
                             // recursive call to create observable sub-object:
                             var innerState = makeObservable(data[prop]);
-                            vm()[prop] = innerState.extend({stateVar: {parent: vm, key: prop, lockObject: self.lockObject}})
+                            vm()[prop] = innerState.extend({
+                                stateVar: {
+                                    parent: vm,
+                                    key: prop,
+                                    lockObject: self.lockObject
+                                }
+                            })
 
                         }
                     }
@@ -507,11 +513,17 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
         //var viewModel = makeObservable(data, {});
         var states = this.defineStateVars();
-        for (var i=0; i<=states.length; i++) {
+        for (var i = 0; i <= states.length; i++) {
             for (var stateVarName in states[i]) {
                 //this[stateVarName] = states[i][stateVarName];
                 this[stateVarName] = makeObservable(states[i][stateVarName]);
-                this[stateVarName] = this[stateVarName].extend({stateVar: {parent: this, key: stateVarName, lockObject: self.lockObject}})
+                this[stateVarName] = this[stateVarName].extend({
+                    stateVar: {
+                        parent: this,
+                        key: stateVarName,
+                        lockObject: self.lockObject
+                    }
+                })
             }
         }
 
@@ -520,7 +532,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     };
 
 
-    proto.finalizeBlockClass = function( blockname ) {
+    proto.finalizeBlockClass = function (blockname) {
 
         // set type variable getters and setters:
         var typeVars = this.defineTypeVars();
@@ -528,7 +540,7 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
             if (typeVars.hasOwnProperty(typeVarName)) {
                 var self = this;
                 // define getter and setter methods for the type variables
-                (function(typeVarName) {
+                (function (typeVarName) {
                     Object.defineProperty(self, typeVarName, {
                         get: function () {
                             return this._typeCache[typeVarName];
@@ -552,11 +564,10 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     };
 
 
-
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.notifyStateChange = function(childKey){
+    proto.notifyStateChange = function (childKey) {
 
         if (childKey) {
             this.mutatedChilds[childKey] = true;
@@ -580,19 +591,17 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     /**
      * reset the states to oldValue here and in all mutatedChilds recursively.
      */
-    proto.revertChanges = function(){
+    proto.revertChanges = function () {
 
-        if (this.mutatedChilds.length > 0) {
-            for (var key in this.mutatedChilds) {
-                if(this.mutatedChilds.hasOwnProperty(key)){
-                    if (key in this) {
-                        // this key is a ko.observable
-                        this[key].revertChanges();
-                    }
-                    else {
-                        // this key is a sub building block
-                        this._blocks[key].revertChanges();
-                    }
+        for (var key in this.mutatedChilds) {
+            if (this.mutatedChilds.hasOwnProperty(key)) {
+                if (key in this) {
+                    // this key is a ko.observable
+                    this[key].revertChanges();
+                }
+                else {
+                    // this key is a sub building block
+                    this._blocks[key].revertChanges();
                 }
             }
         }
@@ -605,19 +614,17 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
     /**
      * delete all the oldValue fields here and in all mutatedChilds recursively.
      */
-    proto.newSnapshot = function(){
+    proto.newSnapshot = function () {
 
-        if (this.mutatedChilds.length > 0) {
-            for (var key in this.mutatedChilds) {
-                if(this.mutatedChilds.hasOwnProperty(key)){
-                    if (key in this) {
-                        // this key is a ko.observable
-                        this[key].newSnapshot();
-                    }
-                    else {
-                        // this key is a sub building block
-                        this._blocks[key].newSnapshot();
-                    }
+        for (var key in this.mutatedChilds) {
+            if (this.mutatedChilds.hasOwnProperty(key)) {
+                if (key in this) {
+                    // this key is a ko.observable
+                    this[key].newSnapshot();
+                }
+                else {
+                    // this key is a sub building block
+                    this._blocks[key].newSnapshot();
                 }
             }
         }
@@ -632,13 +639,13 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
      * This function sets member variable pointers to other game instances and sets pointers at other instances to this instance.
      *
      */
-    proto.setPointers = function(){
+    proto.setPointers = function () {
         // for example:
         // this.objType = this.mapObject.objectType;
         // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this._id;
     };
 
-    proto.removePointers = function(){
+    proto.removePointers = function () {
 
     };
 
@@ -655,12 +662,12 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         var states = this.defineStateVars();
         var ArrLen = states.length;
 
-        for (var i=0; i < ArrLen; i++) {
+        for (var i = 0; i < ArrLen; i++) {
             var stateVarNames = Object.keys(states[i]);
             if (stateVarNames.length > 1) {
 
                 // save these variables directly with their corresponding name:
-                for (var stateVarName in states[i]){
+                for (var stateVarName in states[i]) {
                     o[stateVarName] = ko.toJS(this[stateVarName]);
                 }
 
@@ -674,9 +681,9 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
         }
 
         // TODO: now save sub blocks:
-        if (this.hasOwnProperty("_blocks")){
+        if (this.hasOwnProperty("_blocks")) {
             o._blocks = {};
-            for (var key in this._blocks){
+            for (var key in this._blocks) {
                 o._blocks[key] = this._blocks[key].save();
             }
         }
@@ -694,11 +701,11 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
         if (o.hasOwnProperty("a")) {
 
-            for (var i=0; i < ArrLen; i++) {
+            for (var i = 0; i < ArrLen; i++) {
                 var stateVarNames = Object.keys(states[i]);
                 if (stateVarNames.length > 1) {
                     // load these variables directly with their corresponding name:
-                    for (var stateVarName in states[i]){
+                    for (var stateVarName in states[i]) {
                         this[stateVarName](o[stateVarName]);
                     }
                 }
@@ -707,7 +714,6 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
                     this[stateVarNames[0]](o.a[i]);
                 }
             }
-
 
 
         }
@@ -719,15 +725,15 @@ ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
 
                 // TODO: check if the supplied arguments are really state variables...
                 if (o.hasOwnProperty(key)) {
-                    if ( this.hasOwnProperty(key) )
+                    if (this.hasOwnProperty(key))
                         this[key](o[key]);
                 }
             }
         }
 
         // TODO: load the sub blocks:
-        if (o.hasOwnProperty("_blocks")){
-            for (var key in o._blocks){
+        if (o.hasOwnProperty("_blocks")) {
+            for (var key in o._blocks) {
                 this._blocks[key].load(o._blocks[key]);
             }
         }

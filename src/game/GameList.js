@@ -86,9 +86,11 @@ if (node) {
             }
             //console.log("adding to GameList by appending object")
             this.hashList[id] = o;
-            if (!this.lockObject.isLocked) {
-                this.mutatedChilds[id] = true;
-                this.sinceSnapshotAdded.push(o);
+            if (this.lockObject) {
+                if (!this.lockObject.isLocked) {
+                    this.mutatedChilds[id] = true;
+                    this.sinceSnapshotAdded.push(o);
+                }
             }
             if (typeof o.embedded === "function") {
                 o.embedded(true);
@@ -144,13 +146,12 @@ if (node) {
 
     proto.newSnapshot = function() {
         // delete all the oldValue fields here and in all mutatedChilds recursively.
-        if (this.mutatedChilds.length > 0) {
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
                     this.hashList[key].newSnapshot();
                 }
             }
-        }
+
         this.mutatedChilds = {};
         this.sinceSnapshotRemoved = [];
         this.sinceSnapshotAdded = [];
@@ -161,13 +162,13 @@ if (node) {
 
     proto.revertChanges = function() {
         // reset the states to oldValue here and in all mutatedChilds recursively.
-        //if (this.mutatedChilds.length > 0) {
+
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
                     this.hashList[key].revertChanges();
                 }
             }
-        //}
+
         this.mutatedChilds = {};
 
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
@@ -300,42 +301,39 @@ if (node) {
     };
 
     proto.load = function (o) {
+        var objInstance;
         if (o instanceof Array) { // o is an Array of <ClassType> or an Array of JsonFormated <ClassType>
             for (var i = 0, length = o.length; i < length; i++) {
                 if (this.factoryMethod) {
-                    var objInstance = this.factoryMethod(this.gameData, o[i]);
+                    objInstance = this.factoryMethod(this.gameData, o[i]);
                 }
                 else {
-                    var objInstance = new this.ClassType(this.gameData, o[i]);
+                    objInstance = new this.ClassType(this.gameData, o[i]);
                 }
-                if (ko.isObservable(objInstance._id)) {
-                    this.hashList[objInstance._id()] = objInstance;
-                }
-                else {
-                    this.hashList[objInstance._id] = objInstance;
-                }
-
+                this.add(objInstance);
             }
         }
         else { // o is a GameList but in jsonFormat
             if (o.hasOwnProperty('hashList')) {
                 for (var propt in o.hashList) {
                     if (this.factoryMethod) {
-                        this.hashList[propt] = this.factoryMethod(this.gameData, o.hashList[propt]);
+                        objInstance = this.factoryMethod(this.gameData, o.hashList[propt]);
                     }
                     else {
-                        this.hashList[propt] = new this.ClassType(this.gameData, o.hashList[propt]);
+                        objInstance = new this.ClassType(this.gameData, o.hashList[propt]);
                     }
+                    this.add(objInstance);
                 }
             }
             else {
                 for (var propt in o) {
                     if (this.factoryMethod) {
-                        this.hashList[propt] = this.factoryMethod(this.gameData, o[propt]);
+                        objInstance = this.factoryMethod(this.gameData, o[propt]);
                     }
                     else {
-                        this.hashList[propt] = new this.ClassType(this.gameData, o[propt]);
+                        objInstance = new this.ClassType(this.gameData, o[propt]);
                     }
+                    this.add(objInstance);
                 }
             }
         }

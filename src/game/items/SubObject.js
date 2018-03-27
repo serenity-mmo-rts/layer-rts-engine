@@ -3,7 +3,7 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
-    var State = require('./AbstractBlock').State;
+    var State = require('../AbstractBlock').State;
     var ActivateFeatureEvent = require('../events/ActivateFeatureEvent').ActivateFeatureEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
 }

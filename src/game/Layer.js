@@ -180,7 +180,6 @@ if (node) {
      */
     proto.newSnapshot = function(){
 
-        if (this.mutatedChilds.length > 0) {
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
                     if (key in this) {
@@ -193,7 +192,6 @@ if (node) {
                     }
                 }
             }
-        }
 
         this.mutatedChilds = {};
 
