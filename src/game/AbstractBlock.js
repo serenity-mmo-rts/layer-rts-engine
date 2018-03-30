@@ -116,6 +116,11 @@ ko.extenders.stateVar = function (target, options) {
         }
     }).extend({notify: "always"});
 
+    // overwrite the subscribe function and redirect to target:
+    stateVar.subscribe = function() {
+        return target.subscribe.apply(target, arguments);
+    };
+
     stateVar.notifyStateChange = function (childKey) {
         target.mutatedChilds[childKey] = true;
         target.parent.notifyStateChange(target.key);

@@ -86,13 +86,15 @@ if (node) {
         // subscribe to any changes of the array:
         this.buildQueueIds.subscribe(function(newValue){
             self.buildQueue = [];
-            for (var i = 0; i < newValue.length; i++) {
+            console.log('buildQueueIds was changed. new length: '+newValue.length);
+            for (var i = 0, len=newValue.length; i < len; i++) {
                 self.buildQueue.push(self.gameData.layers.get(self.mapId).eventScheduler.events.get(newValue[i]));
             }
+            self._checkQueue();
         });
 
         // We should directly subscribe to arrayChange events (we have to use arr.target.subscribe()):
-        this.buildQueueIds.target.subscribe(function(changes) {
+        this.buildQueueIds.subscribe(function(changes) {
             for (var i=0, len=changes.length; i<len; i++) {
                 console.log('buildQueueIds['+changes[i].index+'] was '+changes[i].status);
                 // TODO: update self.buildQueue to reflect the changes in self.buildQueueIds
@@ -239,7 +241,7 @@ if (node) {
                 };
                 this.parent.setState(State.CONSTRUCTION);
                 this._timeCallbackId =  this.layer.timeScheduler.addCallback(callback,dueTime);
-                console.log("I start building an" + self.parent.objTypeId() +  " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
+                console.log("I start building a " + self.parent.objTypeId() +  " at coordinates ("+ self.parent.x()+","+self.parent.y()+")");
             }
 
             // dismantle map Object
