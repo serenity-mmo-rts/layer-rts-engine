@@ -81,14 +81,14 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            _className: "ProductivityUpgrade",
+            _className: "Item",
             _allowOnMapTypeId: null,
             _allowOnObjTypeId: null,
             _name: "activationItem",
             _iconSpritesheetId: "itemSprite",
             _iconSpriteFrame: 4,
             _buildMenuTooltip: "this is awesome",
-            _buildTime: [10000,10000,10000,10000,10000]
+            _buildTime: 10000
         };
     };
 
@@ -235,7 +235,8 @@ if (node) {
 
     //exports.itemStates = itemStates;
 //    exports.itemStates = itemStates;
-    exports.Item = Item;
 
+    Item.prototype.finalizeBlockClass('Item');
+    exports.Item = Item;
 
 })(typeof exports === 'undefined' ? window : exports);

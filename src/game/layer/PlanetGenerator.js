@@ -9,11 +9,13 @@ if (node) {
 
         this.layer = layer;
         this.gameData = layer.gameData;
-        this.seed = layer.mapGeneratorParams[0];
-        this.roughness = layer.mapGeneratorParams[1];
-        this.depthAtNormalZoom = layer.mapGeneratorParams[2];
-        this.waterlevel = layer.mapGeneratorParams[3];
-        this.temperature = layer.mapGeneratorParams[4];
+
+        this.mapGeneratorParams = layer.mapGeneratorParams();
+        this.seed = this.mapGeneratorParams[0];
+        this.roughness = this.mapGeneratorParams[1];
+        this.depthAtNormalZoom = this.mapGeneratorParams[2];
+        this.waterlevel = this.mapGeneratorParams[3];
+        this.temperature = this.mapGeneratorParams[4];
         this.initDepth = 5;
 
         this.currIteration = 0;

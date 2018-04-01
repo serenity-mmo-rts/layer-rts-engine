@@ -70,8 +70,8 @@ if (node) {
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
         this.map = this.getMap();
-        this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
-        this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
+        //this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
+        //this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
         this.items = {};
 
         if (type){
@@ -176,6 +176,7 @@ if (node) {
     };
 
 
+    // overwrite super class method and call super.method... TODO: this could be moved into AbstractBlock.
     proto.setInitTypeVars = function() {
         AbstractBlock.prototype.setInitTypeVars.call(this);
         for (var blockName in this._blocks) {
@@ -244,7 +245,7 @@ if (node) {
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
-   // MapObject.prototype.finalizeBlockClass('MapObject');
+     MapObject.prototype.finalizeBlockClass('MapObject');
  //   exports.mapObjectStates = mapObjectStates;
     exports.MapObject = MapObject;
 
