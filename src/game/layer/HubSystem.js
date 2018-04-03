@@ -1,9 +1,7 @@
 
 var node = !(typeof exports === 'undefined');
 if (node) {
-    var Class = require('../Class').Class;
-    var GameData = require('../GameData').GameData;
-    var GameList = require('../GameList').GameList;
+    var AbstractBlock = require('../AbstractBlock').AbstractBlock;
 }
 
 
@@ -105,27 +103,61 @@ if (node) {
 
 
 
+    var HubSystem = function (parent, type) {
 
-    var HubSystem = function (layer,initObj){
+        // Call the super constructor.
+        AbstractBlock.call(this, parent, type);
 
-        // do not serialize:
-        this.mapObjects = []; // stores all objects of the hub system
-
+        // Define helper member variables:
+        this.mapObjects = {}; // stores all objects of the hub system
         this.resTypeIds = [];
 
     };
 
-    HubSystem.prototype= {
-        /**
-         * add a new mapObject to the hub system
-         * @param objId
-         */
-        addToHubSystem: function(objId){
-            this.mapObjects.push(objId);
-        }
 
+
+    /**
+     * Inherit from AbstractBlock and add the correct constructor method to the prototype:
+     */
+    HubSystem.prototype = Object.create(AbstractBlock.prototype);
+    var proto = HubSystem.prototype;
+    proto.constructor = HubSystem;
+
+
+
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+        };
+    };
+
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+        ];
+    };
+
+
+    /**
+     * add a new mapObject to the hub system
+     * @param objId
+     */
+    proto.addToHubSystem = function (objId) {
+        this.mapObjects.push(objId);
     }
 
+
+    /**
+     * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
+     */
+    HubSystem.prototype.finalizeBlockClass('HubSystem');
     exports.HubSystem = HubSystem;
 
 })(typeof exports === 'undefined' ? window : exports);

@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 
 if (node) {
     var AbstractBlock = require('./AbstractBlock').AbstractBlock;
+    var createBlockInstance = require('./AbstractBlock').createBlockInstance;
     var GameList = require('./GameList').GameList;
     var TimeScheduler = require('./layer/TimeScheduler').TimeScheduler;
     var EventScheduler = require('./layer/EventScheduler').EventScheduler;
@@ -90,16 +91,9 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-
-
-
         this._blocks = {};
         this.gameData = this.getGameData();
         this.map = this;
-
-
-
-
 
         if (type){
             this.mapTypeId(type._id);
@@ -107,25 +101,19 @@ if (node) {
             this.createBuildingBlocks();
         }
 
-
         // TODO: move into blocks:
         this.timeScheduler = new TimeScheduler(this.gameData);
         this.eventScheduler = new EventScheduler(this.gameData,this);
         this.mapData = new MapData(this.gameData, this);
-        this.hubSystem = new HubSystem(this.gameData, this);
+        //this.hubSystem = new HubSystem(this.gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
-
-
 
         if (arg1.constructor.name === "GameData"){
             // assume first argument is gameData and second argument is initObj:
             this.load(initObj);
         }
 
-
-
         switch (this.mapTypeId()) {
-
             case "cityMapType01":
                 this.mapGenerator = new CityGenerator(this);
                 break;
