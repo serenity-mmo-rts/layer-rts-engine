@@ -209,7 +209,7 @@ if (node) {
                 this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
             }
 
-            this._mapObj._blocks.UpgradeProduction.startProduction(this);
+            this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
 
 
             this.isValid();

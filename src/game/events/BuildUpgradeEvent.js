@@ -67,14 +67,14 @@ if (node) {
             this.item.embedded(true);
             this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
 
-            this._parentObject._blocks.UpgradeProduction.startProduction(this);
-
+            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         updateFromServer: function (event) {
             this._super(event);
             console.log("replace tmp Item ID: "+this._itemId+" by new id from server: "+event._itemId);
             this._itemId = event._itemId;
+
             this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
             this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
         },

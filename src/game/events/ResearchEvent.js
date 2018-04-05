@@ -53,7 +53,7 @@ if (node) {
         },
 
         execute: function () {
-            this._parentObject._blocks.UpgradeProduction.startProduction(this);
+            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         updateFromServer: function (event) {

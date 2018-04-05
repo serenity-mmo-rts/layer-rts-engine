@@ -102,12 +102,15 @@ if (node) {
                 // Recalculate the current DuetTime and check if it is really finished:
                 if (curDueTime <= time){
                     var newDueTime = curCallback(curDueTime,curId);
-                    this.setDueTime(curId,newDueTime);
-                    // check whether due time was updated or callback was due (newDueTime = Infinite)
-                    if (!isFinite(newDueTime)) {
-                        console.log("event scheduler finishing event "+curId);
-                        numEventsFinished++;
+                    if (newDueTime){
+                        this.setDueTime(curId,newDueTime);
+                        // check whether due time was updated or callback was due (newDueTime = Infinite)
+                        if (!isFinite(newDueTime)) {
+                            console.log("event scheduler finishing event "+curId);
+                            numEventsFinished++;
+                        }
                     }
+
                 }
 
                 // Continue with next Event:
@@ -123,36 +126,25 @@ if (node) {
          * @ Returns the index element for a given callback into the sorted array
          */
         findCallbackLocation: function(callbackId) {
-            // TODO @Holger due time is undefined, the sort seems to be imperfect
-            // TODO overall there are many different indicies, that makes it hard to track. simplification is needed here!
             var dueTime = this.callbacksDueTimes[callbackId];
             if (!dueTime) {
                 console.log('dueTime is undefined')
             }
-
-            var tmpEventLoc = this.quicksortLocationOf(dueTime);
-            if (this.sortedCallbackIds[tmpEventLoc]==callbackId) {
-                return tmpEventLoc;
+            if (dueTime==Infinity){
+                tmpEventLoc = 0;
+            }
+            else{
+                var tmpEventLoc = this.quicksortLocationOf(dueTime);
+                if (this.sortedCallbackIds[tmpEventLoc]==callbackId) {
+                    return tmpEventLoc;
+                }
             }
 
             // the following search around the location of the dueTime is just for the rare case if two events with the exact same due time exist. Don't know if we can somehow simplify this???
-            // search downward:
-            var eventLoc = tmpEventLoc;
-            while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]==dueTime) {
-                eventLoc--;
-                if (eventLoc<0) {
-                    throw new Error("could not find event in list of sorted due times");
-                }
-            }
-            if (this.sortedCallbackIds[eventLoc]==callbackId) {
-                return eventLoc;
-            }
-
             // search upward:
             var eventLoc = tmpEventLoc;
-
             // TODO @Holger here the game goes to infinity becuase this is always true!!!
-            while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]==dueTime) {
+            while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]!=dueTime) {
                 eventLoc++;
                 if (eventLoc>this.sortedCallbackIds.length) {
                     throw new Error("could not find event in list of sorted due times");
@@ -164,6 +156,26 @@ if (node) {
             else {
                 throw new Error("could not find event in list of sorted due times!");
             }
+
+
+            // search downward:
+            var eventLoc = tmpEventLoc;
+            while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]!=dueTime) {
+                eventLoc--;
+                if (eventLoc<0) {
+                    throw new Error("could not find event in list of sorted due times");
+                }
+            }
+            if (this.sortedCallbackIds[eventLoc]==callbackId) {
+                return eventLoc;
+            }
+            else {
+                throw new Error("could not find event in list of sorted due times!");
+            }
+
+
+
+
         },
 
 

@@ -161,21 +161,15 @@ if (node) {
             this.x(this._mapObj.x());
             this.y(this._mapObj.y());
             this._mapObj.addItem(this);
-            this._id.subscribe(function(oldValue){
-                self._mapObj.removeItem(oldValue);
-            }, this, "beforeChange");
             this._id.subscribe(function(newValue){
                 self._mapObj.addItem(self);
             }, this);
-
         }
         else if (this.subObjectId()){
             var obj = this.map.mapData.mapObjects.get(this.subObjectId());
             this.x(obj.x());
             this.y(obj.y());
         }
-
-
 
         // call all setPointer functions of the building blocks:
         for (var blockName in this._blocks) {
@@ -188,6 +182,10 @@ if (node) {
             for (var blockName in self._blocks) {
                 self._blocks[blockName].embedded(newValue);
             }
+            if (!newValue){
+                self._mapObj.removeItem(self._id())
+            }
+
         });
     };
 

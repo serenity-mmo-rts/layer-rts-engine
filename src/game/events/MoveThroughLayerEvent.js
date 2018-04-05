@@ -71,7 +71,7 @@ if (node) {
             this.item.objectId(this.targetMapObjectId);
             this.item.targetMapId(this.targetMapId);
             this.item.setState(State.BLOCKED);
-            this.mapObj._blocks.UpgradeProduction.startProduction(this);
+            this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
