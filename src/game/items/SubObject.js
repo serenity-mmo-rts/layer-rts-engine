@@ -13,7 +13,7 @@ if (node) {
     /**
      * This is a constructor to create a new Feature Block.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var SubObject = function (parent, type){
@@ -22,8 +22,8 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this._mapObject = null;
-        this._timeCallbackId = null;
+        this.mapObject = null;
+        this.timeCallbackId = null;
 
         this.deployTime= null;
         this.travelTime= null;
@@ -59,7 +59,7 @@ if (node) {
 
     proto.setPointers  = function(){
         this.layer= this.getMap();
-        this.mapObject = this.parent._mapObj;
+        this.mapObject = this.parent.mapObj;
         if (this.parent.state()==State.BLOCKED){
             this.addMovementProps();
             var date = new Date();
@@ -72,8 +72,8 @@ if (node) {
     };
 
     proto.addMovementProps = function () {
-       this.deployTime = this.gameData.objectTypes.get(this.mapObject.objTypeId())._blocks.Unit.deployTime;
-       this.travelTime = this.parent._blocks.Movable.movingUpTime;
+       this.deployTime = this.gameData.objectTypes.get(this.mapObject.objTypeId()).blocks.Unit.deployTime;
+       this.travelTime = this.parent.blocks.Movable.movingUpTime;
     };
 
     proto.unlockItem = function (startedTime) {
@@ -82,11 +82,11 @@ if (node) {
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
             self.parent.setState(State.NORMAL);
-            console.log("Unit: "+self.parent._id+" ready in Upper Layer");
+            console.log("Unit: "+self.parent.id+" ready in Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
-        console.log("Unit" +this.parent._id + "blocks space on upper layer");
+        console.log("Unit" +this.parent.id + "blocks space on upper layer");
 
     };
 

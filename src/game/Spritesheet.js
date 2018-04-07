@@ -2,7 +2,7 @@
 
     var Spritesheet = function (gameData,initObj) {
         // serialized:
-        this._id = 0;
+        this.id = 0;
         this.images = null;
         this.frames = null;
         this.animations = null;
@@ -20,7 +20,7 @@
 
 
         save: function () {
-            var o = {_id: this._id,
+            var o = {id: this.id,
                 a: [this.images,
                     this.frames,
                     this.animations]};
@@ -29,7 +29,7 @@
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
-                this._id = o._id;
+                this.id = o.id;
                 this.images = o.a[0];
                 this.frames = o.a[1];
                 this.animations = o.a[2];

@@ -10,7 +10,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var TechProduction = function (parent, type) {
@@ -63,7 +63,7 @@ if (node) {
         if (!alreadyExisting){
 
             // required Techs
-            var requiredTechnologies = this.gameData.technologyTypes.get(techId)._requiredTechnologies;
+            var requiredTechnologies = this.gameData.technologyTypes.get(techId).requiredTechnologies;
             for (var i=0;i<requiredTechnologies.length; i++){
                 var reqTechId = requiredTechnologies[i];
                 var alreadyTeched = User.lookUpTechnology(reqTechId);
@@ -73,8 +73,8 @@ if (node) {
             }
 
             // required Items
-            var requiredItemIds = this.gameData.technologyTypes.get(techId)._requiredItemIds;
-            var requiredItemLevels = this.gameData.technologyTypes.get(techId)._requiredItemLevels;
+            var requiredItemIds = this.gameData.technologyTypes.get(techId).requiredItemIds;
+            var requiredItemLevels = this.gameData.technologyTypes.get(techId).requiredItemLevels;
             var availableItemIds = this.parent.getItems();
             var availableItemTypeIds = [];
             for (var i=0;i<availableItemIds.length; i++){
@@ -93,14 +93,14 @@ if (node) {
 
                     if (pos instanceof Array) {
                         for (var k =0; k<pos.length;k++){
-                            var levelOfAvailableItem =  this.map.mapData.items.get(availableItemIds[pos[k]])._level;
+                            var levelOfAvailableItem =  this.map.mapData.items.get(availableItemIds[pos[k]]).level;
                             if (levelOfAvailableItem<reqItemlvl){
                                 canTech = false;
                             }
                         }
                     }
                     else{
-                        var levelOfAvailableItem =  this.map.mapData.items.get(availableItemIds[pos])._level;
+                        var levelOfAvailableItem =  this.map.mapData.items.get(availableItemIds[pos]).level;
                         if (levelOfAvailableItem<reqItemlvl){
                             canTech = false;
                         }
@@ -109,8 +109,8 @@ if (node) {
             }
 
             // required Skills
-            var requiredSkillIds = this.gameData.technologyTypes.get(techId)._requiredSkillIds;
-            var requiredSkillPoints = this.gameData.technologyTypes.get(techId)._requiredSkillPoints;
+            var requiredSkillIds = this.gameData.technologyTypes.get(techId).requiredSkillIds;
+            var requiredSkillPoints = this.gameData.technologyTypes.get(techId).requiredSkillPoints;
             var availableSkillPoints= Commander.getGeneralSkillValues(requiredSkillIds);
             for (var i=0;i<requiredSkillPoints.length; i++){
                 if (availableSkillPoints[i]<requiredSkillPoints[i]){

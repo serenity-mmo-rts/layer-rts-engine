@@ -47,10 +47,10 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        this.itemTypeId(type._id);
-        this._blocks = {};
-        this._onChangeCallback = null;
-        this._mapObj = null;
+        this.itemTypeId(type.id);
+        this.blocks = {};
+        this.onChangeCallback = null;
+        this.mapObj = null;
         this.gameData = this.getGameData();
         this.map = this.getMap();
         this.itemType = this.gameData.itemTypes.get(initObj.itemTypeId);
@@ -81,14 +81,14 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            _className: "Item",
-            _allowOnMapTypeId: null,
-            _allowOnObjTypeId: null,
-            _name: "activationItem",
-            _iconSpritesheetId: "itemSprite",
-            _iconSpriteFrame: 4,
-            _buildMenuTooltip: "this is awesome",
-            _buildTime: 10000
+            className: "Item",
+            allowOnMapTypeId: null,
+            allowOnObjTypeId: null,
+            name: "activationItem",
+            iconSpritesheetId: "itemSprite",
+            iconSpriteFrame: 4,
+            buildMenuTooltip: "this is awesome",
+            buildTime: 10000
         };
     };
 
@@ -100,12 +100,12 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                _id: 0,
+                id: 0,
                 mapId: 0,
                 targetMapId: 0,
                 itemTypeId: 0
             },
-            {_objectId: 0},
+            {objectId: 0},
             {subObjectId: null},
             {x: 0},
             {y: 0},
@@ -113,7 +113,7 @@ if (node) {
             {height: 0},
             {ori: 0},
             {state: State.TEMP},
-            {_level: 1}
+            {level: 1}
 
         ];
     };
@@ -129,40 +129,40 @@ if (node) {
 
 
     proto.getLevel = function () {
-        return this._level();
+        return this.level();
     };
 
     proto.setState = function (state) {
         this.state(state);
-        this._mapObj.notifyChange();
+        this.mapObj.notifyChange();
     };
 
     proto.setLevel = function (lvl, curTime) {
-        if (lvl != this._level()) {
-            this._level(lvl);
-            this._mapObj.notifyChange();
+        if (lvl != this.level()) {
+            this.level(lvl);
+            this.mapObj.notifyChange();
         }
     };
 
     proto.updateId = function (newId) {
-        if (this._mapObj != null) {
-            delete this._mapObj.items[this._id()];
-            this._mapObj.items[this._id()] = this;
+        if (this.mapObj != null) {
+            delete this.mapObj.items[this.id()];
+            this.mapObj.items[this.id()] = this;
         }
-        this._id(newId);
+        this.id(newId);
     };
 
     proto.setPointers = function () {
         var self = this;
         this.map = this.getMap();
-        this._itemType = this.gameData.itemTypes.get(this.itemTypeId());
-        if (this._objectId()){
-            this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
-            this.x(this._mapObj.x());
-            this.y(this._mapObj.y());
-            this._mapObj.addItem(this);
-            this._id.subscribe(function(newValue){
-                self._mapObj.addItem(self);
+        this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
+        if (this.objectId()){
+            this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
+            this.x(this.mapObj.x());
+            this.y(this.mapObj.y());
+            this.mapObj.addItem(this);
+            this.id.subscribe(function(newValue){
+                self.mapObj.addItem(self);
             }, this);
         }
         else if (this.subObjectId()){
@@ -172,54 +172,54 @@ if (node) {
         }
 
         // call all setPointer functions of the building blocks:
-        for (var blockName in this._blocks) {
-            this._blocks[blockName].setPointers();
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].setPointers();
         }
 
         var self= this;
         this.embedded.subscribe(function(newValue) {
             // set embedded variable of all blocks
-            for (var blockName in self._blocks) {
-                self._blocks[blockName].embedded(newValue);
+            for (var blockName in self.blocks) {
+                self.blocks[blockName].embedded(newValue);
             }
             if (!newValue){
-                self._mapObj.removeItem(self._id())
+                self.mapObj.removeItem(self.id())
             }
 
         });
     };
 
     proto.addToParentObject = function (objectId,timeStamp) {
-        this._objectId(objectId);
-        this._mapObj = this.map.mapData.mapObjects.get(this._objectId());
-        this._mapObj.addItem(this);
-        if (this._blocks.hasOwnProperty("Feature")){
-            this._blocks.Feature.startExecution(timeStamp);
+        this.objectId(objectId);
+        this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
+        this.mapObj.addItem(this);
+        if (this.blocks.hasOwnProperty("Feature")){
+            this.blocks.Feature.startExecution(timeStamp);
         }
     };
 
 
     proto.removeFromParentObject = function (timeStamp) {
-       if (this._mapObj){
-           this._mapObj.removeItem(this._id());
-           this._objectId(null);
-           this._mapObj = null;
+       if (this.mapObj){
+           this.mapObj.removeItem(this.id());
+           this.objectId(null);
+           this.mapObj = null;
        }
 
-        if (this._blocks.hasOwnProperty("Feature")){
-            this._blocks.Feature.removeItemFromFeatureManagers(timeStamp);
+        if (this.blocks.hasOwnProperty("Feature")){
+            this.blocks.Feature.removeItemFromFeatureManagers(timeStamp);
         }
     };
     proto.removePointers = function () {
-        for (var blockName in this.itemType._blocks) {
-            this._blocks[blockName].removePointers();
+        for (var blockName in this.itemType.blocks) {
+            this.blocks[blockName].removePointers();
         }
     };
 
     proto.createBuildingBlocks = function () {
-        this._blocks = {};
-        for (var blockName in this.itemType._blocks) {
-            this._blocks[blockName] = createBlockInstance(blockName, this, this.itemType._blocks[blockName]);
+        this.blocks = {};
+        for (var blockName in this.itemType.blocks) {
+            this.blocks[blockName] = createBlockInstance(blockName, this, this.itemType.blocks[blockName]);
         }
     };
 
@@ -227,7 +227,7 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     /*proto.notifyStateChange = function () {
-        this.map.mapData.items.notifyStateChange(this._id());
+        this.map.mapData.items.notifyStateChange(this.id());
     };*/
 
 

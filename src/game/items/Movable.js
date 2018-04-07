@@ -12,7 +12,7 @@ if (node) {
     /**
      * This is a constructor to create a new Feature Block.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var Movable = function (parent, type){
@@ -62,7 +62,7 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        this.mapObject = this.parent._mapObj;
+        this.mapObject = this.parent.mapObj;
         this.gameData= this.getGameData();
         this.layer = this.gameData.layers.get(this.parent.mapId());
     };
@@ -112,15 +112,15 @@ if (node) {
         var object = this.layer.mapData.mapObjects.get(this.parent.subObjectId());
         this.layer.mapData.removeObject(object);
         this.isMovingUp(true);
-        console.log("Map Object" + this.parent._id()+ "started moving");
+        console.log("Map Object" + this.parent.id()+ "started moving");
     };
 
 
     proto.moveItem  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time
-        this.targetId(target._id());
-        this.originId(origin._id());
+        this.targetId(target.id());
+        this.originId(origin.id());
         this.distance = Math.sqrt(Math.pow(target.x() - origin.x(),2)+ Math.pow(target.y() - origin.y(),2));
         this.travelTime= this.distance/this.movementSpeed;
         this.startedTime(startedTime);
@@ -149,7 +149,7 @@ if (node) {
     };
 
     proto.updateDueTime= function(evt) {
-        this.startedTime(evt._startedTime);
+        this.startedTime(evt.startedTime);
         // notify time scheduler:
         console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime);
         // update Due Time

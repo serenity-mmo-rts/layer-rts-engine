@@ -9,7 +9,7 @@ if (node) {
 
     var RessourceType = AbstractType.extend({
         // serialized:
-        _type: "RessourceType",
+        type: "RessourceType",
 
         init: function(gameData, initObj){
 

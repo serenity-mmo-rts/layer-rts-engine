@@ -9,30 +9,30 @@ if (node) {
     var AbstractType = Class.extend({
 
         // general
-        _id: 0,
-        _name : null,
+        id: 0,
+        name : null,
        //rendering
-        _iconSpritesheetId : null,
-        _iconSpriteFrame : null,
-        _buildMenuTooltip : null,
-        _buildTime : null,
+        iconSpritesheetId : null,
+        iconSpriteFrame : null,
+        buildMenuTooltip : null,
+        buildTime : null,
 
 
         init: function(gameData, initObj) {
-            this._gameData = gameData;
+            this.gameData = gameData;
             // deserialize event from json object
             this.load(initObj);
         },
 
 
         save: function () {
-            var o = {_id: this._id,
-                _type: this._type,
-                a: [this._name,
-                    this._iconSpritesheetId,
-                    this._iconSpriteFrame,
-                    this._buildMenuTooltip,
-                    this._buildTime
+            var o = {id: this.id,
+                type: this.type,
+                a: [this.name,
+                    this.iconSpritesheetId,
+                    this.iconSpriteFrame,
+                    this.buildMenuTooltip,
+                    this.buildTime
                     ]
 
             };
@@ -41,12 +41,12 @@ if (node) {
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
-                this._id = o._id;
-                this._name = o.a[0];
-                this._iconSpritesheetId = o.a[1];
-                this._iconSpriteFrame = o.a[2];
-                this._buildMenuTooltip  = o.a[3];
-                this._buildTime = o.a[4];
+                this.id = o.id;
+                this.name = o.a[0];
+                this.iconSpritesheetId = o.a[1];
+                this.iconSpriteFrame = o.a[2];
+                this.buildMenuTooltip  = o.a[3];
+                this.buildTime = o.a[4];
 
             }
             else {
@@ -56,8 +56,8 @@ if (node) {
                     }
                 }
             }
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
+            if (typeof this.id != 'string') {
+                this.id = this.id.toHexString();
             }
         }
 

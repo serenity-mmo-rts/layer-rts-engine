@@ -8,7 +8,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var FeatureManager = function (parent, type) {
@@ -45,31 +45,31 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_change: false},
-            {_appliedItemIds: []},
-            {_appliedEffectIndex: []}
+            {change: false},
+            {appliedItemIds: []},
+            {appliedEffectIndex: []}
         ];
     };
 
 
     proto.setState = function(value){
-        this._change(value);
+        this.change(value);
     };
 
     proto.getState = function(){
-        return this._change();
+        return this.change();
     };
 
     proto.addItemId = function(itemId,stackIdx){
 
-        var positions = this._appliedItemIds().indexOf(itemId);
+        var positions = this.appliedItemIds().indexOf(itemId);
         if (positions == -1) {
             this.insertItem(itemId,stackIdx);
         }
         else if (positions instanceof Array){
             var insert = true;
             for (var i = 0;i<positions.length;i++) {
-                if (this._appliedEffectIndex()[positions[i]] == stackIdx) {
+                if (this.appliedEffectIndex()[positions[i]] == stackIdx) {
                     insert = false;
                 }
             }
@@ -78,15 +78,15 @@ if (node) {
             }
         }
         else {
-            if (!this._appliedEffectIndex()[positions]== stackIdx){
+            if (!this.appliedEffectIndex()[positions]== stackIdx){
                 this.insertItem(itemId,stackIdx);
             }
         }
     };
 
     proto.insertItem = function(itemId,stackIdx){
-        this._appliedItemIds().push(itemId);
-        this._appliedEffectIndex().push(stackIdx);
+        this.appliedItemIds().push(itemId);
+        this.appliedEffectIndex().push(stackIdx);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
@@ -100,17 +100,17 @@ if (node) {
      * removes single ItemId, same item with other stackIdx can still be included.
      */
     proto.removeItemId = function(itemId,stackIdx){
-        var positions = this._appliedItemIds().indexOf(itemId);
+        var positions = this.appliedItemIds().indexOf(itemId);
         if (positions instanceof Array){
-            var helpArray = this._appliedEffectIndex()[positions];
-            var subPosition = this._appliedEffectIndex().indexOf(stackIdx);
+            var helpArray = this.appliedEffectIndex()[positions];
+            var subPosition = this.appliedEffectIndex().indexOf(stackIdx);
             var finalPosition = positions[subPosition];
         }
         else{
             var finalPosition = positions;
         }
-        this._appliedItemIds().splice(finalPosition, 1);
-        this._appliedEffectIndex().splice(finalPosition, 1);
+        this.appliedItemIds().splice(finalPosition, 1);
+        this.appliedEffectIndex().splice(finalPosition, 1);
         this.notifyStateChange();
         this.updateObjectProperties();
     };
@@ -121,10 +121,10 @@ if (node) {
      * removes all itemIds that are the same.
      */
     proto.removeItem= function(itemId){
-        var positions = this._appliedItemIds().indexOf(itemId);
+        var positions = this.appliedItemIds().indexOf(itemId);
         if (!positions==-1) {
-            this._appliedItemIds().splice(positions, 1);
-            this._appliedEffectIndex().splice(positions, 1);
+            this.appliedItemIds().splice(positions, 1);
+            this.appliedEffectIndex().splice(positions, 1);
             this.notifyStateChange();
             this.updateObjectProperties();
         }
@@ -137,25 +137,25 @@ if (node) {
 
         // create change Object
         var toBeAdded = {};
-        var BlockNames = Object.keys(this.parent._blocks);
+        var BlockNames = Object.keys(this.parent.blocks);
         for (var i=0;i<BlockNames.length;i++) {
             toBeAdded[BlockNames[i]] = {};
         }
 
         // fill change Object
         // loop over items
-        for (var i=0; i< this._appliedItemIds().length; i++){
+        for (var i=0; i< this.appliedItemIds().length; i++){
             // get item from id
-            var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this._appliedItemIds()[i]);
+            var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this.appliedItemIds()[i]);
             // sanity Check
 
-            if (item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this._appliedItemIds()[i])){
+            if (item.blocks.Feature.effects()[this.appliedEffectIndex()[i]].currentTargetObjectIds.indexOf(this.appliedItemIds()[i])){
 
                 // get block values
-                var variables = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].variables;
-                var blocks = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].blocks;
-                var operators = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].operators;
-                var changes = item._blocks.Feature.effects()[this._appliedEffectIndex()[i]].changes;
+                var variables = item.blocks.Feature.effects()[this.appliedEffectIndex()[i]].variables;
+                var blocks = item.blocks.Feature.effects()[this.appliedEffectIndex()[i]].blocks;
+                var operators = item.blocks.Feature.effects()[this.appliedEffectIndex()[i]].operators;
+                var changes = item.blocks.Feature.effects()[this.appliedEffectIndex()[i]].changes;
 
                 // loop over block type variables
                 for (var k=0; k< blocks.length; k++) {
@@ -176,12 +176,12 @@ if (node) {
                     else if (operator=="times"){
 
                         if (!toBeAdded[block].hasOwnProperty(variable)) {
-                            var baseline = this.parent.objType._blocks[block][variable];
+                            var baseline = this.parent.objType.blocks[block][variable];
                             var times = (baseline*change)-baseline;
                             toBeAdded[block][variable]= Number(times);
                         }
                         else {
-                            var baseline = this.parent.objType._blocks[block][variable];
+                            var baseline = this.parent.objType.blocks[block][variable];
                             var times = (baseline*change)-baseline;
                             toBeAdded[block][variable] += Number(times);
                         }
@@ -194,10 +194,10 @@ if (node) {
         for (var i=0;i<BlockNames.length;i++) {
             var currentBlock = toBeAdded[BlockNames[i]];
             var properties = Object.keys(currentBlock);
-            this.parent._blocks[BlockNames[i]].setInitTypeVars();
+            this.parent.blocks[BlockNames[i]].setInitTypeVars();
             for (var k=0;k<properties.length;k++) {
-                var base= this.parent.objType._blocks[BlockNames[i]][properties[k]];
-                this.parent._blocks[BlockNames[i]]._typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
+                var base= this.parent.objType.blocks[BlockNames[i]][properties[k]];
+                this.parent.blocks[BlockNames[i]].typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
             }
         }
 

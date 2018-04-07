@@ -13,14 +13,14 @@ if (node) {
     var LevelUpgradeEvent = AbstractEvent.extend({
 
         // serialized
-        _type: "LevelUpgradeEvent",
-        _itemId:null,
+        type: "LevelUpgradeEvent",
+        itemId:null,
         itemTypeId:null,
-        _parentObjectId:null,
+        parentObjectId:null,
 
         // helper
-        _item: null,
-        _parentObject: null,
+        item: null,
+        parentObject: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -32,17 +32,17 @@ if (node) {
         },
 
         setParameters: function (item) {
-            this._item = item;
-            this._parentObject = this._item._mapObj;
-            this._parentObjectId = this._parentObject._id();
-            this._itemId = this._item._id();
-            this.itemTypeId = this._item.itemTypeId();
+            this.item = item;
+            this.parentObject = this.item.mapObj;
+            this.parentObjectId = this.parentObject.id();
+            this.itemId = this.item.id();
+            this.itemTypeId = this.item.itemTypeId();
 },
 
         setPointers: function(){
             this._super();
-            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-            this._parentObject = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._parentObjectId);
+            this.item = this.gameData.layers.get(this.mapId).mapData.items.get(this.itemId);
+            this.parentObject = this.gameData.layers.get(this.mapId).mapData.mapObjects.get(this.parentObjectId);
         },
 
         executeOnClient: function () {
@@ -61,12 +61,12 @@ if (node) {
 
         execute: function () {
             this.setPointers();
-            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
+            this.parentObject.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
+            this.parentObject.blocks.UpgradeProduction.updateDueTime(event);
         },
 
         revert: function() {
@@ -75,8 +75,8 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._itemId,
-                    this._parentObjectId,
+            o.a2 = [this.itemId,
+                    this.parentObjectId,
                     this.itemTypeId
             ];
             return o;
@@ -85,8 +85,8 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._itemId = o.a2[0];
-                this._parentObjectId = o.a2[1];
+                this.itemId = o.a2[0];
+                this.parentObjectId = o.a2[1];
                 this.itemTypeId = o.a2[2];
             }
             else {

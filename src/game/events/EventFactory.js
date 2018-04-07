@@ -15,25 +15,25 @@ if (node) {
 
     exports.EventFactory = function(gameData,initObj) {
         var event = null;
-        if (initObj._type == "BuildObjectEvent") {
+        if (initObj.type == "BuildObjectEvent") {
             event = new BuildObjectEvent(gameData,initObj);
         }
-        else if (initObj._type == "BuildUpgradeEvent") {
+        else if (initObj.type == "BuildUpgradeEvent") {
             event = new BuildUpgradeEvent(gameData,initObj);
         }
-        else if (initObj._type == "LevelUpgradeEvent") {
+        else if (initObj.type == "LevelUpgradeEvent") {
             event = new LevelUpgradeEvent(gameData,initObj);
         }
-        else if (initObj._type == "ActivateFeatureEvent") {
+        else if (initObj.type == "ActivateFeatureEvent") {
             event = new ActivateFeatureEvent(gameData,initObj);
         }
-        else if (initObj._type == "MoveThroughLayerEvent") {
+        else if (initObj.type == "MoveThroughLayerEvent") {
             event = new MoveThroughLayerEvent(gameData,initObj);
         }
-        else if (initObj._type == "MoveItemEvent") {
+        else if (initObj.type == "MoveItemEvent") {
             event = new MoveItemEvent(gameData,initObj);
         }
-        else if (initObj._type == "ResearchEvent") {
+        else if (initObj.type == "ResearchEvent") {
             event = new ResearchEvent(gameData,initObj);
         }
         return event;

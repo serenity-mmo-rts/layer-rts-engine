@@ -15,7 +15,7 @@ if (node) {
     var BuildObjectEvent = AbstractEvent.extend({
 
         // serialized
-        _type: "BuildObjectEvent",
+        type: "BuildObjectEvent",
         mapObjId: null,
         x: null,
         y: null,
@@ -26,7 +26,7 @@ if (node) {
         sublayerId: null,
 
         //not serialized
-        _mapObj: null,
+        mapObj: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -34,23 +34,23 @@ if (node) {
 
         isValid: function () {
 
-            var mapData = this._gameData.layers.get(this._mapId).mapData;
+            var mapData = this.gameData.layers.get(this.mapId).mapData;
 
             //check if mapObject is defined
-            if (this._mapObj == undefined) {
+            if (this.mapObj == undefined) {
                 return false;
             }
 
             //check if correct layer
-            if (this._mapId != this._mapObj.mapId()){
+            if (this.mapId != this.mapObj.mapId()){
                 return false;
             }
 
-            if (this._mapObj._blocks.hasOwnProperty("Connection")) {
+            if (this.mapObj.blocks.hasOwnProperty("Connection")) {
 
-                var sourceHub = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedFrom());
-                var targetObj = mapData.mapObjects.get(this._mapObj._blocks.Connection.connectedTo());
-                this._mapObj._blocks.Connection.setConnectionPoints();
+                var sourceHub = mapData.mapObjects.get(this.mapObj.blocks.Connection.connectedFrom());
+                var targetObj = mapData.mapObjects.get(this.mapObj.blocks.Connection.connectedTo());
+                this.mapObj.blocks.Connection.setConnectionPoints();
 
                 //check if both are on the same layer:
                 if (sourceHub == undefined || targetObj == undefined){
@@ -58,12 +58,12 @@ if (node) {
                 }
 
                 //check if it is really a hub node
-                if (!sourceHub._blocks.hasOwnProperty("HubNode")){
+                if (!sourceHub.blocks.hasOwnProperty("HubNode")){
                     return false;
                 }
 
                 //check if target object has hubConnectivity
-                if (!targetObj._blocks.hasOwnProperty("HubConnectivity")){
+                if (!targetObj.blocks.hasOwnProperty("HubConnectivity")){
                     return false;
                 }
 
@@ -71,52 +71,52 @@ if (node) {
                 var dx = (targetObj.x() - sourceHub.x());
                 var dy = (targetObj.y() - sourceHub.y());
                 var connLength = Math.sqrt(dx*dx + dy*dy);
-                if (sourceHub._blocks.HubNode.getMaxRange() < connLength) {
+                if (sourceHub.blocks.HubNode.getMaxRange() < connLength) {
                     return false;
                 }
 
                 //set center coordinate of connection and orientation of connection correctly:
                 this.x = sourceHub.x() + dx/2;
                 this.y = sourceHub.y() + dy/2;
-                this._mapObj.x(this.x);
-                this._mapObj.y(this.y);
-                this._mapObj.ori(-Math.atan2(dy, dx));
-                this._mapObj.width(connLength);
-                this._mapObj.height(this._mapObj.objType._initHeight);
-                this._mapObj.notifyChange();
+                this.mapObj.x(this.x);
+                this.mapObj.y(this.y);
+                this.mapObj.ori(-Math.atan2(dy, dx));
+                this.mapObj.width(connLength);
+                this.mapObj.height(this.mapObj.objType.initHeight);
+                this.mapObj.notifyChange();
 
                 //check if there is a port free in the hub node
-                if (!sourceHub._blocks.HubConnectivity.getFreePorts() > 0){
+                if (!sourceHub.blocks.HubConnectivity.getFreePorts() > 0){
                     return false;
                 }
 
                 //check if there is a port free in the mapObj
-                if (!targetObj._blocks.HubConnectivity.getFreePorts() > 0){
+                if (!targetObj.blocks.HubConnectivity.getFreePorts() > 0){
                     return false;
                 }
 
                 //don't allow self connection
-                if (sourceHub._id() == targetObj._id()){
+                if (sourceHub.id() == targetObj.id()){
                     return false;
                 }
 
             }
 
-            var collidingItems = this._gameData.layers.get(this._mapId).mapData.collisionDetection(this._mapObj);
+            var collidingItems = this.gameData.layers.get(this.mapId).mapData.collisionDetection(this.mapObj);
 
-            if (this._mapObj._blocks.hasOwnProperty("Connection")) {
+            if (this.mapObj.blocks.hasOwnProperty("Connection")) {
                     // check if there is any object colliding that is not the source or target object
                     var arrayLength = collidingItems.length;
                     for (var i = 0; i < arrayLength; i++) {
-                        if (collidingItems[i]._id() != targetObj._id() &&
-                            collidingItems[i]._id() != sourceHub._id()) {
+                        if (collidingItems[i].id() != targetObj.id() &&
+                            collidingItems[i].id() != sourceHub.id()) {
 
-                            if(collidingItems[i]._blocks.hasOwnProperty("Connection")) {
+                            if(collidingItems[i].blocks.hasOwnProperty("Connection")) {
                                 // only fail if the colliding item is not any other connection to either the source or target object:
-                                if (collidingItems[i]._blocks.Connection.connectedFrom() != targetObj._id() &&
-                                    collidingItems[i]._blocks.Connection.connectedFrom() != sourceHub._id() &&
-                                    collidingItems[i]._blocks.Connection.connectedTo() != targetObj._id() &&
-                                    collidingItems[i]._blocks.Connection.connectedTo() != sourceHub._id()) {
+                                if (collidingItems[i].blocks.Connection.connectedFrom() != targetObj.id() &&
+                                    collidingItems[i].blocks.Connection.connectedFrom() != sourceHub.id() &&
+                                    collidingItems[i].blocks.Connection.connectedTo() != targetObj.id() &&
+                                    collidingItems[i].blocks.Connection.connectedTo() != sourceHub.id()) {
                                     return false;
                                 }
                             }
@@ -149,7 +149,7 @@ if (node) {
 
         setParameters: function (mapObj,connectionFrom) {
             this.mapObjTypeId = mapObj.objTypeId();
-            this._mapObj = mapObj;
+            this.mapObj = mapObj;
             if (arguments.length==2){
                 this.connectedFrom = connectionFrom;
             }
@@ -157,19 +157,19 @@ if (node) {
 
         setPointers: function () {
             this._super();
-            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: State.TEMP});
-            if (this._mapObj._blocks.hasOwnProperty("Connection")){
-                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
-                this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
+            this.mapObj = new MapObject(this.gameData, {id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP});
+            if (this.mapObj.blocks.hasOwnProperty("Connection")){
+                this.mapObj.blocks.Connection.connectedFrom(this.connectedFrom);
+                this.mapObj.blocks.Connection.connectedTo(this.connectedTo);
             }
         },
 
         executeOnClient: function () {
             this.mapObjId  = 'tmpObjId'+Math.random();
-            if (this._mapObj._blocks.hasOwnProperty("Unit")) {
+            if (this.mapObj.blocks.hasOwnProperty("Unit")) {
                 this.itemId = 'tmpItemId' + Math.random();
             }
-            if (this._mapObj._blocks.hasOwnProperty("Sublayer")) {
+            if (this.mapObj.blocks.hasOwnProperty("Sublayer")) {
                 this.sublayerId = 'tmpSublayerId' + Math.random();
             }
             this.start(Date.now() + ntp.offset());
@@ -178,10 +178,10 @@ if (node) {
 
         executeOnServer: function () {
             this.mapObjId = (new mongodb.ObjectID()).toHexString();
-            if (this._mapObj._blocks.hasOwnProperty("Unit")) {
+            if (this.mapObj.blocks.hasOwnProperty("Unit")) {
                 this.itemId = (new mongodb.ObjectID()).toHexString();
             }
-            if (this._mapObj._blocks.hasOwnProperty("Sublayer")) {
+            if (this.mapObj.blocks.hasOwnProperty("Sublayer")) {
                 this.sublayerId = (new mongodb.ObjectID()).toHexString();
             }
             this.start(Date.now());
@@ -194,35 +194,35 @@ if (node) {
 
         execute: function () {
 
-            this._mapObj = null;
-            this._mapObj = new MapObject(this._gameData, {_id: this.mapObjId, mapId: this._mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this._userId, state: State.TEMP, sublayerId: this.sublayerId});
-            this._mapObj.setPointers();
+            this.mapObj = null;
+            this.mapObj = new MapObject(this.gameData, {id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP, sublayerId: this.sublayerId});
+            this.mapObj.setPointers();
 
-            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
+            if (this.mapObj.blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
                 if (node) {
-                    this._gameData.layers.get(this._mapId).createSublayer(this.x, this.y, this.sublayerId, this.mapObjId);
+                    this.gameData.layers.get(this.mapId).createSublayer(this.x, this.y, this.sublayerId, this.mapObjId);
                 }
             }
 
-            if (this._mapObj._blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
-                this._mapObj._blocks.Connection.connectedFrom(this.connectedFrom);
-                this._mapObj._blocks.Connection.connectedTo(this.connectedTo);
+            if (this.mapObj.blocks.hasOwnProperty("Connection")){  // in case map object is a connection add start and end points
+                this.mapObj.blocks.Connection.connectedFrom(this.connectedFrom);
+                this.mapObj.blocks.Connection.connectedTo(this.connectedTo);
             }
 
-            this._mapObj._blocks.UpgradeProduction.addEventToQueue(this);
+            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
 
 
             this.isValid();
-            this._mapObj.embedded(true);
-            this._gameData.layers.get(this._mapId).mapData.addObject(this._mapObj);
+            this.mapObj.embedded(true);
+            this.gameData.layers.get(this.mapId).mapData.addObject(this.mapObj);
 
-            if (this._mapObj._blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
-                var itemTypeId = this._mapObj._blocks.Unit.itemTypeId;
-                this.item = new Item(this._gameData, {_id: this.itemId, _objectId: null, itemTypeId: itemTypeId, mapId: this._mapId, state: itemStates.HIDDEN});
+            if (this.mapObj.blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
+                var itemTypeId = this.mapObj.blocks.Unit.itemTypeId;
+                this.item = new Item(this.gameData, {id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: itemStates.HIDDEN});
                 this.item.subObjectId(this.mapObjId);
-                this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+                this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
                 this.item.setPointers();
-                this._mapObj.subItemId(this.itemId);
+                this.mapObj.subItemId(this.itemId);
             }
 
         },
@@ -231,27 +231,27 @@ if (node) {
         updateFromServer: function (event) {
             this._super(event);
             console.log("replace tmp Object ID: "+this.mapObjId+" by new id from server: "+event.mapObjId);
-            this._gameData.layers.get(this._mapId).mapData.mapObjects.updateId(this.mapObjId,event.mapObjId);
+            this.gameData.layers.get(this.mapId).mapData.mapObjects.updateId(this.mapObjId,event.mapObjId);
             this.mapObjId = event.mapObjId;
 
 
-            if (this._mapObj._blocks.hasOwnProperty("Unit")){
-                this._gameData.layers.get(this._mapId).mapData.items.updateId(this.itemId,event.itemId);
+            if (this.mapObj.blocks.hasOwnProperty("Unit")){
+                this.gameData.layers.get(this.mapId).mapData.items.updateId(this.itemId,event.itemId);
                 this.itemId = event.itemId;
                 this.item.subObjectId(event.mapObjId);
-                this._mapObj.subItemId(event.itemId);
+                this.mapObj.subItemId(event.itemId);
             }
 
-            if (this._mapObj._blocks.hasOwnProperty("Sublayer")){
-                this._mapObj.sublayerId(event.sublayerId);
+            if (this.mapObj.blocks.hasOwnProperty("Sublayer")){
+                this.mapObj.sublayerId(event.sublayerId);
                 this.sublayerId = event.sublayerId;
             }
 
-            this._mapObj._blocks.UpgradeProduction.updateDueTime(event);
+            this.mapObj.blocks.UpgradeProduction.updateDueTime(event);
         },
 
         revert: function() {
-            this._gameData.layers.get(this._mapId).mapData.removeObject(this._mapObj);
+            this.gameData.layers.get(this.mapId).mapData.removeObject(this.mapObj);
             return true;
         },
 

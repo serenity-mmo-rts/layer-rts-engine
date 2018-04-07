@@ -12,16 +12,16 @@ if (node) {
     var MoveItemEvent = AbstractEvent.extend({
 
         // states
-        _type: "MoveItemEvent",
-        _originId: null,
-        _targetId: null,
-        _itemId: null,
+        type: "MoveItemEvent",
+        originId: null,
+        targetId: null,
+        itemId: null,
 
         // helpers
-        _origin: null,
-        _target:null,
-        _item:null,
-        _range: null,
+        origin: null,
+        target:null,
+        item:null,
+        range: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -33,22 +33,22 @@ if (node) {
         },
 
         setParameters: function (item) {
-            this._item = item;
-            this._itemId = this._item._id();
-            this._originId = this._item._objectId();
+            this.item = item;
+            this.itemId = this.item.id();
+            this.originId = this.item.objectId();
         },
 
 
         setTarget: function (targetId) {
-            this._targetId = targetId;
+            this.targetId = targetId;
         },
 
         setPointers: function(){
             this._super();
-            this._origin =  this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._originId);
-            this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._targetId);
-            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-            if (!this._item){
+            this.origin =  this.gameData.layers.get(this.mapId).mapData.mapObjects.get(this.originId);
+            this.target  = this.gameData.layers.get(this.mapId).mapData.mapObjects.get(this.targetId);
+            this.item = this.gameData.layers.get(this.mapId).mapData.items.get(this.itemId);
+            if (!this.item){
                 throw new Error("Item not in database, but should be there");
             }
         },
@@ -69,13 +69,13 @@ if (node) {
 
         execute: function () {
             this.setPointers();
-            this._item._blocks.Movable.moveItem(this._startedTime,this._origin,this._target);
+            this.item.blocks.Movable.moveItem(this.startedTime,this.origin,this.target);
             this.setFinished();
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            this._item._blocks.Movable.updateDueTime(event);
+            this.item.blocks.Movable.updateDueTime(event);
         },
 
         revert: function() {
@@ -84,9 +84,9 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._itemId,
-                this._targetId,
-                this._originId
+            o.a2 = [this.itemId,
+                this.targetId,
+                this.originId
             ];
             return o;
         },
@@ -94,9 +94,9 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._itemId = o.a2[0];
-                this._targetId = o.a2[1];
-                this._originId = o.a2[2];
+                this.itemId = o.a2[0];
+                this.targetId = o.a2[1];
+                this.originId = o.a2[2];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

@@ -68,13 +68,13 @@ if (node) {
             width = mapObject.width();
         }
         else {
-            width = this.gameData.objectTypes.get(mapObject.objTypeId())._initWidth;
+            width = this.gameData.objectTypes.get(mapObject.objTypeId()).initWidth;
         }
         if (mapObject.hasOwnProperty('height') && mapObject.height() != null) {
             height = mapObject.height();
         }
         else {
-            height = this.gameData.objectTypes.get(mapObject.objTypeId())._initHeight;
+            height = this.gameData.objectTypes.get(mapObject.objTypeId()).initHeight;
         }
 
         var treeItem = new Bounds().initRectByCenter(
@@ -153,7 +153,7 @@ if (node) {
 
     proto.addObject = function (mapObject) {
         //check if object is already in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject.id())) {
             console.log("map object was already in list.")
         }
         else {
@@ -217,8 +217,8 @@ if (node) {
 
     proto.removeObject = function (mapObject) {
         //check if object is in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
-            this.mapObjects.deleteById(mapObject._id());
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject.id())) {
+            this.mapObjects.deleteById(mapObject.id());
         }
 
         // remove from quadtree
@@ -239,7 +239,7 @@ if (node) {
 
     proto.addItem = function (item) {
         //check if item is already in list:
-        if (this.items.hashList.hasOwnProperty(item._id())) {
+        if (this.items.hashList.hasOwnProperty(item.id())) {
             console.log("item was already in list.")
         }
         else {
@@ -252,8 +252,8 @@ if (node) {
 
     proto.removeItem = function (item) {
         //check if object is already in list:
-        if (this.items.hashList.hasOwnProperty(item._id())) {
-            delete this.items.deleteById(item._id());
+        if (this.items.hashList.hasOwnProperty(item.id())) {
+            delete this.items.deleteById(item.id());
         }
 
     };
@@ -321,7 +321,7 @@ if (node) {
                 }
             }
             else if (type == 1) { // take only user objects
-                if (obj._blocks.hasOwnProperty("UserObject") && dx * dx + dy * dy < range * range) {
+                if (obj.blocks.hasOwnProperty("UserObject") && dx * dx + dy * dy < range * range) {
                     inRange.push(obj);
                 }
             }
@@ -343,9 +343,9 @@ if (node) {
         // Now notify the parent:
         if (!this.isMutated) {
             this.isMutated = true;
-            if (this.hasOwnProperty("_id")) {
+            if (this.hasOwnProperty("id")) {
                 // if this is a game instance with an id. For example item or mapObject:
-                this.parent.notifyStateChange(this._id());
+                this.parent.notifyStateChange(this.id());
             }
             else {
                 // if this is a building block without id. For example UpgradeProdcution:
@@ -368,7 +368,7 @@ if (node) {
                     }
                     else {
                         // this key is a sub building block
-                        this._blocks[key].revertChanges();
+                        this.blocks[key].revertChanges();
                     }
                 }
             }
@@ -392,7 +392,7 @@ if (node) {
                     }
                     else {
                         // this key is a sub building block
-                        this._blocks[key].newSnapshot();
+                        this.blocks[key].newSnapshot();
                     }
                 }
             }

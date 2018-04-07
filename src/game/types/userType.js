@@ -16,7 +16,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._blocks
+            o.a2 = [this.blocks
             ];
             return o;
         },
@@ -24,7 +24,7 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._blocks = o.a2[0];
+                this.blocks = o.a2[0];
             }
             else {
                 for (var key in o) {

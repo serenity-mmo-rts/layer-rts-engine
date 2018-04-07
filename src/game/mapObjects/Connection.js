@@ -8,7 +8,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var Connection = function (parent, type) {
@@ -71,8 +71,8 @@ if (node) {
             if (this.connectedFrom() != null && this.connectedTo() != null) {
                 var sourceHub = mapData.mapObjects.get(this.connectedFrom());
                 var targetObj = mapData.mapObjects.get(this.connectedTo());
-                sourceHub._blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
-                targetObj._blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
+                sourceHub.blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
+                targetObj.blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
             }
         }
     };

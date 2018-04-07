@@ -24,7 +24,7 @@ if (node) {
         this.lockObject = {isLocked: false};
 
         // serialized:
-        this._id = 0;
+        this.id = 0;
         this.parentObjId = null;
         this.width = 0;
         this.height = 0;
@@ -91,12 +91,12 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        this._blocks = {};
+        this.blocks = {};
         this.gameData = this.getGameData();
         this.map = this;
 
         if (type){
-            this.mapTypeId(type._id);
+            this.mapTypeId(type.id);
             this.mapType = type;
             this.createBuildingBlocks();
         }
@@ -146,14 +146,14 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            _name: "city",
-            _scale: null,
-            _ratioWidthHeight: 2,
-            _bgColor: null,
-            _groundImage: null,
-            _groundImageScaling: null,
-            _groundDragScaling: 1,
-            _buildCategories: []
+            name: "city",
+            scale: null,
+            ratioWidthHeight: 2,
+            bgColor: null,
+            groundImage: null,
+            groundImageScaling: null,
+            groundDragScaling: 1,
+            buildCategories: []
         };
     };
 
@@ -165,7 +165,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                _id: 0,
+                id: 0,
                 parentObjId : 0,
                 parentMapId: 0,
                 mapTypeId: 0
@@ -197,7 +197,7 @@ if (node) {
     /*
     proto.save = function () {
         var o = {
-            _id: this._id,
+            id: this.id,
             a: [this.parentObjId,
                 this.width,
                 this.height,
@@ -210,7 +210,7 @@ if (node) {
 
     proto.load = function (o) {
         if (o.hasOwnProperty("a")) {
-            this._id = o._id;
+            this.id = o.id;
             this.parentObjId = o.a[0];
             this.width = o.a[1];
             this.height = o.a[2];
@@ -225,8 +225,8 @@ if (node) {
                 }
             }
         }
-        if (typeof this._id != 'string') {
-            this._id = this._id.toHexString();
+        if (typeof this.id != 'string') {
+            this.id = this.id.toHexString();
         }
         this.mapData.rebuildQuadTree();
     };
@@ -234,14 +234,14 @@ if (node) {
 
     proto.createSublayer = function (x, y, sublayerId, parentObjId) {
 
-        var newCityMap = new Layer(this._gameData, {
-            _id: sublayerId,
+        var newCityMap = new Layer(this.gameData, {
+            id: sublayerId,
             parentObjId: parentObjId,
             width: 10000,
             height: 10000,
             mapTypeId: "cityMapType01",
-            parentMapId: this._id,
-            mapGeneratorParams: this.mapData.mapObjects.get(parentObjId)._blocks.Sublayer.mapGeneratorParams
+            parentMapId: this.id,
+            mapGeneratorParams: this.mapData.mapObjects.get(parentObjId).blocks.Sublayer.mapGeneratorParams
         });
 
         this.gameData.layers.add(newCityMap);
@@ -279,7 +279,7 @@ if (node) {
                     }
                     else {
                         // this key is a sub building block
-                        this._blocks[key].revertChanges();
+                        this.blocks[key].revertChanges();
                     }
                 }
             }
@@ -305,7 +305,7 @@ if (node) {
                     }
                     else {
                         // this key is a sub building block
-                        this._blocks[key].newSnapshot();
+                        this.blocks[key].newSnapshot();
                     }
                 }
             }
@@ -320,16 +320,16 @@ if (node) {
     // overwrite super class method and call super.method... TODO: this could be moved into AbstractBlock.
     proto.setInitTypeVars = function() {
         AbstractBlock.prototype.setInitTypeVars.call(this);
-        for (var blockName in this._blocks) {
-            this._blocks[blockName].setInitTypeVars();
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].setInitTypeVars();
         }
     };
 
 
     proto.createBuildingBlocks = function() {
-        this._blocks = {};
-        for (var blockName in this.mapType._blocks) {
-            this._blocks[blockName] = createBlockInstance(blockName,this,this.mapType._blocks[blockName]);
+        this.blocks = {};
+        for (var blockName in this.mapType.blocks) {
+            this.blocks[blockName] = createBlockInstance(blockName,this,this.mapType.blocks[blockName]);
         }
     };
 

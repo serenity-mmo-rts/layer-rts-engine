@@ -13,7 +13,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var Unit = function (parent, type) {
@@ -24,7 +24,7 @@ if (node) {
 
         // Define helper member variables:
         this.helperVar = 22;
-        this._mapId = this.parent.mapId;
+        this.mapId = this.parent.mapId;
         this.timeCallbackId = null;
         this.startedTime = null;
         this.dueTime = null;
@@ -70,14 +70,14 @@ if (node) {
 
     proto.setPointers = function () {
         this.gameData = this.parent.gameData;
-        this.mapObjectId = this.parent._id;
+        this.mapObjectId = this.parent.id;
         this.mapId = this.parent.mapId;
         this.layer= this.parent.gameData.layers.get(this.parent.mapId);
     };
 
     proto.updateDueTime= function(evt) {
         var movingTime = this.getTravelTime();
-        this.startedTime = evt._startedTime;
+        this.startedTime = evt.startedTime;
         // notify time scheduler:
         console.log("replace user due time: "+this.dueTime+" by new due time from server: "+this.startedTime + buildTime);
         this.dueTime = this.startedTime + movingTime;
@@ -104,7 +104,7 @@ if (node) {
                 return Infinity;
             };
             this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-            console.log("Map Object" + this.parent._id+ "started moving");
+            console.log("Map Object" + this.parent.id+ "started moving");
     };
 
     proto.getTravelTime = function () {

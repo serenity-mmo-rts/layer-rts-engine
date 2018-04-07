@@ -9,14 +9,14 @@ if (node) {
 
     var ResearchEvent = AbstractEvent.extend({
 
-        _type: "ResearchEvent",
+        type: "ResearchEvent",
 
         //serialized:
         techTypeId: null,
-        _parentObjectId: null,
+        parentObjectId: null,
 
         //not serialized
-        _parentObject: null,
+        parentObject: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -24,18 +24,18 @@ if (node) {
 
         isValid: function () {
             return true
-            //return  this._parentObject._blocks.TechProduction.checkTechRequirements(this.techTypeId);
+            //return  this.parentObject.blocks.TechProduction.checkTechRequirements(this.techTypeId);
         },
 
         setParameters: function (techTypeId,parentObject) {
             this.techTypeId = techTypeId;
-            this._parentObjectId = parentObject._id();
-            this._parentObject = parentObject;
+            this.parentObjectId = parentObject.id();
+            this.parentObject = parentObject;
         },
 
         setPointers: function() {
             this._super( );
-            this._parentObject = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(this._parentObjectId);
+            this.parentObject = this.gameData.layers.get(this.mapId).mapData.mapObjects.get(this.parentObjectId);
         },
 
         executeOnClient: function () {
@@ -53,12 +53,12 @@ if (node) {
         },
 
         execute: function () {
-            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
+            this.parentObject.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         updateFromServer: function (event) {
-            this._super(event);
-            this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
+            this.super(event);
+            this.parentObject.blocks.UpgradeProduction.updateDueTime(event);
         },
 
         revert: function() {
@@ -70,7 +70,7 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this.techTypeId,
-                this._parentObjectId
+                this.parentObjectId
             ];
             return o;
         },
@@ -79,7 +79,7 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 this.techTypeId = o.a2[0];
-                this._parentObjectId = o.a2[1];
+                this.parentObjectId = o.a2[1];
             }
             else {
                 for (var key in o) {

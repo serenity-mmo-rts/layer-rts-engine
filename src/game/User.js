@@ -13,7 +13,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var User = function (arg1, arg2) {
@@ -37,9 +37,9 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         if (type){
-            this.userTypeId(type._id);
+            this.userTypeId(type.id);
         }
-        this._blocks = {};
+        this.blocks = {};
         this.gameData = this.getGameData();
 
         this.userType = type;
@@ -63,9 +63,9 @@ if (node) {
      * create the sub building blocks
      */
     proto.createBuildingBlocks = function() {
-        this._blocks = {};
-        for (var blockName in this.userType._blocks) {
-            this._blocks[blockName] = createBlockInstance(blockName,this,this.userType._blocks[blockName]);
+        this.blocks = {};
+        for (var blockName in this.userType.blocks) {
+            this.blocks[blockName] = createBlockInstance(blockName,this,this.userType.blocks[blockName]);
         }
     };
 
@@ -88,7 +88,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                _id: null,
+                id: null,
                 userTypeId: null,
                 loginId: null
             },

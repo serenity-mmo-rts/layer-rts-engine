@@ -14,7 +14,7 @@ if (node) {
     var MoveThroughLayerEvent = AbstractEvent.extend({
 
         // states
-        _type: "MoveThroughLayerEvent",
+        type: "MoveThroughLayerEvent",
         mapObjId: null,
 
         // helpers
@@ -33,7 +33,7 @@ if (node) {
         },
 
         setParameters: function (mapObj) {
-            this.mapObjId = mapObj._id();
+            this.mapObjId = mapObj.id();
             this.setPointers();
         },
 
@@ -71,19 +71,19 @@ if (node) {
             this.item.objectId(this.targetMapObjectId);
             this.item.targetMapId(this.targetMapId);
             this.item.setState(State.BLOCKED);
-            this.mapObj._blocks.UpgradeProduction.addEventToQueue(this);
+            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
             var itemList = [];
             var objList= [];
-            itemList.push(itemInput._id());
-            objList.push(objectInput._id());
+            itemList.push(itemInput.id());
+            objList.push(objectInput.id());
 
             var itemsInObj = objectInput.getItems();
             for (var itemid in itemsInObj) {
                 var item = itemsInObj[itemid];
-                itemList.push(item._id());
+                itemList.push(item.id());
                 if (item.subObjectId()) {
                     objList.push(item.subObjectId());
                     var mapObj = this.map.mapData.mapObjects.get(item.subObjectId());
@@ -118,7 +118,7 @@ if (node) {
 
         updateFromServer: function (event) {
             this._super(event);
-            this.mapObj._blocks.UpgradeProduction.updateDueTime(event._startedTime);
+            this.mapObj.blocks.UpgradeProduction.updateDueTime(event.startedTime);
         },
 
         revert: function() {
@@ -126,7 +126,7 @@ if (node) {
         },
 
         save: function () {
-            var o = this._super();
+            var o = this.super();
             o.a2 = [this.mapObjId
             ];
             return o;

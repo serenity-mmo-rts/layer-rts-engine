@@ -19,7 +19,7 @@ if (node) {
     /**
      * This is a constructor to create a new Hub.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var UpgradeProduction = function (parent, type) {
@@ -30,7 +30,7 @@ if (node) {
 
         // Define helper member variables:
         this.helperVar = 22;
-        this._timeCallbackId = null;
+        this.timeCallbackId = null;
         this.gameData = null;
         this.mapId = null;
         this.layer= null;
@@ -100,11 +100,11 @@ if (node) {
             }
             else {
                 // remove this object from the game:
-                self.gameData.layers.get(self.mapId).timeScheduler.removeCallback(self._timeCallbackId);
+                self.gameData.layers.get(self.mapId).timeScheduler.removeCallback(self.timeCallbackId);
             }
         });
 
-        this._timeCallbackId =  this.layer.timeScheduler.addCallback(function() {
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(function() {
             var dT = self._finishedCallback();
             return dT
         },Infinity);
@@ -113,9 +113,9 @@ if (node) {
 
     proto.addEventToQueue = function (evt) {
         if (this.startedTime()==0){
-            this.startedTime(evt._startedTime);
+            this.startedTime(evt.startedTime);
         }
-        this.buildQueueIds.push(evt._id);
+        this.buildQueueIds.push(evt.id);
     };
 
     proto.removeItemFromQueue = function (idx) {
@@ -145,18 +145,18 @@ if (node) {
             var evt = this.buildQueue[idx];
             // if update comes in first time for running event update all events that are already in cue
             // get building time
-            if (evt._type == "BuildUpgradeEvent") {
-                var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[0];
+            if (evt.type == "BuildUpgradeEvent") {
+                var buildTime = this.gameData.itemTypes.get(evt.itemTypeId).buildTime[0];
             }
-            else if (evt._type == "LevelUpgradeEvent") {
-                var level = this.layer.mapData.items.get(evt._itemId).getLevel(); // level goes from 1 to n, buildTime from 0 to n-1
-                var buildTime = this.gameData.itemTypes.get(evt.itemTypeId)._buildTime[level];
+            else if (evt.type == "LevelUpgradeEvent") {
+                var level = this.layer.mapData.items.get(evt.itemId).getLevel(); // level goes from 1 to n, buildTime from 0 to n-1
+                var buildTime = this.gameData.itemTypes.get(evt.itemTypeId).buildTime[level];
             }
-            else if (evt._type == "BuildObjectEvent") {
-                var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId)._buildTime;
+            else if (evt.type == "BuildObjectEvent") {
+                var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId).buildTime;
             }
-            else if (evt._type == "ResearchEvent") {
-                var buildTime = this.gameData.technologyTypes.get(evt.techTypeId)._buildTime;
+            else if (evt.type == "ResearchEvent") {
+                var buildTime = this.gameData.technologyTypes.get(evt.techTypeId).buildTime;
             }
             if (idx == 0) {
                 // update current running event due time in production
@@ -164,10 +164,10 @@ if (node) {
                     this.startedTimes[0] = this.startedTime();
                 }
                 else {
-                    this.startedTimes[0] = evt._startedTime;
+                    this.startedTimes[0] = evt.startedTime;
                 }
                 this.dueTimes[0] = this.startedTimes[0] + buildTime;
-                this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this._timeCallbackId, this.dueTimes[0]);
+                this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTimes[0]);
             }
 
             else {
@@ -184,32 +184,32 @@ if (node) {
             var evt = this.buildQueue[0];
 
             // building upgrade
-            if (evt._type=="BuildUpgradeEvent"){
+            if (evt.type=="BuildUpgradeEvent"){
                 this.parent.setState(State.UPDATING);
-                var item = this.layer.mapData.items.get(evt._itemId);
+                var item = this.layer.mapData.items.get(evt.itemId);
                 item.setState(State.CONSTRUCTION);
-                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent._id());
+                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent.id());
             }
             // upgrading  upgrade
-            else if (evt._type=="LevelUpgradeEvent"){
+            else if (evt.type=="LevelUpgradeEvent"){
                 this.parent.setState(State.UPDATING);
-                var item = this.layer.mapData.items.get(evt._itemId);
+                var item = this.layer.mapData.items.get(evt.itemId);
                 item.setState(State.UPDATING);
-                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent._id());
+                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent.id());
             }
             // building map object
-            else if (evt._type=="BuildObjectEvent"){
+            else if (evt.type=="BuildObjectEvent"){
                 this.parent.setState(State.CONSTRUCTION);
                 console.log("I start building a " + this.parent.objTypeId() +  " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
             }
             // dismantle map Object
-           else if (evt._type=="MoveThroughLayerEvent"){
-                console.log("Start dismantling of Map Object " +this.parent._id() + "");
+           else if (evt.type=="MoveThroughLayerEvent"){
+                console.log("Start dismantling of Map Object " +this.parent.id() + "");
             }
             // research technology
-            else if (evt._type=="ResearchEvent"){
+            else if (evt.type=="ResearchEvent"){
                 this.parent.setState(State.UPDATING);
-                console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
+                console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
             }
         }
 
@@ -221,36 +221,36 @@ if (node) {
         var dueTime = this.dueTimes[0];
 
         // building upgrade
-        if (evt._type=="BuildUpgradeEvent"){
-            console.log("item: "+evt._itemId+" production completed");
-            var item = this.layer.mapData.items.get(evt._itemId);
-            item._blocks.Feature.startExecution(dueTime);
+        if (evt.type=="BuildUpgradeEvent"){
+            console.log("item: "+evt.itemId+" production completed");
+            var item = this.layer.mapData.items.get(evt.itemId);
+            item.blocks.Feature.startExecution(dueTime);
             item.setState(State.NORMAL);
         }
         // upgrading  upgrade
-        else if (evt._type=="LevelUpgradeEvent"){
-            console.log("item: "+evt._itemId+" upgrade completed");
-            var item = this.layer.mapData.items.get(evt._itemId);
+        else if (evt.type=="LevelUpgradeEvent"){
+            console.log("item: "+evt.itemId+" upgrade completed");
+            var item = this.layer.mapData.items.get(evt.itemId);
             var level = item.getLevel()+1;
             item.setLevel(level);
-            item._blocks.Feature.startExecution(dueTime);
+            item.blocks.Feature.startExecution(dueTime);
             item.setState(State.NORMAL);
         }
         // building map object
-        else if (evt._type=="BuildObjectEvent"){
+        else if (evt.type=="BuildObjectEvent"){
             console.log("I finished building a " + this.parent.objTypeId() + " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
         }
         // dismantle map Object
-        else if (evt._type=="MoveThroughLayerEvent"){
+        else if (evt.type=="MoveThroughLayerEvent"){
             // set map object state to dismantle
             this.parent.setState(State.HIDDEN);
-            console.log("Dismantling of Map Object: "+this.parent._id()+" done. Now start moving upwards...");
-            this.layer.mapData.items.get(this.parent.subItemId())._blocks.Movable.moveObjectUp(dueTime);
+            console.log("Dismantling of Map Object: "+this.parent.id()+" done. Now start moving upwards...");
+            this.layer.mapData.items.get(this.parent.subItemId()).blocks.Movable.moveObjectUp(dueTime);
         }
         // research technology
-        else if (evt._type=="ResearchEvent"){
+        else if (evt.type=="ResearchEvent"){
             this.parent.setState(State.NORMAL);
-            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
+            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
             User.addTechnology(evt.techTypeId);
         }
         // set parent objcet to normal state, remove finished event and set running to false;

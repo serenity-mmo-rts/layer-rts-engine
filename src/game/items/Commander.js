@@ -38,9 +38,9 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        this._itemId = this.parent._id;
-        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
-        this._mapObject = this.parent._mapObj;
+        this.itemId = this.parent.id;
+        this.layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this.mapObject = this.parent.mapObj;
     };
 
     proto.removePointers  = function(){

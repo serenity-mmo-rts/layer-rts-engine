@@ -13,15 +13,15 @@ if (node) {
     var ActivateFeatureEvent = AbstractEvent.extend({
 
         // states
-        _type: "ActivateFeatureEvent",
-        _targetId: null,
-        _itemId: null,
-        _targetType: null,
+        type: "ActivateFeatureEvent",
+        targetId: null,
+        itemId: null,
+        targetType: null,
 
         // helpers
-        _target:null,
-        _item:null,
-        _range: null,
+        target:null,
+        item:null,
+        range: null,
 
 
         init: function(gameData, initObj){
@@ -34,35 +34,35 @@ if (node) {
         },
 
         setParameters: function (item,operation) {
-            this._itemId = item._id();
-            this._item = item;
-            this._range = operation.activatePerClick.range;
-            this._targetType = operation.activatePerClick.targetType;
+            this.itemId = item.id();
+            this.item = item;
+            this.range = operation.activatePerClick.range;
+            this.targetType = operation.activatePerClick.targetType;
         },
 
 
         setTarget: function (targetId) {
-            this._targetId = targetId;
-            if (this._targetType =="self"){
-                this._target = null;
+            this.targetId = targetId;
+            if (this.targetType =="self"){
+                this.target = null;
             }
-            else if (this._targetType =="object"){
-                this._target  = this._gameData.layers.get(this._mapId).mapData.mapObjects.get(targetId);
+            else if (this.targetType =="object"){
+                this.target  = this.gameData.layers.get(this.mapId).mapData.mapObjects.get(targetId);
             }
-            else if (this._targetType =="item"){
-                this._target = this._gameData.layers.get(this._mapId).mapData.items.get(targetId);
+            else if (this.targetType =="item"){
+                this.target = this.gameData.layers.get(this.mapId).mapData.items.get(targetId);
             }
-            else if (this._targetType =="coordinate"){
+            else if (this.targetType =="coordinate"){
             }
         },
 
         setPointers: function(){
             this._super();
-            this._item = this._gameData.layers.get(this._mapId).mapData.items.get(this._itemId);
-            if (!this._item){
+            this.item = this.gameData.layers.get(this.mapId).mapData.items.get(this.itemId);
+            if (!this.item){
                 throw new Error("Item not in database, but should be there");
             }
-            this.setTarget(this._targetId);
+            this.setTarget(this.targetId);
         },
 
         executeOnClient: function () {
@@ -80,13 +80,13 @@ if (node) {
         },
 
         execute: function () {
-            this._item._blocks.Feature.activate(this._startedTime,this._target);
+            this.item.blocks.Feature.activate(this.startedTime,this.target);
             this.setFinished();
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            this._item._blocks.Feature.activate(event._startedTime,this._target);
+            this.item.blocks.Feature.activate(event.startedTime,this.target);
         },
 
         revert: function() {
@@ -95,9 +95,9 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this._itemId,
-                    this._targetId,
-                    this._targetType
+            o.a2 = [this.itemId,
+                    this.targetId,
+                    this.targetType
             ];
             return o;
         },
@@ -105,9 +105,9 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this._itemId = o.a2[0];
-                this._targetId = o.a2[1];
-                this._targetType = o.a2[2];
+                this.itemId = o.a2[0];
+                this.targetId = o.a2[1];
+                this.targetType = o.a2[2];
 
                 if (arguments.length>1 && flag==true){
                    this.setPointers();

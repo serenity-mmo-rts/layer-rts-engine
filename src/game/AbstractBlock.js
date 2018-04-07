@@ -239,17 +239,17 @@ ko.extenders.stateVar = function (target, options) {
  //wrapper to an observable that requires
  ko.lockableObservable = function(initialValue) {
  //private variables
- var _actualValue = ko.observable(initialValue),
+ var actualValue = ko.observable(initialValue),
  isLocked = false;
 
  //computed observable that we will return
  var result = ko.computed({
  read: function() {
- return _actualValue();
+ return actualValue();
  },
  write: function(newValue) {
  if (!isLocked) {
- _actualValue(newValue);
+ actualValue(newValue);
  }
  }
  }).extend({ notify: "always" });
@@ -270,32 +270,32 @@ ko.extenders.stateVar = function (target, options) {
  //wrapper to an observable that requires accept/cancel
  ko.protectedObservable = function(initialValue) {
  //private variables
- var _actualValue = ko.observable(initialValue),
- _tempValue = initialValue;
+ var actualValue = ko.observable(initialValue),
+ tempValue = initialValue;
 
  //computed observable that we will return
  var result = ko.computed({
  //always return the actual value
  read: function() {
- return _actualValue();
+ return actualValue();
  },
  //stored in a temporary spot until commit
  write: function(newValue) {
- _tempValue = newValue;
+ tempValue = newValue;
  }
  }).extend({ notify: "always" });
 
  //if different, commit temp value
  result.commit = function() {
- if (_tempValue !== _actualValue()) {
- _actualValue(_tempValue);
+ if (tempValue !== actualValue()) {
+ actualValue(tempValue);
  }
  };
 
  //force subscribers to take original
  result.reset = function() {
- _actualValue.valueHasMutated();
- _tempValue = _actualValue();   //reset temp value
+ actualValue.valueHasMutated();
+ tempValue = actualValue();   //reset temp value
  };
 
  return result;
@@ -305,28 +305,28 @@ ko.extenders.stateVar = function (target, options) {
 
  //wrapper for a computed observable that can pause its subscriptions
  ko.pauseableComputed = function(evaluatorFunction, evaluatorFunctionTarget) {
- var _cachedValue = "";
- var _isPaused = ko.observable(false);
+ var cachedValue = "";
+ var isPaused = ko.observable(false);
 
  //the computed observable that we will return
  var result = ko.computed(function() {
- if (!_isPaused()) {
+ if (!isPaused()) {
  //call the actual function that was passed in
  return evaluatorFunction.call(evaluatorFunctionTarget);
  }
- return _cachedValue;
+ return cachedValue;
  }, evaluatorFunctionTarget);
 
  //keep track of our current value and set the pause flag to release our actual subscriptions
  result.pause = function() {
- _cachedValue = this();
- _isPaused(true);
+ cachedValue = this();
+ isPaused(true);
  }.bind(result);
 
  //clear the cached value and allow our computed observable to be re-evaluated
  result.resume = function() {
- _cachedValue = "";
- _isPaused(false);
+ cachedValue = "";
+ isPaused(false);
  }
 
  return result;
@@ -426,7 +426,7 @@ ko.extenders.stateVar = function (target, options) {
      * This function sets the type vars first with the hardcoded defaults and then overwrites them with the given this.type
      */
     proto.setInitTypeVars = function () {
-        this._typeCache = this.defineTypeVars();
+        this.typeCache = this.defineTypeVars();
 
         var typeDef = this.type;
         if (typeDef instanceof Array) {
@@ -442,7 +442,7 @@ ko.extenders.stateVar = function (target, options) {
         // overwrite
         for (var typeVarName in typeDef) {
             if (typeDef.hasOwnProperty(typeVarName))
-                this._typeCache[typeVarName] = typeDef[typeVarName];
+                this.typeCache[typeVarName] = typeDef[typeVarName];
         }
 
         return this;
@@ -548,7 +548,7 @@ ko.extenders.stateVar = function (target, options) {
                 (function (typeVarName) {
                     Object.defineProperty(self, typeVarName, {
                         get: function () {
-                            return this._typeCache[typeVarName];
+                            return this.typeCache[typeVarName];
                         },
                         set: function (val) {
                             console.error("it is not allowed to set type variables.");
@@ -581,9 +581,9 @@ ko.extenders.stateVar = function (target, options) {
         // Now notify the parent:
         if (!this.isMutated) {
             this.isMutated = true;
-            if (this.hasOwnProperty("_id")) {
+            if (this.hasOwnProperty("id")) {
                 // if this is a game instance with an id. For example item or mapObject:
-                this.parent.notifyStateChange(this._id());
+                this.parent.notifyStateChange(this.id());
             }
             else {
                 // if this is a building block without id. For example UpgradeProdcution:
@@ -606,7 +606,7 @@ ko.extenders.stateVar = function (target, options) {
                 }
                 else {
                     // this key is a sub building block
-                    this._blocks[key].revertChanges();
+                    this.blocks[key].revertChanges();
                 }
             }
         }
@@ -629,7 +629,7 @@ ko.extenders.stateVar = function (target, options) {
                 }
                 else {
                     // this key is a sub building block
-                    this._blocks[key].newSnapshot();
+                    this.blocks[key].newSnapshot();
                 }
             }
         }
@@ -647,7 +647,7 @@ ko.extenders.stateVar = function (target, options) {
     proto.setPointers = function () {
         // for example:
         // this.objType = this.mapObject.objectType;
-        // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this._id;
+        // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this.id;
     };
 
     proto.removePointers = function () {
@@ -686,10 +686,10 @@ ko.extenders.stateVar = function (target, options) {
         }
 
         // TODO: now save sub blocks:
-        if (this.hasOwnProperty("_blocks")) {
-            o._blocks = {};
-            for (var key in this._blocks) {
-                o._blocks[key] = this._blocks[key].save();
+        if (this.hasOwnProperty("blocks")) {
+            o.blocks = {};
+            for (var key in this.blocks) {
+                o.blocks[key] = this.blocks[key].save();
             }
         }
 
@@ -737,9 +737,9 @@ ko.extenders.stateVar = function (target, options) {
         }
 
         // TODO: load the sub blocks:
-        if (o.hasOwnProperty("_blocks")) {
-            for (var key in o._blocks) {
-                this._blocks[key].load(o._blocks[key]);
+        if (o.hasOwnProperty("blocks")) {
+            for (var key in o.blocks) {
+                this.blocks[key].load(o.blocks[key]);
             }
         }
 

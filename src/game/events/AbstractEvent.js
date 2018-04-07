@@ -11,25 +11,25 @@ if (node) {
     var AbstractEvent = Class.extend({
 
        // serialized
-        _id: null,
+        id: null,
         oldId: null,
-        _userId: null,
-        _mapId: null,
-        _type: "AbstractEvent",
-        _startedTime: null,
-        _isFinished: false,
+        userId: null,
+        mapId: null,
+        type: "AbstractEvent",
+        startedTime: null,
+        isFinished: false,
 
         // not serialized
-        _gameData: null,
+        gameData: null,
 
         init: function(gameData, initObj) {
-            this._gameData = gameData;
+            this.gameData = gameData;
             if (arguments.length == 1 || initObj==null ) {
                 // create new event
-                this._id = 'tmpId'+Math.random();
+                this.id = 'tmpId'+Math.random();
                 if (!node){
-                    this._userId = uc.userId;
-                    this._mapId = uc.layerView.mapId;
+                    this.userId = uc.userId;
+                    this.mapId = uc.layerView.mapId;
                 }
             }
             else {
@@ -47,7 +47,7 @@ if (node) {
         },
 
         setFinished: function(){
-            this._isFinished = true;
+            this.isFinished = true;
         },
 
         setState: function(){
@@ -70,16 +70,16 @@ if (node) {
         },
 
         start: function(curTime){
-            this._startedTime = curTime;
+            this.startedTime = curTime;
         },
 
 
         updateFromServer: function (event) {
-            console.log("replace tmp event Id: "+this._id+" by new id from server: "+event._id);
-            this._gameData.layers.get(this._mapId).eventScheduler.updateEventId(this._id,event._id);
-            this._id = event._id;
-            console.log("replace event execution time  "+this._startedTime+" by new execution time "+event._startedTime);
-            this._startedTime = event._startedTime;
+            console.log("replace tmp event Id: "+this.id+" by new id from server: "+event.id);
+            this.gameData.layers.get(this.mapId).eventScheduler.updateEventId(this.id,event.id);
+            this.id = event.id;
+            console.log("replace event execution time  "+this.startedTime+" by new execution time "+event.startedTime);
+            this.startedTime = event.startedTime;
         },
 
 
@@ -89,31 +89,31 @@ if (node) {
 
         setPointers: function () {
             //overwrite
-            this.map = this._gameData.layers.get(this._mapId);
+            this.map = this.gameData.layers.get(this.mapId);
         },
 
         save: function () {
-            var o = {_id: this._id,
-                    _userId: this._userId,
-                    _mapId: this._mapId,
-                    _type: this._type,
+            var o = {id: this.id,
+                    userId: this.userId,
+                    mapId: this.mapId,
+                    type: this.type,
                     a: [
                         this.oldId,
-                        this._startedTime,
-                        this._isFinished
+                        this.startedTime,
+                        this.isFinished
                     ]};
         return o;
         },
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
-                this._id = o._id;
-                this._userId = o._userId;
-                this._mapId = o._mapId;
-                this._type = o._type;
+                this.id = o.id;
+                this.userId = o.userId;
+                this.mapId = o.mapId;
+                this.type = o.type;
                 this.oldId = o.a[0];
-                this._startedTime = o.a[1];
-                this._isFinished = o.a[2];
+                this.startedTime = o.a[1];
+                this.isFinished = o.a[2];
             }
             else {
                 for (var key in o) {
@@ -122,8 +122,8 @@ if (node) {
                     }
                 }
             }
-            if (typeof this._id != 'string') {
-                this._id = this._id.toHexString();
+            if (typeof this.id != 'string') {
+                this.id = this.id.toHexString();
             }
         }
 

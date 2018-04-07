@@ -9,10 +9,10 @@ if (node) {
     var ItemType = AbstractType.extend({
 
 
-        _className: null,
-        _blocks: {},
-        _allowOnMapTypeId: null,
-        _allowOnObjTypeId: null,
+        className: null,
+        blocks: {},
+        allowOnMapTypeId: null,
+        allowOnObjTypeId: null,
 
         init: function(gameData, initObj){
 
@@ -24,10 +24,10 @@ if (node) {
             var o = this._super();
             o.a2 = [
 
-                    this._className,
-                    this._blocks,
-                    this._allowOnMapTypeId,
-                    this._allowOnObjTypeId
+                    this.className,
+                    this.blocks,
+                    this.allowOnMapTypeId,
+                    this.allowOnObjTypeId
 
                     ];
             return o;

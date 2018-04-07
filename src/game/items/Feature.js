@@ -12,7 +12,7 @@ if (node) {
     /**
      * This is a constructor to create a new Feature Block.
      * @param parent the parent object/item/map of this building block
-     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the _blocks field of a type class.
+     * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
     var Feature = function (parent, type){
@@ -21,8 +21,8 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this._mapObject = null;
-        this._timeCallbackId = null;
+        this.mapObject = null;
+        this.timeCallbackId = null;
     };
 
     /**
@@ -38,7 +38,7 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            _stack: []
+            stack: []
         };
     };
 
@@ -49,7 +49,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {_executeIndex: 0},
+            {executeIndex: 0},
             {effects: []},
             {isActivated: false},
             {canBeActivated: false},
@@ -63,9 +63,9 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        console.log("parent Id=" + this.parent._id() );
-        this._layer= this.parent.gameData.layers.get(this.parent.mapId());
-        this._mapObject = this._layer.mapData.mapObjects.get(this.parent._objectId());
+        console.log("parent Id=" + this.parent.id() );
+        this.layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this.mapObject = this.layer.mapData.mapObjects.get(this.parent.objectId());
         this.addItemToFeatureManagers();
     };
 
@@ -94,7 +94,7 @@ if (node) {
 
 
     proto.getCurrentOp = function() {
-        return this._stack[this._executeIndex()];
+        return this.stack[this.executeIndex()];
     };
 
     /**
@@ -109,20 +109,20 @@ if (node) {
         var process = true;
 
         // execute script iterative
-        while (process == true && this._executeIndex() < this._stack.length) {
+        while (process == true && this.executeIndex() < this.stack.length) {
             var currentOperation = this.getCurrentOp();
             out  = this.processStack(formerOperation, currentOperation);
             formerOperation = out[0];
             process = out[1];
-            this._executeIndex( this._executeIndex()+1 );
+            this.executeIndex( this.executeIndex()+1 );
         }
 
         //  subtract 1 to get correct execution index
-        this._executeIndex( this._executeIndex()-1 );
+        this.executeIndex( this.executeIndex()-1 );
 
         // notify change
         this.notifyStateChange();
-        this._mapObject.notifyChange();
+        this.mapObject.notifyChange();
     };
 
     /**
@@ -214,8 +214,8 @@ if (node) {
 
     proto.wait = function(waitingTime){
 
-        if (this._timeCallbackId !=null){ // re-enter with call back
-            this._timeCallbackId = null;
+        if (this.timeCallbackId !=null){ // re-enter with call back
+            this.timeCallbackId = null;
             this.lastActivationTime(this.dueTime());
             this.dueTime(null);
             return true;
@@ -227,11 +227,11 @@ if (node) {
             var self = this;
             var callback = function(dueTime,callbackId){
                 //TO DO check whether event is really due
-                self._layer.timeScheduler.removeCallback(callbackId);
+                self.layer.timeScheduler.removeCallback(callbackId);
                 self.checkStackExecution(false,self.lastActivationTime());
                 return Infinity
             };
-            this._timeCallbackId = this._layer.timeScheduler.addCallback(callback,this.dueTime());
+            this.timeCallbackId = this.layer.timeScheduler.addCallback(callback,this.dueTime());
             return false;
         }
     };
@@ -243,13 +243,13 @@ if (node) {
 
         // delete feature from all objects and items that used it
         for (var i = 0; i<objects.length; i++) {
-            var object = this._layer.mapData.mapObjects.get(objects[i]);
-             object._blocks.FeatureManager.removeItemId(this.parent._id(),effectIdx);
+            var object = this.layer.mapData.mapObjects.get(objects[i]);
+             object.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
         }
 
         for (var i = 0; i<items.length; i++) {
-            var item = this._layer.mapData.items.get(items[i]);
-            item._blocks.FeatureManager.removeItemId(this.parent._id(),effectIdx);
+            var item = this.layer.mapData.items.get(items[i]);
+            item.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
         }
 
         this.effects().splice(effectIdx,1);
@@ -276,7 +276,7 @@ if (node) {
     };
 
     proto.setExecutionIdx = function(value){
-        this._executeIndex(value);
+        this.executeIndex(value);
     };
 
     proto.getParentItem = function(){
@@ -286,18 +286,18 @@ if (node) {
 
     proto.getParentObj = function(){
 
-        return this.parent._mapObj;
+        return this.parent.mapObj;
 
     };
 
     proto.getObjInRange = function(MapObjOrCoordinate,range){
         if (MapObjOrCoordinate == null || MapObjOrCoordinate instanceof Boolean){
-            var currentLocation= [this.parent._mapObj.x(),this.parent._mapObj.y()];
+            var currentLocation= [this.parent.mapObj.x(),this.parent.mapObj.y()];
         }
         else {
             var currentLocation = [MapObjOrCoordinate.x(), MapObjOrCoordinate.y()];
         }
-        return this._layer.mapData.getObjectsInRange(currentLocation,range,1);
+        return this.layer.mapData.getObjectsInRange(currentLocation,range,1);
     };
 
     proto.addToProp = function(itemsOrObjects,variable,block,operator,change){
@@ -340,8 +340,8 @@ if (node) {
         var valid = true;
         // check if block and variable exist
         for (var i = 0; i<blocks.length; i++){
-            if (itemOrObj._blocks.hasOwnProperty(blocks[i])) {
-                if (!itemOrObj._blocks[blocks[i]]._typeCache.hasOwnProperty(variables[i])) {
+            if (itemOrObj.blocks.hasOwnProperty(blocks[i])) {
+                if (!itemOrObj.blocks[blocks[i]].typeCache.hasOwnProperty(variables[i])) {
                     valid = false;
                 }
             }
@@ -353,28 +353,28 @@ if (node) {
     };
 
     proto.addObjTargets= function(object,changeObj){
-        var targetId = object._id();
+        var targetId = object.id();
         var effectCounter = this.effects().length-1;
         if (this.effects()[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
             this.effects()[effectCounter].currentTargetObjectIds.push(targetId);
-            object._blocks.FeatureManager.addItemId(this.parent._id(),effectCounter);
+            object.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
         }
-        object._blocks.FeatureManager.setState(true);
+        object.blocks.FeatureManager.setState(true);
     };
 
     proto.addItemTargets= function(item,changeObj){
-        var targetId = item._id();
+        var targetId = item.id();
         var effectCounter = this.effects().length-1;
         if (this.effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
             this.effects()[effectCounter].currentTargetItemIds.push(targetId);
-            item._blocks.FeatureManager.addItemId(this.parent._id(),effectCounter);
+            item.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
         }
-        item._blocks.FeatureManager.setState(true);
+        item.blocks.FeatureManager.setState(true);
     };
 
     proto.getItemsInObject = function(object,itemTypeIds){
         if (itemTypeIds  == null){
-            this._processedStack()[this._executeIndex()](object.getItems());
+            this.processedStack()[this.executeIndex()](object.getItems());
         }
         else{
 
@@ -391,13 +391,13 @@ if (node) {
             var itemIds= this.effects()[i].currentTargetItemIds;
 
             for (var k = 0; k<objectIds.length;k++){
-                var object=  this._layer.mapData.mapObjects.get(objectIds[k]);
-                object._blocks.FeatureManager.addItemId(this.parent._id(),k);
+                var object=  this.layer.mapData.mapObjects.get(objectIds[k]);
+                object.blocks.FeatureManager.addItemId(this.parent.id(),k);
             }
 
             for (var k = 0; k<itemIds.length;k++){
-                var item =  this._layer.mapData.items.get(itemIds[k]);
-                item._blocks.FeatureManager.addItemId(this.parent._id(),k);
+                var item =  this.layer.mapData.items.get(itemIds[k]);
+                item.blocks.FeatureManager.addItemId(this.parent.id(),k);
             }
 
         }
@@ -407,20 +407,20 @@ if (node) {
 
 
     proto.checkSelect = function(currentTarget){
-        if (this._properties._canSelect){
+        if (this.properties.canSelect){
             if(this.validMapObject(currentTarget)){
-                var featureTargets = this._layer.mapData.getMapObject(currentTarget);
+                var featureTargets = this.layer.mapData.getMapObject(currentTarget);
             }
         }
         else {
-            var coords = [this._layer.mapData.mapObjects.get(this.parent._objectId).x,this._layer.mapData.mapObjects.get(this.parent._objectId).y];
+            var coords = [this.layer.mapData.mapObjects.get(this.parent.objectId).x,this.layer.mapData.mapObjects.get(this.parent.objectId).y];
         }
     };
 
     proto.checkRange = function(currentTarget){
-        if (this._properties._range > 0){
+        if (this.properties.range > 0){
             if(this.validCoordinate(currentTarget)){
-                var featureTargets = this._layer.mapData.getObjectsInRange(currentTarget,this._properties._range);
+                var featureTargets = this.layer.mapData.getObjectsInRange(currentTarget,this.properties.range);
                 return featureTargets;
             }
         }

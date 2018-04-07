@@ -66,7 +66,7 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
 
-        this._blocks = {};
+        this.blocks = {};
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
         this.map = this.getMap();
@@ -75,7 +75,7 @@ if (node) {
         this.items = {};
 
         if (type){
-            this.objTypeId(type._id);
+            this.objTypeId(type.id);
             this.objType = type;
             this.createBuildingBlocks();
         }
@@ -105,16 +105,16 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            _className: "plantation",
-            _initWidth: 40,
-            _initHeight: 40,
-            _allowOnMapTypeId: "cityMapType01",
-            _name: "tree plantation 2",
-            _spritesheetId: "objectsSprite",
-            _spriteFrame: 14,
-            _iconSpritesheetId: "objectsSprite",
-            _iconSpriteFrame: 15,
-            _buildTime: 1000
+            className: "plantation",
+            initWidth: 40,
+            initHeight: 40,
+            allowOnMapTypeId: "cityMapType01",
+            name: "tree plantation 2",
+            spritesheetId: "objectsSprite",
+            spriteFrame: 14,
+            iconSpritesheetId: "objectsSprite",
+            iconSpriteFrame: 15,
+            buildTime: 1000
         };
     };
 
@@ -126,15 +126,15 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                _id: 0,
+                id: 0,
                 mapId: 0,
                 targetMapId: 0,
                 objTypeId: 0
             },
             {x: 0},
             {y: 0},
-            {width: this._initWidth},
-            {height: this._initHeight},
+            {width: this.initWidth},
+            {height: this.initHeight},
             {ori: 0},
             {state: State.TEMP},
             {sublayerId: null},
@@ -150,15 +150,15 @@ if (node) {
         this.objType = this.gameData.objectTypes.get(this.objTypeId());
 
         // call all setPointer functions of the building blocks:
-        for (var blockName in this._blocks) {
-            this._blocks[blockName].setPointers();
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].setPointers();
         }
 
         var self= this;
         this.embedded.subscribe(function(newValue) {
             // set embedded variable of all blocks
-            for (var blockName in self._blocks) {
-                self._blocks[blockName].embedded(newValue);
+            for (var blockName in self.blocks) {
+                self.blocks[blockName].embedded(newValue);
             }
 
             if(newValue){
@@ -179,8 +179,8 @@ if (node) {
     // overwrite super class method and call super.method... TODO: this could be moved into AbstractBlock.
     proto.setInitTypeVars = function() {
         AbstractBlock.prototype.setInitTypeVars.call(this);
-        for (var blockName in this._blocks) {
-            this._blocks[blockName].setInitTypeVars();
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].setInitTypeVars();
         }
     };
 
@@ -199,12 +199,12 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     /*proto.notifyStateChange = function(){
-        this.map.mapData.mapObjects.notifyStateChange(this._id());
+        this.map.mapData.mapObjects.notifyStateChange(this.id());
     };*/
 
     proto.getLevel = function() {
-        if (this._blocks.hasOwnProperty("UserObject")) {
-            return this._blocks.UserObject.getLevel();
+        if (this.blocks.hasOwnProperty("UserObject")) {
+            return this.blocks.UserObject.getLevel();
         }
         else {
             return 0;
@@ -212,7 +212,7 @@ if (node) {
     };
 
     proto.addItem = function (item){
-        this.items[item._id()] = item;
+        this.items[item.id()] = item;
     };
 
     proto.removeItem = function (itemId){
@@ -234,9 +234,9 @@ if (node) {
     };
 
     proto.createBuildingBlocks = function() {
-        this._blocks = {};
-        for (var blockName in this.objType._blocks) {
-            this._blocks[blockName] = createBlockInstance(blockName,this,this.objType._blocks[blockName]);
+        this.blocks = {};
+        for (var blockName in this.objType.blocks) {
+            this.blocks[blockName] = createBlockInstance(blockName,this,this.objType.blocks[blockName]);
         }
     };
 

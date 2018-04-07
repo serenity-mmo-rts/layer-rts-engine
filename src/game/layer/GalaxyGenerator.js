@@ -59,23 +59,23 @@ if (node) {
             var posy = (Math.sin(angle) * centerDist);
 
             var subLayerSeed = RandomNumber.rand();
-            var starTemperature = usedStar._StarHeatMean+(RandomNumber.randn()*usedStar._StarHeatStd);
-            var starSize = usedStar._StarSizesMean+(RandomNumber.randn()*usedStar._StarSizesStd);
-            var planetAmount = usedStar._PlanetAmountMean+(RandomNumber.randn()*usedStar._PlanetAmountStd);
+            var starTemperature = usedStar.StarHeatMean+(RandomNumber.randn()*usedStar.StarHeatStd);
+            var starSize = usedStar.StarSizesMean+(RandomNumber.randn()*usedStar.StarSizesStd);
+            var planetAmount = usedStar.PlanetAmountMean+(RandomNumber.randn()*usedStar.PlanetAmountStd);
 
             // create solar system Object
             var mapObj =new MapObject(this.gameData,{
-                _id: "galaxyStar01inst" + i,
-                mapId: this.layer._id,
+                id: "galaxyStar01inst" + i,
+                mapId: this.layer.id,
                 x: posx,
                 y: posy,
-                objTypeId: usedStar._id,
+                objTypeId: usedStar.id,
                 userId: 0,
-                mapGeneratorParams: [subLayerSeed,starTemperature,starSize,planetAmount,usedStar._PlanetSizesMean,usedStar._PlanetSizesStd]
+                mapGeneratorParams: [subLayerSeed,starTemperature,starSize,planetAmount,usedStar.PlanetSizesMean,usedStar.PlanetSizesStd]
 
             });
             mapObj.setPointers();
-            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
+            this.gameData.layers.get(this.layer.id).mapData.addObject(mapObj);
             this.worldObjects.push(mapObj);
         }
     };

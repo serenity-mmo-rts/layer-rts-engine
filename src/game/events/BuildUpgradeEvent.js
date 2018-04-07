@@ -13,15 +13,15 @@ if (node) {
 
     var BuildUpgradeEvent = AbstractEvent.extend({
 
-        _type: "BuildUpgradeEvent",
+        type: "BuildUpgradeEvent",
 
         //serialized:
         itemTypeId: null,
-        _itemId: null,
-        _parentObjectId: null,
+        itemId: null,
+        parentObjectId: null,
 
         //not serialized
-        _parentObject: null,
+        parentObject: null,
 
         init: function(gameData, initObj){
             this._super( gameData, initObj );
@@ -33,23 +33,23 @@ if (node) {
 
         setParameters: function (itemTypeId,parentObject) {
             this.itemTypeId = itemTypeId;
-            this._parentObjectId = parentObject._id();
-            this._parentObject = parentObject;
+            this.parentObjectId = parentObject.id();
+            this.parentObject = parentObject;
         },
 
         setPointers: function() {
             this._super();
-            this._parentObject = this.map.mapData.mapObjects.get(this._parentObjectId);
+            this.parentObject = this.map.mapData.mapObjects.get(this.parentObjectId);
         },
 
         executeOnClient: function () {
-            this._itemId = 'tmpId'+Math.random();
+            this.itemId = 'tmpId'+Math.random();
             this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
         executeOnServer: function () {
-            this._itemId = (new mongodb.ObjectID()).toHexString();
+            this.itemId = (new mongodb.ObjectID()).toHexString();
             this.start(Date.now());
             this.execute();
         },
@@ -60,23 +60,23 @@ if (node) {
         },
 
         execute: function () {
-            this.item = new Item(this._gameData, {_id: this._itemId, _objectId: this._parentObjectId, itemTypeId: this.itemTypeId, mapId: this._mapId});
+            this.item = new Item(this.gameData, {id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
             this.item.setPointers();
 
             this.isValid();
             this.item.embedded(true);
-            this._gameData.layers.get(this._mapId).mapData.addItem(this.item);
+            this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
 
-            this._parentObject._blocks.UpgradeProduction.addEventToQueue(this);
+            this.parentObject.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         updateFromServer: function (event) {
             this._super(event);
-            console.log("replace tmp Item ID: "+this._itemId+" by new id from server: "+event._itemId);
-            this._itemId = event._itemId;
+            console.log("replace tmp Item ID: "+this.itemId+" by new id from server: "+event.itemId);
+            this.itemId = event.itemId;
 
-            this._gameData.layers.get(this._mapId).mapData.items.updateId(this._itemId,event._itemId);
-            this._parentObject._blocks.UpgradeProduction.updateDueTime(event);
+            this.gameData.layers.get(this.mapId).mapData.items.updateId(this.itemId,event.itemId);
+            this.parentObject.blocks.UpgradeProduction.updateDueTime(event);
         },
 
         revert: function() {
@@ -88,8 +88,8 @@ if (node) {
         save: function () {
             var o = this._super();
             o.a2 = [this.itemTypeId,
-                this._itemId,
-                this._parentObjectId
+                this.itemId,
+                this.parentObjectId
             ];
             return o;
         },
@@ -98,8 +98,8 @@ if (node) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
                 this.itemTypeId = o.a2[0];
-                this._itemId = o.a2[1];
-                this._parentObjectId = o.a2[2];
+                this.itemId = o.a2[1];
+                this.parentObjectId = o.a2[2];
             }
             else {
                 for (var key in o) {

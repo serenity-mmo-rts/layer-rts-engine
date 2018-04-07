@@ -5,7 +5,7 @@ if (node) {
 }
 
 
-// ClassType should be a class with field _id which is used as key in the list
+// ClassType should be a class with field id which is used as key in the list
 
 (function (exports) {
 
@@ -75,11 +75,11 @@ if (node) {
         if (o instanceof Class || o instanceof this.ClassType) {
             var id;
 
-            if (ko.isObservable(o._id)) {
-                id = o._id();
+            if (ko.isObservable(o.id)) {
+                id = o.id();
             }
             else {
-                id = o._id;
+                id = o.id;
             }
             if (this.hashList.hasOwnProperty(id)) {
                 console.log("warning: this id already exists in GameList. Overwriting...");
@@ -106,7 +106,7 @@ if (node) {
                 var objInstance = new this.ClassType(this.gameData, o);
             }
             if (!this.lockObject.isLocked) {
-                this.mutatedChilds[objInstance._id()] = true;
+                this.mutatedChilds[objInstance.id()] = true;
                 this.sinceSnapshotAdded.push(objInstance);
             }
             if (typeof objInstance.embedded === "function") {
@@ -205,11 +205,11 @@ if (node) {
             var tmpObj = this.hashList[oldId];
             this.deleteById(oldId);
             var id;
-            if (ko.isObservable(tmpObj._id)) {
-                tmpObj._id(newId);
+            if (ko.isObservable(tmpObj.id)) {
+                tmpObj.id(newId);
             }
             else {
-                tmpObj._id = newId;
+                tmpObj.id = newId;
             }
             return this.add(tmpObj);
         }
@@ -237,11 +237,11 @@ if (node) {
             this.sinceSnapshotRemoved.push(o);
         }
 
-        if (ko.isObservable(o._id)) {
-            delete this.hashList[o._id()];
+        if (ko.isObservable(o.id)) {
+            delete this.hashList[o.id()];
         }
         else {
-            delete this.hashList[o._id];
+            delete this.hashList[o.id];
         }
 
         if (typeof o.embedded === "function") {
@@ -255,7 +255,7 @@ if (node) {
     };
 
     proto.length = function () {
-        // TODO: implement browser check or use underscore and _.size(object) or _.keys(object).length
+        // TODO: implement browser check or use underscore and .size(object) or .keys(object).length
         // for all old browsers:
         var count = 0;
         for (k in this.hashList) if (this.hashList.hasOwnProperty(k)) count++;
