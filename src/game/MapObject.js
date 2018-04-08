@@ -86,6 +86,10 @@ if (node) {
             this.load(initObj);
         }
 
+        this.state.subscribe(function(newVal){
+            console.log(" mapobject.state changed to "+newVal)
+        });
+
     }
 
     /**

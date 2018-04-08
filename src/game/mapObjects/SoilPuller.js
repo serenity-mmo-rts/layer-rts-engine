@@ -1,6 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    var State = require('../AbstractBlock').State;
     var MapObject = require('../MapObject').MapObject;
 
 }
@@ -20,9 +21,16 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
+        this.soilEffectiveIn.subscribe(function(){
+            console.log("soil effective in changed...");
+        });
+
         // Define helper member variables:
         this.parent.state.subscribe(function(newValue){
-            if (newValue==MapObject.State.NORMAL) {
+
+            console.log("parent.state changed: so recalculate soil effective in...");
+
+            if (newValue==State.NORMAL) {
                 // ok, start production:
                 self.soilEffectiveIn(self.ressourceMaxInPerSec);
             }
