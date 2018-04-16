@@ -144,7 +144,7 @@ if (node) {
             // search upward:
             var eventLoc = tmpEventLoc;
             // TODO @Holger here the game goes to infinity becuase this is always true!!!
-            while(this.sortedCallbackIds[eventLoc]!=callbackId && this.sortedDueTimes[eventLoc]!=dueTime) {
+            while(this.sortedCallbackIds[eventLoc]!=callbackId || this.sortedDueTimes[eventLoc]!=dueTime) {
                 eventLoc++;
                 if (eventLoc>this.sortedCallbackIds.length) {
                     throw new Error("could not find event in list of sorted due times");
@@ -152,9 +152,6 @@ if (node) {
             }
             if (this.sortedCallbackIds[eventLoc]==callbackId) {
                 return eventLoc;
-            }
-            else {
-                throw new Error("could not find event in list of sorted due times!");
             }
 
 
