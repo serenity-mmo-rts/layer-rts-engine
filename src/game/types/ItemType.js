@@ -36,10 +36,10 @@ if (node) {
         load: function (o) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                    this._className = o.a2[0];
-                    this._blocks = o.a2[1];
-                    this._allowOnMapTypeId = o.a2[2];
-                    this._allowOnObjTypeId = o.a2[3];
+                    this.className = o.a2[0];
+                    this.blocks = o.a2[1];
+                    this.allowOnMapTypeId = o.a2[2];
+                    this.allowOnObjTypeId = o.a2[3];
 
             }
             else {

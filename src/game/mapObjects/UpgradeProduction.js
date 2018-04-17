@@ -224,8 +224,9 @@ if (node) {
         if (evt.type=="BuildUpgradeEvent"){
             console.log("item: "+evt.itemId+" production completed");
             var item = this.layer.mapData.items.get(evt.itemId);
-            item.blocks.Feature.startExecution(dueTime);
             item.setState(State.NORMAL);
+            item.blocks.Feature.startExecution(dueTime);
+
         }
         // upgrading  upgrade
         else if (evt.type=="LevelUpgradeEvent"){
@@ -233,8 +234,9 @@ if (node) {
             var item = this.layer.mapData.items.get(evt.itemId);
             var level = item.getLevel()+1;
             item.setLevel(level);
-            item.blocks.Feature.startExecution(dueTime);
             item.setState(State.NORMAL);
+            item.blocks.Feature.startExecution(dueTime);
+
         }
         // building map object
         else if (evt.type=="BuildObjectEvent"){
