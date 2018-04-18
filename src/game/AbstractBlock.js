@@ -724,7 +724,7 @@ ko.extenders.stateVar = function (target, options) {
         }
         else {
 
-            this.setInitStateVars();
+            //this.setInitStateVars();
 
             for (var key in o) {
 

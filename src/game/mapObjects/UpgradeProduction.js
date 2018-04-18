@@ -86,7 +86,9 @@ if (node) {
         this.buildQueueIds.subscribe(function(array){
             self._fillBuildQueue(array);
             self._fillDueAndStartedTimes();
-            self._checkQueue();
+            if (self.embedded()) {
+                self._checkQueue();
+            }
         });
 
         this.startedTime.subscribe(function(){
@@ -96,6 +98,11 @@ if (node) {
         this.embedded.subscribe(function(newValue) {
             if (newValue) {
                 // this object should now be included into the game
+                self.timeCallbackId =  self.layer.timeScheduler.addCallback(function() {
+                    var dT = self._finishedCallback();
+                    return dT
+                },Infinity);
+
                 self._checkQueue();
             }
             else {
@@ -104,10 +111,7 @@ if (node) {
             }
         });
 
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(function() {
-            var dT = self._finishedCallback();
-            return dT
-        },Infinity);
+
 
     };
 
