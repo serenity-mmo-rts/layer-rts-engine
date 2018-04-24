@@ -209,9 +209,6 @@ if (node) {
                 this.mapObj.blocks.Connection.connectedTo(this.connectedTo);
             }
 
-            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
-
-
             this.isValid();
             this.mapObj.embedded(true);
             this.gameData.layers.get(this.mapId).mapData.addObject(this.mapObj);
@@ -220,10 +217,13 @@ if (node) {
                 var itemTypeId = this.mapObj.blocks.Unit.itemTypeId;
                 this.item = new Item(this.gameData, {id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: itemStates.HIDDEN});
                 this.item.subObjectId(this.mapObjId);
-                this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
                 this.item.setPointers();
+                this.item.embedded(true);
+                this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
                 this.mapObj.subItemId(this.itemId);
             }
+
+            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
 
         },
 
