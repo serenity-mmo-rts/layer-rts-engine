@@ -5,7 +5,7 @@ if (node) {
     var ItemModel = require('./Item').ItemModel;
     var GameList = require('./GameList').GameList;
 
-
+    ko = require('../client/lib/knockout-3.3.0.debug.js');
     var UserObject = require('./mapObjects/UserObject').UserObject;
     var Environment = require('./mapObjects/Environment').Environment;
     var HubNode = require('./mapObjects/HubNode').HubNode ;
@@ -41,6 +41,7 @@ if (node) {
      */
     var MapObject = function (arg1, arg2) {
 
+        this.embedded = ko.observable(false);
         var parent;
         var type;
         var initObj;
@@ -161,9 +162,9 @@ if (node) {
         var self= this;
         this.embedded.subscribe(function(newValue) {
             // set embedded variable of all blocks
-            for (var blockName in self.blocks) {
-                self.blocks[blockName].embedded(newValue);
-            }
+            //for (var blockName in self.blocks) {
+            //    self.blocks[blockName].embedded(newValue);
+            //}
 
             if(newValue){
                 // add this object to game

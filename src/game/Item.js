@@ -1,6 +1,8 @@
 var node = !(typeof exports === 'undefined');
 
 if (node) {
+    ko = require('../client/lib/knockout-3.3.0.debug.js');
+
     var Class = require('./Class').Class;
     var Combat = require('./items/Combat').Combat;
     var Commander = require('./items/Commander').Commander;
@@ -24,6 +26,7 @@ if (node) {
      */
     var Item = function (arg1, arg2) {
 
+        this.embedded = ko.observable(false);
         var parent;
         var type;
         var initObj;
@@ -179,11 +182,12 @@ if (node) {
         var self= this;
         this.embedded.subscribe(function(newValue) {
             // set embedded variable of all blocks
-            for (var blockName in self.blocks) {
-                self.blocks[blockName].embedded(newValue);
-            }
+            //for (var blockName in self.blocks) {
+            //    self.blocks[blockName].embedded(newValue);
+            //}
             if (!newValue){
-                self.mapObj.removeItem(self.id())
+                self.mapObj.removeItem(self.id());
+                self.getMap().mapData.removeItem(self);
             }
 
         });

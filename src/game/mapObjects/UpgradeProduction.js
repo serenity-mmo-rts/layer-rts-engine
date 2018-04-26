@@ -86,7 +86,7 @@ if (node) {
         this.buildQueueIds.subscribe(function(array){
             self._fillBuildQueue(array);
             self._fillDueAndStartedTimes();
-            if (self.embedded()) {
+            if (self.parent.embedded()) {
                 self._checkQueue();
             }
         });
@@ -95,7 +95,7 @@ if (node) {
             self._fillDueAndStartedTimes();
         });
 
-        this.embedded.subscribe(function(newValue) {
+        this.parent.embedded.subscribe(function(newValue) {
             if (newValue) {
                 // this object should now be included into the game
                 self.timeCallbackId =  self.layer.timeScheduler.addCallback(function() {

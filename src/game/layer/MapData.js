@@ -181,27 +181,6 @@ if (node) {
     };
 
 
-    proto.removeObject = function (mapObject) {
-
-        this.mapObjects.remove(mapObject);
-        this.quadTree.remove(treeItem);
-
-        // notify map listeners:
-        var treeItem = mapObject.treeItem;
-        var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
-            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-        });
-        for (var i=collidingBounds.length-1; i>=0; i--){
-            collidingBounds[i].callback('removing',mapObject);
-        }
-
-        if (this.objectChangedCallback) {
-            this.objectChangedCallback(mapObject);
-        }
-
-    };
-
     /**
      * this function assumes that all the rest of the layer is already loaded. The function will create all pointers between objects
      */

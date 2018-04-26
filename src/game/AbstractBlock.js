@@ -367,7 +367,7 @@ ko.extenders.stateVar = function (target, options) {
 
         this.parent = parent;
         this.type = type;
-        this.embedded = ko.observable(false);
+
         this.blockname = null;
         this.mutatedChilds = {};
         this.lockObject = parent.lockObject;

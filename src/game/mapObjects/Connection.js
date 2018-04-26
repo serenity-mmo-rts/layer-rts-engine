@@ -57,7 +57,7 @@ if (node) {
         this.connectedTo.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
-        this.embedded.subscribe(function(newValue) {
+        this.parent.embedded.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
         self.setConnectionPoints();
@@ -66,7 +66,7 @@ if (node) {
     proto.setConnectionPoints = function(){
         var mapData = this.getMap().mapData;
         //update the helper vars of the connected objects:
-        if (this.embedded()) {
+        if (this.parent.embedded()) {
             var isConnectionFinished = (this.parent.state() >= 2);
             if (this.connectedFrom() != null && this.connectedTo() != null) {
                 var sourceHub = mapData.mapObjects.get(this.connectedFrom());
