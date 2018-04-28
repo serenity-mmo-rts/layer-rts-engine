@@ -92,9 +92,6 @@ if (node) {
                     this.sinceSnapshotAdded.push(o);
                 }
             }
-            if (typeof o.embedded === "function") {
-                o.embedded(true);
-            }
             return this.hashList[id];
         }
         else {
@@ -108,9 +105,6 @@ if (node) {
             if (!this.lockObject.isLocked) {
                 this.mutatedChilds[objInstance.id()] = true;
                 this.sinceSnapshotAdded.push(objInstance);
-            }
-            if (typeof objInstance.embedded === "function") {
-                objInstance.embedded(true);
             }
             return this.add(objInstance);
         }
@@ -173,14 +167,14 @@ if (node) {
 
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
             this.add(this.sinceSnapshotRemoved[i]);
-            //this.sinceSnapshotRemoved[i].embedded(true);
+            this.sinceSnapshotRemoved[i].embedded(true);
         }
         this.sinceSnapshotRemoved = [];
         // TODO the above add operations should not change this.sinceSnapshotAdded!!!!
 
         for (var i=this.sinceSnapshotAdded.length-1; i>=0; i--) {
             this.delete(this.sinceSnapshotAdded[i]);
-            //this.sinceSnapshotAdded[i].embedded(false);
+            this.sinceSnapshotAdded[i].embedded(false);
         }
         this.sinceSnapshotAdded = [];
         this.sinceSnapshotRemoved = [];
