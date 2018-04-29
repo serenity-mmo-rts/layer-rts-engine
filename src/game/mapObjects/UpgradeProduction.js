@@ -124,7 +124,7 @@ if (node) {
 
     proto.removeItemFromQueue = function (idx) {
         this.buildQueueIds.splice(idx, 1);
-        if  (this.buildQueueIds.length>0){
+        if  (this.buildQueueIds().length>0){
             return false;
         }
         else{
@@ -226,23 +226,25 @@ if (node) {
 
         // building upgrade
         if (evt.type=="BuildUpgradeEvent"){
-            console.log("I finished building an item: "+evt.itemId+" production completed");
+            this.parent.setState(State.NORMAL);
             var item = this.layer.mapData.items.get(evt.itemId);
             item.setState(State.NORMAL);
             item.blocks.Feature.startExecution(dueTime);
-
+            console.log("I finished building an item: "+evt.itemId+" production completed");
         }
         // upgrading  upgrade
         else if (evt.type=="LevelUpgradeEvent"){
-            console.log("item: "+evt.itemId+" upgrade completed");
+            this.parent.setState(State.NORMAL);
             var item = this.layer.mapData.items.get(evt.itemId);
             var level = item.getLevel()+1;
             item.setLevel(level);
             item.setState(State.NORMAL);
             item.blocks.Feature.startExecution(dueTime);
+            console.log("item: "+evt.itemId+" upgrade completed");
         }
         // building map object
         else if (evt.type=="BuildObjectEvent"){
+            this.parent.setState(State.NORMAL);
             console.log("I finished building a " + this.parent.objTypeId() + " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
         }
         // dismantle map Object
@@ -255,12 +257,10 @@ if (node) {
         // research technology
         else if (evt.type=="ResearchEvent"){
             this.parent.setState(State.NORMAL);
-            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
             User.addTechnology(evt.techTypeId);
+            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
         }
-        // set parent objcet to normal state, remove finished event and set running to false;
 
-        this.parent.setState(State.NORMAL);
         evt.setFinished();
         // the new started time is the old due time:
         this.startedTime(dueTime);
