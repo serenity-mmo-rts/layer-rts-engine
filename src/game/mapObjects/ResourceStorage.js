@@ -1,6 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
+    ko = require('../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
@@ -17,7 +18,9 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.helperVar = 22;
+        this.requests = {};
+
+        this.ressourceChangePerSec = ko.observableArray();
 
     };
 
@@ -46,10 +49,44 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {ressourceStored: []},
+            {ressourceStoredAmount: []},
             {ressourceLastUpdated: []},
-            {ressourceChangePerSec: []}
+            {ressourceTargetAmount: []} // the user can set this to arbitrary amounts which will be used to push/pull to hub system accordingly
+            //{ressourceChangePerSec: []}
         ];
+    };
+
+    proto.reqChangePerSec = function(resTypeId, reqChangePerSec, newEffectiveCallback ) {
+        var self = this;
+        var requestObj = {
+            resTypeId: resTypeId,
+            reqChangePerSec: reqChangePerSec,
+            effectiveChangePerSec: 0,
+            newEffectiveCallback: newEffectiveCallback
+        };
+        if (!this.requests.hasOwnProperty(resTypeId)){
+            this.requests[resTypeId] = [];
+        }
+        this.requests[resTypeId].push(requestObj);
+        this.recalcRessourceInOut(requestObj.resTypeId);
+
+        return {
+            effectiveChangePerSec: requestObj.effectiveChangePerSec,
+            updateReqChangePerSec: function (reqChangePerSec){
+                requestObj.reqChangePerSec = reqChangePerSec;
+                self.recalcRessourceInOut(requestObj.resTypeId);
+            },
+            removeRequest: function() {
+                var idx = self.requests[resTypeId].indexOf(requestObj);
+                if (idx != -1) {
+                    return self.requests[resTypeId].splice(idx, 1);
+                }
+            }
+        };
+    };
+
+    proto.recalcRessourceInOut = function(resTypeId) {
+
     };
 
     /**
