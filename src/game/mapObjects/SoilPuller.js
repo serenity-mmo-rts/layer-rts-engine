@@ -21,24 +21,8 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        this.soilEffectiveIn.subscribe(function(){
-            console.log("soil effective in changed...");
-        });
-
-        // Define helper member variables:
-        this.parent.state.subscribe(function(newValue){
-
-            console.log("parent.state changed: so recalculate soil effective in...");
-
-            if (newValue==State.NORMAL) {
-                // ok, start production:
-                self.soilEffectiveIn(self.ressourceMaxInPerSec);
-            }
-            else {
-                // halt production, because some other process is running:
-                self.soilEffectiveIn([]);
-            }
-        });
+        // helper vars:
+        this.reqObjects = [];
 
     };
 
@@ -48,6 +32,46 @@ if (node) {
     SoilPuller.prototype = Object.create(AbstractBlock.prototype);
     var proto = SoilPuller.prototype;
     proto.constructor = SoilPuller;
+
+
+    proto.setPointers = function () {
+        var self = this;
+
+        this.soilEffectiveIn.subscribe(function(soilEffectiveIn){
+            console.log("soil effective in changed...");
+
+            // first remove all previous requests:
+            for (var i=0, len=self.reqObjects.length; i<len; i++) {
+                self.reqObjects[i].removeRequest();
+            }
+
+            // now add again all requests:
+            for (var i=0, len=self.ressourceTypeIds.length; i<len; i++) {
+                reqObject = self.parent.blocks.ResourceStorage.reqChangePerSec(self.ressourceTypeIds[i], soilEffectiveIn[i], function(newEffective){
+                    console.log("this soilPuller is producing "+self.ressourceTypeIds[i]+" with a rate of "+newEffective);
+                    // TODO: add side effects if not the full MaxInPerSec is used...
+                } );
+                self.reqObjects.push(reqObject);
+            }
+
+        });
+
+        this.parent.state.subscribe(function(newValue){
+            console.log("parent.state changed: so recalculate soil effective in...");
+            if (newValue==State.NORMAL) {
+                // ok, start production:
+                self.soilEffectiveIn(self.ressourceMaxInPerSec);
+            }
+            else {
+                // halt production, because some other process is running:
+                var soilEffectiveIn = [];
+                for (var i=0, len=self.ressourceTypeIds.length; i<len; i++) {
+                    soilEffectiveIn.push(0);
+                }
+                self.soilEffectiveIn(soilEffectiveIn);
+            }
+        });
+    };
 
     /**
      * This function defines the default type variables and returns them as an object.
