@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
-    ko = require('../client/lib/knockout-3.3.0.debug.js');
+    ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
