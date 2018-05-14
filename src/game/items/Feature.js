@@ -359,7 +359,7 @@ if (node) {
             this.effects()[effectCounter].currentTargetObjectIds.push(targetId);
             object.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
         }
-        object.blocks.FeatureManager.setState(true);
+      //  object.blocks.FeatureManager.setState(true);
     };
 
     proto.addItemTargets= function(item,changeObj){
@@ -369,7 +369,7 @@ if (node) {
             this.effects()[effectCounter].currentTargetItemIds.push(targetId);
             item.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
         }
-        item.blocks.FeatureManager.setState(true);
+     //   item.blocks.FeatureManager.setState(true);
     };
 
     proto.getItemsInObject = function(object,itemTypeIds){

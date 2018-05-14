@@ -45,19 +45,9 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {change: false},
             {appliedItemIds: []},
             {appliedEffectIndex: []}
         ];
-    };
-
-
-    proto.setState = function(value){
-        this.change(value);
-    };
-
-    proto.getState = function(){
-        return this.change();
     };
 
     proto.addItemId = function(itemId,stackIdx){
@@ -190,6 +180,7 @@ if (node) {
             }
         };
 
+        var change = false;
         // apply change to Building Blocks
         for (var i=0;i<BlockNames.length;i++) {
             var currentBlock = toBeAdded[BlockNames[i]];
@@ -197,12 +188,18 @@ if (node) {
             this.parent.blocks[BlockNames[i]].setInitTypeVars();
             for (var k=0;k<properties.length;k++) {
                 var base= this.parent.objType.blocks[BlockNames[i]][properties[k]];
-                this.parent.blocks[BlockNames[i]].typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
+                if (this.parent.blocks[BlockNames[i]].typeCache[properties[k]] != toBeAdded[BlockNames[i]][properties[k]] + base){
+                    this.parent.blocks[BlockNames[i]].typeCache[properties[k]] = toBeAdded[BlockNames[i]][properties[k]] + base;
+                    change = true;
+                }
+
             }
         }
 
-        this.setState(false);
-        this.parent.notifyChange();
+        if (change){
+            this.parent.notifyChange();
+        }
+
     };
 
 

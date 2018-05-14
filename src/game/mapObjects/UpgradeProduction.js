@@ -83,6 +83,7 @@ if (node) {
         }
 
         // subscribe to any changes of the array:
+        /**
         this.buildQueueIds.subscribe(function(array){
             self._fillBuildQueue(array);
             self._fillDueAndStartedTimes();
@@ -94,6 +95,7 @@ if (node) {
         this.startedTime.subscribe(function(){
             self._fillDueAndStartedTimes();
         });
+         **/
 
         this.parent.embedded.subscribe(function(newValue) {
             if (newValue) {
@@ -115,11 +117,24 @@ if (node) {
 
     };
 
+    proto.onRevert = function(){
+        this._fillBuildQueue(array);
+        this._fillDueAndStartedTimes();
+        if (this.parent.embedded()) {
+            this._checkQueue();
+        }
+    };
+
     proto.addEventToQueue = function (evt) {
         if (this.startedTime()==0){
             this.startedTime(evt.startedTime);
         }
         this.buildQueueIds.push(evt.id);
+        this._fillBuildQueue(array);
+        this._fillDueAndStartedTimes();
+        if (this.parent.embedded()) {
+            this._checkQueue();
+        }
     };
 
     proto.removeItemFromQueue = function (idx) {
