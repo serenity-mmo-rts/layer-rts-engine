@@ -612,9 +612,17 @@ ko.extenders.stateVar = function (target, options) {
         }
 
         this.isMutated = false;
-        this.mutatedChilds = {}
+        this.mutatedChilds = {};
+        this.onRevert();
     };
 
+    /**
+     * this is called after states have been reverted.
+     * Please overwrite this method in the sub classes.
+     */
+    proto.onRevert = function() {
+
+    };
 
     /**
      * delete all the oldValue fields here and in all mutatedChilds recursively.
