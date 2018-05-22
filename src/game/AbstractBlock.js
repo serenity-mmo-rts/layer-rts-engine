@@ -613,14 +613,14 @@ ko.extenders.stateVar = function (target, options) {
 
         this.isMutated = false;
         this.mutatedChilds = {};
-        this.onRevert();
+        this.resetHelpers();
     };
 
     /**
      * this is called after states have been reverted.
      * Please overwrite this method in the sub classes.
      */
-    proto.onRevert = function() {
+    proto.resetHelpers = function() {
 
     };
 

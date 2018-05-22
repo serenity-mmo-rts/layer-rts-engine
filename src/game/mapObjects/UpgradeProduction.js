@@ -77,10 +77,7 @@ if (node) {
         this.mapId = this.parent.mapId();
         this.layer= this.parent.gameData.layers.get(this.parent.mapId());
 
-        this.buildQueue = [];
-        for (var i = 0; i < this.buildQueueIds().length; i++) {
-            this.buildQueue.push(this.gameData.layers.get(this.mapId).eventScheduler.events.get(this.buildQueueIds()[i]));
-        }
+        this.resetHelpers();
 
         // subscribe to any changes of the array:
         /**
@@ -117,8 +114,8 @@ if (node) {
 
     };
 
-    proto.onRevert = function(){
-        this._fillBuildQueue(array);
+    proto.resetHelpers = function(){
+        this._fillBuildQueue(this.buildQueueIds());
         this._fillDueAndStartedTimes();
         if (this.parent.embedded()) {
             this._checkQueue();
@@ -130,7 +127,7 @@ if (node) {
             this.startedTime(evt.startedTime);
         }
         this.buildQueueIds.push(evt.id);
-        this._fillBuildQueue(array);
+        this._fillBuildQueue(this.buildQueueIds());
         this._fillDueAndStartedTimes();
         if (this.parent.embedded()) {
             this._checkQueue();
@@ -147,10 +144,10 @@ if (node) {
         }
     };
 
-    proto._fillBuildQueue = function (array) {
+    proto._fillBuildQueue = function (buildQueueIds) {
         this.buildQueue = [];
-        for (var i = 0, len=array.length; i < len; i++) {
-            var evt = this.gameData.layers.get(this.mapId).eventScheduler.events.get(array[i]);
+        for (var i = 0, len=buildQueueIds.length; i < len; i++) {
+            var evt = this.gameData.layers.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]);
             this.buildQueue.push(evt);
         }
 
