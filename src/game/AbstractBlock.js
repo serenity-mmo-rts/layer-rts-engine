@@ -17,6 +17,7 @@ ko.isObservableArray = function (obj) {
  */
 ko.extenders.logChange = function (target, options) {
     target.oldValue = null;
+    target.isMutated = false;
     target.mutatedChilds = {};
     target.notifyStateChange = function (childKey) {
         target.mutatedChilds[childKey] = true;
@@ -30,6 +31,7 @@ ko.extenders.logChange = function (target, options) {
             }
         }
         target.oldValue = null;
+        target.isMutated = false;
     };
     target.revertChanges = function () {
         // reset the states to oldValue here and in all mutatedChilds recursively.
@@ -39,13 +41,17 @@ ko.extenders.logChange = function (target, options) {
             }
         }
         target.mutatedChilds = {};
-        target(target.oldValue);
-        target.oldValue = null;
+        if (target.isMutated) {
+            target(target.oldValue);
+            target.oldValue = null;
+            target.isMutated = false;
+        }
     };
     target.subscribe(function (oldValue) {
-        // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
-        if (target.oldValue == null) {
+        // only save if the state was not muted yet, because we want to keep the old value based on the last snapshot:
+        if (!target.isMutated) {
             target.oldValue = oldValue;
+            target.isMutated = true;
             //options.parent.mutatedChilds[options.key] = target;
             options.parent.notifyStateChange(options.key);
         }
@@ -77,9 +83,10 @@ ko.utils.arrayForEach(["push", "unshift", "splice"], function (methodName) {
         if (!target.lockObject.isLocked) {
 
             // notify parent that something within this array has changed:
-            if (target.oldValue == null) {
+            if (!target.isMutated) {
                 // we have to create a deep copy of the array (using slice), otherwise later changes would also effect the oldValue:
                 target.oldValue = target.peek().slice(0);
+                target.isMutated = true;
                 //options.parent.mutatedChilds[options.key] = target;
                 target.parent.notifyStateChange(target.key);
             }
@@ -101,6 +108,7 @@ ko.utils.setPrototypeOfOrExtend(stateVarArrayMethods, ko.observableArray['fn']);
  */
 ko.extenders.stateVar = function (target, options) {
     target.oldValue = null;
+    target.isMutated = false;
     target.lockObject = options.lockObject;
     target.mutatedChilds = {};
     target.parent = options.parent;
@@ -134,6 +142,7 @@ ko.extenders.stateVar = function (target, options) {
             }
         }
         target.oldValue = null;
+        target.isMutated = false;
     };
 
     stateVar.revertChanges = function () {
@@ -145,9 +154,10 @@ ko.extenders.stateVar = function (target, options) {
         }
 
         // only revert this if there was a change:
-        if (target.oldValue) {
+        if (target.isMutated) {
             target(target.oldValue);
             target.oldValue = null;
+            target.isMutated = false;
         }
 
     };
@@ -155,8 +165,9 @@ ko.extenders.stateVar = function (target, options) {
     // here we subscribe to the original observable:
     target.subscribe(function (oldValue) {
         // only save if the old value is not yet set, because we want to keep the old value based on the last snapshot:
-        if (target.oldValue == null) {
+        if (!target.isMutated) {
             target.oldValue = oldValue;
+            target.isMutated = true;
             //options.parent.mutatedChilds[options.key] = target;
             target.parent.notifyStateChange(target.key);
         }
