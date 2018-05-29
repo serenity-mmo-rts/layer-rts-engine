@@ -157,14 +157,6 @@ if (node) {
     proto.revertChanges = function() {
         // reset the states to oldValue here and in all mutatedChilds recursively.
 
-            for (var key in this.mutatedChilds) {
-                if(this.mutatedChilds.hasOwnProperty(key)){
-                    this.hashList[key].revertChanges();
-                }
-            }
-
-        this.mutatedChilds = {};
-
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
             this.add(this.sinceSnapshotRemoved[i]);
             this.sinceSnapshotRemoved[i].embedded(true);
@@ -178,6 +170,16 @@ if (node) {
         }
         this.sinceSnapshotAdded = [];
         this.sinceSnapshotRemoved = [];
+
+
+        for (var key in this.mutatedChilds) {
+            if(this.mutatedChilds.hasOwnProperty(key)){
+                if(this.hashList.hasOwnProperty(key)) { // only revert sub obects if they are still in the hashlist...
+                    this.hashList[key].revertChanges();
+                }
+            }
+        }
+        this.mutatedChilds = {};
         this.isMutated = false;
     };
 
