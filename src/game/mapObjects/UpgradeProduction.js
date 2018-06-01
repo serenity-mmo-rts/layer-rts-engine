@@ -136,6 +136,9 @@ if (node) {
 
     proto.removeItemFromQueue = function (idx) {
         this.buildQueueIds.splice(idx, 1);
+        this.buildQueue.splice(idx, 1);
+        this.startedTimes.splice(idx, 1);
+        this.dueTimes.splice(idx, 1);
         if  (this.buildQueueIds().length>0){
             return false;
         }
@@ -282,6 +285,8 @@ if (node) {
             return Infinity;
         }
         else{
+            this._fillDueAndStartedTimes();  // update Time scheduler
+            this._checkQueue();
             return false;
         }
 
