@@ -44,13 +44,15 @@ if (node) {
             for (var i=0, len=self.reqObjects.length; i<len; i++) {
                 self.reqObjects[i].removeRequest();
             }
+            self.reqObjects = [];
 
             // now add again all requests:
             for (var i=0, len=self.ressourceTypeIds.length; i<len; i++) {
-                reqObject = self.parent.blocks.ResourceStorage.reqChangePerSec(self.ressourceTypeIds[i], soilEffectiveIn[i], function(newEffective){
+                var reqObject = self.parent.blocks.ResourceStorage.reqChangePerSec(self.ressourceTypeIds[i], soilEffectiveIn[i], function(newEffective){
                     console.log("this soilPuller is producing "+self.ressourceTypeIds[i]+" with a rate of "+newEffective);
                     // TODO: add side effects if not the full MaxInPerSec is used...
                 } );
+                console.log("this soilPuller is producing "+self.ressourceTypeIds[i]+" with a rate of "+reqObject.effectiveChangePerSec);
                 self.reqObjects.push(reqObject);
             }
 
