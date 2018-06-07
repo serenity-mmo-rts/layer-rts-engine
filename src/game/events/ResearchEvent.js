@@ -39,12 +39,10 @@ if (node) {
         },
 
         executeOnClient: function () {
-            this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
         executeOnServer: function () {
-            this.start(Date.now());
             this.execute();
         },
 

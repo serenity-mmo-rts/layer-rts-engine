@@ -172,7 +172,6 @@ if (node) {
             if (this.mapObj.blocks.hasOwnProperty("Sublayer")) {
                 this.sublayerId = 'tmpSublayerId' + Math.random();
             }
-            this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
@@ -184,7 +183,6 @@ if (node) {
             if (this.mapObj.blocks.hasOwnProperty("Sublayer")) {
                 this.sublayerId = (new mongodb.ObjectID()).toHexString();
             }
-            this.start(Date.now());
             this.execute();
         },
 

@@ -44,13 +44,11 @@ if (node) {
 
         executeOnClient: function () {
             this.itemId = 'tmpId'+Math.random();
-            this.start(Date.now() + ntp.offset());
             this.execute();
         },
 
         executeOnServer: function () {
             this.itemId = (new mongodb.ObjectID()).toHexString();
-            this.start(Date.now());
             this.execute();
         },
 

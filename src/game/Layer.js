@@ -94,6 +94,7 @@ if (node) {
         this.blocks = {};
         this.gameData = this.getGameData();
         this.map = this;
+        this.currentTime = null;
 
         if (type){
             this.mapTypeId(type.id);
@@ -102,7 +103,7 @@ if (node) {
         }
 
         // TODO: move into blocks:
-        this.timeScheduler = new TimeScheduler(this.gameData);
+        this.timeScheduler = new TimeScheduler(this.gameData,this);
         this.eventScheduler = new EventScheduler(this.gameData,this);
         this.mapData = new MapData(this.gameData, this);
         //this.hubSystem = new HubSystem(this.gameData, this);

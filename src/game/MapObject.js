@@ -13,6 +13,7 @@ if (node) {
     var TechProduction = require('./mapObjects/TechProduction').TechProduction;
     var UpgradeProduction = require('./mapObjects/UpgradeProduction').UpgradeProduction;
     var Sublayer = require('./mapObjects/Sublayer').Sublayer;
+    var ResourceStorageManager = require('./mapObjects/ResourceStorageManager').ResourceStorageManager;
     var ResourceStorage = require('./mapObjects/ResourceStorage').ResourceStorage;
     var ResourceProduction = require('./mapObjects/ResourceProduction').ResourceProduction;
     var EnergyManager = require('./mapObjects/EnergyManager').EnergyManager;

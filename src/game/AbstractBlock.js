@@ -15,6 +15,7 @@ ko.isObservableArray = function (obj) {
  * @param options = {parent: the parent entity in the hierarchy, key: how to identify this observable from the parent}
  * @returns {*}
  */
+/*
 ko.extenders.logChange = function (target, options) {
     target.oldValue = null;
     target.isMutated = false;
@@ -58,7 +59,7 @@ ko.extenders.logChange = function (target, options) {
     }, null, "beforeChange");
     return target;
 };
-
+*/
 
 /**
  *
@@ -704,7 +705,7 @@ ko.extenders.stateVar = function (target, options) {
             }
         }
 
-        // TODO: now save sub blocks:
+        // now save sub blocks:
         if (this.hasOwnProperty("blocks")) {
             o.blocks = {};
             for (var key in this.blocks) {
@@ -755,7 +756,7 @@ ko.extenders.stateVar = function (target, options) {
             }
         }
 
-        // TODO: load the sub blocks:
+        // load the sub blocks:
         if (o.hasOwnProperty("blocks")) {
             for (var key in o.blocks) {
                 this.blocks[key].load(o.blocks[key]);

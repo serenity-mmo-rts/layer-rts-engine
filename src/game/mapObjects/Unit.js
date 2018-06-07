@@ -115,7 +115,7 @@ if (node) {
 
     proto.travelProgress= function(){
         var totalTimeNeeded = this.dueTime -this.startedTime;
-        var currentTime  = Date.now();
+        var currentTime = this.getMap().currentTime;
         var timeLeft =  this.dueTime-currentTime;
         var percent = (timeLeft/totalTimeNeeded)*100;
         return 100-percent

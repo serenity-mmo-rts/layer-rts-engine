@@ -12,7 +12,7 @@ if (node) {
      * This is a constructor for the Time Scheduler
      *  @returns {{callbackId}}
      */
-    var TimeScheduler = function (gameData) {
+    var TimeScheduler = function (gameData, layer) {
 
         // do not serialize:
         this.callbacks = {};
@@ -20,6 +20,7 @@ if (node) {
         this.sortedDueTimes = [];
         this.sortedCallbackIds = [];
         this.idx = -1;
+        this.layer = layer;
     };
 
     TimeScheduler.prototype = {
@@ -101,6 +102,7 @@ if (node) {
 
                 // Recalculate the current DuetTime and check if it is really finished:
                 if (curDueTime <= time){
+                    this.layer.currentTime = curDueTime;
                     var newDueTime = curCallback(curDueTime,curId);
                     if (newDueTime){
                         this.setDueTime(curId,newDueTime);
