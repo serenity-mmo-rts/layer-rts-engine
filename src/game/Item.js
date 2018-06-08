@@ -144,6 +144,14 @@ if (node) {
         if (lvl != this.level()) {
             this.level(lvl);
             this.mapObj.notifyChange();
+            this.setInitTypeVars();
+        }
+    };
+
+    proto.setInitTypeVars = function() {
+        AbstractBlock.prototype.setInitTypeVars.call(this);
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].setInitTypeVars();
         }
     };
 
@@ -198,7 +206,7 @@ if (node) {
         this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
         this.mapObj.addItem(this);
         if (this.blocks.hasOwnProperty("Feature")){
-            this.blocks.Feature.startExecution(timeStamp);
+            this.blocks.Feature.restartExecution(timeStamp);
         }
     };
 

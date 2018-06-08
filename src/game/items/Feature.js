@@ -70,7 +70,7 @@ if (node) {
     };
 
     proto.removePointers  = function(){
-        this.removeItemFromFeatureManagers();
+        this.removeItemFromFeatureManagers(startedTime);
     };
 
     /**
@@ -85,11 +85,20 @@ if (node) {
         this.checkStackExecution();
     };
 
-    proto.startExecution = function(startedTime) {
-        this.lastActivationTime(startedTime);
-        this.removeItemFromFeatureManagers();
+    proto.restartExecution = function(startedTime) {
         this.setInitStateVars();
+        this.lastActivationTime(startedTime);
+        this.removeItemFromFeatureManagers(startedTime);
         this.checkStackExecution();
+    };
+
+    proto.continueExecution = function(startedTime) {
+        this.lastActivationTime(startedTime);
+        this.checkStackExecution();
+    };
+
+    proto.resetHelpers = function () {
+        var test = 1;
     };
 
 
@@ -228,7 +237,8 @@ if (node) {
             var callback = function(dueTime,callbackId){
                 //TO DO check whether event is really due
                 self.layer.timeScheduler.removeCallback(callbackId);
-                self.checkStackExecution(false,self.lastActivationTime());
+               // self.checkStackExecution(false,self.lastActivationTime());
+                self.continueExecution(dueTime);
                 return Infinity
             };
             this.timeCallbackId = this.layer.timeScheduler.addCallback(callback,this.dueTime());
@@ -252,7 +262,7 @@ if (node) {
             item.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
         }
 
-        this.effects().splice(effectIdx,1);
+        this.effects.splice(effectIdx,1);
 
         return null;
     };
@@ -310,7 +320,7 @@ if (node) {
             currentTargetObjectIds: [],
             currentTargetItemIds: []
         };
-        this.effects().push(changeObj);
+        this.effects.push(changeObj);
 
         if (itemsOrObjects instanceof Array) {
             for (var i = 0; i < itemsOrObjects.length; i++) {

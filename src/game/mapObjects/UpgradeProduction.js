@@ -244,7 +244,7 @@ if (node) {
             this.parent.setState(State.NORMAL);
             var item = this.layer.mapData.items.get(evt.itemId);
             item.setState(State.NORMAL);
-            item.blocks.Feature.startExecution(dueTime);
+            item.blocks.Feature.restartExecution(dueTime);
             console.log("I finished building an item: "+evt.itemId+" production completed");
         }
         // upgrading  upgrade
@@ -254,7 +254,7 @@ if (node) {
             var level = item.getLevel()+1;
             item.setLevel(level);
             item.setState(State.NORMAL);
-            item.blocks.Feature.startExecution(dueTime);
+            item.blocks.Feature.restartExecution(dueTime);
             console.log("item: "+evt.itemId+" upgrade completed");
         }
         // building map object
