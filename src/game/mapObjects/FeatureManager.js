@@ -54,7 +54,7 @@ if (node) {
 
         var positions = this.appliedItemIds().indexOf(itemId);
         if (positions == -1) {
-            this.insertItem(itemId,stackIdx);
+            this._insertItem(itemId,stackIdx);
         }
         else if (positions instanceof Array){
             var insert = true;
@@ -64,21 +64,21 @@ if (node) {
                 }
             }
             if (insert){
-                this.insertItem(itemId,stackIdx);
+                this._insertItem(itemId,stackIdx);
             }
         }
         else {
             if (!this.appliedEffectIndex()[positions]== stackIdx){
-                this.insertItem(itemId,stackIdx);
+                this._insertItem(itemId,stackIdx);
             }
         }
+        this.updateObjectProperties();
     };
 
-    proto.insertItem = function(itemId,stackIdx){
+    proto._insertItem = function(itemId,stackIdx){
         this.appliedItemIds().push(itemId);
         this.appliedEffectIndex().push(stackIdx);
         this.notifyStateChange();
-        this.updateObjectProperties();
     };
 
 
@@ -119,6 +119,11 @@ if (node) {
             this.updateObjectProperties();
         }
 
+    };
+
+
+    proto.resetHelpers = function () {
+        this.updateObjectProperties();
     };
 
     proto.updateObjectProperties = function () {
