@@ -18,6 +18,7 @@ if (node) {
 
         // Define helper member variables:
         this.helperVar = 22;
+        this.appliedItems=[];
 
     };
 
@@ -45,12 +46,34 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {appliedItemIds: []},
-            {appliedEffectIndex: []}
+          //  {appliedItemIds: []},
+          //  {appliedEffectIndex: []}
         ];
     };
 
     proto.addItemId = function(itemId,stackIdx){
+
+        var feature= this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(itemId).blocks.Feature;
+
+        var newItemEffect = {
+            appliedItemIds: itemId,
+            appliedEffectIndex: stackIdx,
+            effectStillValid : ko.computed(function() {
+                if (feature.effects().length>0){
+                    return true
+                }
+                else{
+                    return false
+                }
+
+            }, this)
+
+        };
+
+        this.appliedItems.push(
+            newItemEffect
+        );
+
 
         var positions = this.appliedItemIds().indexOf(itemId);
         if (positions == -1) {
