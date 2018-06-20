@@ -22,8 +22,7 @@ if (node) {
         // Define helper member variables:
         this.layer = null;
         this.ressources = {};
-
-        //this.resList = new GameList(gameData, ResourceStorage, false, false, this, 'resList');
+        this.resList = new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList');
 
     };
 
@@ -52,7 +51,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {resList: new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList')}
+            {x: 0}
         ];
     };
 
@@ -69,15 +68,31 @@ if (node) {
 
 
     proto.reqChangePerSec = function(resTypeId, reqChangePerSec, onUpdatedEffective ) {
-        var resStorage = this.resList().get(resTypeId);
+        var resStorage = this.resList.get(resTypeId);
         if (!resStorage) {
             var type = null;
-            resStorage = new ResourceStorage(this.resList(),type);
-            this.resList().add(resStorage);
+            resStorage = new ResourceStorage(this.resList,type);
+            resStorage.id(resTypeId);
+            this.resList.add(resStorage);
         }
 
         var requestObj = resStorage.addRequest(reqChangePerSec, onUpdatedEffective);
         return requestObj;
+    };
+
+    proto.save = function() {
+        var o = AbstractBlock.prototype.save.call(this);
+        o.resList = this.resList.save();
+        return o;
+    };
+
+    proto.load = function(o) {
+        AbstractBlock.prototype.load.call(this,o);
+        for (var i= 0, len=o.resList.length; i<len; i++){
+            var resStorage = new ResourceStorage(this.resList,null);
+            resStorage.load(o.resList[i]);
+            this.resList.add(resStorage);
+        }
     };
 
 

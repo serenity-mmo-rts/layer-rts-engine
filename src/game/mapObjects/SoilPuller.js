@@ -42,7 +42,7 @@ if (node) {
 
             // first remove all previous requests:
             for (var i=0, len=self.reqObjects.length; i<len; i++) {
-                self.reqObjects[i].removeRequest();
+                self.reqObjects[i].remove();
             }
             self.reqObjects = [];
 
