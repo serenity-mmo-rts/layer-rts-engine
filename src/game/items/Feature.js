@@ -251,6 +251,8 @@ if (node) {
         var objects = this.effects()[effectIdx].currentTargetObjectIds;
         var items = this.effects()[effectIdx].currentTargetItemIds;
 
+        this.effects.splice(effectIdx,1);
+
         // delete feature from all objects and items that used it
         for (var i = 0; i<objects.length; i++) {
             var object = this.layer.mapData.mapObjects.get(objects[i]);
@@ -262,7 +264,7 @@ if (node) {
             item.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
         }
 
-        this.effects.splice(effectIdx,1);
+
 
         return null;
     };
