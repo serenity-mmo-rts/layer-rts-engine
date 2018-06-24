@@ -33,9 +33,9 @@ L) Configure Webstorm:
 		Create 3 new Configurations (InitDatabase,Server, and Client)
 		For InitDatabase and Server create new node.js and select server working directory.
 		For InitDatabase choose InitDB.js for Server choose server.js for java script files
-		For client select new Java Script Debug select browser type and url = "http://localhost"
-		In client for for file directory "client" type in remote url "/"
-		In client for for file directory "game" type in remote url "/game"
+		For client select new Java Script Debug select browser type and url = "http://localhost:8080"
+		In client for for file directory "client" type in remote url "http://localhost:8080"
+		In client for for file directory "game" type in remote url "http://localhost:8080/game"
 	
 	
 

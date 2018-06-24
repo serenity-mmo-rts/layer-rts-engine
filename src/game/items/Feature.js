@@ -92,14 +92,35 @@ if (node) {
         this.checkStackExecution();
     };
 
-    proto.continueExecution = function(startedTime) {
-        this.lastActivationTime(startedTime);
+    proto.continueExecution = function(executionIndex) {
+        this.setExecutionIdx(executionIndex);
         this.checkStackExecution();
     };
 
     proto.resetHelpers = function () {
-        var test = 1;
+        var self = this;
+        if (this.dueTime()){
+            if (this.timeCallbackId){
+                this.layer.timeScheduler.setDueTime(this.timeCallbackId,this.dueTime())
+            }
+            else{
+                this.timeCallbackId = this.layer.timeScheduler.addCallback(function(dueTime,callbackId){
+                        self.finishedWait(dueTime,callbackId);
+                    }
+                    ,this.dueTime());
+            }
+
+
+        }
+        else{
+            this.layer.timeScheduler.removeCallback(this.timeCallbackId);
+            this.timeCallbackId = null;
+        }
+
+
     };
+
+
 
 
     proto.getCurrentOp = function() {
@@ -222,28 +243,22 @@ if (node) {
 
 
     proto.wait = function(waitingTime){
+        this.dueTime(this.lastActivationTime()+waitingTime);
+        var self = this;
+        this.timeCallbackId = this.layer.timeScheduler.addCallback(function(dueTime,callbackId){
+                self.finishedWait(dueTime,callbackId);
+            }
+            ,this.dueTime());
+        return false;
+    };
 
-        if (this.timeCallbackId !=null){ // re-enter with call back
-            this.timeCallbackId = null;
-            this.lastActivationTime(this.dueTime());
-            this.dueTime(null);
-            return true;
-        }
-        else{ // enter first time, calculate dueTime and create callback
-
-            this.dueTime(this.lastActivationTime()+waitingTime);
-
-            var self = this;
-            var callback = function(dueTime,callbackId){
-                //TO DO check whether event is really due
-                self.layer.timeScheduler.removeCallback(callbackId);
-               // self.checkStackExecution(false,self.lastActivationTime());
-                self.continueExecution(dueTime);
-                return Infinity
-            };
-            this.timeCallbackId = this.layer.timeScheduler.addCallback(callback,this.dueTime());
-            return false;
-        }
+    proto.finishedWait = function(dueTime,callbackId){
+        this.layer.timeScheduler.removeCallback(callbackId);
+        this.timeCallbackId = null;
+        this.dueTime(null);
+        this.lastActivationTime(dueTime);
+        this.continueExecution(this.executeIndex()+1);
+        return Infinity
     };
 
     proto.clear = function(effectIdx){
@@ -263,8 +278,6 @@ if (node) {
             var item = this.layer.mapData.items.get(items[i]);
             item.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
         }
-
-
 
         return null;
     };

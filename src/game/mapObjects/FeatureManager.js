@@ -177,11 +177,11 @@ if (node) {
         // fill change Object by looping over items
         for (var i=0; i< this.appliedItems.length; i++) {
             // check whether effect is still valid
-            if (this.appliedItems[i].stillValid){
+            if (this.appliedItems[i].stillValid()){
                 // get item from id
                 var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this.appliedItems[i].itemId);
                 // get block values
-                    var variables = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].variables;
+                var variables = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].variables;
                 var blocks = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].blocks;
                 var operators = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].operators;
                 var changes = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].changes;
