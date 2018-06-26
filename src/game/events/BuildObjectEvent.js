@@ -213,7 +213,7 @@ if (node) {
 
             if (this.mapObj.blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
                 var itemTypeId = this.mapObj.blocks.Unit.itemTypeId;
-                this.item = new Item(this.gameData, {id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: itemStates.HIDDEN});
+                this.item = new Item(this.gameData, {id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: State.HIDDEN});
                 this.item.subObjectId(this.mapObjId);
                 this.item.setPointers();
                 this.item.embedded(true);

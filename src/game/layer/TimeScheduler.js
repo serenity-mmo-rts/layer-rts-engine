@@ -19,6 +19,7 @@ if (node) {
         this.callbacksDueTimes = {};
         this.sortedDueTimes = [];
         this.sortedCallbackIds = [];
+        this.deactivatedCallbackIds = {};
         this.idx = -1;
         this.layer = layer;
     };
@@ -38,6 +39,7 @@ if (node) {
             this.callbacks[callbackId] = callback;
             this.callbacksDueTimes[callbackId] = dueTime;
             this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
+            console.log("TimeScheduler has added one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
             return callbackId;
         },
 
@@ -52,26 +54,40 @@ if (node) {
                 delete this.callbacksDueTimes[callbackId];
             }
             else{
-                console.log("Error no callback found with callbackId:"+callbackId);
+                throw new Error("Error no callback found with callbackId:"+callbackId);
             }
+            console.log("TimeScheduler has removed one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
         },
 
         /**
          * Adds Id and DueTime of existing Callback to sorted Arrays
          */
         _addDueTimeAndIdToSortedArrays: function(callbackId,dueTime) {
-            var addAtLocation = this.quicksortLocationOf(dueTime);
-            this.sortedDueTimes.splice(addAtLocation, 0,dueTime);
-            this.sortedCallbackIds.splice(addAtLocation, 0, callbackId);
+            if(dueTime==Infinity){
+                this.deactivatedCallbackIds[callbackId] = true;
+            }
+            else {
+                var addAtLocation = this.quicksortLocationOf(dueTime);
+                this.sortedDueTimes.splice(addAtLocation, 0, dueTime);
+                this.sortedCallbackIds.splice(addAtLocation, 0, callbackId);
+            }
         },
 
         /**
          * Removes Id and DueTime of existing Callback from sorted Arrays
          */
         _removeDueTimeAndIdFromSortedArrays: function (callbackId) {
-            var loc = this.findCallbackLocation(callbackId);
-            this.sortedDueTimes.splice(loc, 1);
-            this.sortedCallbackIds.splice(loc, 1);
+            var dueTime = this.callbacksDueTimes[callbackId];
+            if (dueTime==Infinity){
+                // the event was deactivated, so it is stored in this.deactivatedCallbackIds and not in the sorted arrays:
+                delete this.deactivatedCallbackIds[callbackId];
+            }
+            else {
+                // the event was active, so it is stored in the sorted arrays:
+                var loc = this.findCallbackLocation(callbackId,dueTime);
+                this.sortedDueTimes.splice(loc, 1);
+                this.sortedCallbackIds.splice(loc, 1);
+            }
         },
 
 
@@ -86,6 +102,7 @@ if (node) {
                 this.callbacksDueTimes[callbackId] = dueTime;
                 this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
             }
+            console.log("TimeScheduler has "+this.sortedDueTimes.length+" active callbacks");
         },
 
         /**
@@ -93,7 +110,9 @@ if (node) {
          */
         finishAllTillTime: function(time) {
 
+            var numActiveCallbacksBefore = this.sortedDueTimes.length;
             var numEventsFinished = 0;
+            var numCallbacksTriggered = 0;
             var index = this.sortedCallbackIds.length-1;
             while(index>=0 && this.sortedDueTimes[index] <= time) {
                 var curId = this.sortedCallbackIds[index];
@@ -104,11 +123,12 @@ if (node) {
                 if (curDueTime <= time){
                     this.layer.currentTime = curDueTime;
                     var newDueTime = curCallback(curDueTime,curId);
+                    numCallbacksTriggered++;
                     if (newDueTime){
                         this.setDueTime(curId,newDueTime);
                         // check whether due time was updated or callback was due (newDueTime = Infinite)
                         if (!isFinite(newDueTime)) {
-                            console.log("event scheduler finishing event "+curId);
+                            console.log("time scheduler finishing event "+curId);
                             numEventsFinished++;
                         }
                     }
@@ -116,9 +136,13 @@ if (node) {
                 }
 
                 // Continue with next Event:
-                 index -= 1;
+                // index -= 1; // NO: this is very bad!!!
+                // in the next iteration again check the last item in the queue:
+                index = this.sortedCallbackIds.length-1;
             }
-
+            if (numCallbacksTriggered) {
+                console.log("There were "+numActiveCallbacksBefore+" active callbacks. The time scheduler called " + numCallbacksTriggered + " callbacks. Now there are "+this.sortedDueTimes.length+" active callbacks remaining");
+            }
             return numEventsFinished;
         },
 
@@ -127,13 +151,13 @@ if (node) {
         /**
          * @ Returns the index element for a given callback into the sorted array
          */
-        findCallbackLocation: function(callbackId) {
-            var dueTime = this.callbacksDueTimes[callbackId];
+        findCallbackLocation: function(callbackId,dueTime) {
             if (!dueTime) {
                 console.log('dueTime is undefined')
             }
             if (dueTime==Infinity){
                 tmpEventLoc = 0;
+                throw new Error("time events with due time infinity should not be saved in the sorted arrays!")
             }
             else{
                 var tmpEventLoc = this.quicksortLocationOf(dueTime);
@@ -145,7 +169,6 @@ if (node) {
             // the following search around the location of the dueTime is just for the rare case if two events with the exact same due time exist. Don't know if we can somehow simplify this???
             // search upward:
             var eventLoc = tmpEventLoc;
-            // TODO @Holger here the game goes to infinity becuase this is always true!!!
             while(this.sortedCallbackIds[eventLoc]!=callbackId || this.sortedDueTimes[eventLoc]!=dueTime) {
                 eventLoc++;
                 if (eventLoc>this.sortedCallbackIds.length) {

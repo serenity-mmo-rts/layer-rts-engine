@@ -69,9 +69,11 @@ if (node) {
             //overwrite
         },
 
+        /*
         start: function(curTime){
             this.startedTime = curTime;
         },
+        */
 
 
         updateFromServer: function (event) {

@@ -86,7 +86,19 @@ if (node) {
     };
 
     proto.restartExecution = function(startedTime) {
-        this.setInitStateVars();
+
+        this.executeIndex(0);
+        this.effects([]);
+        this.isActivated(false);
+        this.canBeActivated(false);
+        this.lastActivationTime(null);
+        this.dueTime(null);
+        this.parentItem(null);
+        this.isHidden(false);
+        this.targetType(null);
+        this.target(null);
+
+
         this.lastActivationTime(startedTime);
         this.removeItemFromFeatureManagers(startedTime);
         this.checkStackExecution();
@@ -113,8 +125,10 @@ if (node) {
 
         }
         else{
-            this.layer.timeScheduler.removeCallback(this.timeCallbackId);
-            this.timeCallbackId = null;
+            if (this.timeCallbackId) {
+                this.layer.timeScheduler.removeCallback(this.timeCallbackId);
+                this.timeCallbackId = null;
+            }
         }
 
 
@@ -245,6 +259,10 @@ if (node) {
     proto.wait = function(waitingTime){
         this.dueTime(this.lastActivationTime()+waitingTime);
         var self = this;
+        if (this.timeCallbackId) {
+            throw new Error("there was already a callback set!")
+        }
+        console.log("Feature.wait("+waitingTime+") is adding a callback with dueTime="+this.dueTime()+". Now is time: "+Date.now());
         this.timeCallbackId = this.layer.timeScheduler.addCallback(function(dueTime,callbackId){
                 self.finishedWait(dueTime,callbackId);
             }
@@ -253,6 +271,7 @@ if (node) {
     };
 
     proto.finishedWait = function(dueTime,callbackId){
+        console.log("Feature.finishedWait(dueTime="+dueTime+") is called. Now is time: "+Date.now());
         this.layer.timeScheduler.removeCallback(callbackId);
         this.timeCallbackId = null;
         this.dueTime(null);
@@ -392,7 +411,7 @@ if (node) {
         var effectCounter = this.effects().length-1;
         if (this.effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
             this.effects()[effectCounter].currentTargetItemIds.push(targetId);
-            item.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
+            item.blocks.FeatureManager.addIthis.temId(this.parent.id(),effectCounter);
         }
      //   item.blocks.FeatureManager.setState(true);
     };

@@ -117,9 +117,9 @@ if (node) {
     proto.resetHelpers = function(){
         this._fillBuildQueue(this.buildQueueIds());
         this._fillDueAndStartedTimes();
-        if (this.parent.embedded()) {
-            this._checkQueue();
-        }
+        //if (this.parent.embedded()) {
+        //    this._checkQueue();
+        //}
     };
 
     proto.addEventToQueue = function (evt) {
