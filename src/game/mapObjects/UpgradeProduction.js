@@ -177,6 +177,9 @@ if (node) {
             else if (evt.type == "ResearchEvent") {
                 var buildTime = this.gameData.technologyTypes.get(evt.techTypeId).buildTime;
             }
+            else if (evt.type=="MoveThroughLayerEvent"){
+                var buildTime = this.gameData.objectTypes.get(this.parent.objTypeId()).blocks.Unit.deployTime;
+            }
             if (idx == 0) {
                 // update current running event due time in production
                 if (this.startedTime()) {

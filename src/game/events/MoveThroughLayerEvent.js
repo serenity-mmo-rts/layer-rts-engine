@@ -63,12 +63,11 @@ if (node) {
         },
 
         execute: function () {
-
             this.mapObj.targetMapId(this.targetMapId);
-            this.mapObj.setState(State.HIDDEN);
             this.item.objectId(this.targetMapObjectId);
             this.item.targetMapId(this.targetMapId);
             this.item.setState(State.BLOCKED);
+            this.mapObj.setState(State.HIDDEN);
             this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
@@ -124,7 +123,7 @@ if (node) {
         },
 
         save: function () {
-            var o = this.super();
+            var o = this._super();
             o.a2 = [this.mapObjId
             ];
             return o;

@@ -137,7 +137,10 @@ if (node) {
 
     proto.setState = function (state) {
         this.state(state);
-        this.mapObj.notifyChange();
+        if (this.mapObj){
+            this.mapObj.notifyChange();
+        }
+
     };
 
     proto.setLevel = function (lvl, curTime) {
@@ -167,7 +170,7 @@ if (node) {
         var self = this;
         this.map = this.getMap();
         this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
-        if (this.objectId()){
+        if (!this.state == State.BLOCKED && this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
             this.x(this.mapObj.x());
             this.y(this.mapObj.y());
@@ -194,7 +197,10 @@ if (node) {
             //    self.blocks[blockName].embedded(newValue);
             //}
             if (!newValue){
-                self.mapObj.removeItem(self.id());
+                if (this.mapObj){
+                    self.mapObj.removeItem(self.id());
+                }
+
                 self.getMap().mapData.removeItem(self);
             }
 
