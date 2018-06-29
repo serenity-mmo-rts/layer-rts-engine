@@ -170,7 +170,7 @@ if (node) {
         var self = this;
         this.map = this.getMap();
         this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
-        if (!this.state == State.BLOCKED && this.objectId()){
+        if (this.state() != State.BLOCKED && this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
             this.x(this.mapObj.x());
             this.y(this.mapObj.y());

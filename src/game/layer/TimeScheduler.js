@@ -39,7 +39,7 @@ if (node) {
             this.callbacks[callbackId] = callback;
             this.callbacksDueTimes[callbackId] = dueTime;
             this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
-            console.log("TimeScheduler has added one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
+            //console.log("TimeScheduler has added one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
             return callbackId;
         },
 
@@ -56,7 +56,7 @@ if (node) {
             else{
                 throw new Error("Error no callback found with callbackId:"+callbackId);
             }
-            console.log("TimeScheduler has removed one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
+            //console.log("TimeScheduler has removed one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
         },
 
         /**
@@ -106,12 +106,18 @@ if (node) {
         },
 
         /**
+         * Return the number of callbacks that are active
+         */
+        getNumActiveCallbacks: function() {
+            return this.sortedCallbackIds.length;
+        },
+
+        /**
          * Finishes all Callbacks that happened between the current time and last invocation
          */
         finishAllTillTime: function(time) {
 
             var numActiveCallbacksBefore = this.sortedDueTimes.length;
-            var numEventsFinished = 0;
             var numCallbacksTriggered = 0;
             var index = this.sortedCallbackIds.length-1;
             while(index>=0 && this.sortedDueTimes[index] <= time) {
@@ -124,13 +130,11 @@ if (node) {
                     this.layer.currentTime = curDueTime;
                     var newDueTime = curCallback(curDueTime,curId);
                     numCallbacksTriggered++;
-                    if (newDueTime){
-                        this.setDueTime(curId,newDueTime);
-                        // check whether due time was updated or callback was due (newDueTime = Infinite)
-                        if (!isFinite(newDueTime)) {
-                            console.log("time scheduler finishing event "+curId);
-                            numEventsFinished++;
-                        }
+                    if (newDueTime !== undefined) {
+                        this.setDueTime(curId, newDueTime);
+                    }
+                    else {
+                        this.removeCallback(curId);
                     }
 
                 }
@@ -143,7 +147,7 @@ if (node) {
             if (numCallbacksTriggered) {
                 console.log("There were "+numActiveCallbacksBefore+" active callbacks. The time scheduler called " + numCallbacksTriggered + " callbacks. Now there are "+this.sortedDueTimes.length+" active callbacks remaining");
             }
-            return numEventsFinished;
+            return numCallbacksTriggered;
         },
 
 

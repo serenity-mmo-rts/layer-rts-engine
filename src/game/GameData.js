@@ -40,7 +40,14 @@ if (node) {
         if (GameData.arguments.length == 1) {
             this.load(initObj);
         }
-    }
+    };
+
+    GameData.prototype.initialize = function () {
+        // initialize all layers:
+        this.layers.each(function(layer){
+            layer.initialize();
+        });
+    };
 
     GameData.prototype.save = function () {
             var a = [

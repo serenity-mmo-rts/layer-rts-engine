@@ -55,7 +55,6 @@ if (node) {
             {canBeActivated: false},
             {lastActivationTime: null},
             {dueTime: null},
-            {parentItem: null},
             {isHidden: false},
             {targetType: null},
             {target: null}
@@ -93,7 +92,6 @@ if (node) {
         this.canBeActivated(false);
         this.lastActivationTime(null);
         this.dueTime(null);
-        this.parentItem(null);
         this.isHidden(false);
         this.targetType(null);
         this.target(null);
@@ -324,7 +322,6 @@ if (node) {
     };
 
     proto.getParentItem = function(){
-        this.parentItem(this.parent);
         return this.parent;
     };
 
