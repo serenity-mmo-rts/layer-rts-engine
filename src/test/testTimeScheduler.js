@@ -65,12 +65,15 @@ describe('TimeScheduler', function() {
             }, 3);
         var cbId3 = gameData.layers.get("cityMap02").timeScheduler.addCallback(
             function (curDueTime,curId) {
-                assert.equal(curDueTime, 1);
                 lastCalledCallback = 3;
                 if (curDueTime<4) {
+                    // in the first call we return a new dueTime
+                    assert.equal(curDueTime, 1);
                     return 4; // new dueTime
                 }
                 else {
+                    // in the second call we deactivate this callback
+                    assert.equal(curDueTime, 4);
                     return Infinity;
                 }
             }, 1);
