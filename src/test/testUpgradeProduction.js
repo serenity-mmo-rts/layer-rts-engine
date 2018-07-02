@@ -1,12 +1,13 @@
 var assert = require("assert");
 var BuildUpgradeEvent = require("../game/events/BuildUpgradeEvent").BuildUpgradeEvent;
+var initGameData = require('../server/initGameData');
 
 describe('UpgradeProduction', function() {
 
     var gameData;
 
     beforeEach(function() {
-        gameData = require('../server/initGameData').gameData;
+        gameData = initGameData.initGameData();
     });
 
     it('check if upgrade production can build one item', function() {

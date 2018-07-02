@@ -1,10 +1,12 @@
 var assert = require("assert");
+var initGameData = require('../server/initGameData');
+
 describe('TimeScheduler', function() {
 
     var gameData;
 
     beforeEach(function() {
-        gameData = require('../server/initGameData').gameData;
+        gameData = initGameData.initGameData();
     });
 
     it('check if a single time callback is working', function() {
