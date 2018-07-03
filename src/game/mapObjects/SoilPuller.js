@@ -37,43 +37,64 @@ if (node) {
     proto.setPointers = function () {
         var self = this;
 
-        this.soilEffectiveIn.subscribe(function(soilEffectiveIn){
-            console.log("soil effective in changed...");
-
-            // first remove all previous requests:
-            for (var i=0, len=self.reqObjects.length; i<len; i++) {
-                self.reqObjects[i].remove();
-            }
-            self.reqObjects = [];
-
-            // now add again all requests:
-            for (var i=0, len=self.ressourceTypeIds.length; i<len; i++) {
-                var reqObject = self.parent.blocks.ResourceStorageManager.reqChangePerSec(self.ressourceTypeIds[i], soilEffectiveIn[i], function(newEffective){
-                    console.log("this soilPuller is producing "+self.ressourceTypeIds[i]+" with a rate of "+newEffective);
-                    // TODO: add side effects if not the full MaxInPerSec is used...
-                } );
-                console.log("this soilPuller is producing "+self.ressourceTypeIds[i]+" with a rate of "+reqObject.effectiveChangePerSec);
-                self.reqObjects.push(reqObject);
-            }
-
-        });
-
         this.parent.state.subscribe(function(newValue){
             console.log("parent.state changed: so recalculate soil effective in...");
-            if (newValue==State.NORMAL) {
-                // ok, start production:
-                self.soilEffectiveIn(self.ressourceMaxInPerSec);
-            }
-            else {
-                // halt production, because some other process is running:
-                var soilEffectiveIn = [];
-                for (var i=0, len=self.ressourceTypeIds.length; i<len; i++) {
-                    soilEffectiveIn.push(0);
-                }
-                self.soilEffectiveIn(soilEffectiveIn);
-            }
+            self.resetSoilProduction();
         });
+
+        this.resetHelpers();
+
     };
+
+
+    proto.resetHelpers = function () {
+
+    };
+
+    proto.resetSoilProduction = function() {
+
+        var self = this;
+        var soilEffectiveIn;
+
+        if (this.parent.state()==State.NORMAL) {
+            // ok, start production:
+            soilEffectiveIn = this.ressourceMaxInPerHour;
+        }
+        else {
+            // halt production, because some other process is running:
+            soilEffectiveIn = [];
+            for (var i=0, len=this.ressourceTypeIds.length; i<len; i++) {
+                soilEffectiveIn.push(0);
+            }
+
+        }
+
+        // set state:
+        this.soilEffectiveIn(soilEffectiveIn);
+
+
+        // first remove all previous requests:
+        for (var i=0, len=this.reqObjects.length; i<len; i++) {
+            this.reqObjects[i].remove();
+        }
+        this.reqObjects = [];
+
+        // now add again all requests:
+        for (var i=0, len=this.ressourceTypeIds.length; i<len; i++) {
+            var reqObject = this.parent.blocks.ResourceStorageManager.reqChangePerHour(
+                this.ressourceTypeIds[i],
+                soilEffectiveIn[i],
+                function(newEffective, resTypeId){
+                    console.log("this soilPuller is producing "+resTypeId+" with a rate of "+newEffective);
+                    // TODO: add side effects if not the full MaxInPerSec is used...
+                }
+            );
+            this.reqObjects.push(reqObject);
+        }
+
+
+    };
+
 
     /**
      * This function defines the default type variables and returns them as an object.
@@ -82,7 +103,7 @@ if (node) {
     proto.defineTypeVars = function () {
         return {
             ressourceTypeIds: [],
-            ressourceMaxInPerSec: []
+            ressourceMaxInPerHour: []
         };
     };
 

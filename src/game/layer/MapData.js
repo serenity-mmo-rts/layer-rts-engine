@@ -187,7 +187,7 @@ if (node) {
     proto.setPointers = function () {
         this.rebuildQuadTree();
         this.mapObjects.each(function (mapObject) {
-            mapObject.setPointers()
+            mapObject.setPointers();
         });
         this.items.each(function (item) {
             item.setPointers()

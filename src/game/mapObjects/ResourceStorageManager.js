@@ -21,7 +21,6 @@ if (node) {
 
         // Define helper member variables:
         this.layer = null;
-        this.ressources = {};
         this.resList = new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList');
 
     };
@@ -58,6 +57,24 @@ if (node) {
 
     proto.setPointers = function() {
         this.layer = this.getMap();
+
+        // check if all resourceStorage instances are in the resList and set their capacity accordingly:
+        for (var i= 0, len=this.ressourceTypeIds.length; i<len; i++){
+            var resStorage = this.resList.get(this.ressourceTypeIds[i]);
+            if (!resStorage){
+                // if it does not exist we create it here:
+                resStorage = new ResourceStorage(this.resList,null);
+                resStorage.id(this.ressourceTypeIds[i]);
+                this.resList.add(resStorage);
+            }
+            resStorage.capacity = this.ressourceCapacity[i];
+        }
+
+        // call setPointers recursively for each resoruce:
+        this.resList.each(function(res){
+            res.setPointers();
+        });
+
         this.resetHelpers();
     };
 
@@ -67,16 +84,15 @@ if (node) {
     };
 
 
-    proto.reqChangePerSec = function(resTypeId, reqChangePerSec, onUpdatedEffective ) {
+    proto.reqChangePerHour = function(resTypeId, reqChangePerHour, onUpdatedEffective ) {
         var resStorage = this.resList.get(resTypeId);
         if (!resStorage) {
-            var type = null;
-            resStorage = new ResourceStorage(this.resList,type);
+            resStorage = new ResourceStorage(this.resList,null);
             resStorage.id(resTypeId);
             this.resList.add(resStorage);
         }
 
-        var requestObj = resStorage.addRequest(reqChangePerSec, onUpdatedEffective);
+        var requestObj = resStorage.addRequest(reqChangePerHour, onUpdatedEffective);
         return requestObj;
     };
 
