@@ -75,9 +75,12 @@ if (node) {
 
         this.gameData = this.parent.gameData;
         this.mapId = this.parent.mapId();
-        this.layer= this.parent.gameData.layers.get(this.parent.mapId());
+        this.layer= this.getMap();
+        if (this.parent.activeOnLayer){  // in case layer was changed and event needs to be removed
+            this.resetHelpers();
+        }
 
-        this.resetHelpers();
+
 
         // subscribe to any changes of the array:
         /**
@@ -150,7 +153,7 @@ if (node) {
     proto._fillBuildQueue = function (buildQueueIds) {
         this.buildQueue = [];
         for (var i = 0, len=buildQueueIds.length; i < len; i++) {
-            var evt = this.gameData.layers.get(this.mapId).eventScheduler.events.get(buildQueueIds[i]);
+            var evt = this.getMap().eventScheduler.events.get(buildQueueIds[i]);
             this.buildQueue.push(evt);
         }
 
@@ -172,13 +175,13 @@ if (node) {
                 var buildTime = this.gameData.itemTypes.get(evt.itemTypeId).buildTime[level];
             }
             else if (evt.type == "BuildObjectEvent") {
-                var buildTime = this.gameData.objectTypes.get(evt.mapObjTypeId).buildTime;
+                var buildTime = this.parent.buildTime;
             }
             else if (evt.type == "ResearchEvent") {
                 var buildTime = this.gameData.technologyTypes.get(evt.techTypeId).buildTime;
             }
             else if (evt.type=="MoveThroughLayerEvent"){
-                var buildTime = this.gameData.objectTypes.get(this.parent.objTypeId()).blocks.Unit.deployTime;
+                var buildTime =this.parent.blocks.Unit.deployTime;
             }
             if (idx == 0) {
                 // update current running event due time in production
@@ -189,7 +192,7 @@ if (node) {
                     this.startedTimes[0] = evt.startedTime;
                 }
                 this.dueTimes[0] = this.startedTimes[0] + buildTime;
-                this.gameData.layers.get(this.mapId).timeScheduler.setDueTime(this.timeCallbackId, this.dueTimes[0]);
+                this.getMap().timeScheduler.setDueTime(this.timeCallbackId, this.dueTimes[0]);
             }
 
             else {
@@ -268,9 +271,10 @@ if (node) {
         // dismantle map Object
         else if (evt.type=="MoveThroughLayerEvent"){
             // set map object state to dismantle
-            this.parent.setState(State.HIDDEN);
+            this.parent.activeOnLayer=false;
+            var item =  this.layer.mapData.items.get(this.parent.subItemId());
+            item.blocks.Movable.moveObjectUp(dueTime);
             console.log("Dismantling of Map Object: "+this.parent.id()+" done. Now start moving upwards...");
-            this.layer.mapData.items.get(this.parent.subItemId()).blocks.Movable.moveObjectUp(dueTime);
         }
         // research technology
         else if (evt.type=="ResearchEvent"){

@@ -67,7 +67,7 @@ if (node) {
 
         execute: function () {
             this.setPointers();
-            this.item.blocks.Movable.moveItem(this.startedTime,this.origin,this.target);
+            this.item.blocks.Movable.moveItemWithinLayer(this.startedTime,this.origin,this.target);
             this.setFinished();
         },
 
