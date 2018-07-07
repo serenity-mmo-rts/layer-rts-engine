@@ -43,8 +43,8 @@ if (node) {
             this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
             this.itemId = this.mapObj.subItemId();
             this.item = this.map.mapData.items.get(this.itemId);
-            this.targetMapId = this.map.parentMapId;
-            this.targetMapObjectId = this.map.parentObjId;
+            this.targetMapId = this.map.parentMapId();
+            this.targetMapObjectId = this.map.parentObjId();
         },
 
         executeOnClient: function () {
@@ -84,7 +84,7 @@ if (node) {
                 if (item.subObjectId()) {
                     objList.push(item.subObjectId());
                     var mapObj = this.map.mapData.mapObjects.get(item.subObjectId());
-                    var subList = this.getSubItems(item, mapObj);
+                    var subList = this.getSubItemsAndObject(item, mapObj);
 
                     itemList.splice(0,0,subList.itemList);
                     objList.splice(0,0,subList.objList);
@@ -113,10 +113,6 @@ if (node) {
             return msgData;
         },
 
-        updateFromServer: function (event) {
-            this._super(event);
-            this.mapObj.blocks.UpgradeProduction.updateDueTime(event.startedTime);
-        },
 
         revert: function() {
 

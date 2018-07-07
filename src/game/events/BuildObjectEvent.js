@@ -225,29 +225,6 @@ if (node) {
 
         },
 
-
-        updateFromServer: function (event) {
-            this._super(event);
-            console.log("replace tmp Object ID: "+this.mapObjId+" by new id from server: "+event.mapObjId);
-            this.gameData.layers.get(this.mapId).mapData.mapObjects.updateId(this.mapObjId,event.mapObjId);
-            this.mapObjId = event.mapObjId;
-
-
-            if (this.mapObj.blocks.hasOwnProperty("Unit")){
-                this.gameData.layers.get(this.mapId).mapData.items.updateId(this.itemId,event.itemId);
-                this.itemId = event.itemId;
-                this.item.subObjectId(event.mapObjId);
-                this.mapObj.subItemId(event.itemId);
-            }
-
-            if (this.mapObj.blocks.hasOwnProperty("Sublayer")){
-                this.mapObj.sublayerId(event.sublayerId);
-                this.sublayerId = event.sublayerId;
-            }
-
-            this.mapObj.blocks.UpgradeProduction.updateDueTime(event);
-        },
-
         revert: function() {
             this.gameData.layers.get(this.mapId).mapData.removeObject(this.mapObj);
             return true;

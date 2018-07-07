@@ -24,7 +24,6 @@ if (node) {
         // Define helper member variables:
         this.mapObject = null;
         this.timeCallbackId = null;
-
         this.deployTime= null;
         this.travelTime= null;
     };
@@ -59,11 +58,9 @@ if (node) {
 
     proto.setPointers  = function(){
         this.layer= this.getMap();
-        this.mapObject = this.parent.mapObj;
-        if (this.parent.state()==State.BLOCKED){
-            this.addMovementProps();
-            var date = new Date();
-            this.unlockItem(date);
+        this.mapObject =  this.layer.mapData.mapObjects.get(this.parent.subObjectId());
+        if (this.parent.state()==State.BLOCKED && this.parent.subObjectId()){
+            this.unlockItem(this.mapObject.blocks.UpgradeProduction.startedTime());
         }
     };
 
@@ -71,15 +68,15 @@ if (node) {
 
     };
 
-    proto.addMovementProps = function () {
-       this.deployTime = this.gameData.objectTypes.get(this.mapObject.objTypeId()).blocks.Unit.deployTime;
-       this.travelTime = this.parent.blocks.Movable.movingUpTime;
-    };
-
     proto.unlockItem = function (startedTime) {
         this.startedTime(startedTime);
+        this.deployTime = this.mapObject.blocks.Unit.deployTime;
+        this.travelTime = this.parent.blocks.Movable.movingUpTime;
         this.dueTime(this.startedTime + this.deployTime + this.travelTime);
         var callback = function(dueTime,callbackId) {
+            // remmove started time and build queueid from moveThrough layer event
+            self.mapObject.blocks.UpgradeProduction.startedTime(0);
+            self.mapObject.blocks.UpgradeProduction.buildQueueIds([]);
             self.layer.timeScheduler.removeCallback(callbackId);
             self.parent.setState(State.NORMAL);
             console.log("Unit: "+self.parent.id+" ready in Upper Layer");

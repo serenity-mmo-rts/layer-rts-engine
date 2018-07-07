@@ -104,19 +104,19 @@ if (node) {
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
             self.isMovingUp(false);
+            var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
+            self.layer.mapData.removeObject(object);
             self.layer.mapData.removeItem(self.parent);
             console.log("map Object moved to Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
-        var object = this.layer.mapData.mapObjects.get(this.parent.subObjectId());
-        this.layer.mapData.removeObject(object);
         this.isMovingUp(true);
         console.log("Map Object" + this.parent.id()+ "started moving");
     };
 
 
-    proto.moveItem  = function(startedTime,origin,target){
+    proto.moveItemWithinLayer  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time
         this.targetId(target.id());
@@ -146,17 +146,6 @@ if (node) {
         this.parent.applyItemToMap(centerX,centerY,width,height,0);
         this.parent.removeFromParentObject(this.dueTime());
         this.isMoving(true);
-    };
-
-    proto.updateDueTime= function(evt) {
-        this.startedTime(evt.startedTime);
-        // notify time scheduler:
-        console.log("replace user due time: "+this.dueTime()+" by new due time from server: "+this.startedTime() + this.travelTime);
-        // update Due Time
-        this.dueTime(this.startedTime() + this.travelTime);
-        this.layer.timeScheduler.setDueTime(this.timeCallbackId, this.dueTime());
-        // remove Item and feature from Object, remove item object Context menu
-        this.parent.removeFromParentObject(this.dueTime());
     };
 
     /**

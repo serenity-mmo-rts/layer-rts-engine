@@ -67,7 +67,7 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-
+        this.activeOnLayer = false;
         this.blocks = {};
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
@@ -153,6 +153,10 @@ if (node) {
     proto.setPointers = function(){
 
         this.map = this.getMap();
+
+        if (this.map.id()==this.mapId()){
+            this.activeOnLayer = true;
+        }
         this.objType = this.gameData.objectTypes.get(this.objTypeId());
 
         // call all setPointer functions of the building blocks:

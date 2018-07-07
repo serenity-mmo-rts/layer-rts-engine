@@ -50,6 +50,7 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
+        this.activeOnLayer = false;
         this.itemTypeId(type.id);
         this.blocks = {};
         this.onChangeCallback = null;
@@ -169,6 +170,11 @@ if (node) {
     proto.setPointers = function () {
         var self = this;
         this.map = this.getMap();
+
+        if (this.map.id()==this.mapId()){
+            this.activeOnLayer = true;
+        }
+
         this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
         if (this.state() != State.BLOCKED && this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
