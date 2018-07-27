@@ -34,7 +34,7 @@ if (node) {
 
         setParameters: function (item) {
             this.item = item;
-            this.itemId = this.item.id();
+            this.itemId = this.item._id();
             this.originId = this.item.objectId();
         },
 

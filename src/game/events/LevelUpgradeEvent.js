@@ -34,8 +34,8 @@ if (node) {
         setParameters: function (item) {
             this.item = item;
             this.parentObject = this.item.mapObj;
-            this.parentObjectId = this.parentObject.id();
-            this.itemId = this.item.id();
+            this.parentObjectId = this.parentObject._id();
+            this.itemId = this.item._id();
             this.itemTypeId = this.item.itemTypeId();
 },
 

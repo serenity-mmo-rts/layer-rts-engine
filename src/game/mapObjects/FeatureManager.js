@@ -178,7 +178,7 @@ if (node) {
         for (var i=0; i< this.appliedItems.length; i++) {
             // check whether effect is still valid
             if (this.appliedItems[i].stillValid()){
-                // get item from id
+                // get item from _id
                 var item = this.parent.gameData.layers.get(this.parent.mapId()).mapData.items.get(this.appliedItems[i].itemId);
                 // get block values
                 var variables = item.blocks.Feature.effects()[this.appliedItems[i].effectIndex].variables;

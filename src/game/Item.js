@@ -51,7 +51,7 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         this.activeOnLayer = false;
-        this.itemTypeId(type.id);
+        this.itemTypeId(type._id);
         this.blocks = {};
         this.onChangeCallback = null;
         this.mapObj = null;
@@ -104,7 +104,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                id: 0,
+                _id: 0,
                 mapId: 0,
                 targetMapId: 0,
                 itemTypeId: 0
@@ -161,17 +161,17 @@ if (node) {
 
     proto.updateId = function (newId) {
         if (this.mapObj != null) {
-            delete this.mapObj.items[this.id()];
-            this.mapObj.items[this.id()] = this;
+            delete this.mapObj.items[this._id()];
+            this.mapObj.items[this._id()] = this;
         }
-        this.id(newId);
+        this._id(newId);
     };
 
     proto.setPointers = function () {
         var self = this;
         this.map = this.getMap();
 
-        if (this.map.id()==this.mapId()){
+        if (this.map._id()==this.mapId()){
             this.activeOnLayer = true;
         }
 
@@ -181,7 +181,7 @@ if (node) {
             this.x(this.mapObj.x());
             this.y(this.mapObj.y());
             this.mapObj.addItem(this);
-            this.id.subscribe(function(newValue){
+            this._id.subscribe(function(newValue){
                 self.mapObj.addItem(self);
             }, this);
         }
@@ -204,7 +204,7 @@ if (node) {
             //}
             if (!newValue){
                 if (this.mapObj){
-                    self.mapObj.removeItem(self.id());
+                    self.mapObj.removeItem(self._id());
                 }
 
                 self.getMap().mapData.removeItem(self);
@@ -225,7 +225,7 @@ if (node) {
 
     proto.removeFromParentObject = function (timeStamp) {
        if (this.mapObj){
-           this.mapObj.removeItem(this.id());
+           this.mapObj.removeItem(this._id());
            this.objectId(null);
            this.mapObj = null;
        }
@@ -251,7 +251,7 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     /*proto.notifyStateChange = function () {
-        this.map.mapData.items.notifyStateChange(this.id());
+        this.map.mapData.items.notifyStateChange(this._id());
     };*/
 
 

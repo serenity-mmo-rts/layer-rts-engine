@@ -33,7 +33,7 @@ if (node) {
 
         setParameters: function (itemTypeId,parentObject) {
             this.itemTypeId = itemTypeId;
-            this.parentObjectId = parentObject.id();
+            this.parentObjectId = parentObject._id();
             this.parentObject = parentObject;
         },
 
@@ -58,7 +58,7 @@ if (node) {
         },
 
         execute: function () {
-            this.item = new Item(this.gameData, {id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
+            this.item = new Item(this.gameData, {_id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
             this.item.setPointers();
 
             this.isValid();
@@ -70,7 +70,7 @@ if (node) {
 
         updateFromServer: function (event) {
             this._super(event);
-            console.log("replace tmp Item ID: "+this.itemId+" by new id from server: "+event.itemId);
+            console.log("replace tmp Item ID: "+this.itemId+" by new _id from server: "+event.itemId);
             this.itemId = event.itemId;
 
             this.gameData.layers.get(this.mapId).mapData.items.updateId(this.itemId,event.itemId);

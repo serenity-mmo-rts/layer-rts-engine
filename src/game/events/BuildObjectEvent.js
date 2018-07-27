@@ -96,7 +96,7 @@ if (node) {
                 }
 
                 //don't allow self connection
-                if (sourceHub.id() == targetObj.id()){
+                if (sourceHub._id() == targetObj._id()){
                     return false;
                 }
 
@@ -108,15 +108,15 @@ if (node) {
                     // check if there is any object colliding that is not the source or target object
                     var arrayLength = collidingItems.length;
                     for (var i = 0; i < arrayLength; i++) {
-                        if (collidingItems[i].id() != targetObj.id() &&
-                            collidingItems[i].id() != sourceHub.id()) {
+                        if (collidingItems[i]._id() != targetObj._id() &&
+                            collidingItems[i]._id() != sourceHub._id()) {
 
                             if(collidingItems[i].blocks.hasOwnProperty("Connection")) {
                                 // only fail if the colliding item is not any other connection to either the source or target object:
-                                if (collidingItems[i].blocks.Connection.connectedFrom() != targetObj.id() &&
-                                    collidingItems[i].blocks.Connection.connectedFrom() != sourceHub.id() &&
-                                    collidingItems[i].blocks.Connection.connectedTo() != targetObj.id() &&
-                                    collidingItems[i].blocks.Connection.connectedTo() != sourceHub.id()) {
+                                if (collidingItems[i].blocks.Connection.connectedFrom() != targetObj._id() &&
+                                    collidingItems[i].blocks.Connection.connectedFrom() != sourceHub._id() &&
+                                    collidingItems[i].blocks.Connection.connectedTo() != targetObj._id() &&
+                                    collidingItems[i].blocks.Connection.connectedTo() != sourceHub._id()) {
                                     return false;
                                 }
                             }
@@ -157,7 +157,7 @@ if (node) {
 
         setPointers: function () {
             this._super();
-            this.mapObj = new MapObject(this.gameData, {id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP});
+            this.mapObj = new MapObject(this.gameData, {_id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP});
             if (this.mapObj.blocks.hasOwnProperty("Connection")){
                 this.mapObj.blocks.Connection.connectedFrom(this.connectedFrom);
                 this.mapObj.blocks.Connection.connectedTo(this.connectedTo);
@@ -193,7 +193,7 @@ if (node) {
         execute: function () {
 
             this.mapObj = null;
-            this.mapObj = new MapObject(this.gameData, {id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP, sublayerId: this.sublayerId});
+            this.mapObj = new MapObject(this.gameData, {_id: this.mapObjId, mapId: this.mapId, x: this.x, y: this.y, objTypeId: this.mapObjTypeId, userId: this.userId, state: State.TEMP, sublayerId: this.sublayerId});
             this.mapObj.setPointers();
 
             if (this.mapObj.blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
@@ -213,7 +213,7 @@ if (node) {
 
             if (this.mapObj.blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
                 var itemTypeId = this.mapObj.blocks.Unit.itemTypeId;
-                this.item = new Item(this.gameData, {id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: State.HIDDEN});
+                this.item = new Item(this.gameData, {_id: this.itemId, objectId: null, itemTypeId: itemTypeId, mapId: this.mapId, state: State.HIDDEN});
                 this.item.subObjectId(this.mapObjId);
                 this.item.setPointers();
                 this.item.embedded(true);

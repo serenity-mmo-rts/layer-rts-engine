@@ -95,7 +95,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                id: "iron"
+                _id: "iron"
             },
             {storedAmount: 0},
             {targetAmount: 0},
@@ -327,7 +327,7 @@ if (node) {
         else {
             reqObj.effChangePerHour = - Math.floor( (-req * this.totalPullEffectivityNominator()) / this.totalPullEffectivityDenominator());
         }
-        reqObj.onUpdatedEffective(reqObj.effChangePerHour, this.id());
+        reqObj.onUpdatedEffective(reqObj.effChangePerHour, this._id());
     };
 
 

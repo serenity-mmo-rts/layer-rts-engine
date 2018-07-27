@@ -70,7 +70,7 @@ if (node) {
 
     proto.setPointers = function () {
         this.gameData = this.parent.gameData;
-        this.mapObjectId = this.parent.id;
+        this.mapObjectId = this.parent._id;
         this.mapId = this.parent.mapId;
         this.layer= this.parent.gameData.layers.get(this.parent.mapId);
     };
@@ -104,7 +104,7 @@ if (node) {
                 return Infinity;
             };
             this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-            console.log("Map Object" + this.parent.id+ "started moving");
+            console.log("Map Object" + this.parent._id+ "started moving");
     };
 
     proto.getTravelTime = function () {

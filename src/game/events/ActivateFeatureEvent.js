@@ -34,7 +34,7 @@ if (node) {
         },
 
         setParameters: function (item,operation) {
-            this.itemId = item.id();
+            this.itemId = item._id();
             this.item = item;
             this.range = operation.activatePerClick.range;
             this.targetType = operation.activatePerClick.targetType;

@@ -62,7 +62,7 @@ if (node) {
     };
 
     proto.setPointers  = function(){
-        console.log("parent Id=" + this.parent.id() );
+        console.log("parent Id=" + this.parent._id() );
         this.layer= this.parent.gameData.layers.get(this.parent.mapId());
         this.mapObject = this.layer.mapData.mapObjects.get(this.parent.objectId());
         this.addItemToFeatureManagers();
@@ -288,12 +288,12 @@ if (node) {
         // delete feature from all objects and items that used it
         for (var i = 0; i<objects.length; i++) {
             var object = this.layer.mapData.mapObjects.get(objects[i]);
-             object.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
+             object.blocks.FeatureManager.removeItemId(this.parent._id(),effectIdx);
         }
 
         for (var i = 0; i<items.length; i++) {
             var item = this.layer.mapData.items.get(items[i]);
-            item.blocks.FeatureManager.removeItemId(this.parent.id(),effectIdx);
+            item.blocks.FeatureManager.removeItemId(this.parent._id(),effectIdx);
         }
 
         return null;
@@ -394,21 +394,21 @@ if (node) {
     };
 
     proto.addObjTargets= function(object,changeObj){
-        var targetId = object.id();
+        var targetId = object._id();
         var effectCounter = this.effects().length-1;
         if (this.effects()[effectCounter].currentTargetObjectIds.indexOf(targetId)<0){
             this.effects()[effectCounter].currentTargetObjectIds.push(targetId);
-            object.blocks.FeatureManager.addItemId(this.parent.id(),effectCounter);
+            object.blocks.FeatureManager.addItemId(this.parent._id(),effectCounter);
         }
       //  object.blocks.FeatureManager.setState(true);
     };
 
     proto.addItemTargets= function(item,changeObj){
-        var targetId = item.id();
+        var targetId = item._id();
         var effectCounter = this.effects().length-1;
         if (this.effects()[effectCounter].currentTargetItemIds.indexOf(targetId)<0) {
             this.effects()[effectCounter].currentTargetItemIds.push(targetId);
-            item.blocks.FeatureManager.addIthis.temId(this.parent.id(),effectCounter);
+            item.blocks.FeatureManager.addIthis.temId(this.parent._id(),effectCounter);
         }
      //   item.blocks.FeatureManager.setState(true);
     };
@@ -433,12 +433,12 @@ if (node) {
 
             for (var k = 0; k<objectIds.length;k++){
                 var object=  this.layer.mapData.mapObjects.get(objectIds[k]);
-                object.blocks.FeatureManager.addItemId(this.parent.id(),k);
+                object.blocks.FeatureManager.addItemId(this.parent._id(),k);
             }
 
             for (var k = 0; k<itemIds.length;k++){
                 var item =  this.layer.mapData.items.get(itemIds[k]);
-                item.blocks.FeatureManager.addItemId(this.parent.id(),k);
+                item.blocks.FeatureManager.addItemId(this.parent._id(),k);
             }
 
         }

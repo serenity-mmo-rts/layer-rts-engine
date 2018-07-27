@@ -68,8 +68,8 @@ if (node) {
             var subLayerSeed = RandomNumber.rand();
             // create planet Object
             var mapObj = new MapObject(this.gameData, {
-                id: "planet" + i + "In" + this.layer.id,
-                mapId: this.layer.id,
+                _id: "planet" + i + "In" + this.layer._id,
+                mapId: this.layer._id,
                 x: this.planetXPos[i],
                 y: this.planetYPos[i],
                 objTypeId: "earthPlanet",  ///TODO here we must add a selection mechanism for different planet types
@@ -78,15 +78,15 @@ if (node) {
 
             });
             mapObj.setPointers();
-            this.gameData.layers.get(this.layer.id).mapData.addObject(mapObj);
+            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
             this.worldObjects.push(mapObj);
         }
 
         // add sun
         /**
         this.worldObjects.push(new MapObject(this.gameData, {
-            id: "sunIn" + this.layer.id,
-            mapId: this.layer.id,
+            _id: "sunIn" + this.layer._id,
+            mapId: this.layer._id,
             x: 0,
             y: 0,
             objTypeId: "sunPlanet",

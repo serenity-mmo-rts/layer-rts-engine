@@ -593,12 +593,12 @@ ko.extenders.stateVar = function (target, options) {
         // Now notify the parent:
         if (!this.isMutated) {
             this.isMutated = true;
-            if (this.hasOwnProperty("id")) {
-                // if this is a game instance with an id. For example item or mapObject:
-                this.parent.notifyStateChange(this.id());
+            if (this.hasOwnProperty("_id")) {
+                // if this is a game instance with an _id. For example item or mapObject:
+                this.parent.notifyStateChange(this._id());
             }
             else {
-                // if this is a building block without id. For example UpgradeProdcution:
+                // if this is a building block without _id. For example UpgradeProdcution:
                 this.parent.notifyStateChange(this.constructor.prototype.blockname);
             }
         }
@@ -667,7 +667,7 @@ ko.extenders.stateVar = function (target, options) {
     proto.setPointers = function () {
         // for example:
         // this.objType = this.mapObject.objectType;
-        // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this.id;
+        // this.parent.gameData.layers(...).mapData.objects.get('id8272389).pointer = this._id;
     };
 
     proto.removePointers = function () {

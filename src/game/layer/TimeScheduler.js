@@ -31,7 +31,7 @@ if (node) {
          *
          * @param callback
          * @param dueTime
-         * @returns {id}
+         * @returns {_id}
          */
         addCallback: function (callback,dueTime) {
             this.idx +=1;

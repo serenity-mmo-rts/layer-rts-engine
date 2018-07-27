@@ -2,7 +2,7 @@
 
     var LayerType = function (gameData,initObj) {
         // serialized:
-        this.id = 0;
+        this._id = 0;
         this.blocks = {};
         this.name = null;
         this.scale = null;
@@ -26,7 +26,7 @@
     LayerType.prototype = {
 
         save: function () {
-            var o = {id: this.id,
+            var o = {_id: this._id,
                 a: [this.blocks,
                     this.name,
                     this.scale,
@@ -41,7 +41,7 @@
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
-                this.id = o.id;
+                this._id = o._id;
                 this.blocks = o.a[0];
                 this.name = o.a[1];
                 this.scale = o.a[2];

@@ -129,7 +129,7 @@ if (node) {
         if (this.startedTime()==0){
             this.startedTime(evt.startedTime);
         }
-        this.buildQueueIds.push(evt.id);
+        this.buildQueueIds.push(evt._id);
         this._fillBuildQueue(this.buildQueueIds());
         this._fillDueAndStartedTimes();
         if (this.parent.embedded()) {
@@ -213,14 +213,14 @@ if (node) {
                 this.parent.setState(State.UPDATING);
                 var item = this.layer.mapData.items.get(evt.itemId);
                 item.setState(State.CONSTRUCTION);
-                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent.id());
+                console.log("I start building a " + evt.itemTypeId + " in map Object" +this.parent._id());
             }
             // upgrading  upgrade
             else if (evt.type=="LevelUpgradeEvent"){
                 this.parent.setState(State.UPDATING);
                 var item = this.layer.mapData.items.get(evt.itemId);
                 item.setState(State.UPDATING);
-                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent.id());
+                console.log("I start upgrading an" + evt.itemTypeId + " in map Object" +this.parent._id());
             }
             // building map object
             else if (evt.type=="BuildObjectEvent"){
@@ -229,12 +229,12 @@ if (node) {
             }
             // dismantle map Object
            else if (evt.type=="MoveThroughLayerEvent"){
-                console.log("Start dismantling of Map Object " +this.parent.id() + "");
+                console.log("Start dismantling of Map Object " +this.parent._id() + "");
             }
             // research technology
             else if (evt.type=="ResearchEvent"){
                 this.parent.setState(State.UPDATING);
-                console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
+                console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }
         }
 
@@ -274,13 +274,13 @@ if (node) {
             this.parent.activeOnLayer=false;
             var item =  this.layer.mapData.items.get(this.parent.subItemId());
             item.blocks.Movable.moveObjectUp(dueTime);
-            console.log("Dismantling of Map Object: "+this.parent.id()+" done. Now start moving upwards...");
+            console.log("Dismantling of Map Object: "+this.parent._id()+" done. Now start moving upwards...");
         }
         // research technology
         else if (evt.type=="ResearchEvent"){
             this.parent.setState(State.NORMAL);
             User.addTechnology(evt.techTypeId);
-            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent.id());
+            console.log("Fished research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
         }
 
         evt.setFinished();

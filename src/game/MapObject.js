@@ -77,7 +77,7 @@ if (node) {
         this.items = {};
 
         if (type){
-            this.objTypeId(type.id);
+            this.objTypeId(type._id);
             this.objType = type;
             this.createBuildingBlocks();
         }
@@ -132,7 +132,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                id: 0,
+                _id: 0,
                 mapId: 0,
                 targetMapId: 0,
                 objTypeId: 0
@@ -154,7 +154,7 @@ if (node) {
 
         this.map = this.getMap();
 
-        if (this.map.id()==this.mapId()){
+        if (this.map._id()==this.mapId()){
             this.activeOnLayer = true;
         }
         this.objType = this.gameData.objectTypes.get(this.objTypeId());
@@ -209,7 +209,7 @@ if (node) {
      * call this function if a state variable has changed to notify db sync later.
      */
     /*proto.notifyStateChange = function(){
-        this.map.mapData.mapObjects.notifyStateChange(this.id());
+        this.map.mapData.mapObjects.notifyStateChange(this._id());
     };*/
 
     proto.getLevel = function() {
@@ -222,7 +222,7 @@ if (node) {
     };
 
     proto.addItem = function (item){
-        this.items[item.id()] = item;
+        this.items[item._id()] = item;
     };
 
     proto.removeItem = function (itemId){

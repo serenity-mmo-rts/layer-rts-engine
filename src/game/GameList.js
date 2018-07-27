@@ -5,7 +5,7 @@ if (node) {
 }
 
 
-// ClassType should be a class with field id which is used as key in the list
+// ClassType should be a class with field _id which is used as key in the list
 
 (function (exports) {
 
@@ -73,26 +73,26 @@ if (node) {
 
 
         if (o instanceof Class || o instanceof this.ClassType) {
-            var id;
+            var _id;
 
-            if (ko.isObservable(o.id)) {
-                id = o.id();
+            if (ko.isObservable(o._id)) {
+                _id = o._id();
             }
             else {
-                id = o.id;
+                _id = o._id;
             }
-            if (this.hashList.hasOwnProperty(id)) {
-                console.log("warning: this id already exists in GameList. Overwriting...");
+            if (this.hashList.hasOwnProperty(_id)) {
+                console.log("warning: this _id already exists in GameList. Overwriting...");
             }
             //console.log("adding to GameList by appending object")
-            this.hashList[id] = o;
+            this.hashList[_id] = o;
             if (this.lockObject) {
                 if (!this.lockObject.isLocked) {
-                    this.mutatedChilds[id] = true;
+                    this.mutatedChilds[_id] = true;
                     this.sinceSnapshotAdded.push(o);
                 }
             }
-            return this.hashList[id];
+            return this.hashList[_id];
         }
         else {
             console.log("warning: adding to GameList with copying")
@@ -103,7 +103,7 @@ if (node) {
                 var objInstance = new this.ClassType(this.gameData, o);
             }
             if (!this.lockObject.isLocked) {
-                this.mutatedChilds[objInstance.id()] = true;
+                this.mutatedChilds[objInstance._id()] = true;
                 this.sinceSnapshotAdded.push(objInstance);
             }
             return this.add(objInstance);
@@ -200,12 +200,12 @@ if (node) {
         if (this.hashList.hasOwnProperty(oldId)) {
             var tmpObj = this.hashList[oldId];
             this.deleteById(oldId);
-            var id;
-            if (ko.isObservable(tmpObj.id)) {
-                tmpObj.id(newId);
+            var _id;
+            if (ko.isObservable(tmpObj._id)) {
+                tmpObj._id(newId);
             }
             else {
-                tmpObj.id = newId;
+                tmpObj._id = newId;
             }
             return this.add(tmpObj);
         }
@@ -214,17 +214,17 @@ if (node) {
         }
     };
 
-    proto.deleteById = function (id) {
+    proto.deleteById = function (_id) {
         if (!this.lockObject.isLocked) {
-            this.sinceSnapshotRemoved.push(this.hashList[id]);
+            this.sinceSnapshotRemoved.push(this.hashList[_id]);
         }
 
 
-        if (typeof this.hashList[id].embedded === "function") {
-            this.hashList[id].embedded(false);
+        if (typeof this.hashList[_id].embedded === "function") {
+            this.hashList[_id].embedded(false);
         }
 
-        delete this.hashList[id];
+        delete this.hashList[_id];
     };
 
     proto.delete = function (o) {
@@ -233,11 +233,11 @@ if (node) {
             this.sinceSnapshotRemoved.push(o);
         }
 
-        if (ko.isObservable(o.id)) {
-            delete this.hashList[o.id()];
+        if (ko.isObservable(o._id)) {
+            delete this.hashList[o._id()];
         }
         else {
-            delete this.hashList[o.id];
+            delete this.hashList[o._id];
         }
 
         if (typeof o.embedded === "function") {
@@ -246,8 +246,8 @@ if (node) {
 
     };
 
-    proto.get = function (id) {
-        return this.hashList[id];
+    proto.get = function (_id) {
+        return this.hashList[_id];
     };
 
     proto.length = function () {

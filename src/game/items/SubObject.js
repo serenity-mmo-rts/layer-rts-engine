@@ -79,11 +79,11 @@ if (node) {
             self.mapObject.blocks.UpgradeProduction.buildQueueIds([]);
             self.layer.timeScheduler.removeCallback(callbackId);
             self.parent.setState(State.NORMAL);
-            console.log("Unit: "+self.parent.id+" ready in Upper Layer");
+            console.log("Unit: "+self.parent._id+" ready in Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
-        console.log("Unit" +this.parent.id + "blocks space on upper layer");
+        console.log("Unit" +this.parent._id + "blocks space on upper layer");
 
     };
 

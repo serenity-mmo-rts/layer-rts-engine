@@ -112,15 +112,15 @@ if (node) {
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
         this.isMovingUp(true);
-        console.log("Map Object" + this.parent.id()+ "started moving");
+        console.log("Map Object" + this.parent._id()+ "started moving");
     };
 
 
     proto.moveItemWithinLayer  = function(startedTime,origin,target){
 
         // calcualte distance between origin and target, from there calculate due Time
-        this.targetId(target.id());
-        this.originId(origin.id());
+        this.targetId(target._id());
+        this.originId(origin._id());
         this.distance = Math.sqrt(Math.pow(target.x() - origin.x(),2)+ Math.pow(target.y() - origin.y(),2));
         this.travelTime= this.distance/this.movementSpeed;
         this.startedTime(startedTime);

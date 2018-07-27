@@ -37,7 +37,7 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         if (type){
-            this.userTypeId(type.id);
+            this.userTypeId(type._id);
         }
         this.blocks = {};
         this.gameData = this.getGameData();
@@ -88,7 +88,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                id: null,
+                _id: null,
                 userTypeId: null,
                 loginId: null
             },

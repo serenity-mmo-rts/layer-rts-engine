@@ -153,7 +153,7 @@ if (node) {
 
     proto.addObject = function (mapObject) {
         //check if object is already in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject.id())) {
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
             console.log("map object was already in list.")
         }
         else {
@@ -196,8 +196,8 @@ if (node) {
 
     proto.removeObject = function (mapObject) {
         //check if object is in list:
-        if (this.mapObjects.hashList.hasOwnProperty(mapObject.id())) {
-            this.mapObjects.deleteById(mapObject.id());
+        if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
+            this.mapObjects.deleteById(mapObject._id());
         }
 
         // remove from quadtree
@@ -218,7 +218,7 @@ if (node) {
 
     proto.addItem = function (item) {
         //check if item is already in list:
-        if (this.items.hashList.hasOwnProperty(item.id())) {
+        if (this.items.hashList.hasOwnProperty(item._id())) {
             console.log("item was already in list.")
         }
         else {
@@ -231,8 +231,8 @@ if (node) {
 
     proto.removeItem = function (item) {
         //check if object is already in list:
-        if (this.items.hashList.hasOwnProperty(item.id())) {
-            delete this.items.deleteById(item.id());
+        if (this.items.hashList.hasOwnProperty(item._id())) {
+            delete this.items.deleteById(item._id());
         }
 
     };
@@ -245,8 +245,8 @@ if (node) {
         var maxChildren = 5;
         this.quadTree = new QuadTreeCollision(bounds, periodicBounds, maxChildren, maxDepth);
 
-        for (var id in this.mapObjects.hashList) {
-            var treeItem = this.createTreeObject(this.mapObjects.hashList[id]);
+        for (var _id in this.mapObjects.hashList) {
+            var treeItem = this.createTreeObject(this.mapObjects.hashList[_id]);
             this.quadTree.insert(treeItem);
         }
 
@@ -322,12 +322,12 @@ if (node) {
         // Now notify the parent:
         if (!this.isMutated) {
             this.isMutated = true;
-            if (this.hasOwnProperty("id")) {
-                // if this is a game instance with an id. For example item or mapObject:
-                this.parent.notifyStateChange(this.id());
+            if (this.hasOwnProperty("_id")) {
+                // if this is a game instance with an _id. For example item or mapObject:
+                this.parent.notifyStateChange(this._id());
             }
             else {
-                // if this is a building block without id. For example UpgradeProdcution:
+                // if this is a building block without _id. For example UpgradeProdcution:
                 this.parent.notifyStateChange(this.blockname);
             }
         }

@@ -9,7 +9,7 @@ if (node) {
     var AbstractType = Class.extend({
 
         // general
-        id: 0,
+        _id: 0,
         name : null,
        //rendering
         iconSpritesheetId : null,
@@ -26,7 +26,7 @@ if (node) {
 
 
         save: function () {
-            var o = {id: this.id,
+            var o = {_id: this._id,
                 type: this.type,
                 a: [this.name,
                     this.iconSpritesheetId,
@@ -41,7 +41,7 @@ if (node) {
 
         load: function (o) {
             if (o.hasOwnProperty("a")) {
-                this.id = o.id;
+                this._id = o._id;
                 this.name = o.a[0];
                 this.iconSpritesheetId = o.a[1];
                 this.iconSpriteFrame = o.a[2];
@@ -56,8 +56,8 @@ if (node) {
                     }
                 }
             }
-            if (typeof this.id != 'string') {
-                this.id = this.id.toHexString();
+            if (typeof this._id != 'string') {
+                this._id = this._id.toHexString();
             }
         }
 

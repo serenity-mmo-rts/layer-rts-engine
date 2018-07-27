@@ -65,17 +65,17 @@ if (node) {
 
             // create solar system Object
             var mapObj =new MapObject(this.gameData,{
-                id: "galaxyStar01inst" + i,
-                mapId: this.layer.id,
+                _id: "galaxyStar01inst" + i,
+                mapId: this.layer._id,
                 x: posx,
                 y: posy,
-                objTypeId: usedStar.id,
+                objTypeId: usedStar._id,
                 userId: 0,
                 mapGeneratorParams: [subLayerSeed,starTemperature,starSize,planetAmount,usedStar.PlanetSizesMean,usedStar.PlanetSizesStd]
 
             });
             mapObj.setPointers();
-            this.gameData.layers.get(this.layer.id).mapData.addObject(mapObj);
+            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
             this.worldObjects.push(mapObj);
         }
     };

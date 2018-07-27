@@ -24,7 +24,7 @@ if (node) {
         this.lockObject = {isLocked: false};
 
         // serialized:
-        this.id = 0;
+        this._id = 0;
         this.parentObjId = null;
         this.width = 0;
         this.height = 0;
@@ -97,7 +97,7 @@ if (node) {
         this.currentTime = null;
 
         if (type){
-            this.mapTypeId(type.id);
+            this.mapTypeId(type._id);
             this.mapType = type;
             this.createBuildingBlocks();
         }
@@ -166,7 +166,7 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {
-                id: 0,
+                _id: 0,
                 parentObjId : 0,
                 parentMapId: 0,
                 mapTypeId: 0
@@ -198,7 +198,7 @@ if (node) {
     /*
     proto.save = function () {
         var o = {
-            id: this.id,
+            _id: this._id,
             a: [this.parentObjId,
                 this.width,
                 this.height,
@@ -211,7 +211,7 @@ if (node) {
 
     proto.load = function (o) {
         if (o.hasOwnProperty("a")) {
-            this.id = o.id;
+            this._id = o._id;
             this.parentObjId = o.a[0];
             this.width = o.a[1];
             this.height = o.a[2];
@@ -226,8 +226,8 @@ if (node) {
                 }
             }
         }
-        if (typeof this.id != 'string') {
-            this.id = this.id.toHexString();
+        if (typeof this._id != 'string') {
+            this._id = this._id.toHexString();
         }
         this.mapData.rebuildQuadTree();
     };
@@ -236,12 +236,12 @@ if (node) {
     proto.createSublayer = function (x, y, sublayerId, parentObjId) {
 
         var newCityMap = new Layer(this.gameData, {
-            id: sublayerId,
+            _id: sublayerId,
             parentObjId: parentObjId,
             width: 10000,
             height: 10000,
             mapTypeId: "cityMapType01",
-            parentMapId: this.id,
+            parentMapId: this._id,
             mapGeneratorParams: this.mapData.mapObjects.get(parentObjId).blocks.Sublayer.mapGeneratorParams
         });
 

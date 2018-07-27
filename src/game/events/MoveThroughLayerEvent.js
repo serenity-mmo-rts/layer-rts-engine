@@ -33,7 +33,7 @@ if (node) {
         },
 
         setParameters: function (mapObj) {
-            this.mapObjId = mapObj.id();
+            this.mapObjId = mapObj._id();
             this.setPointers();
         },
 
@@ -74,13 +74,13 @@ if (node) {
         getSubItemsAndObject: function(itemInput, objectInput) {
             var itemList = [];
             var objList= [];
-            itemList.push(itemInput.id());
-            objList.push(objectInput.id());
+            itemList.push(itemInput._id());
+            objList.push(objectInput._id());
 
             var itemsInObj = objectInput.getItems();
             for (var itemid in itemsInObj) {
                 var item = itemsInObj[itemid];
-                itemList.push(item.id());
+                itemList.push(item._id());
                 if (item.subObjectId()) {
                     objList.push(item.subObjectId());
                     var mapObj = this.map.mapData.mapObjects.get(item.subObjectId());

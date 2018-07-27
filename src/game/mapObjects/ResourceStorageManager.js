@@ -64,7 +64,7 @@ if (node) {
             if (!resStorage){
                 // if it does not exist we create it here:
                 resStorage = new ResourceStorage(this.resList,null);
-                resStorage.id(this.ressourceTypeIds[i]);
+                resStorage._id(this.ressourceTypeIds[i]);
                 this.resList.add(resStorage);
             }
             resStorage.capacity = this.ressourceCapacity[i];
@@ -88,7 +88,7 @@ if (node) {
         var resStorage = this.resList.get(resTypeId);
         if (!resStorage) {
             resStorage = new ResourceStorage(this.resList,null);
-            resStorage.id(resTypeId);
+            resStorage._id(resTypeId);
             this.resList.add(resStorage);
         }
 

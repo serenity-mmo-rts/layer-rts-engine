@@ -12,36 +12,36 @@
         <small>simple example</small>
     </h1>
 
-    <div id="canvasContainer">
-        <canvas id="canvas" width="640" height="480"></canvas>
+    <div _id="canvasContainer">
+        <canvas _id="canvas" width="640" height="480"></canvas>
     </div>
 
     <div class="ctrl">
         <div class="ctrl-left">
-            <button id="btn_addAlignedRect">add aligned rectangle.</button>
-            <button id="btn_addAlignedRect_10">add 10 aligned rectangles</button>
+            <button _id="btn_addAlignedRect">add aligned rectangle.</button>
+            <button _id="btn_addAlignedRect_10">add 10 aligned rectangles</button>
             <br>
-            <button id="btn_addOriRect">add oriented rectangle.</button>
-            <button id="btn_addOriRect_10">add 10 oriented rectangles</button>
+            <button _id="btn_addOriRect">add oriented rectangle.</button>
+            <button _id="btn_addOriRect_10">add 10 oriented rectangles</button>
             <br>
-            <button id="btn_addCircle">add circle.</button>
-            <button id="btn_addCircle_10">add 10 circles</button>
+            <button _id="btn_addCircle">add circle.</button>
+            <button _id="btn_addCircle_10">add 10 circles</button>
 
             <span>
             <h3>Tree parameters: </h3>
-                <p>periodic (TODO): <input type="checkbox" id="periodic"></p>
-                <p>maxDepth: <input type="number" id="maxDepth" value="10"></p>
-                <p>maxChildren: <input type="number" id="maxChildren" value="8"></p>
+                <p>periodic (TODO): <input type="checkbox" _id="periodic"></p>
+                <p>maxDepth: <input type="number" _id="maxDepth" value="10"></p>
+                <p>maxChildren: <input type="number" _id="maxChildren" value="8"></p>
             <br>
-            <button id="btn_clear">clear tree</button>
+            <button _id="btn_clear">clear tree</button>
             <br>
             </span>
 
             <span>
             <h3>Cursor parameters: </h3>
-            <p>Cursor Size: <input type="number" id="cursorSize" value="50"></p>
+            <p>Cursor Size: <input type="number" _id="cursorSize" value="50"></p>
             Cursor Type:
-            <select id="cursorMode">
+            <select _id="cursorMode">
                 <option value="rectAligned">aligned rectangle
                 <option value="rectOriented">oriented rectangle
                 <option value="circle">circle
@@ -51,9 +51,9 @@
         </div>
 
         <div class="ctrl-right">
-            Retrievel Time: <span id="retrievelTime">0</span> ns<br/>
-            Total Objects: <span id="cnt_total">0</span><br/>
-            Candidates: <span id="cnt_cand">0</span> (<span id="cnt_perc">0</span>%)
+            Retrievel Time: <span _id="retrievelTime">0</span> ns<br/>
+            Total Objects: <span _id="cnt_total">0</span><br/>
+            Candidates: <span _id="cnt_cand">0</span> (<span _id="cnt_perc">0</span>%)
         </div>
     </div>
 

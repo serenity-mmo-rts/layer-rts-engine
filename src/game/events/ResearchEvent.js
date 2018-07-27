@@ -29,7 +29,7 @@ if (node) {
 
         setParameters: function (techTypeId,parentObject) {
             this.techTypeId = techTypeId;
-            this.parentObjectId = parentObject.id();
+            this.parentObjectId = parentObject._id();
             this.parentObject = parentObject;
         },
 

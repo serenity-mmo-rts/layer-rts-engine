@@ -44,8 +44,8 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            { connectedFrom: null},    // id encoded. this has to be a hub
-            { connectedTo: null}    // id encoded. can be any other object or hub}
+            { connectedFrom: null},    // _id encoded. this has to be a hub
+            { connectedTo: null}    // _id encoded. can be any other object or hub}
         ];
     };
 

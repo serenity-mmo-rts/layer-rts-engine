@@ -26,8 +26,8 @@ if (node) {
 
         addEvent: function (event) {
             //check if object is already in list:
-            if (this.events.hashList.hasOwnProperty(event.id)) {
-                console.log("map event "+event.id+" was already in list.")
+            if (this.events.hashList.hasOwnProperty(event._id)) {
+                console.log("map event "+event._id+" was already in list.")
             }
             else {
                 if (event.isFinished) {
@@ -47,7 +47,7 @@ if (node) {
         },
 
         finishEvent: function (event){
-            var eventId = event.id;
+            var eventId = event._id;
             this.events.deleteById(eventId);
             this.addEvent(event);
         },
@@ -78,12 +78,12 @@ if (node) {
             // Now notify the parent:
             if (!this.isMutated) {
                 this.isMutated = true;
-                if (this.hasOwnProperty("id")) {
-                    // if this is a game instance with an id. For example item or mapObject:
-                    this.parent.notifyStateChange(this.id());
+                if (this.hasOwnProperty("_id")) {
+                    // if this is a game instance with an _id. For example item or mapObject:
+                    this.parent.notifyStateChange(this._id());
                 }
                 else {
-                    // if this is a building block without id. For example UpgradeProdcution:
+                    // if this is a building block without _id. For example UpgradeProdcution:
                     this.parent.notifyStateChange(this.blockname);
                 }
             }
