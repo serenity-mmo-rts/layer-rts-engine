@@ -50,7 +50,7 @@ if (node) {
             }
 
             var centerDistNormalized = minRad + Math.pow(RandomNumber.rand(),1.4)*(1-minRad);
-            var centerDist = (centerDistNormalized*this.layer.width)/4;
+            var centerDist = (centerDistNormalized*this.layer.width())/4;
             var arm = Math.floor(RandomNumber.rand()*numArms);
             var posInArm = RandomNumber.randn()*stdInArm/centerDistNormalized;
             var armRotAngle = 0.5*Math.log(centerDistNormalized);
@@ -66,7 +66,7 @@ if (node) {
             // create solar system Object
             var mapObj =new MapObject(this.gameData,{
                 _id: "galaxyStar01inst" + i,
-                mapId: this.layer._id,
+                mapId: this.layer._id(),
                 x: posx,
                 y: posy,
                 objTypeId: usedStar._id,
@@ -75,7 +75,7 @@ if (node) {
 
             });
             mapObj.setPointers();
-            this.gameData.layers.get(this.layer._id).mapData.addObject(mapObj);
+            this.gameData.layers.get(this.layer._id()).mapData.addObject(mapObj);
             this.worldObjects.push(mapObj);
         }
     };
