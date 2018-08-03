@@ -52,7 +52,6 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {startedTime: null},
-            {dueTime: null}
         ];
     };
 
@@ -69,10 +68,10 @@ if (node) {
     };
 
     proto.unlockItem = function (startedTime) {
-        this.startedTime(startedTime);
+        this.startedTime = startedTime;
         this.deployTime = this.mapObject.blocks.Unit.deployTime;
         this.travelTime = this.parent.blocks.Movable.movingUpTime;
-        this.dueTime(this.startedTime + this.deployTime + this.travelTime);
+        this.dueTime = this.startedTime + this.deployTime + this.travelTime;
         var callback = function(dueTime,callbackId) {
             // remmove started time and build queueid from moveThrough layer event
             self.mapObject.blocks.UpgradeProduction.startedTime(0);
@@ -82,7 +81,7 @@ if (node) {
             console.log("Unit: "+self.parent._id+" ready in Upper Layer");
             return Infinity;
         };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
         console.log("Unit" +this.parent._id + "blocks space on upper layer");
 
     };

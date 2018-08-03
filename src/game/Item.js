@@ -186,7 +186,7 @@ if (node) {
             }, this);
         }
         else if (this.subObjectId()){
-            var obj = this.map.mapData.mapObjects.get(this.subObjectId());
+            var obj = this.getMap().mapData.mapObjects.get(this.subObjectId());
             this.x(obj.x());
             this.y(obj.y());
         }
