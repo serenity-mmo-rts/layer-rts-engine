@@ -13,7 +13,7 @@ if (node) {
         this.gameData = layer.gameData;
         this.seed = 0.5;
 
-        this.nrOfSolarSystems = 2000;
+        this.nrOfSolarSystems = 200;
         this.starTypes = ["redDwarf","normalStar","doubleSystem","neutronStar","blackHole"];
         this.distributionofStarTypes = [0.3,0,0.5,0.1,0.1];
         this.worldObjects = [];
