@@ -72,17 +72,18 @@ if (node) {
         this.deployTime = this.mapObject.blocks.Unit.deployTime;
         this.travelTime = this.parent.blocks.Movable.movingUpTime;
         this.dueTime = this.startedTime + this.deployTime + this.travelTime;
+        var self = this;
         var callback = function(dueTime,callbackId) {
             // remmove started time and build queueid from moveThrough layer event
             self.mapObject.blocks.UpgradeProduction.startedTime(0);
             self.mapObject.blocks.UpgradeProduction.buildQueueIds([]);
             self.layer.timeScheduler.removeCallback(callbackId);
             self.parent.setState(State.NORMAL);
-            console.log("Unit: "+self.parent._id+" ready in Upper Layer");
+            console.log("Unit: "+self.parent._id()+" ready in Upper Layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
-        console.log("Unit" +this.parent._id + "blocks space on upper layer");
+        console.log("Unit" +this.parent._id() + "blocks space on upper layer");
 
     };
 
