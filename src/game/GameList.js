@@ -301,10 +301,10 @@ if (node) {
         if (o instanceof Array) { // o is an Array of <ClassType> or an Array of JsonFormated <ClassType>
             for (var i = 0, length = o.length; i < length; i++) {
                 if (this.factoryMethod) {
-                    objInstance = this.factoryMethod(this.gameData, o[i]);
+                    objInstance = this.factoryMethod(this, o[i]);
                 }
                 else {
-                    objInstance = new this.ClassType(this.gameData, o[i]);
+                    objInstance = new this.ClassType(this, o[i]);
                 }
                 this.add(objInstance);
             }
@@ -313,10 +313,10 @@ if (node) {
             if (o.hasOwnProperty('hashList')) {
                 for (var propt in o.hashList) {
                     if (this.factoryMethod) {
-                        objInstance = this.factoryMethod(this.gameData, o.hashList[propt]);
+                        objInstance = this.factoryMethod(this, o.hashList[propt]);
                     }
                     else {
-                        objInstance = new this.ClassType(this.gameData, o.hashList[propt]);
+                        objInstance = new this.ClassType(this, o.hashList[propt]);
                     }
                     this.add(objInstance);
                 }
@@ -324,10 +324,10 @@ if (node) {
             else {
                 for (var propt in o) {
                     if (this.factoryMethod) {
-                        objInstance = this.factoryMethod(this.gameData, o[propt]);
+                        objInstance = this.factoryMethod(this, o[propt]);
                     }
                     else {
-                        objInstance = new this.ClassType(this.gameData, o[propt]);
+                        objInstance = new this.ClassType(this, o[propt]);
                     }
                     this.add(objInstance);
                 }

@@ -17,9 +17,24 @@ if (node) {
         buildMenuTooltip : null,
         buildTime : null,
 
+        parent: null,
 
-        init: function(gameData, initObj) {
-            this.gameData = gameData;
+
+        /*
+         constructor(gameData,initObj)
+         or
+         constructor(parent,initObj)
+         */
+        init: function(arg1, initObj) {
+
+            if (arg1.constructor.name === "GameData"){
+                this.gameData = arg1;
+            }
+            else {
+                this.parent = arg1;
+                this.gameData = this.parent.getGameData();
+            }
+
             // deserialize event from json object
             this.load(initObj);
         },

@@ -71,7 +71,13 @@ if (node) {
     };
     */
 
-
+    /*
+     constructor(gameData,initObj)
+     or
+     constructor(parent,type)
+     or
+     constructor(parent,initObj)
+     */
     var Layer = function (arg1, arg2) {
         var parent;
         var type;
@@ -83,9 +89,15 @@ if (node) {
             type = this.gameData.layerTypes.get(initObj.mapTypeId) || null;
             parent = this.gameData.layers;
         }
-        else {
+        else if (arg1.constructor.name === "GameList" && arg2.constructor.name === "ObjectType") {
             parent = arg1;
             type = arg2;
+        }
+        else {
+            parent = arg1;
+            initObj = arg2;
+            this.gameData = parent.getGameData();
+            type = this.gameData.layerTypes.get(initObj.mapTypeId) || null;
         }
 
         // Call the super constructor.

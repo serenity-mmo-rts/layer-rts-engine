@@ -1,6 +1,8 @@
 (function (exports) {
 
-    var LayerType = function (gameData,initObj) {
+
+
+    var LayerType = function (arg1,initObj) {
         // serialized:
         this._id = 0;
         this.blocks = {};
@@ -14,8 +16,13 @@
         this.buildCategories = [];  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
 
 
-        // not serialized:
-        this.gameData = gameData;
+        if (arg1.constructor.name === "GameData"){
+            this.gameData = arg1;
+        }
+        else {
+            this.parent = arg1;
+            this.gameData = this.parent.getGameData();
+        }
 
         // init:
         if (LayerType.arguments.length == 2) {

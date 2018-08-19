@@ -134,7 +134,9 @@ if (node) {
                         this.setDueTime(curId, newDueTime);
                     }
                     else {
-                        this.removeCallback(curId);
+                        if (this.callbacks.hasOwnProperty(curId)) {
+                            this.removeCallback(curId);
+                        }
                     }
 
                 }

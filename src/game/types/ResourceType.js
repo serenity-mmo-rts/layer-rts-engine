@@ -11,9 +11,9 @@ if (node) {
         // serialized:
         type: "RessourceType",
 
-        init: function(gameData, initObj){
+        init: function(arg1, initObj){
 
-            this._super( gameData, initObj );
+            this._super( arg1, initObj );
 
         },
 

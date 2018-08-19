@@ -23,6 +23,8 @@ if (node) {
      constructor(gameData,initObj)
      or
      constructor(parent,type)
+     or
+     constructor(parent,initObj)
      */
     var Item = function (arg1, arg2) {
 
@@ -42,9 +44,16 @@ if (node) {
                 parent = this.gameData.layers.get(initObj.targetMapId).mapData.items;
             }
         }
-        else {
+        else if (arg1.constructor.name === "GameList" && arg2.constructor.name === "ItemType") {
             parent = arg1;
             type = arg2;
+            this.gameData = parent.getGameData();
+        }
+        else {
+            parent = arg1;
+            initObj = arg2;
+            this.gameData = parent.getGameData();
+            type = this.gameData.itemTypes.get(initObj.itemTypeId);
         }
 
         // Call the super constructor.
@@ -61,7 +70,7 @@ if (node) {
 
         this.createBuildingBlocks();
 
-        if (arg1.constructor.name === "GameData"){
+        if (initObj){
             // assume first argument is gameData and second argument is initObj:
             this.load(initObj);
         }

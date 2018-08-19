@@ -29,9 +29,9 @@ if (node) {
         PlanetSizesMean : null, // in 2 pow n
         PlanetSizesStd : null,
 
-        init: function (gameData, initObj) {
+        init: function (arg1, initObj) {
 
-            this._super(gameData, initObj);
+            this._super(arg1, initObj);
 
         },
 
