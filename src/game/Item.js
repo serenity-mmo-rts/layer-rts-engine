@@ -34,6 +34,7 @@ if (node) {
         var initObj;
         if (arg1.constructor.name === "GameData"){
             // assume first argument is gameData and second argument is initObj:
+            throw new Error("this method to create new instances is deprecated!");
             this.gameData = arg1;
             initObj = arg2;
             type = this.gameData.itemTypes.get(initObj.itemTypeId);

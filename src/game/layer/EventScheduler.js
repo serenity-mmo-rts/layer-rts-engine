@@ -11,6 +11,8 @@ if (node) {
 
 
     var EventScheduler = function (gameData,parent) {
+
+        this.parent = parent;
         this.lockObject = parent.lockObject;
 
         // serialize
@@ -88,6 +90,19 @@ if (node) {
                 }
             }
 
+        },
+
+        /**
+         * get the map
+         * @returns {*}
+         */
+        getMap: function() {
+            if (this.hasOwnProperty("map")){
+                return this.map;
+            }
+            else {
+                return this.parent.getMap();
+            }
         },
 
         /**

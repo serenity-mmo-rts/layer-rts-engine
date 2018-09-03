@@ -109,7 +109,7 @@ if (node) {
             }
             else {
                 // remove this object from the game:
-                self.gameData.layers.get(self.mapId).timeScheduler.removeCallback(self.timeCallbackId);
+                self.getMap().timeScheduler.removeCallback(self.timeCallbackId);
             }
         });
 

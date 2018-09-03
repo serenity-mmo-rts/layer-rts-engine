@@ -22,8 +22,8 @@ if (node) {
         item: null,
         parentObject: null,
 
-        init: function(gameData, initObj){
-            this._super( gameData, initObj );
+        init: function(parent, initObj){
+            this._super( parent, initObj );
         },
 
 

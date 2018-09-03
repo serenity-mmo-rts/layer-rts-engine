@@ -23,8 +23,8 @@ if (node) {
         mapObj: null,
         targetMapId: null,
 
-        init: function(gameData, initObj){
-            this._super( gameData, initObj );
+        init: function(parent, initObj){
+            this._super( parent, initObj );
         },
 
 
@@ -41,10 +41,13 @@ if (node) {
         setPointers: function(){
             this._super();
             this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
-            this.itemId = this.mapObj.subItemId();
-            this.item = this.map.mapData.items.get(this.itemId);
-            this.targetMapId = this.map.parentMapId();
-            this.targetMapObjectId = this.map.parentObjId();
+            if (this.mapObj) {
+                // only load if we have the data, because it could be that the object has already moved out of the layer and the event is still there.
+                this.itemId = this.mapObj.subItemId();
+                this.item = this.map.mapData.items.get(this.itemId);
+                this.targetMapId = this.map.parentMapId();
+                this.targetMapObjectId = this.map.parentObjId();
+            }
         },
 
         executeOnClient: function () {

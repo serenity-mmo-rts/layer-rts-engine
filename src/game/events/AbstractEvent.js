@@ -21,15 +21,24 @@ if (node) {
 
         // not serialized
         gameData: null,
+        map: null,
+        parent: null,
 
-        init: function(gameData, initObj) {
-            this.gameData = gameData;
+        /*
+         constructor(parent,initObj)
+         */
+        init: function(parent, initObj) {
+
+            this.parent = parent;
+            this.map = parent.getMap();
+            this.gameData = this.map.getGameData();
+
             if (arguments.length == 1 || initObj==null ) {
                 // create new event
                 this._id = 'tmpId'+Math.random();
                 if (!node){
                     this.userId = uc.userId;
-                    this.mapId = uc.layerView.mapId;
+                    this.mapId = this.map._id();
                 }
             }
             else {

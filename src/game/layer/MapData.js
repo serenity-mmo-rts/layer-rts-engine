@@ -200,15 +200,18 @@ if (node) {
             this.mapObjects.deleteById(mapObject._id());
         }
 
-        // remove from quadtree
-        this.quadTree.remove(mapObject.treeItem);
-        var collidingBounds = this.quadTree.retrieve(mapObject.treeItem,function(bounds) {
-            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-        });
-        for (var i=collidingBounds.length-1; i>=0; i--){
-            collidingBounds[i].callback('removing',mapObject);
+        if (mapObject.treeItem) {
+            // remove from quadtree
+            this.quadTree.remove(mapObject.treeItem);
+            var collidingBounds = this.quadTree.retrieve(mapObject.treeItem,function(bounds) {
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+            });
+            for (var i=collidingBounds.length-1; i>=0; i--){
+                collidingBounds[i].callback('removing',mapObject);
+            }
+            mapObject.treeItem = null;
         }
-        delete mapObject["treeItem"];
+
 
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);

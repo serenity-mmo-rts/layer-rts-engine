@@ -50,6 +50,7 @@ if (node) {
         var initObj;
         if (arg1.constructor.name === "GameData") {
             // assume first argument is gameData and second argument is initObj:
+            throw new Error("this method to create new instances is deprecated!");
             this.gameData = arg1;
             initObj = arg2;
             type = this.gameData.objectTypes.get(initObj.objTypeId) || null;
@@ -80,6 +81,8 @@ if (node) {
         this.gameData = this.getGameData();
         this.onChangeCallback = {};
         this.map = this.getMap();
+        this.treeItem = null;
+
         //this.axes = null; //created if needed for complex collision detection if one of two objects is not aligned with map axes
         //this.rect = null; //created if needed for simple collision detection if both objects are aligned with map axes
         this.items = {};

@@ -23,8 +23,8 @@ if (node) {
         //not serialized
         parentObject: null,
 
-        init: function(gameData, initObj){
-            this._super( gameData, initObj );
+        init: function(parent, initObj){
+            this._super( parent, initObj );
         },
 
         isValid: function () {
@@ -58,7 +58,7 @@ if (node) {
         },
 
         execute: function () {
-            this.item = new Item(this.gameData, {_id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
+            this.item = new Item(this.map, {_id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
             this.item.setPointers();
 
             this.isValid();

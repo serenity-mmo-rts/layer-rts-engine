@@ -142,7 +142,9 @@ if (node) {
         // delete all the oldValue fields here and in all mutatedChilds recursively.
             for (var key in this.mutatedChilds) {
                 if(this.mutatedChilds.hasOwnProperty(key)){
-                    this.hashList[key].newSnapshot();
+                    if (this.hashList.hasOwnProperty(key)) {
+                        this.hashList[key].newSnapshot();
+                    }
                 }
             }
 
