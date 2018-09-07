@@ -58,7 +58,7 @@ if (node) {
     proto.setPointers  = function(){
         this.layer= this.getMap();
         this.mapObject =  this.layer.mapData.mapObjects.get(this.parent.subObjectId());
-        if (this.parent.state()==State.BLOCKED && this.parent.subObjectId()){
+        if (this.parent.state()==State.BLOCKED && this.parent.activeOnLayer){
             this.unlockItem(this.mapObject.blocks.UpgradeProduction.startedTime());
         }
     };

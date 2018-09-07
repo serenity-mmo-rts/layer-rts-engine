@@ -66,9 +66,10 @@ if (node) {
         },
 
         execute: function () {
-            this.mapObj.targetMapId(this.targetMapId);
+            this.mapObj.inactiveMapId(this.targetMapId);
             this.item.objectId(this.targetMapObjectId);
-            this.item.targetMapId(this.targetMapId);
+            this.item.mapId(this.targetMapId);
+            this.item.inactiveMapId(this.map._id());
             this.item.setState(State.BLOCKED);
             this.mapObj.setState(State.HIDDEN);
             this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);

@@ -14,7 +14,7 @@ describe('UpgradeProduction', function() {
 
         var mapId = "cityMap02";
         var currentTime = 10;
-        var event = new BuildUpgradeEvent(gameData);
+        var event = new BuildUpgradeEvent(gameData.layers.get(mapId).eventScheduler.events);
         event.setParameters("targetSelectionItem", gameData.layers.get(mapId).mapData.mapObjects.get("furnitureFactory02"));
         event.startedTime = currentTime;
         event.mapId = mapId;

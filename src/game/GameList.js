@@ -189,9 +189,23 @@ if (node) {
     /**
      * call this function if a state variable has changed to notify db sync later.
      */
-    proto.getAndResetStateChanges = function () {
-        var oldStateChanges = this.mutatedChilds;
-        //this.mutatedChilds = {};
+    proto.getAndResetStateChanges = function (includeDeletions) {
+        var includeDeletions = includeDeletions | false;
+        var oldStateChanges;
+        if (includeDeletions) {
+            oldStateChanges = this.mutatedChilds;
+        }
+        else {
+            oldStateChanges = {};
+            for (var key in this.mutatedChilds) {
+                if (this.mutatedChilds.hasOwnProperty(key)) {
+                    if (this.hashList.hasOwnProperty(key)) { // only revert sub obects if they are still in the hashlist...
+                        oldStateChanges[key] = this.mutatedChilds[key];
+                    }
+                }
+            }
+        }
+
         this.newSnapshot();
         return oldStateChanges;
     };

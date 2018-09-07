@@ -11,12 +11,12 @@ describe('TimeScheduler', function() {
 
     it('check if a single time callback is working', function() {
 
-        gameData.layers.get("cityMap02").timeScheduler.addCallback(
+        gameData.layers.get("solarMap01").timeScheduler.addCallback(
             function (curDueTime,curId) {
                 assert.equal(curDueTime, 3);
             }, 3);
 
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(4);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(4);
 
     });
 
@@ -28,7 +28,7 @@ describe('TimeScheduler', function() {
 
         function addCallback(i,myDueTime){
             var myCallbackId;
-            myCallbackId = gameData.layers.get("cityMap02").timeScheduler.addCallback(function (curDueTime,curId) {
+            myCallbackId = gameData.layers.get("solarMap01").timeScheduler.addCallback(function (curDueTime,curId) {
                 assert.equal(myDueTime, curDueTime);
                 assert.equal(myCallbackId, curId);
                 var expectedCall = expectedCallOrder.shift();
@@ -43,11 +43,11 @@ describe('TimeScheduler', function() {
         }
 
         // now finish them:
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 5);
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(4);
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 3);
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(10);
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 0);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 5);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(4);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 3);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(10);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 0);
 
     });
 
@@ -55,17 +55,17 @@ describe('TimeScheduler', function() {
 
     it('test remove callback and changing dueTime', function() {
         var lastCalledCallback = 0;
-        var cbId1 = gameData.layers.get("cityMap02").timeScheduler.addCallback(
+        var cbId1 = gameData.layers.get("solarMap01").timeScheduler.addCallback(
             function (curDueTime,curId) {
                 assert.equal(curDueTime, 7);
                 lastCalledCallback = 1;
             }, 7);
-        var cbId2 = gameData.layers.get("cityMap02").timeScheduler.addCallback(
+        var cbId2 = gameData.layers.get("solarMap01").timeScheduler.addCallback(
             function (curDueTime,curId) {
                 assert.equal(curDueTime, 3);
                 lastCalledCallback = 2;
             }, 3);
-        var cbId3 = gameData.layers.get("cityMap02").timeScheduler.addCallback(
+        var cbId3 = gameData.layers.get("solarMap01").timeScheduler.addCallback(
             function (curDueTime,curId) {
                 lastCalledCallback = 3;
                 if (curDueTime<4) {
@@ -80,23 +80,23 @@ describe('TimeScheduler', function() {
                 }
             }, 1);
 
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 3);
-        gameData.layers.get("cityMap02").timeScheduler.removeCallback(cbId2);
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 2);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 3);
+        gameData.layers.get("solarMap01").timeScheduler.removeCallback(cbId2);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 2);
 
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(3);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(3);
         assert.equal(lastCalledCallback,3);
 
         // callback due time was updated, so we should still have 2 callbacks active:
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 2);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 2);
 
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(5);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(5);
         assert.equal(lastCalledCallback,3);
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 1);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 1);
 
-        gameData.layers.get("cityMap02").timeScheduler.finishAllTillTime(10);
+        gameData.layers.get("solarMap01").timeScheduler.finishAllTillTime(10);
         assert.equal(lastCalledCallback,1);
-        assert.equal(gameData.layers.get("cityMap02").timeScheduler.getNumActiveCallbacks(), 0);
+        assert.equal(gameData.layers.get("solarMap01").timeScheduler.getNumActiveCallbacks(), 0);
     });
 
 });

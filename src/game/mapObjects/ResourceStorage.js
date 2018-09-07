@@ -308,7 +308,7 @@ if (node) {
                 var self = this;
                 timeScheduler.addCallback(function () {
                     self._recalcRessourceInOut();
-                }, currentTime+msTillFullOrEmpty)
+                }, currentTime+msTillFullOrEmpty);
             }
 
         }

@@ -5,6 +5,7 @@ if (node) {
     var Item = require('../Item').Item;
     //var MoveItemEvent = require('../events/MoveItemEvent').MoveItemEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
+    ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
 
 (function (exports) {
@@ -24,6 +25,9 @@ if (node) {
         this.timeCallbackId = null;
         this.distance = null;
         this.travelTime = null;
+
+        this.isMovingUp = ko.observable(false);
+
     };
 
     /**
@@ -55,7 +59,6 @@ if (node) {
             {targetId: null},
             {originId: null},
             {isMoving: false},
-            {isMovingUp: false},
             {startedTime: null},
             {dueTime: null}
         ];
@@ -64,7 +67,7 @@ if (node) {
     proto.setPointers  = function(){
         this.mapObject = this.parent.mapObj;
         this.gameData= this.getGameData();
-        this.layer = this.gameData.layers.get(this.parent.mapId());
+        this.layer = this.getMap();
     };
 
     proto.removePointers  = function(){
@@ -96,10 +99,8 @@ if (node) {
 
     proto.moveObjectUp  = function(startedTime){
 
-        this.targetId(this.parent.targetMapId());
-        this.originId(this.parent.mapId());
-        this.startedTime(startedTime);
-        this.dueTime(startedTime+this.movingUpTime);
+        //this.targetId(this.parent.inactiveMapId());
+        //this.originId(this.parent.mapId());
         var self = this;
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
@@ -110,7 +111,7 @@ if (node) {
             console.log("map Object moved to Upper Layer");
             return Infinity;
         };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,startedTime+this.movingUpTime);
         this.isMovingUp(true);
         console.log("Map Object" + this.parent._id()+ "started moving");
     };

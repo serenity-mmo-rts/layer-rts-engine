@@ -16,9 +16,9 @@ describe('BuildObjectEvent', function() {
 
         var mapId = "cityMap02";
         var currentTime = 10;
-        var event = new BuildObjectEvent(gameData);
+        var event = new BuildObjectEvent(gameData.layers.get(mapId).eventScheduler.events);
 
-        var object = new MapObject(gameData, {
+        var object = new MapObject(gameData.layers.get(mapId).mapData.mapObjects, {
             id: 'testObject',
             mapId: mapId,
             x: 200,

@@ -42,7 +42,7 @@ if (node) {
                 parent = this.gameData.layers.get(initObj.mapId).mapData.items;
             }
             else {
-                parent = this.gameData.layers.get(initObj.targetMapId).mapData.items;
+                parent = this.gameData.layers.get(initObj.inactiveMapId).mapData.items;
             }
         }
         else if (arg1.constructor.name === "GameList" && arg2.constructor.name === "ItemType") {
@@ -116,7 +116,7 @@ if (node) {
             {
                 _id: 0,
                 mapId: 0,
-                targetMapId: 0,
+                inactiveMapId: 0,
                 itemTypeId: 0
             },
             {objectId: 0},
@@ -181,8 +181,11 @@ if (node) {
         var self = this;
         this.map = this.getMap();
 
-        if (this.map._id()==this.mapId()){
+        if (this.map._id()==this.mapId()) {
             this.activeOnLayer = true;
+        }
+        else {
+            this.activeOnLayer = false;
         }
 
         this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
