@@ -74,6 +74,28 @@ if (node) {
 
     };
 
+    proto.resetHelpers = function () {
+        var self = this;
+        if (this.isMoving()){
+            if (this.dueTime()){
+                if (this.timeCallbackId){
+                    this.layer.timeScheduler.setDueTime(this.timeCallbackId,this.dueTime())
+                }
+                else{
+                    this.timeCallbackId = this.layer.timeScheduler.addCallback(function(dueTime,callbackId){
+                            self.finishMovingThoughLayer(dueTime,callbackId);
+                        }
+                        ,this.dueTime());
+                }
+            }
+            else{
+                if (this.timeCallbackId) {
+                    this.layer.timeScheduler.removeCallback(this.timeCallbackId);
+                    this.timeCallbackId = null;
+                }
+            }
+        }
+    };
 
     proto.getCurrentPositionOfItem =  function(currTime) {
 
@@ -108,7 +130,7 @@ if (node) {
             var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
             self.layer.mapData.removeObject(object);
             self.layer.mapData.removeItem(self.parent);
-            console.log("map Object moved to Upper Layer");
+            console.log("map Object and Item deleted from lower layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,startedTime+this.movingUpTime);
@@ -126,20 +148,11 @@ if (node) {
         this.travelTime= this.distance/this.movementSpeed;
         this.startedTime(startedTime);
         this.dueTime(this.startedTime() + this.travelTime);
-
-
-    // in call back add item to other  Obejct context menu
         var self = this;
-        var callback = function(dueTime,callbackId) {
-            self.isMoving(false);
-            self.layer.timeScheduler.removeCallback(callbackId);
-            self.parent.addToParentObject(self.targetId(),dueTime);
-            console.log("moving of item :'"+self.parent.itemTypeId()+"' completed");
-            return Infinity;
-        };
-        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime());
-        console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
-
+        this.timeCallbackId = this.layer.timeScheduler.addCallback(function(dueTime,callbackId){
+                self.finishMovingThoughLayer(dueTime,callbackId);
+            }
+            ,this.dueTime());
         var centerX= (origin.x()+ target.x())/2;
         var centerY= (origin.y()+ target.y())/2;
         var width = target.y() -origin.y();
@@ -147,6 +160,17 @@ if (node) {
         this.parent.applyItemToMap(centerX,centerY,width,height,0);
         this.parent.removeFromParentObject(this.dueTime());
         this.isMoving(true);
+        console.log("I start moving  a " + this.parent.itemTypeId() + " from " + this.originId() + " to " +this.targetId());
+    };
+
+    proto.finishMovingThoughLayer = function(dueTime,callbackId){
+        // in call back add item to other  Obejct context menu
+        this.isMoving(false);
+        this.layer.timeScheduler.removeCallback(callbackId);
+        this.timeCallbackId = null;
+        this.parent.addToParentObject(this.targetId(),dueTime);
+        console.log("moving of item :'"+this.parent.itemTypeId()+"' completed");
+        return Infinity;
     };
 
     /**

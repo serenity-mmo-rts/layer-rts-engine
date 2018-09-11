@@ -60,9 +60,12 @@ if (node) {
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
 
-        this.activeOnLayer = false;
+
         this.itemTypeId(type._id);
         this.blocks = {};
+
+        // Helper vars
+        this.activeOnLayer = false;
         this.onChangeCallback = null;
         this.mapObj = null;
         this.gameData = this.getGameData();
@@ -138,7 +141,6 @@ if (node) {
         this.width(w);
         this.height(h);
         this.ori(o);
-
     };
 
 
@@ -211,10 +213,6 @@ if (node) {
 
         var self= this;
         this.embedded.subscribe(function(newValue) {
-            // set embedded variable of all blocks
-            //for (var blockName in self.blocks) {
-            //    self.blocks[blockName].embedded(newValue);
-            //}
             if (!newValue){
                 if (this.mapObj){
                     self.mapObj.removeItem(self._id());
@@ -224,6 +222,12 @@ if (node) {
             }
 
         });
+    };
+
+    proto.resetHelpers = function () {
+        if (this.state() != State.BLOCKED && this.objectId()){
+            this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
+        }
     };
 
     proto.addToParentObject = function (objectId,timeStamp) {

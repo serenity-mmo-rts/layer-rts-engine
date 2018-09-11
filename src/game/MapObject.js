@@ -179,14 +179,8 @@ if (node) {
 
         var self= this;
         this.embedded.subscribe(function(newValue) {
-            // set embedded variable of all blocks
-            //for (var blockName in self.blocks) {
-            //    self.blocks[blockName].embedded(newValue);
-            //}
 
             if(newValue){
-                // add this object to game
-
             }
             else {
                 // remove this object from game (i.e. clean up)
@@ -196,6 +190,10 @@ if (node) {
             }
         });
 
+    };
+
+    proto.resetHelpers = function () {
+           var test = 1;
     };
 
 
