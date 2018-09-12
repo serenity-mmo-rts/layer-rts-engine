@@ -155,7 +155,8 @@ if (node) {
             {state: State.TEMP},
             {sublayerId: null},
             {subItemId: null},
-            {mapGeneratorParams: null}
+            {mapGeneratorParams: null},
+            {needsTobePlaced: false}
 
         ];
     };

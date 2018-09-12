@@ -135,7 +135,6 @@ if (node) {
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,startedTime+this.movingUpTime);
         this.isMovingUp(true);
-        console.log("Map Object" + this.parent._id()+ "started moving");
     };
 
 

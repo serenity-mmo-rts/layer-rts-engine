@@ -7,6 +7,7 @@ if (node) {
     var LevelUpgradeEvent = require('./LevelUpgradeEvent').LevelUpgradeEvent;
     var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
     var MoveThroughLayerEvent = require('./MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var MoveItemDownEvent = require('./MoveItemDownEvent').MoveItemDownEvent;
     var ResearchEvent = require('./ResearchEvent').ResearchEvent;
     var MoveItemEvent = require('./MoveItemEvent').MoveItemEvent;
 }
