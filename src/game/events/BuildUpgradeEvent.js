@@ -58,7 +58,7 @@ if (node) {
         },
 
         execute: function () {
-            this.item = new Item(this.map, {_id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
+            this.item = new Item(this.map.mapData.items, {_id: this.itemId, objectId: this.parentObjectId, itemTypeId: this.itemTypeId, mapId: this.mapId});
             this.item.setPointers();
 
             this.isValid();
