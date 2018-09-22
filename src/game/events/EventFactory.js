@@ -8,6 +8,7 @@ if (node) {
     var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
     var MoveThroughLayerEvent = require('./MoveThroughLayerEvent').MoveThroughLayerEvent;
     var MoveItemDownEvent = require('./MoveItemDownEvent').MoveItemDownEvent;
+    var PlaceObjectEvent = require('./PlaceObjectEvent').PlaceObjectEvent;
     var ResearchEvent = require('./ResearchEvent').ResearchEvent;
     var MoveItemEvent = require('./MoveItemEvent').MoveItemEvent;
 }
@@ -33,6 +34,9 @@ if (node) {
         }
         else if (initObj.type == "MoveItemDownEvent") {
                 event = new MoveItemDownEvent(parent,initObj);
+        }
+        else if (initObj.type == "PlaceObjectEvent") {
+            event = new PlaceObjectEvent(parent,initObj);
         }
         else if (initObj.type == "MoveItemEvent") {
             event = new MoveItemEvent(parent,initObj);

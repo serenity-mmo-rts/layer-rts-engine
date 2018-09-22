@@ -77,6 +77,7 @@ if (node) {
             this.mapObj.needsTobePlaced(true);
             this.map.mapData.removeObject(this.mapObj);
             this.map.mapData.removeItem(this.item);
+            // TODO this doesnt workitem is not found on execution on new game event in client
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
