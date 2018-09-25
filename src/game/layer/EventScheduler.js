@@ -123,9 +123,23 @@ if (node) {
                 }
             }
 
-            this.isMutated = false;
-            this.mutatedChilds = {}
+        },
 
+        revertChangesDone: function () {
+            for (var key in this.mutatedChilds) {
+                if(this.mutatedChilds.hasOwnProperty(key)){
+                    if (key in this) {
+                        // this key is a ko.observable
+                        this[key].revertChangesDone();
+                    }
+                    else {
+                        // this key is a sub building block
+                        this.blocks[key].revertChangesDone();
+                    }
+                }
+            }
+            this.isMutated = false;
+            this.mutatedChilds = {};
         },
 
 

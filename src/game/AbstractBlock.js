@@ -157,10 +157,20 @@ ko.extenders.stateVar = function (target, options) {
         // only revert this if there was a change:
         if (target.isMutated) {
             target(target.oldValue);
+        }
+
+    };
+
+    stateVar.revertChangesDone = function () {
+        for (var key in target.mutatedChilds) {
+            if (target.mutatedChilds.hasOwnProperty(key)) {
+                target[key].revertChangesDone();
+            }
+        }
+        if (target.isMutated) {
             target.oldValue = null;
             target.isMutated = false;
         }
-
     };
 
     // here we subscribe to the original observable:
@@ -619,6 +629,22 @@ ko.extenders.stateVar = function (target, options) {
                 else {
                     // this key is a sub building block
                     this.blocks[key].revertChanges();
+                }
+            }
+        }
+    };
+
+    proto.revertChangesDone = function () {
+
+        for (var key in this.mutatedChilds) {
+            if (this.mutatedChilds.hasOwnProperty(key)) {
+                if (key in this) {
+                    // this key is a ko.observable
+                    this[key].revertChangesDone();
+                }
+                else {
+                    // this key is a sub building block
+                    this.blocks[key].revertChangesDone();
                 }
             }
         }

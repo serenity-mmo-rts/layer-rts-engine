@@ -181,8 +181,22 @@ if (node) {
                 }
             }
         }
-        this.mutatedChilds = {};
+
+    };
+
+
+    proto.revertChangesDone = function () {
+
+        for (var key in this.mutatedChilds) {
+            if(this.mutatedChilds.hasOwnProperty(key)){
+                if(this.hashList.hasOwnProperty(key)) { // only revert sub obects if they are still in the hashlist...
+                    this.hashList[key].revertChangesDone();
+                }
+            }
+        }
+
         this.isMutated = false;
+        this.mutatedChilds = {};
     };
 
 
@@ -234,7 +248,6 @@ if (node) {
         if (!this.lockObject.isLocked) {
             this.sinceSnapshotRemoved.push(this.hashList[_id]);
         }
-
 
         if (typeof this.hashList[_id].embedded === "function") {
             this.hashList[_id].embedded(false);

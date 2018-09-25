@@ -214,11 +214,11 @@ if (node) {
         var self= this;
         this.embedded.subscribe(function(newValue) {
             if (!newValue){
-                if (this.mapObj){
+                /*
+                if (self.mapObj){
                     self.mapObj.removeItem(self._id());
                 }
-
-                self.getMap().mapData.removeItem(self);
+                */
             }
 
         });
