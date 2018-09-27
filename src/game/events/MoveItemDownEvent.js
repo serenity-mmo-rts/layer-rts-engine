@@ -14,14 +14,16 @@ if (node) {
     var MoveItemDownEvent = AbstractEvent.extend({
 
         // states
-        type: "MoveThroughLayerEvent",
-        mapObjId: null,
+        type: "MoveItemDownEvent",
+        itemId: null,
+        targetMapId: null,
+
 
         // helpers
-        itemId: null,
         item: null,
+        mapObjId: null,
         mapObj: null,
-        targetMapId: null,
+
 
         init: function(parent, initObj){
             this._super( parent, initObj );
@@ -32,21 +34,23 @@ if (node) {
             return true;
         },
 
-        setParameters: function (mapObj) {
-            this.mapObjId = mapObj._id();
+        setParameters: function (item) {
+            this.itemId = item._id();
             this.setPointers();
+            this.targetMapId = this.map.mapData.mapObjects.get(this.item.objectId()).sublayerId();
         },
 
 
         setPointers: function(){
             this._super();
-            this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
-            if (this.mapObj) {
+            this.item = this.map.mapData.items.get(this.itemId);
+            if (this.item) {
                 // only load if we have the data, because it could be that the object has already moved out of the layer and the event is still there.
-                this.itemId = this.mapObj.subItemId();
-                this.item = this.map.mapData.items.get(this.itemId);
-                this.targetMapId = this.map.parentMapId();
-                this.targetMapObjectId = this.map.parentObjId();
+                this.mapObjId = this.item.subObjectId();
+                this.mapObj = this.map.mapData.mapObjects.get(this.mapObjId);
+            }
+            else{
+                throw new Error ("Item not in database");
             }
         },
 
@@ -61,18 +65,18 @@ if (node) {
 
         executeOnOthers: function() {
             this.execute();
-            // for rendering
-            this.mapObj.setState(State.CONSTRUCTION);
         },
 
         execute: function () {
-            this.mapObj.inactiveMapId(this.targetMapId);
-            this.item.objectId(this.targetMapObjectId);
-            this.item.mapId(this.targetMapId);
-            this.item.inactiveMapId(this.map._id());
-            this.item.setState(State.BLOCKED);
+            this.item.mapId(this.map._id());
+            this.mapObj.inactiveMapId(this.map._id());
+            this.item.inactiveMapId(this.targetMapId);
+            this.mapObj.mapId(this.targetMapId);
+            this.item.setState(State.HIDDEN);
             this.mapObj.setState(State.HIDDEN);
-            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
+            this.mapObj.needsTobePlaced(true);
+            this.map.mapData.removeObject(this.mapObj);
+            this.map.mapData.removeItem(this.item);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
@@ -124,16 +128,17 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.mapObjId
+            o.a2 = [this.itemId,
+                    this.targetMapId
             ];
             return o;
         },
 
-
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this.mapObjId = o.a2[0];
+                this.itemId = o.a2[0];
+                this.targetMapId = o.a2[1];
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

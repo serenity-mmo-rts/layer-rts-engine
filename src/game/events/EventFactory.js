@@ -29,7 +29,10 @@ if (node) {
             event = new ActivateFeatureEvent(parent,initObj);
         }
         else if (initObj.type == "MoveThroughLayerEvent") {
-            event = new MoveThroughLayerEvent(parent,initObj);
+            event = new MoveThroughLayerEvent(parent, initObj);
+        }
+        else if (initObj.type == "MoveItemDownEvent") {
+                event = new MoveItemDownEvent(parent,initObj);
         }
         else if (initObj.type == "MoveItemEvent") {
             event = new MoveItemEvent(parent,initObj);
