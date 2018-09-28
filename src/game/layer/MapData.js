@@ -201,21 +201,26 @@ if (node) {
         }
 
         if (mapObject.treeItem) {
-            // remove from quadtree
-            this.quadTree.remove(mapObject.treeItem);
-            var collidingBounds = this.quadTree.retrieve(mapObject.treeItem,function(bounds) {
-                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-            });
-            for (var i=collidingBounds.length-1; i>=0; i--){
-                collidingBounds[i].callback('removing',mapObject);
-            }
-            mapObject.treeItem = null;
+            this.removeObjectFromTree(mapObject);
         }
 
 
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);
         }
+    };
+
+
+    proto.removeObjectFromTree = function (mapObject) {
+        // remove from quadtree
+        this.quadTree.remove(mapObject.treeItem);
+        var collidingBounds = this.quadTree.retrieve(mapObject.treeItem,function(bounds) {
+            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+        });
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            collidingBounds[i].callback('removing',mapObject);
+        }
+        mapObject.treeItem = null;
     };
 
 
@@ -355,9 +360,23 @@ if (node) {
                 }
             }
 
-        this.isMutated = false;
-        this.mutatedChilds = {}
+    };
 
+    proto.revertChangesDone = function () {
+        for (var key in this.mutatedChilds) {
+            if(this.mutatedChilds.hasOwnProperty(key)){
+                if (key in this) {
+                    // this key is a ko.observable
+                    this[key].revertChangesDone();
+                }
+                else {
+                    // this key is a sub building block
+                    this.blocks[key].revertChangesDone();
+                }
+            }
+        }
+        this.isMutated = false;
+        this.mutatedChilds = {};
     };
 
 

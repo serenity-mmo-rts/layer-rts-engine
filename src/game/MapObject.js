@@ -186,7 +186,7 @@ if (node) {
             else {
                 // remove this object from game (i.e. clean up)
                 if (self.hasOwnProperty("treeItem")) {
-                    self.getMap().mapData.removeObject(self);
+                    self.getMap().mapData.removeObjectFromTree(self);
                 }
             }
         });
