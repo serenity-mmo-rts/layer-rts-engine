@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var Class = require('../Class').Class;
     var GameData = require('../GameData').GameData;
+    var LoadEntitiesEvent = require('./LoadEntitiesEvent').LoadEntitiesEvent;
     var BuildObjectEvent = require('./BuildObjectEvent').BuildObjectEvent;
     var BuildUpgradeEvent = require('./BuildUpgradeEvent').BuildUpgradeEvent;
     var LevelUpgradeEvent = require('./LevelUpgradeEvent').LevelUpgradeEvent;
@@ -17,7 +18,10 @@ if (node) {
 
     exports.EventFactory = function(parent,initObj) {
         var event = null;
-        if (initObj.type == "BuildObjectEvent") {
+        if (initObj.type == "LoadEntitiesEvent") {
+            event = new LoadEntitiesEvent(parent,initObj);
+        }
+        else if (initObj.type == "BuildObjectEvent") {
             event = new BuildObjectEvent(parent,initObj);
         }
         else if (initObj.type == "BuildUpgradeEvent") {
@@ -33,7 +37,7 @@ if (node) {
             event = new MoveThroughLayerEvent(parent, initObj);
         }
         else if (initObj.type == "MoveItemDownEvent") {
-                event = new MoveItemDownEvent(parent,initObj);
+            event = new MoveItemDownEvent(parent,initObj);
         }
         else if (initObj.type == "PlaceObjectEvent") {
             event = new PlaceObjectEvent(parent,initObj);

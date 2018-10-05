@@ -4,7 +4,6 @@ if (node) {
     var GameData = require('../GameData').GameData;
     var MapObject = require('../MapObject').MapObject;
     var State = require('../AbstractBlock').State;
-    var MoveThroughLayerEvent = require('../events/MoveThroughLayerEvent').MoveThroughLayerEvent;
     var Item = require('./../Item').Item;
 }
 

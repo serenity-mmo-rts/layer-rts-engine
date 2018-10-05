@@ -117,7 +117,8 @@ if (node) {
                 targetMapId: this.targetMapId,
                 event: "loadFromDb",
                 objectIds: movingEntities["objList"],
-                itemIds: movingEntities["itemList"]
+                itemIds: movingEntities["itemList"],
+                eventIds: [this._id]
             };
             return msgData;
         },

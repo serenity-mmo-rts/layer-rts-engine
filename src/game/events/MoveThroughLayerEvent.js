@@ -1,8 +1,8 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
+    var MapObject = require('../MapObject').MapObject;
     var GameData = require('../GameData').GameData;
     var Item =require('../Item').Item;
-    var MapObject = require('../MapObject').MapObject;
     var State = require('../AbstractBlock').State;
     var AbstractEvent = require('./AbstractEvent').AbstractEvent;
     var mongodb = require('../../server/node_modules/mongodb');
@@ -105,15 +105,22 @@ if (node) {
 
             // put both object and item in array that will be transferred to other server
             var movingEntities =  this.getSubItemsAndObject(this.item,this.mapObj);
-            // for rendering
-            this.mapObj.setState(State.CONSTRUCTION);
-
             var msgData = {
                 targetMapId: this.targetMapId,
                 event: "loadFromDb",
                 objectIds: movingEntities["objList"],
-                itemIds: movingEntities["itemList"]
+                itemIds: movingEntities["itemList"],
+                eventIds: [this._id]
             };
+
+            /*
+            var msgData = {
+                targetMapId: this.targetMapId,
+                event: "executeEvent",
+                eventId: this._id
+            };
+            */
+
             return msgData;
         },
 
@@ -124,7 +131,9 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.mapObjId
+            o.a2 = [
+                this.mapObj.save(),
+                this.item.save()
             ];
             return o;
         },
@@ -133,7 +142,10 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this.mapObjId = o.a2[0];
+                this.mapObj = new MapObject(this.map.mapData.mapObjects, o.a2[0]);
+                this.mapObjId = this.mapObj._id();
+                this.item = new Item(this.map.mapData.items, o.a2[1]);
+                this.itemId = this.item._id();
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

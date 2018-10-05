@@ -13,6 +13,18 @@ if (node) {
     var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
     var GalaxyGenerator = require('./layer/GalaxyGenerator').GalaxyGenerator;
     var HubSystem = require('./layer/HubSystem').HubSystem;
+
+    // events:
+    var LoadEntitiesEvent = require('./events/LoadEntitiesEvent').LoadEntitiesEvent;
+    var BuildObjectEvent = require('./events//BuildObjectEvent').BuildObjectEvent;
+    var BuildUpgradeEvent = require('./events//BuildUpgradeEvent').BuildUpgradeEvent;
+    var LevelUpgradeEvent = require('./events//LevelUpgradeEvent').LevelUpgradeEvent;
+    var ActivateFeatureEvent = require('./events//ActivateFeatureEvent').ActivateFeatureEvent;
+    var MoveThroughLayerEvent = require('./events//MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var MoveItemDownEvent = require('./events//MoveItemDownEvent').MoveItemDownEvent;
+    var PlaceObjectEvent = require('./events//PlaceObjectEvent').PlaceObjectEvent;
+    var ResearchEvent = require('./events//ResearchEvent').ResearchEvent;
+    var MoveItemEvent = require('./events//MoveItemEvent').MoveItemEvent;
 }
 
 (function (exports) {
@@ -262,7 +274,40 @@ if (node) {
     };
 
 
-
+    proto.createEvent = function(parent,initObj) {
+        var event = null;
+        if (initObj.type == "LoadEntitiesEvent") {
+            event = new LoadEntitiesEvent(parent,initObj);
+        }
+        else if (initObj.type == "BuildObjectEvent") {
+            event = new BuildObjectEvent(parent,initObj);
+        }
+        else if (initObj.type == "BuildUpgradeEvent") {
+            event = new BuildUpgradeEvent(parent,initObj);
+        }
+        else if (initObj.type == "LevelUpgradeEvent") {
+            event = new LevelUpgradeEvent(parent,initObj);
+        }
+        else if (initObj.type == "ActivateFeatureEvent") {
+            event = new ActivateFeatureEvent(parent,initObj);
+        }
+        else if (initObj.type == "MoveThroughLayerEvent") {
+            event = new MoveThroughLayerEvent(parent, initObj);
+        }
+        else if (initObj.type == "MoveItemDownEvent") {
+            event = new MoveItemDownEvent(parent,initObj);
+        }
+        else if (initObj.type == "PlaceObjectEvent") {
+            event = new PlaceObjectEvent(parent,initObj);
+        }
+        else if (initObj.type == "MoveItemEvent") {
+            event = new MoveItemEvent(parent,initObj);
+        }
+        else if (initObj.type == "ResearchEvent") {
+            event = new ResearchEvent(parent,initObj);
+        }
+        return event;
+    };
 
     /**
      * call this function if a state variable has changed to notify db sync later.

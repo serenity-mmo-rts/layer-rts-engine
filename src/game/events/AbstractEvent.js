@@ -100,7 +100,6 @@ if (node) {
 
         setPointers: function () {
             //overwrite
-            this.map = this.gameData.layers.get(this.mapId);
         },
 
         save: function () {

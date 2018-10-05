@@ -191,19 +191,10 @@ if (node) {
         }
 
         this.itemType = this.gameData.itemTypes.get(this.itemTypeId());
-        if (this.state() != State.BLOCKED && this.objectId()){
+
+        if (this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
-            this.x(this.mapObj.x());
-            this.y(this.mapObj.y());
             this.mapObj.addItem(this);
-            this._id.subscribe(function(newValue){
-                self.mapObj.addItem(self);
-            }, this);
-        }
-        else if (this.subObjectId()){
-            var obj = this.getMap().mapData.mapObjects.get(this.subObjectId());
-            this.x(obj.x());
-            this.y(obj.y());
         }
 
         // call all setPointer functions of the building blocks:
