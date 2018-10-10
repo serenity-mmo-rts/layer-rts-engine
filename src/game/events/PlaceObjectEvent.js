@@ -85,10 +85,11 @@ if (node) {
 
         execute: function () {
             this.mapObj.needsTobePlaced(false);
+            this.mapObj.x(this.x);
+            this.mapObj.y(this.y);
             this.mapObj.state(State.NORMAL);
             this.mapObj.setPointers();
             this.mapObj.embedded(true);
-
         },
 
         save: function () {
