@@ -28,6 +28,7 @@ if (node) {
         PlanetAmountStd : null,
         PlanetSizesMean : null, // in 2 pow n
         PlanetSizesStd : null,
+        className: null,
 
         init: function (arg1, initObj) {
 
@@ -59,7 +60,8 @@ if (node) {
                 this.PlanetAmountMean,
                 this.PlanetAmountStd,
                 this.PlanetSizesMean,
-                this.PlanetSizesStd
+                this.PlanetSizesStd,
+                this.className
             ];
 
 
@@ -90,6 +92,7 @@ if (node) {
                 this.PlanetAmountStd= o.a2[16];
                 this.PlanetSizesMean= o.a2[17];
                 this.PlanetSizesStd= o.a2[18];
+                this.className= o.a2[19];
             }
 
             else {

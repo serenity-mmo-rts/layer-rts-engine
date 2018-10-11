@@ -89,7 +89,6 @@ if (node) {
             this.mapObj.y(this.y);
             this.mapObj.state(State.NORMAL);
             this.mapObj.setPointers();
-            this.mapObj.embedded(true);
         },
 
         save: function () {
