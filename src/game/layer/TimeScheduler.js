@@ -39,7 +39,7 @@ if (node) {
             this.callbacks[callbackId] = callback;
             this.callbacksDueTimes[callbackId] = dueTime;
             this._addDueTimeAndIdToSortedArrays(callbackId,dueTime);
-            console.log("TimeScheduler has added one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
+            //console.log("TimeScheduler has added one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
             return callbackId;
         },
 
@@ -56,7 +56,7 @@ if (node) {
             else{
                 throw new Error("Error no callback found with callbackId:"+callbackId);
             }
-            console.log("TimeScheduler has removed one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
+            //console.log("TimeScheduler has removed one callback. TimeScheduler has "+this.sortedDueTimes.length+" active callbacks now.");
         },
 
         /**
