@@ -51,7 +51,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {startedTime: null},
+            {startedTime: null}
         ];
     };
 
@@ -68,7 +68,7 @@ if (node) {
     };
 
     proto.unlockItem = function (startedTime) {
-        this.startedTime = startedTime;
+        this.startedTime(startedTime);
         this.deployTime = this.mapObject.blocks.Unit.deployTime;
         this.travelTime = this.parent.blocks.Movable.movingUpTime;
         this.dueTime = this.startedTime + this.deployTime + this.travelTime;

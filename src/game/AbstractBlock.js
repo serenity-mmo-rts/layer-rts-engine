@@ -670,6 +670,9 @@ ko.extenders.stateVar = function (target, options) {
         for (var key in this.mutatedChilds) {
             if (this.mutatedChilds.hasOwnProperty(key)) {
                 if (key in this) {
+                    if (!this[key]["newSnapshot"]) {
+                        throw new Error(this.blockname+" has no state "+key);
+                    }
                     // this key is a ko.observable
                     this[key].newSnapshot();
                 }
