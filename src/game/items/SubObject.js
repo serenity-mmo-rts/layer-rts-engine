@@ -51,7 +51,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {startedTime: null},
+            {startedTime: null}
         ];
     };
 
