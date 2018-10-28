@@ -80,19 +80,24 @@ ko.utils.arrayForEach(["push", "unshift", "splice"], function (methodName) {
 
         //console.log("changing array with " + methodName)
 
-        // only mutate the array if the array is not locked:
-        if (!target.lockObject.isLocked) {
+        if (!target.blockObject.isBlocked) {
+            // only mutate the array if the array is not locked:
+            if (!target.lockObject.isLocked) {
 
-            // notify parent that something within this array has changed:
-            if (!target.isMutated) {
-                // we have to create a deep copy of the array (using slice), otherwise later changes would also effect the oldValue:
-                target.oldValue = target.peek().slice(0);
-                target.isMutated = true;
-                //options.parent.mutatedChilds[options.key] = target;
-                target.parent.notifyStateChange(target.key);
+                // notify parent that something within this array has changed:
+                if (!target.isMutated) {
+                    // we have to create a deep copy of the array (using slice), otherwise later changes would also effect the oldValue:
+                    target.oldValue = target.peek().slice(0);
+                    target.isMutated = true;
+                    //options.parent.mutatedChilds[options.key] = target;
+                    target.parent.notifyStateChange(target.key);
+                }
+
+                target[methodName].apply(target, arguments);
             }
-
-            target[methodName].apply(target, arguments);
+        }
+        else {
+            throw new Error("changing state is not allowed, because this object exists on two servers simultaneously and it is not deterministic which one writes the latest value to mongodb.")
         }
     }
 });
@@ -104,6 +109,7 @@ ko.utils.setPrototypeOfOrExtend(stateVarArrayMethods, ko.observableArray['fn']);
  * @param options = {   parent: the parent entity in the hierarchy,
  *                      key: how to identify this observable from the parent,
  *                      lockObject: { isLocked: true/false } determines if the state can be written or not.
+ *                      blockObject: { isBlocked: true/false } determines if the state can be written or not.
  *                  }
  * @returns {*} a writable computed observable
  */
@@ -111,6 +117,7 @@ ko.extenders.stateVar = function (target, options) {
     target.oldValue = null;
     target.isMutated = false;
     target.lockObject = options.lockObject;
+    target.blockObject = options.blockObject;
     target.mutatedChilds = {};
     target.parent = options.parent;
     target.key = options.key;
@@ -119,8 +126,13 @@ ko.extenders.stateVar = function (target, options) {
     var stateVar = ko.computed({
         read: target,
         write: function (newValue) {
-            if (!target.lockObject.isLocked) {
-                target(newValue);
+            if (!target.blockObject.isBlocked) {
+                if (!target.lockObject.isLocked) {
+                    target(newValue);
+                }
+            }
+            else {
+                throw new Error("changing state is not allowed, because this object exists on two servers simultaneously and it is not deterministic which one writes the latest value to mongodb.")
             }
         }
     }).extend({notify: "always"});
@@ -393,6 +405,16 @@ ko.extenders.stateVar = function (target, options) {
         this.blockname = null;
         this.mutatedChilds = {};
         this.lockObject = parent.lockObject;
+
+        if (!this.hasOwnProperty("blockObject")) {
+            if (parent.hasOwnProperty("blockObject")){
+                this.blockObject = parent.blockObject;
+            }
+            else {
+                this.blockObject = { isBlocked: false };
+            }
+        }
+
         this.isMutated = false;
 
         this.setInitTypeVars();
@@ -500,7 +522,7 @@ ko.extenders.stateVar = function (target, options) {
                         if (data.hasOwnProperty(arr)) {
                             // make each element of array observable
                             var elm = makeObservable(data[arr]);
-                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject}});
+                            elm = elm.extend({stateVar: {parent: vm, key: vm.length, lockObject: self.lockObject, blockObject: self.blockObject}});
                             vm.push(elm);
                         }
                     }
@@ -518,7 +540,8 @@ ko.extenders.stateVar = function (target, options) {
                                 stateVar: {
                                     parent: vm,
                                     key: prop,
-                                    lockObject: self.lockObject
+                                    lockObject: self.lockObject,
+                                    blockObject: self.blockObject
                                 }
                             })
 
@@ -548,7 +571,8 @@ ko.extenders.stateVar = function (target, options) {
                     stateVar: {
                         parent: this,
                         key: stateVarName,
-                        lockObject: self.lockObject
+                        lockObject: self.lockObject,
+                        blockObject: self.blockObject
                     }
                 })
             }

@@ -75,6 +75,11 @@ if (node) {
         var self = this;
         var callback = function(dueTime,callbackId) {
             // remmove started time and build queueid from moveThrough layer event
+            self.mapObject.blockObject.isBlocked = false;
+            self.mapObject.isOnTwoLayers(false);
+            self.parent.blockObject.isBlocked = false;
+            self.parent.isOnTwoLayers(false);
+
             self.mapObject.blocks.UpgradeProduction.startedTime(0);
             self.mapObject.blocks.UpgradeProduction.buildQueueIds([]);
             self.layer.timeScheduler.removeCallback(callbackId);

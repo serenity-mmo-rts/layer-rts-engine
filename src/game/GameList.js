@@ -269,9 +269,11 @@ if (node) {
             delete this.hashList[o._id];
         }
 
+        /*
+        this should be done outside of delete!
         if (typeof o.embedded === "function") {
             o.embedded(false);
-        }
+        }*/
 
     };
 

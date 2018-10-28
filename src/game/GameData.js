@@ -23,6 +23,7 @@ if (node) {
         this.lockObject = { isLocked: false };
 
 
+
         this.layerTypes = new GameList(this,LayerType,false,false,this);
 
         this.objectTypes = new GameList(this,ObjectType,false,false,this);

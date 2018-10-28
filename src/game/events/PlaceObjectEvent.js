@@ -87,6 +87,11 @@ if (node) {
             this.mapObj.needsTobePlaced(false);
             this.mapObj.x(this.x);
             this.mapObj.y(this.y);
+
+            var item = this.map.mapData.items.get(this.mapObj.subItemId());
+            item.x(this.x);
+            item.y(this.y);
+
             this.mapObj.state(State.NORMAL);
             this.mapObj.setPointers();
         },

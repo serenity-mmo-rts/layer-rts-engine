@@ -29,6 +29,8 @@ if (node) {
     var Item = function (arg1, arg2) {
 
         this.embedded = ko.observable(false);
+        this.blockObject = { isBlocked: false };
+
         var parent;
         var type;
         var initObj;
@@ -130,8 +132,8 @@ if (node) {
             {height: 0},
             {ori: 0},
             {state: State.TEMP},
-            {level: 1}
-
+            {level: 1},
+            {isOnTwoLayers: false}
         ];
     };
 
@@ -213,9 +215,28 @@ if (node) {
             }
 
         });
+
+        this.isOnTwoLayers.subscribe(function(newValue) {
+            if (newValue) {
+                this.blockObject.isBlocked = true;
+            }
+            else {
+                this.blockObject.isBlocked = false;
+            }
+        }, this);
+
+        this.resetHelpers();
+
     };
 
     proto.resetHelpers = function () {
+        if (this.isOnTwoLayers()) {
+            this.blockObject.isBlocked = true;
+        }
+        else {
+            this.blockObject.isBlocked = false;
+        }
+
         if (this.state() != State.BLOCKED && this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());
         }

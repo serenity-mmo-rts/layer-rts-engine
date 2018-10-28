@@ -109,7 +109,10 @@ if (node) {
             }
             else {
                 // remove this object from the game:
-                self.getMap().timeScheduler.removeCallback(self.timeCallbackId);
+                if (self.timeCallbackId) {
+                    self.getMap().timeScheduler.removeCallback(self.timeCallbackId);
+                    self.timeCallbackId = null;
+                }
             }
         });
 
@@ -230,6 +233,10 @@ if (node) {
             // dismantle map Object
            else if (evt.type=="MoveThroughLayerEvent"){
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
+
+                // make sure to block changes to states:
+                this.parent.isOnTwoLayers(true);
+                this.getMap().mapData.items.get(this.parent.subItemId()).isOnTwoLayers(true);
             }
             // research technology
             else if (evt.type=="ResearchEvent"){
@@ -273,9 +280,9 @@ if (node) {
             // set map object state to dismantle
             this.parent.activeOnLayer=false;
             var item =  this.layer.mapData.items.get(this.parent.subItemId());
-            item.blocks.Movable.moveObjectUp(dueTime);
-            this.parent.setState(State.HIDDEN);
             console.log("Dismantling of Map Object: "+this.parent._id()+" done. Now start moving upwards...");
+            item.blocks.Movable.moveObjectUp(dueTime);
+            return Infinity;
         }
         // research technology
         else if (evt.type=="ResearchEvent"){

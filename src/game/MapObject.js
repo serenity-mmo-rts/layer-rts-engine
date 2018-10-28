@@ -45,6 +45,8 @@ if (node) {
     var MapObject = function (arg1, arg2) {
 
         this.embedded = ko.observable(false);
+        this.blockObject = { isBlocked: false };
+
         var parent;
         var type;
         var initObj;
@@ -156,7 +158,8 @@ if (node) {
             {sublayerId: null},
             {subItemId: null},
             {mapGeneratorParams: null},
-            {needsTobePlaced: false}
+            {needsTobePlaced: false},
+            {isOnTwoLayers: false}
 
         ];
     };
@@ -191,10 +194,26 @@ if (node) {
             }
         });
 
+        this.isOnTwoLayers.subscribe(function(newValue) {
+            if (newValue) {
+                this.blockObject.isBlocked = true;
+            }
+            else {
+                this.blockObject.isBlocked = false;
+            }
+        }, this);
+
+        this.resetHelpers();
+
     };
 
     proto.resetHelpers = function () {
-           var test = 1;
+        if (this.isOnTwoLayers()) {
+            this.blockObject.isBlocked = true;
+        }
+        else {
+            this.blockObject.isBlocked = false;
+        }
     };
 
 

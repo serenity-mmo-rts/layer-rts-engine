@@ -61,8 +61,6 @@ if (node) {
 
         executeOnOthers: function() {
             this.execute();
-            // for rendering
-            this.mapObj.setState(State.CONSTRUCTION);
         },
 
         execute: function () {
@@ -71,7 +69,7 @@ if (node) {
             this.item.mapId(this.targetMapId);
             this.item.inactiveMapId(this.map._id());
             this.item.setState(State.BLOCKED);
-            this.mapObj.setState(State.HIDDEN);
+            //this.mapObj.setState(State.HIDDEN);
             this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
