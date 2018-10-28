@@ -69,15 +69,15 @@ if (node) {
 
         execute: function () {
             this.item.mapId(this.map._id());
-            this.mapObj.inactiveMapId(this.map._id());
             this.item.inactiveMapId(this.targetMapId);
-            this.mapObj.mapId(this.targetMapId);
+            this.item.objectId(null);
             this.item.setState(State.HIDDEN);
+            this.mapObj.inactiveMapId(this.map._id());
+            this.mapObj.mapId(this.targetMapId);
             this.mapObj.setState(State.HIDDEN);
             this.mapObj.needsTobePlaced(true);
-            this.map.mapData.removeObject(this.mapObj);
-            this.map.mapData.removeItem(this.item);
-            // TODO this doesnt workitem is not found on execution on new game event in client
+
+            this.item.blocks.Movable.moveObjectDown(this.startedTime);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
@@ -110,9 +110,6 @@ if (node) {
 
             // put both object and item in array that will be transferred to other server
             var movingEntities =  this.getSubItemsAndObject(this.item,this.mapObj);
-            // for rendering
-            this.mapObj.setState(State.CONSTRUCTION);
-
             var msgData = {
                 targetMapId: this.targetMapId,
                 event: "loadFromDb",
@@ -130,8 +127,10 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.itemId,
-                    this.targetMapId
+            o.a2 = [this.targetMapId,
+                    this.mapObj.save(),
+                    this.item.save()
+
             ];
             return o;
         },
@@ -139,8 +138,11 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this.itemId = o.a2[0];
-                this.targetMapId = o.a2[1];
+                this.targetMapId = o.a2[0];
+                this.mapObj = new MapObject(this.map.mapData.mapObjects, o.a2[1]);
+                this.mapObjId = this.mapObj._id();
+                this.item = new Item(this.map.mapData.items, o.a2[2]);
+                this.itemId = this.item._id();
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

@@ -22,19 +22,11 @@ if (node) {
 
 
         // Define helper member variables:
-        this.helperVar = 22;
-        this.mapId = this.parent.mapId;
         this.timeCallbackId = null;
-        this.startedTime = null;
         this.dueTime = null;
-
-        this.gameData = null;
-        this.mapObjectId = null;
-        this.mapId = null;
-        this.layer= null;
-        this.mapObject = null;
-
-
+        this.item = null;
+        this.layer = null;
+        this.travelTime= null;
     };
 
     /**
@@ -62,11 +54,35 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-
+            {startedTime: null}
         ];
     };
 
-    proto.setPointers = function () {
+    proto.setPointers  = function(){
+        this.layer= this.getMap();
+        this.item =  this.layer.mapData.items.get(this.parent.subItemId());
+        if (this.parent.state()==State.BLOCKED && this.parent.activeOnLayer){
+            this.unlockObject(this.item.blocks.Movable.startedTime());
+        }
+    };
+
+    proto.removePointers  = function(){
+
+    };
+
+    proto.unlockObject = function (startedTime) {
+        this.startedTime(startedTime);
+        this.travelTime = this.item.blocks.Movable.movingDownTime;
+        this.dueTime = this.startedTime + this.travelTime;
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            // remmove started time and build queueid from moveThrough layer event
+            self.item.blocks.Movable.startedTime(0);
+            self.layer.timeScheduler.removeCallback(callbackId);
+            console.log("Unit: "+self.parent._id()+" ready in Lower Layer");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.dueTime);
 
     };
 

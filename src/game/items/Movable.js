@@ -45,7 +45,8 @@ if (node) {
         return {
             maxRange: 0,
             movementSpeed: 0,
-            movingUpTime: 0
+            movingUpTime: 0,
+            movingDownTime: 0
         };
     };
 
@@ -137,6 +138,24 @@ if (node) {
         this.isMovingUp(true);
     };
 
+
+    proto.moveObjectDown  = function(startedTime){
+
+        //this.targetId(this.parent.inactiveMapId());
+        //this.originId(this.parent.mapId());
+        this.startedTime(startedTime);
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            self.layer.timeScheduler.removeCallback(callbackId);
+            var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
+            self.layer.mapData.removeObject(object);
+            self.layer.mapData.removeItem(self.parent);
+            console.log("Item and object removed from upper layer");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,this.startedTime+this.movingDownTime);
+        console.log("Item started to move down. Transferring into map Object");
+    };
 
     proto.moveItemWithinLayer  = function(startedTime,origin,target){
 
