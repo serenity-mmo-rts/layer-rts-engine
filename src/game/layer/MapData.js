@@ -159,26 +159,28 @@ if (node) {
         else {
             //addObjectToMapData:
             this.mapObjects.add(mapObject);
-
-            // notify map listeners:
-            var treeItem = this.createTreeObject(mapObject);
-            var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
-                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-            });
-            for (var i=collidingBounds.length-1; i>=0; i--){
-                collidingBounds[i].callback('adding',mapObject);
-            }
-
-            //addObjectToTree:
-            mapObject.treeItem = treeItem;
-            this.quadTree.insert(treeItem);
         }
 
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);
         }
     };
+
+    proto.addObjectToTree = function(mapObject){
+        // notify map listeners:
+        var treeItem = this.createTreeObject(mapObject);
+        var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
+            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+        });
+        for (var i=collidingBounds.length-1; i>=0; i--){
+            collidingBounds[i].callback('adding',mapObject);
+        }
+
+        //addObjectToTree:
+        mapObject.treeItem = treeItem;
+        this.quadTree.insert(treeItem);
+    }
 
 
     /**
@@ -194,14 +196,10 @@ if (node) {
         });
     };
 
-    proto.removeObject = function (mapObject) {
+    proto.removeObjectAndUnembedd = function (mapObject) {
         //check if object is in list:
         if (this.mapObjects.hashList.hasOwnProperty(mapObject._id())) {
             this.mapObjects.deleteById(mapObject._id());
-        }
-
-        if (mapObject.treeItem) {
-            this.removeObjectFromTree(mapObject);
         }
 
 
@@ -237,7 +235,7 @@ if (node) {
 
     };
 
-    proto.removeItem = function (item) {
+    proto.removeItemAndUnembedd = function (item) {
         //check if object is already in list:
         if (this.items.hashList.hasOwnProperty(item._id())) {
             delete this.items.deleteById(item._id());

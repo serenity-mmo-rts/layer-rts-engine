@@ -62,7 +62,7 @@ if (node) {
         this.layer= this.getMap();
         this.item =  this.layer.mapData.items.get(this.parent.subItemId());
         if (this.parent.state()==State.BLOCKED && this.parent.activeOnLayer){
-            this.unlockObject(this.item.blocks.Movable.startedTime());
+           // this.unlockObject(this.item.blocks.Movable.startedTime());
         }
     };
 

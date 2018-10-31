@@ -208,16 +208,16 @@ if (node) {
             }
 
             this.isValid();
-            this.mapObj.embedded(true);
             this.gameData.layers.get(this.mapId).mapData.addObject(this.mapObj);
+            this.mapObj.embedded(true);
 
             if (this.mapObj.blocks.hasOwnProperty("Unit")){ // in case map object is a Unit add corresponding item
                 var itemTypeId = this.mapObj.blocks.Unit.itemTypeId;
                 this.item = new Item(this.map.mapData.items, {_id: this.itemId, objectId: null, x: this.x, y: this.y, itemTypeId: itemTypeId, inactiveMapId: this.mapId, mapId: null, state: State.HIDDEN});
                 this.item.subObjectId(this.mapObjId);
                 this.item.setPointers();
-                this.item.embedded(true);
                 this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
+                this.item.embedded(true);
                 this.mapObj.subItemId(this.itemId);
             }
 

@@ -62,8 +62,8 @@ if (node) {
             this.item.setPointers();
 
             this.isValid();
-            this.item.embedded(true);
             this.gameData.layers.get(this.mapId).mapData.addItem(this.item);
+            this.item.embedded(true);
 
             this.parentObject.blocks.UpgradeProduction.addEventToQueue(this);
         },

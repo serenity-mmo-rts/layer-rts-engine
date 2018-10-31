@@ -16,8 +16,6 @@ if (node) {
         // states
         type: "MoveItemDownEvent",
         itemId: null,
-        targetMapId: null,
-
 
         // helpers
         item: null,
@@ -32,12 +30,12 @@ if (node) {
 
         isValid: function () {
             return true;
+            // cehck
         },
 
         setParameters: function (item) {
             this.itemId = item._id();
             this.setPointers();
-            this.targetMapId = this.map.mapData.mapObjects.get(this.item.objectId()).sublayerId();
         },
 
 
@@ -68,16 +66,20 @@ if (node) {
         },
 
         execute: function () {
-            this.item.mapId(this.map._id());
-            this.item.inactiveMapId(this.targetMapId);
+            var targetMapId = this.map.mapData.mapObjects.get(this.item.objectId()).sublayerId();
+            this.item.mapId(null);
+            this.item.inactiveMapId(targetMapId);
             this.item.objectId(null);
             this.item.setState(State.HIDDEN);
-            this.mapObj.inactiveMapId(this.map._id());
+            this.mapObj.inactiveMapId(null);
             this.mapObj.mapId(this.targetMapId);
             this.mapObj.setState(State.HIDDEN);
             this.mapObj.needsTobePlaced(true);
 
-            this.item.blocks.Movable.moveObjectDown(this.startedTime);
+            this.map.mapData.removeObjectAndUnembedd(this.mapObj);
+            this.map.mapData.removeItemAndUnembedd(this.item);
+
+            //this.item.blocks.Movable.moveObjectDown(this.startedTime);
         },
 
         getSubItemsAndObject: function(itemInput, objectInput) {
@@ -127,10 +129,7 @@ if (node) {
 
         save: function () {
             var o = this._super();
-            o.a2 = [this.targetMapId,
-                    this.mapObj.save(),
-                    this.item.save()
-
+                o.a2 = [this.itemId
             ];
             return o;
         },
@@ -138,11 +137,8 @@ if (node) {
         load: function (o,flag) {
             this._super(o);
             if (o.hasOwnProperty("a2")) {
-                this.targetMapId = o.a2[0];
-                this.mapObj = new MapObject(this.map.mapData.mapObjects, o.a2[1]);
-                this.mapObjId = this.mapObj._id();
-                this.item = new Item(this.map.mapData.items, o.a2[2]);
-                this.itemId = this.item._id();
+                this.itemId = o.a2[0];
+
 
                 if (arguments.length>1 && flag==true){
                     this.setPointers();

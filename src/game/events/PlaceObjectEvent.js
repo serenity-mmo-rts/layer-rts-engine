@@ -91,9 +91,9 @@ if (node) {
             var item = this.map.mapData.items.get(this.mapObj.subItemId());
             item.x(this.x);
             item.y(this.y);
-
-            this.mapObj.state(State.NORMAL);
-            this.mapObj.setPointers();
+            this.mapObj.setState(State.CONSTRUCTION);
+            this.parent.setPointers();
+            this.mapObj.blocks.UpgradeProduction.addEventToQueue(this);
         },
 
         save: function () {

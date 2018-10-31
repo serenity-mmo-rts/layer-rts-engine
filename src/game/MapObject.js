@@ -159,7 +159,6 @@ if (node) {
             {subItemId: null},
             {mapGeneratorParams: null},
             {needsTobePlaced: false},
-            {isOnTwoLayers: false}
 
         ];
     };
@@ -183,37 +182,30 @@ if (node) {
 
         var self= this;
         this.embedded.subscribe(function(newValue) {
-
-            if(newValue){
-            }
-            else {
-                // remove this object from game (i.e. clean up)
-                if (self.hasOwnProperty("treeItem")) {
-                    self.getMap().mapData.removeObjectFromTree(self);
-                }
-            }
+            self.checkTreeInsert();
         });
-
-        this.isOnTwoLayers.subscribe(function(newValue) {
-            if (newValue) {
-                this.blockObject.isBlocked = true;
-            }
-            else {
-                this.blockObject.isBlocked = false;
-            }
-        }, this);
 
         this.resetHelpers();
 
     };
 
-    proto.resetHelpers = function () {
-        if (this.isOnTwoLayers()) {
-            this.blockObject.isBlocked = true;
+    proto.checkTreeInsert = function(){
+        if(this.embedded()){
+            if (this.activeOnLayer && this.state !=State.HIDDEN) {
+                this.getMap().mapData.addObjectToTree(this);
+            }
         }
         else {
-            this.blockObject.isBlocked = false;
+            // remove this object from game (i.e. clean up)
+            if (this.hasOwnProperty("treeItem")) {
+                this.getMap().mapData.removeObjectFromTree(this);
+            }
         }
+
+    }
+
+    proto.resetHelpers = function () {
+        this.checkTreeInsert();
     };
 
 
@@ -227,6 +219,7 @@ if (node) {
 
     proto.setState = function(state) {
         this.state(state);
+        this.checkTreeInsert();
         this.notifyChange();
     };
 

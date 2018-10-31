@@ -11,10 +11,10 @@ if (node) {
 
 (function (exports) {
 
-    var MoveThroughLayerEvent = AbstractEvent.extend({
+    var MoveObjectUpEvent = AbstractEvent.extend({
 
         // states
-        type: "MoveThroughLayerEvent",
+        type: "MoveObjectUpEvent",
         mapObjId: null,
 
         // helpers
@@ -162,6 +162,6 @@ if (node) {
 
     });
 
-    exports.MoveThroughLayerEvent = MoveThroughLayerEvent;
+    exports.MoveObjectUpEvent = MoveObjectUpEvent;
 
 })(node ? exports : window);

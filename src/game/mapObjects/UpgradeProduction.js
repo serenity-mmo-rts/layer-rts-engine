@@ -98,7 +98,7 @@ if (node) {
          **/
 
         this.parent.embedded.subscribe(function(newValue) {
-            if (newValue) {
+            if (newValue && self.parent.activeOnLayer) {
                 // this object should now be included into the game
                 self.timeCallbackId =  self.layer.timeScheduler.addCallback(function() {
                     var dT = self._finishedCallback();
@@ -183,7 +183,10 @@ if (node) {
             else if (evt.type == "ResearchEvent") {
                 var buildTime = this.gameData.technologyTypes.get(evt.techTypeId).buildTime;
             }
-            else if (evt.type=="MoveThroughLayerEvent"){
+            else if (evt.type=="PlaceObjectEvent"){
+                var buildTime =this.parent.blocks.Unit.deployTime;
+            }
+            else if (evt.type=="DisplaceObjectEvent"){
                 var buildTime =this.parent.blocks.Unit.deployTime;
             }
             if (idx == 0) {
@@ -231,12 +234,14 @@ if (node) {
                 console.log("I start building a " + this.parent.objTypeId() +  " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
             }
             // dismantle map Object
-           else if (evt.type=="MoveThroughLayerEvent"){
+            else if (evt.type=="PlaceObjectEvent"){
+                this.parent.setState(State.CONSTRUCTION);
+                console.log("Start reassembling of Map Object " +this.parent._id() + "");
+            }
+            // dismantle map Object
+           else if (evt.type=="DisplaceObjectEvent"){
+                this.parent.setState(State.CONSTRUCTION);
                 console.log("Start dismantling of Map Object " +this.parent._id() + "");
-
-                // make sure to block changes to states:
-                this.parent.isOnTwoLayers(true);
-                this.getMap().mapData.items.get(this.parent.subItemId()).isOnTwoLayers(true);
             }
             // research technology
             else if (evt.type=="ResearchEvent"){
@@ -244,7 +249,6 @@ if (node) {
                 console.log("Started research:"+evt.techTypeId+" in Map Object: "+this.parent._id());
             }
         }
-
     };
 
     proto._finishedCallback = function() {
@@ -275,14 +279,19 @@ if (node) {
             this.parent.setState(State.NORMAL);
             console.log("I finished building a " + this.parent.objTypeId() + " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
         }
-        // dismantle map Object
-        else if (evt.type=="MoveThroughLayerEvent"){
+        // place map Object
+        else if (evt.type=="PlaceObjectEvent"){
             // set map object state to dismantle
-            this.parent.activeOnLayer=false;
+            this.parent.setState(State.NORMAL);
+            console.log("Map Object map on place");
+        }
+        // dismantle map Object
+        else if (evt.type=="DisplaceObjectEvent"){
+            // set map object state to dismantle
+            this.parent.setState(State.HIDDEN);
             var item =  this.layer.mapData.items.get(this.parent.subItemId());
             console.log("Dismantling of Map Object: "+this.parent._id()+" done. Now start moving upwards...");
-            item.blocks.Movable.moveObjectUp(dueTime);
-            return Infinity;
+            item.blocks.Movable.placeToParking(dueTime);
         }
         // research technology
         else if (evt.type=="ResearchEvent"){

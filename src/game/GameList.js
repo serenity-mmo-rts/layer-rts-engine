@@ -66,7 +66,7 @@ if (node) {
     };
 
     /*
-     this function also calls embedded(true) of the objects
+     this function does not calls embedded(true) of the objects
      */
     proto.add = function (o) {
 
@@ -161,7 +161,7 @@ if (node) {
 
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
             this.add(this.sinceSnapshotRemoved[i]);
-            this.sinceSnapshotRemoved[i].embedded(true);
+            this.sinceSnapshotRemoved[i].embedded(true);  // TODO disentangle add and embedd, move embedd to revert changes done
         }
         this.sinceSnapshotRemoved = [];
         // TODO the above add operations should not change this.sinceSnapshotAdded!!!!

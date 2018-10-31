@@ -133,7 +133,6 @@ if (node) {
             {ori: 0},
             {state: State.TEMP},
             {level: 1},
-            {isOnTwoLayers: false}
         ];
     };
 
@@ -216,26 +215,12 @@ if (node) {
 
         });
 
-        this.isOnTwoLayers.subscribe(function(newValue) {
-            if (newValue) {
-                this.blockObject.isBlocked = true;
-            }
-            else {
-                this.blockObject.isBlocked = false;
-            }
-        }, this);
-
         this.resetHelpers();
 
     };
 
     proto.resetHelpers = function () {
-        if (this.isOnTwoLayers()) {
-            this.blockObject.isBlocked = true;
-        }
-        else {
-            this.blockObject.isBlocked = false;
-        }
+         //   this.blockObject.isBlocked = false;
 
         if (this.state() != State.BLOCKED && this.objectId()){
             this.mapObj = this.map.mapData.mapObjects.get(this.objectId());

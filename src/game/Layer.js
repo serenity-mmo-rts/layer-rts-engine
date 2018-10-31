@@ -20,9 +20,10 @@ if (node) {
     var BuildUpgradeEvent = require('./events//BuildUpgradeEvent').BuildUpgradeEvent;
     var LevelUpgradeEvent = require('./events//LevelUpgradeEvent').LevelUpgradeEvent;
     var ActivateFeatureEvent = require('./events//ActivateFeatureEvent').ActivateFeatureEvent;
-    var MoveThroughLayerEvent = require('./events//MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var MoveObjectUpEvent = require('./events//MoveObjectUpEvent').MoveObjectUpEvent;
     var MoveItemDownEvent = require('./events//MoveItemDownEvent').MoveItemDownEvent;
     var PlaceObjectEvent = require('./events//PlaceObjectEvent').PlaceObjectEvent;
+    var DisplaceObjectEvent = require('./events//DisplaceObjectEvent').DisplaceObjectEvent;
     var ResearchEvent = require('./events//ResearchEvent').ResearchEvent;
     var MoveItemEvent = require('./events//MoveItemEvent').MoveItemEvent;
 }

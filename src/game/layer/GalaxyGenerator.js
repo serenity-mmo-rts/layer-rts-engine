@@ -76,6 +76,7 @@ if (node) {
             });
             mapObj.setPointers();
             this.gameData.layers.get(this.layer._id()).mapData.addObject(mapObj);
+            mapObj.embedded(true);
             this.worldObjects.push(mapObj);
         }
     };

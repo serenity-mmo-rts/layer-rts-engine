@@ -3,6 +3,7 @@ if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var MapObject = require('../MapObject').MapObject;
     var Item = require('../Item').Item;
+    var State = require('../AbstractBlock').State;
     //var MoveItemEvent = require('../events/MoveItemEvent').MoveItemEvent;
     var TimeScheduler = require('../layer/TimeScheduler').TimeScheduler;
     ko = require('../../client/lib/knockout-3.3.0.debug.js');
@@ -120,6 +121,22 @@ if (node) {
     };
 
 
+    proto.placeToParking  = function(startedTime){
+
+        var self = this;
+        var callback = function(dueTime,callbackId) {
+            self.layer.timeScheduler.removeCallback(callbackId);
+            self.isMovingUp(false);
+            var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
+            object.needsTobePlaced(true);
+            console.log("map Object now in parking position");
+            return Infinity;
+        };
+        this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,startedTime+this.movingUpTime);
+        this.isMovingUp(true);
+    };
+
+
     proto.moveObjectUp  = function(startedTime){
 
         //this.targetId(this.parent.inactiveMapId());
@@ -129,15 +146,14 @@ if (node) {
             self.layer.timeScheduler.removeCallback(callbackId);
             self.isMovingUp(false);
             var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
-            self.layer.mapData.removeObject(object);
-            self.layer.mapData.removeItem(self.parent);
+            self.layer.mapData.removeObjectAndUnembedd(object);
+            self.layer.mapData.removeItemAndUnembedd(self.parent);
             console.log("map Object and Item deleted from lower layer");
             return Infinity;
         };
         this.timeCallbackId =  this.layer.timeScheduler.addCallback(callback,startedTime+this.movingUpTime);
         this.isMovingUp(true);
     };
-
 
     proto.moveObjectDown  = function(startedTime){
 
@@ -148,8 +164,8 @@ if (node) {
         var callback = function(dueTime,callbackId) {
             self.layer.timeScheduler.removeCallback(callbackId);
             var object = self.layer.mapData.mapObjects.get(self.parent.subObjectId());
-            self.layer.mapData.removeObject(object);
-            self.layer.mapData.removeItem(self.parent);
+            self.layer.mapData.removeObjectAndUnembedd(object);
+            self.layer.mapData.removeItemAndUnembedd(self.parent);
             console.log("Item and object removed from upper layer");
             return Infinity;
         };

@@ -7,9 +7,10 @@ if (node) {
     var BuildUpgradeEvent = require('./BuildUpgradeEvent').BuildUpgradeEvent;
     var LevelUpgradeEvent = require('./LevelUpgradeEvent').LevelUpgradeEvent;
     var ActivateFeatureEvent = require('./ActivateFeatureEvent').ActivateFeatureEvent;
-    var MoveThroughLayerEvent = require('./MoveThroughLayerEvent').MoveThroughLayerEvent;
+    var MoveObjectUpEvent = require('./MoveObjectUpEvent').MoveObjectUpEvent;
     var MoveItemDownEvent = require('./MoveItemDownEvent').MoveItemDownEvent;
     var PlaceObjectEvent = require('./PlaceObjectEvent').PlaceObjectEvent;
+    var DisplaceObjectEvent = require('./DisplaceObjectEvent').DisplaceObjectEvent;
     var ResearchEvent = require('./ResearchEvent').ResearchEvent;
     var MoveItemEvent = require('./MoveItemEvent').MoveItemEvent;
 }
@@ -33,14 +34,17 @@ if (node) {
         else if (initObj.type == "ActivateFeatureEvent") {
             event = new ActivateFeatureEvent(parent,initObj);
         }
-        else if (initObj.type == "MoveThroughLayerEvent") {
-            event = new MoveThroughLayerEvent(parent, initObj);
+        else if (initObj.type == "MoveObjectUpEvent") {
+            event = new MoveObjectUpEvent(parent, initObj);
         }
         else if (initObj.type == "MoveItemDownEvent") {
             event = new MoveItemDownEvent(parent,initObj);
         }
         else if (initObj.type == "PlaceObjectEvent") {
             event = new PlaceObjectEvent(parent,initObj);
+        }
+        else if (initObj.type == "DisplaceObjectEvent") {
+            event = new DisplaceObjectEvent(parent,initObj);
         }
         else if (initObj.type == "MoveItemEvent") {
             event = new MoveItemEvent(parent,initObj);
