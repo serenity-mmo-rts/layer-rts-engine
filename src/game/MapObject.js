@@ -46,6 +46,7 @@ if (node) {
 
         this.embedded = ko.observable(false);
         this.blockObject = { isBlocked: false };
+        this.isInQuadtree = false;
 
         var parent;
         var type;
@@ -95,14 +96,9 @@ if (node) {
             this.createBuildingBlocks();
         }
 
-
         if (initObj){
             this.load(initObj);
         }
-
-        this.state.subscribe(function(newVal){
-            console.log(" mapobject.state changed to "+newVal)
-        });
 
     }
 
@@ -185,20 +181,31 @@ if (node) {
             self.checkTreeInsert();
         });
 
+        this.state.subscribe(function(newVal){
+            console.log(" mapobject.state changed to "+newVal)
+            self.checkTreeInsert();
+        });
+
         this.resetHelpers();
 
     };
 
     proto.checkTreeInsert = function(){
-        if(this.embedded()){
-            if (this.activeOnLayer && this.state !=State.HIDDEN) {
-                this.getMap().mapData.addObjectToTree(this);
+        if( this.embedded() && this.activeOnLayer && this.state()!=State.HIDDEN ){
+            // add this object to tree if it was not inserted before:
+            if (!this.isInQuadtree) {
+                console.log("add to quadtree mapobject with id="+this._id());
+                this.treeItem = this.getMap().mapData.addObjectToTree(this);
+                this.isInQuadtree = true;
             }
         }
         else {
-            // remove this object from game (i.e. clean up)
-            if (this.hasOwnProperty("treeItem")) {
-                this.getMap().mapData.removeObjectFromTree(this);
+            // remove this object from tree if it was inserted:
+            if (this.isInQuadtree) {
+                console.log("remove from quadtree mapobject with id="+this._id());
+                this.getMap().mapData.removeObjectFromTree(this.treeItem);
+                this.treeItem = null;
+                this.isInQuadtree = false;
             }
         }
 

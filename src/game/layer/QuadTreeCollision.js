@@ -624,6 +624,9 @@ if (node) {
         }
 
         var i = this.children.indexOf( item );
+        if (i == -1) {
+            throw new Error("the item was not a children in the quadTree")
+        }
         this.children.splice(i, 1);
 
     };

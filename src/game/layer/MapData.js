@@ -84,7 +84,6 @@ if (node) {
             height,
             mapObject.ori());
         treeItem.obj = mapObject;
-        mapObject.treeItem = treeItem;
         treeItem.type = MapData.COLLISION_OBJ;
 
         return treeItem;
@@ -178,8 +177,9 @@ if (node) {
         }
 
         //addObjectToTree:
-        mapObject.treeItem = treeItem;
         this.quadTree.insert(treeItem);
+
+        return treeItem;
     }
 
 
@@ -187,7 +187,7 @@ if (node) {
      * this function assumes that all the rest of the layer is already loaded. The function will create all pointers between objects
      */
     proto.setPointers = function () {
-        this.rebuildQuadTree();
+        this.clearQuadTree();
         this.mapObjects.each(function (mapObject) {
             mapObject.setPointers();
         });
@@ -202,23 +202,22 @@ if (node) {
             this.mapObjects.deleteById(mapObject._id());
         }
 
-
         if (this.objectChangedCallback) {
             this.objectChangedCallback(mapObject);
         }
     };
 
 
-    proto.removeObjectFromTree = function (mapObject) {
+    proto.removeObjectFromTree = function (treeItem) {
         // remove from quadtree
-        this.quadTree.remove(mapObject.treeItem);
-        var collidingBounds = this.quadTree.retrieve(mapObject.treeItem,function(bounds) {
-            return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
-        });
-        for (var i=collidingBounds.length-1; i>=0; i--){
-            collidingBounds[i].callback('removing',mapObject);
-        }
-        mapObject.treeItem = null;
+            this.quadTree.remove(treeItem);
+            var collidingBounds = this.quadTree.retrieve(treeItem,function(bounds) {
+                return bounds.type == MapData.COLLISION_LISTEN_ALL || bounds.type == MapData.COLLISION_LISTEN_OBJ;
+            });
+            for (var i=collidingBounds.length-1; i>=0; i--){
+                collidingBounds[i].callback('removing',treeItem.obj);
+            }
+
     };
 
 
@@ -243,18 +242,13 @@ if (node) {
 
     };
 
-    proto.rebuildQuadTree = function () {
+    proto.clearQuadTree = function () {
 
         var bounds = new Bounds().initRectByCenter(0, 0, this.layer.width, this.layer.height, 0);
         var periodicBounds = false;
         var maxDepth = 10;
         var maxChildren = 5;
         this.quadTree = new QuadTreeCollision(bounds, periodicBounds, maxChildren, maxDepth);
-
-        for (var _id in this.mapObjects.hashList) {
-            var treeItem = this.createTreeObject(this.mapObjects.hashList[_id]);
-            this.quadTree.insert(treeItem);
-        }
 
     };
 
