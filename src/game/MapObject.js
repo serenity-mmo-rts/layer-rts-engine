@@ -194,7 +194,7 @@ if (node) {
         if( this.embedded() && this.activeOnLayer && this.state()!=State.HIDDEN ){
             // add this object to tree if it was not inserted before:
             if (!this.isInQuadtree) {
-                console.log("add to quadtree mapobject with id="+this._id());
+                //console.log("add to quadtree mapobject with id="+this._id());
                 this.treeItem = this.getMap().mapData.addObjectToTree(this);
                 this.isInQuadtree = true;
             }
@@ -202,7 +202,7 @@ if (node) {
         else {
             // remove this object from tree if it was inserted:
             if (this.isInQuadtree) {
-                console.log("remove from quadtree mapobject with id="+this._id());
+                //console.log("remove from quadtree mapobject with id="+this._id());
                 this.getMap().mapData.removeObjectFromTree(this.treeItem);
                 this.treeItem = null;
                 this.isInQuadtree = false;
