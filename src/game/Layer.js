@@ -12,7 +12,7 @@ if (node) {
     var PlanetGenerator = require('./layer/PlanetGenerator').PlanetGenerator;
     var SolarGenerator = require('./layer/SolarGenerator').SolarGenerator;
     var GalaxyGenerator = require('./layer/GalaxyGenerator').GalaxyGenerator;
-    var HubSystem = require('./layer/HubSystem').HubSystem;
+    var HubSystem = require('./layer/HubSystemManager').HubSystem;
 
     // events:
     var LoadEntitiesEvent = require('./events/LoadEntitiesEvent').LoadEntitiesEvent;
@@ -132,7 +132,7 @@ if (node) {
         this.timeScheduler = new TimeScheduler(this.gameData,this);
         this.eventScheduler = new EventScheduler(this.gameData,this);
         this.mapData = new MapData(this.gameData, this);
-        //this.hubSystem = new HubSystem(this.gameData, this);
+        //this.hubSystemManager = new HubSystem(this.gameData, this);
         this.mapProperties = new MapProperties('3',this.mapData.width,this.mapData.height);
 
         if (initObj){

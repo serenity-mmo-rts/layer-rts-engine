@@ -21,6 +21,8 @@ if (node) {
 
         // Define helper member variables:
         this.layer = null;
+
+        // GameList with sub states:
         this.resList = new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList');
 
     };

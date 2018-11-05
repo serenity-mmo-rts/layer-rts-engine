@@ -60,6 +60,9 @@ if (node) {
         this.parent.embedded.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
+        this.parent.state.subscribe(function(newValue) {
+            self.setConnectionPoints();
+        });
         self.setConnectionPoints();
     };
 
@@ -73,6 +76,15 @@ if (node) {
                 var targetObj = mapData.mapObjects.get(this.connectedTo());
                 sourceHub.blocks.HubConnectivity.connectedObjIds[this.connectedTo()] = isConnectionFinished;
                 targetObj.blocks.HubConnectivity.connectedObjIds[this.connectedFrom()] = isConnectionFinished;
+                // TODO: we have to make sure that if a connection is deleted, that these helper variables are unset again.
+
+                if (sourceHub.blocks.HubConnectivity.hubSystem !== null){
+
+                }
+                else if (sourceHub.blocks.HubConnectivity.hubSystem !== null){
+
+                }
+
             }
         }
     };

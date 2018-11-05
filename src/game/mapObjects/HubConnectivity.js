@@ -18,6 +18,7 @@ if (node) {
 
         // Define helper member variables:
         this.connectedObjIds = {}; // key=objId, value=false if in production or true if connected
+        this.hubSystem = null;
 
     };
 
