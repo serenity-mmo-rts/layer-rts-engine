@@ -14,7 +14,7 @@ if (node) {
      * @param {{typeVarName: value, ...}} type the type definition of the instance to be created. Usually the corresponding entry in the blocks field of a type class.
      * @constructor
      */
-    var ResourceStorageManager = function (parent, type) {
+    var ResourceManager = function (parent, type) {
 
         // Call the super constructor.
         AbstractBlock.call(this, parent, type);
@@ -30,9 +30,9 @@ if (node) {
     /**
      * Inherit from AbstractBlock and add the correct constructor method to the prototype:
      */
-    ResourceStorageManager.prototype = Object.create(AbstractBlock.prototype);
-    var proto = ResourceStorageManager.prototype;
-    proto.constructor = ResourceStorageManager;
+    ResourceManager.prototype = Object.create(AbstractBlock.prototype);
+    var proto = ResourceManager.prototype;
+    proto.constructor = ResourceManager;
 
     /**
      * This function defines the default type variables and returns them as an object.
@@ -117,7 +117,7 @@ if (node) {
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
-    ResourceStorageManager.prototype.finalizeBlockClass('ResourceStorageManager');
-    exports.ResourceStorageManager = ResourceStorageManager
+    ResourceManager.prototype.finalizeBlockClass('ResourceManager');
+    exports.ResourceManager = ResourceManager
 
 })(typeof exports === 'undefined' ? window : exports);

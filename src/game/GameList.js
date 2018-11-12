@@ -110,9 +110,6 @@ if (node) {
         }
 
 
-
-
-
     };
 
     /**
@@ -161,18 +158,10 @@ if (node) {
 
         for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
             this.add(this.sinceSnapshotRemoved[i]);
-            this.sinceSnapshotRemoved[i].embedded(true);  // TODO disentangle add and embedd, move embedd to revert changes done
         }
-        this.sinceSnapshotRemoved = [];
-        // TODO the above add operations should not change this.sinceSnapshotAdded!!!!
-
         for (var i=this.sinceSnapshotAdded.length-1; i>=0; i--) {
             this.delete(this.sinceSnapshotAdded[i]);
-            this.sinceSnapshotAdded[i].embedded(false);
         }
-        this.sinceSnapshotAdded = [];
-        this.sinceSnapshotRemoved = [];
-
 
         for (var key in this.mutatedChilds) {
             if(this.mutatedChilds.hasOwnProperty(key)){
@@ -187,6 +176,20 @@ if (node) {
 
     proto.revertChangesDone = function () {
 
+        for (var i=this.sinceSnapshotRemoved.length-1; i>=0; i--) {
+            if (typeof this.sinceSnapshotRemoved[i].embedded === "function") {
+                this.sinceSnapshotRemoved[i].embedded(true);
+            }
+        }
+
+        for (var i=this.sinceSnapshotAdded.length-1; i>=0; i--) {
+            if (typeof this.sinceSnapshotAdded[i].embedded === "function") {
+                this.sinceSnapshotAdded[i].embedded(false);
+            }
+        }
+        this.sinceSnapshotAdded = [];
+        this.sinceSnapshotRemoved = [];
+
         for (var key in this.mutatedChilds) {
             if(this.mutatedChilds.hasOwnProperty(key)){
                 if(this.hashList.hasOwnProperty(key)) { // only revert sub obects if they are still in the hashlist...
@@ -194,7 +197,6 @@ if (node) {
                 }
             }
         }
-
         this.isMutated = false;
         this.mutatedChilds = {};
     };

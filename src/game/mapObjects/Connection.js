@@ -45,12 +45,15 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             { connectedFrom: null},    // _id encoded. this has to be a hub
-            { connectedTo: null}    // _id encoded. can be any other object or hub}
+            { connectedTo: null},    // _id encoded. can be any other object or hub}
+            { hubSystemId: null}
         ];
     };
 
     proto.setPointers = function(){
         var self= this;
+
+        /*
         this.connectedFrom.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
@@ -63,9 +66,10 @@ if (node) {
         this.parent.state.subscribe(function(newValue) {
             self.setConnectionPoints();
         });
-        self.setConnectionPoints();
+        self.setConnectionPoints(); */
     };
 
+    /*
     proto.setConnectionPoints = function(){
         var mapData = this.getMap().mapData;
         //update the helper vars of the connected objects:
@@ -86,6 +90,18 @@ if (node) {
                 }
 
             }
+        }
+    };
+    */
+
+    proto.changeHubSystemId = function(hubSystemId) {
+        if (this.hubSystemId() != hubSystemId) {
+            this.hubSystemId(hubSystemId);
+
+            // change all connected Objects to the same hubSystemId recursively:
+            var mapData = this.getMap().mapData;
+            mapData.mapObjects.get(this.connectedFrom()).blocks.HubConnectivity.changeHubSystemId(hubSystemId);
+            mapData.mapObjects.get(this.connectedTo()).blocks.HubConnectivity.changeHubSystemId(hubSystemId);
         }
     };
 

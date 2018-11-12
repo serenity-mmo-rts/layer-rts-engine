@@ -50,7 +50,7 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {x: 0}
+            {_id: null}
         ];
     };
 

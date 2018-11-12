@@ -81,7 +81,7 @@ if (node) {
 
         // now add again all requests:
         for (var i=0, len=this.ressourceTypeIds.length; i<len; i++) {
-            var reqObject = this.parent.blocks.ResourceStorageManager.reqChangePerHour(
+            var reqObject = this.parent.blocks.ResourceManager.reqChangePerHour(
                 this.ressourceTypeIds[i],
                 soilEffectiveIn[i],
                 function(newEffective, resTypeId){

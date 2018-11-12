@@ -17,8 +17,6 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.connectedObjIds = {}; // key=objId, value=false if in production or true if connected
-        this.hubSystem = null;
 
     };
 
@@ -46,26 +44,32 @@ if (node) {
      */
     proto.defineStateVars = function () {
         return [
-            {testState1: 5},
-            {testState2: this.maxRange/2}
+            {connectionIds: []},
+            {hubSystemId: null}
         ];
     };
 
 
-    /**
-     * Returns the object ids to which this object is connected
-     * @returns {{ids: bool}}
-     */
-    proto.getObjectsConnected = function(){
-        return this.connectedObjIds;
+    proto.changeHubSystemId = function(hubSystemId) {
+        if (this.hubSystemId() != hubSystemId) {
+            this.hubSystemId(hubSystemId);
+
+            // change all connected Objects to the same hubSystemId recursively:
+            var mapData = this.getMap().mapData;
+            var connectionIds = this.connectionIds();
+            for (var i= 0, len=connectionIds.length; i<len; i++) {
+                mapData.mapObjects.get(connectionIds[i]).blocks.Connection.changeHubSystemId(hubSystemId);
+            }
+        }
     };
+
 
     /**
      * Returns the number of free ports
      * @returns {number}
      */
     proto.getFreePorts = function(){
-        return this.numPorts - Object.keys(this.connectedObjIds).length;
+        return this.numPorts - this.connectionIds().length;
     };
 
 

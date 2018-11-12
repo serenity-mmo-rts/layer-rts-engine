@@ -261,7 +261,7 @@ if (node) {
 
     proto.createSublayer = function (x, y, sublayerId, parentObjId) {
 
-        var newCityMap = new Layer(this.gameData, {
+        var newCityMap = new Layer(this.gameData.layers, {
             _id: sublayerId,
             parentObjId: parentObjId,
             width: 10000,

@@ -21,8 +21,6 @@ if (node) {
         // Define helper member variables:
         this.hubList = new GameList(this.getGameData(), HubSystem, false, false, this, 'hubList');
 
-        this.hubSystems = [];
-
     };
 
 
@@ -56,10 +54,33 @@ if (node) {
     };
 
 
+    proto.createNewHubSystem = function(hubSystemId) {
+        var hubSystem = new HubSystem(this.hubList,null);
+        hubSystem._id(hubSystemId);
+        this.hubList.add(hubSystem);
+    };
+
+
+    proto.save = function() {
+        var o = AbstractBlock.prototype.save.call(this);
+        o.hubList = this.hubList.save();
+        return o;
+    };
+
+    proto.load = function(o) {
+        AbstractBlock.prototype.load.call(this,o);
+        for (var i= 0, len=o.hubList.length; i<len; i++){
+            var hubSystem = new HubSystem(this.hubList,null);
+            hubSystem.load(o.hubList[i]);
+            this.hubList.add(hubSystem);
+        }
+    };
+
+
     /**
      * Finalize the class by adding the type properties and register it as a building block, so that the factory method can create blocks of this type.
      */
     HubSystemManager.prototype.finalizeBlockClass('HubSystemManager');
-    exports.HubSystem = HubSystemManager;
+    exports.HubSystemManager = HubSystemManager;
 
 })(typeof exports === 'undefined' ? window : exports);
