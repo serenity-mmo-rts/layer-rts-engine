@@ -20,10 +20,24 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.layer = null;
+        this.hubSystemId = null;
 
         // GameList with sub states:
         this.resList = new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList');
+
+
+        // check if all resourceStorage instances are in the resList and set their capacity accordingly:
+        for (var i= 0, len=this.ressourceTypeIds.length; i<len; i++){
+            var resStorage = this.resList.get(this.ressourceTypeIds[i]);
+            if (!resStorage){
+                // if it does not exist we create it here:
+                resStorage = new ResourceStorage(this.resList,null);
+                resStorage._id(this.ressourceTypeIds[i]);
+                resStorage.capacity(this.ressourceCapacity[i]);
+                this.resList.add(resStorage);
+            }
+        }
+
 
     };
 
@@ -56,21 +70,16 @@ if (node) {
         ];
     };
 
+    proto.changeHubSystemId = function(hubSystemId) {
+        var hubSystem = this.getMap().blocks.HubSystemManager.hubList.get(hubSystemId);
+        this.hubSystem = hubSystem;
+        this.resList.each(function(res){
+            res.setHubSystem(hubSystem);
+        })
+    };
 
     proto.setPointers = function() {
-        this.layer = this.getMap();
-
-        // check if all resourceStorage instances are in the resList and set their capacity accordingly:
-        for (var i= 0, len=this.ressourceTypeIds.length; i<len; i++){
-            var resStorage = this.resList.get(this.ressourceTypeIds[i]);
-            if (!resStorage){
-                // if it does not exist we create it here:
-                resStorage = new ResourceStorage(this.resList,null);
-                resStorage._id(this.ressourceTypeIds[i]);
-                this.resList.add(resStorage);
-            }
-            resStorage.capacity = this.ressourceCapacity[i];
-        }
+        this.hubSystem = this.getMap().blocks.HubSystemManager.hubList.get(this.parent.blocks.HubConnectivity.hubSystemId());
 
         // call setPointers recursively for each resoruce:
         this.resList.each(function(res){
@@ -85,12 +94,12 @@ if (node) {
 
     };
 
-
     proto.reqChangePerHour = function(resTypeId, reqChangePerHour, onUpdatedEffective ) {
         var resStorage = this.resList.get(resTypeId);
         if (!resStorage) {
             resStorage = new ResourceStorage(this.resList,null);
             resStorage._id(resTypeId);
+            resStorage.capacity = this.ressourceCapacity[i];
             this.resList.add(resStorage);
         }
 

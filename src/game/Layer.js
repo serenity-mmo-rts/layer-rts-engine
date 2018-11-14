@@ -209,6 +209,8 @@ if (node) {
 
     proto.initialize = function () {
         // now call setPointers() for everything
+        this.lockObject.isLocked = true;
+
         this.mapData.setPointers(); // this will call setPointer() on all mapObjects and items
         this.eventScheduler.events.setPointers();
 
@@ -219,6 +221,8 @@ if (node) {
         this.mapData.items.each(function(item){
             item.embedded(true);
         });
+
+        this.lockObject.isLocked = false;
     };
 
     /*

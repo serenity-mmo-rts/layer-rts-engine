@@ -53,6 +53,9 @@ if (node) {
     proto.changeHubSystemId = function(hubSystemId) {
         if (this.hubSystemId() != hubSystemId) {
             this.hubSystemId(hubSystemId);
+            if (this.parent.blocks.hasOwnProperty('ResourceManager')) {
+                this.parent.blocks.ResourceManager.changeHubSystemId(hubSystemId);
+            }
 
             // change all connected Objects to the same hubSystemId recursively:
             var mapData = this.getMap().mapData;

@@ -1,7 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
-    var ResourceStorage = require('../mapObjects/ResourceStorage').ResourceStorage;
+    var HubSystemResource = require('./HubSystemResource').HubSystemResource;
     var GameList = require('../GameList').GameList;
     ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
@@ -20,8 +20,10 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.mapObjects = {};
-        this.resList = new GameList(this.getGameData(), ResourceStorage, false, false, this, 'resList');
+        this.mapObjects = []; // all map objects that are connected to the hub system and have a resourceManager.
+
+        // manually serialized list of hub resources:
+        this.resList = new GameList(this.getGameData(), HubSystemResource, false, false, this, 'resList');
 
     };
 
@@ -38,8 +40,6 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-            ressourceTypeIds: [],
-            ressourceCapacity: []
         };
     };
 
@@ -56,31 +56,16 @@ if (node) {
 
 
     proto.setPointers = function() {
-        // check if all resourceStorage instances are in the resList and set their capacity accordingly:
-        for (var i= 0, len=this.ressourceTypeIds.length; i<len; i++){
-            var resStorage = this.resList.get(this.ressourceTypeIds[i]);
-            if (!resStorage){
-                // if it does not exist we create it here:
-                resStorage = new ResourceStorage(this.resList,null);
-                resStorage._id(this.ressourceTypeIds[i]);
-                this.resList.add(resStorage);
-            }
-            resStorage.capacity = this.ressourceCapacity[i];
-        }
-
         // call setPointers recursively for each resoruce:
         this.resList.each(function(res){
             res.setPointers();
         });
-
-        this.resetHelpers();
     };
 
 
     proto.resetHelpers = function() {
 
     };
-
 
 
     /**
@@ -92,16 +77,28 @@ if (node) {
     };
 
 
-
-    proto.reqChangePerHour = function(resTypeId, reqChangePerHour, onUpdatedEffective ) {
-        var resStorage = this.resList.get(resTypeId);
-        if (!resStorage) {
-            resStorage = new ResourceStorage(this.resList,null);
-            resStorage._id(resTypeId);
-            this.resList.add(resStorage);
+    proto.getSystemResource = function(resTypeId) {
+        var systemResource = this.resList.get(resTypeId);
+        if (!systemResource) {
+            systemResource = new HubSystemResource(this.resList,null);
+            systemResource._id(resTypeId);
+            this.resList.add(systemResource);
         }
+        return systemResource;
+    };
 
-        var requestObj = resStorage.addRequest(reqChangePerHour, onUpdatedEffective);
+    /**
+     *
+     * @param mapObjId
+     * @param resTypeId
+     * @param reqPullPerHour should be 0 or positive integer
+     * @param reqPushPerHour should be 0 or positive integer
+     * @param reqPullPriority should be integer in range 0-2
+     * @param reqPushPriority should be integer in range 0-2
+     */
+    proto.setRequest = function(mapObjId, resTypeId, reqPullPerHour, reqPullPriority, canPullPerHour, canPullPriority, reqPushPerHour, reqPushPriority, canPushPerHour, canPushPriority ) {
+        var systemResource = this.getSystemResource(resTypeId);
+        var requestObj = systemResource.setRequest(mapObjId, reqPullPerHour, reqPullPriority, canPullPerHour, canPullPriority, reqPushPerHour, reqPushPriority, canPushPerHour, canPushPriority);
         return requestObj;
     };
 
@@ -114,9 +111,9 @@ if (node) {
     proto.load = function(o) {
         AbstractBlock.prototype.load.call(this,o);
         for (var i= 0, len=o.resList.length; i<len; i++){
-            var resStorage = new ResourceStorage(this.resList,null);
-            resStorage.load(o.resList[i]);
-            this.resList.add(resStorage);
+            var systemResource = new HubSystemResource(this.resList,null);
+            systemResource.load(o.resList[i]);
+            this.resList.add(systemResource);
         }
     };
 

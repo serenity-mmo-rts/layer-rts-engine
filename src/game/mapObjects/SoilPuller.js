@@ -34,6 +34,30 @@ if (node) {
     proto.constructor = SoilPuller;
 
 
+    /**
+     * This function defines the default type variables and returns them as an object.
+     * @returns {{typeVarName: defaultValue, ...}}
+     */
+    proto.defineTypeVars = function () {
+        return {
+            ressourceTypeIds: [],
+            ressourceMaxInPerHour: []
+        };
+    };
+
+    /**
+     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
+     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
+     * @returns {[{stateVarName: defaultValue},...]}
+     */
+    proto.defineStateVars = function () {
+        return [
+            {soilEffectiveIn: []}, // in amount per sec
+            {soilAvailable: []}
+        ];
+    };
+
+
     proto.setPointers = function () {
         var self = this;
 
@@ -48,6 +72,8 @@ if (node) {
 
 
     proto.resetHelpers = function () {
+
+        this.resetResourceRequests();
 
     };
 
@@ -72,6 +98,13 @@ if (node) {
         // set state:
         this.soilEffectiveIn(soilEffectiveIn);
 
+        this.resetResourceRequests();
+
+    };
+
+    proto.resetResourceRequests = function() {
+
+        var soilEffectiveIn = this.soilEffectiveIn();
 
         // first remove all previous requests:
         for (var i=0, len=this.reqObjects.length; i<len; i++) {
@@ -80,7 +113,7 @@ if (node) {
         this.reqObjects = [];
 
         // now add again all requests:
-        for (var i=0, len=this.ressourceTypeIds.length; i<len; i++) {
+        for (var i=0, len=soilEffectiveIn.length; i<len; i++) {
             var reqObject = this.parent.blocks.ResourceManager.reqChangePerHour(
                 this.ressourceTypeIds[i],
                 soilEffectiveIn[i],
@@ -92,31 +125,6 @@ if (node) {
             this.reqObjects.push(reqObject);
         }
 
-
-    };
-
-
-    /**
-     * This function defines the default type variables and returns them as an object.
-     * @returns {{typeVarName: defaultValue, ...}}
-     */
-    proto.defineTypeVars = function () {
-        return {
-            ressourceTypeIds: [],
-            ressourceMaxInPerHour: []
-        };
-    };
-
-    /**
-     * This function defines the default state variables and returns them as an array. The ordering in the array is used to serialize the states.
-     * Within this function it is possible to read the type variables of the instance using this.typeVarName.
-     * @returns {[{stateVarName: defaultValue},...]}
-     */
-    proto.defineStateVars = function () {
-        return [
-            {soilEffectiveIn: []}, // in amount per sec
-            {soilAvailable: []}
-        ];
     };
 
     /**

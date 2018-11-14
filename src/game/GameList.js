@@ -85,14 +85,18 @@ if (node) {
                 console.log("warning: this _id already exists in GameList. Overwriting...");
             }
             //console.log("adding to GameList by appending object")
-            this.hashList[_id] = o;
+
             if (this.lockObject) {
                 if (!this.lockObject.isLocked) {
+                    this.hashList[_id] = o;
                     this.mutatedChilds[_id] = true;
                     this.sinceSnapshotAdded.push(o);
                 }
             }
-            return this.hashList[_id];
+            else {
+                this.hashList[_id] = o;
+            }
+            return o;
         }
         else {
             console.log("warning: adding to GameList with copying")
@@ -102,11 +106,19 @@ if (node) {
             else {
                 var objInstance = new this.ClassType(this.gameData, o);
             }
-            if (!this.lockObject.isLocked) {
-                this.mutatedChilds[objInstance._id()] = true;
-                this.sinceSnapshotAdded.push(objInstance);
+
+            var newInstance;
+            if (this.lockObject) {
+                if (!this.lockObject.isLocked) {
+                    newInstance = this.add(objInstance);
+                    this.mutatedChilds[objInstance._id()] = true;
+                    this.sinceSnapshotAdded.push(objInstance);
+                }
             }
-            return this.add(objInstance);
+            else {
+                newInstance = this.add(objInstance)
+            }
+            return newInstance;
         }
 
 
