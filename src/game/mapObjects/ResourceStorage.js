@@ -27,7 +27,7 @@ if (node) {
         // Define helper member variables:
         this.requests = [];
         this.timeCallbackId = null;
-        this.waitForTarget = false;
+        this.amountAfterWait = 0;
         this.currentlyRecalculating = false; // this is used to make sure that we do not recursively recalculate while recalculating
         this.hubSystemResource = null;
         this.mapObj = null;
@@ -112,6 +112,9 @@ if (node) {
 
 
     proto.resetHelpers = function() {
+
+        // make sure to set the timer correctly, given the current states.
+        this._updateChangePerHour(this.changePerHour());
 
     };
 
@@ -415,25 +418,25 @@ if (node) {
             if (changePerHour > 0) {
                 if (targetAmount!==null && storedAmount < targetAmount) {
                     // notify when target is reached:
-                    this.waitForTarget = true;
+                    this.amountAfterWait = targetAmount;
                     msTillNotify = Math.ceil(ResourceStorage.millisecondToHour * (targetAmount - storedAmount) / changePerHour);
                 }
                 else {
                     // notify when full:
-                    this.waitForTarget = false;
+                    this.amountAfterWait = this.capacity();
                     msTillNotify = Math.ceil(ResourceStorage.millisecondToHour * (this.capacity() - storedAmount) / changePerHour);
                 }
             }
             else {
                 if (targetAmount!==null && storedAmount > targetAmount) {
                     // notify when target is reached:
-                    this.waitForTarget = true;
-                    msTillNotify = -Math.ceil(ResourceStorage.millisecondToHour * (storedAmount - targetAmount) / changePerHour);
+                    this.amountAfterWait = targetAmount;
+                    msTillNotify = -Math.floor(ResourceStorage.millisecondToHour * (storedAmount - targetAmount) / changePerHour);
                 }
                 else {
                     // notify when empty:
-                    this.waitForTarget = false;
-                    msTillNotify = -Math.ceil(ResourceStorage.millisecondToHour * storedAmount / changePerHour);
+                    this.amountAfterWait = 0;
+                    msTillNotify = -Math.floor(ResourceStorage.millisecondToHour * storedAmount / changePerHour);
                 }
             }
 
@@ -444,11 +447,11 @@ if (node) {
             else {
                 var self = this;
                 timeScheduler.addCallback(function () {
-                    if (this.waitForTarget) {
-                        // make sure that we hit the target exactly without precision errors:
-                        this._updateStoredAmount();
-                        this.storedAmount(this.targetAmount());
-                    }
+
+                    // make sure that we hit the target exactly without precision errors:
+                    self.storedAmount(self.amountAfterWait);
+                    self.lastUpdated(self.getMap().currentTime);
+
                     self._recalcRessourceInOut();
                 }, currentTime+msTillNotify);
             }

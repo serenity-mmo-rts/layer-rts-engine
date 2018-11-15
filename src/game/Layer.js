@@ -213,6 +213,7 @@ if (node) {
 
         this.mapData.setPointers(); // this will call setPointer() on all mapObjects and items
         this.eventScheduler.events.setPointers();
+        this.blocks.HubSystemManager.setPointers(); // this will call setPointer() on all mapObjects and items
 
         // now embed into game:
         this.mapData.mapObjects.each(function(mapObj){

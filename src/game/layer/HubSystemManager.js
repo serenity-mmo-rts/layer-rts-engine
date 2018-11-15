@@ -54,6 +54,14 @@ if (node) {
     };
 
 
+    proto.setPointers = function() {
+        // call setPointers recursively for each resoruce:
+        this.hubList.each(function(hubSystem){
+            hubSystem.setPointers();
+        });
+    };
+
+
     proto.createNewHubSystem = function(hubSystemId) {
         var hubSystem = new HubSystem(this.hubList,null);
         hubSystem._id(hubSystemId);
