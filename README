@@ -44,3 +44,72 @@ Development:
 
 javascript modules should be written as described at:
 http://caolanmcmahon.com/posts/writing_for_node_and_the_browser/
+
+
+
+
+
+
+
+
+###################################################################
+###### HowTo run Serenity on Linux 64 bit (without root access):
+###################################################################
+
+We assume you want to install under /work/username
+
+1. Install node.js:
+
+echo 'export PATH=/work/username/local/bin:$PATH' >> ~/.bashrc
+. ~/.bashrc
+mkdir /work/username/local
+mkdir -p /work/username/installers/node-latest-install
+cd /work/username/installers/node-latest-install
+curl http://nodejs.org/dist/node-latest.tar.gz | tar xz --strip-components=1
+./configure --prefix=/work/username/local
+make install # ok, fine, this step probably takes more than 30 seconds...
+
+2. Install npm:
+
+download https://www.npmjs.org/install.sh and save to folder /work/username/installers/node-latest-install
+chmod +x install.sh
+./install.sh
+
+3: Install mongodb:
+
+download from https://www.mongodb.org/downloads
+select "Linux 64 bit legacy"
+extract the files and mv all files from the bin folder to /work/username/local/bin
+
+4: Install libsodium:
+
+download the latest version from https://download.libsodium.org/libsodium/releases/
+For example download libsodium-1.0.3.tar.gz
+and extract to /work/username/installers/libsodium-1.0.3
+cd /work/username/installers/libsodium-1.0.3
+./configure --prefix=/work/username/local
+make
+make install
+
+4: Install zeromq:
+
+download the latest POSIX tarball from http://zeromq.org/area:download
+For example download zeromq-4.1.3.tar.gz
+and extract to /work/username/installers/zeromq-4.1.3
+cd /work/username/installers/zeromq-4.1.3
+export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
+./configure --prefix=/work/username/local
+make
+make install
+
+5: Run "npm install" in the src/server folder.
+Always before running npm install make sure that you specify the envrionment variable:
+export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
+
+6: Running the server:
+Before running the server specify the environment variable: LD_LIBRARY_PATH=/work/username/local/lib
+For example in Webstorm there is the field Environment Variables in the Server Debug/Run Configuration.
+
+
+
+
