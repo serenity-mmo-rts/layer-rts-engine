@@ -75,13 +75,26 @@ download https://www.npmjs.org/install.sh and save to folder /work/username/inst
 chmod +x install.sh
 ./install.sh
 
-3: Install mongodb:
+3: Install PostgreSQL:
+cd /work/username/installers
+git clone https://github.com/postgres/postgres.git
+cd postgres
+./configure --prefix=/work/username/local
+make
+make install
+cd /work/username/local/bin
+./initdb -D /work/hofinger/local/data/posgresDb
+
+
+4: Install mongodb:
 
 download from https://www.mongodb.org/downloads
 select "Linux 64 bit legacy"
 extract the files and mv all files from the bin folder to /work/username/local/bin
+mkdir -p /work/username/local/data/mongodb
 
-4: Install libsodium:
+
+5: Install libsodium:
 
 download the latest version from https://download.libsodium.org/libsodium/releases/
 For example download libsodium-1.0.3.tar.gz
@@ -90,8 +103,9 @@ cd /work/username/installers/libsodium-1.0.3
 ./configure --prefix=/work/username/local
 make
 make install
+mkdir -p /work/username/local/data/mongodb
 
-4: Install zeromq:
+6: Install zeromq:
 
 download the latest POSIX tarball from http://zeromq.org/area:download
 For example download zeromq-4.1.3.tar.gz
@@ -102,13 +116,16 @@ export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
 make
 make install
 
-5: Run "npm install" in the src/server folder.
+7: Run "npm install" in the src/server folder.
 Always before running npm install make sure that you specify the envrionment variable:
 export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
 
-6: Running the server:
+8: Running the server:
+Before running the server start mongodb by executing: /work/username/local/bin/mongod --dbpath /work/username/local/data/mongodb --bind_ip 127.0.0.1. --port 27017
 Before running the server specify the environment variable: LD_LIBRARY_PATH=/work/username/local/lib
-For example in Webstorm there is the field Environment Variables in the Server Debug/Run Configuration.
+For example in Webstorm there is the field Environment Variables in the Server Debug/Run Configuration. There you can also specify the path to the node.js executable as /work/username/local/bin/node
+
+to start postgresql execute: /work/username/local/bin/pg_ctl -D /work/username/local/data/posgresDb -l logfile start
 
 
 
