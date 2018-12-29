@@ -83,7 +83,7 @@ cd postgres
 make
 make install
 cd /work/username/local/bin
-./initdb -D /work/hofinger/local/data/posgresDb
+./initdb -D /work/username/local/data/posgresDb
 
 
 4: Install mongodb:
