@@ -76,6 +76,7 @@ chmod +x install.sh
 ./install.sh
 
 3: Install PostgreSQL:
+
 cd /work/username/installers
 git clone https://github.com/postgres/postgres.git
 cd postgres
@@ -117,16 +118,26 @@ make
 make install
 
 7: Run "npm install" in the src/server folder.
+
 Always before running npm install make sure that you specify the envrionment variable:
 export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
 
-8: Running the server:
+
+8: Execute the following to initialize postgresql with a username 'postgres' with password 'popetest' and a database 'pope':
+
+/work/username/local/bin/createuser --pwprompt postgres
+Enter two times the following password: popetest
+/work/username/local/bin/createdb --owner=postgres pope
+/work/username/local/bin/psql -d pope --command='ALTER SCHEMA public OWNER TO postgres;'
+
+9: To start PostgreSQL run:
+
+/work/username/local/bin/pg_ctl -D /work/username/local/data/posgresDb -l logfile start
+
+10: Running the server:
+
 Before running the server start mongodb by executing: /work/username/local/bin/mongod --dbpath /work/username/local/data/mongodb --bind_ip 127.0.0.1. --port 27017
 Before running the server specify the environment variable: LD_LIBRARY_PATH=/work/username/local/lib
 For example in Webstorm there is the field Environment Variables in the Server Debug/Run Configuration. There you can also specify the path to the node.js executable as /work/username/local/bin/node
-
-to start postgresql execute: /work/username/local/bin/pg_ctl -D /work/username/local/data/posgresDb -l logfile start
-
-
 
 
