@@ -13,7 +13,7 @@ if (node) {
         this.gameData = layer.gameData;
         this.seed = 0.5;
 
-        this.nrOfSolarSystems = 200;
+        this.nrOfSolarSystems = 700;
         this.starTypes = ["redDwarf","normalStar","doubleSystem","neutronStar","blackHole"];
         this.distributionofStarTypes = [0.3,0,0.5,0.1,0.1];
         this.worldObjects = [];
@@ -63,8 +63,9 @@ if (node) {
             var starSize = usedStar.StarSizesMean+(RandomNumber.randn()*usedStar.StarSizesStd);
             var planetAmount = usedStar.PlanetAmountMean+(RandomNumber.randn()*usedStar.PlanetAmountStd);
 
+            var parentOfMapObjects = this.gameData.layers.get(this.layer._id()).mapData.mapObjects;
             // create solar system Object
-            var mapObj =new MapObject(this.gameData,{
+            var mapObj =new MapObject(parentOfMapObjects,{
                 _id: "galaxyStar01inst" + i,
                 mapId: this.layer._id(),
                 x: posx,
