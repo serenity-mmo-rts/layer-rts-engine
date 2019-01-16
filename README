@@ -122,6 +122,10 @@ make install
 Always before running npm install make sure that you specify the envrionment variable:
 export PKG_CONFIG_PATH=/work/username/local/lib/pkgconfig
 
+For node v5 (maybe also v4) you need gcc 4.8 or newer. You may specify the path using:
+export CC=/work/hofinger/local/gcc-4.8.0/bin/gcc
+export CXX=/work/hofinger/local/gcc-4.8.0/bin/g++
+
 
 8: Execute the following to initialize postgresql with a username 'postgres' with password 'popetest' and a database 'pope':
 
