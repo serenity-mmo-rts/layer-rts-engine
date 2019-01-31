@@ -472,7 +472,7 @@ if (node) {
         else {
             reqObj.effChangePerHour = - Math.floor( (-req * this.totalPullEffectivityNominator()) / this.totalPullEffectivityDenominator());
         }
-        reqObj.onUpdatedEffective(reqObj.effChangePerHour, this._id());
+        reqObj.onUpdatedEffective(reqObj.effChangePerHour, this._id(), reqObj);
     };
 
 

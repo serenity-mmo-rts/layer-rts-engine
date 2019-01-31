@@ -35,8 +35,8 @@ if (node) {
         this.mapId = null;
         this.layer= null;
         this.buildQueue = [];
-        this.startedTimes= [];
-        this.dueTimes= [];
+        this.dueTime = null;
+        this.requestObjects = [];
 
     };
 
@@ -66,7 +66,10 @@ if (node) {
     proto.defineStateVars = function () {
         return [
             {buildQueueIds: []},
-            {startedTime: 0}
+            {startedTime: 0}, // this is actually the last update time
+            {lastUpdateTime: 0},
+            {lastPercentageBuild: 0},
+            {lastEffectivity: 0}
         ];
     };
 
@@ -79,8 +82,6 @@ if (node) {
         if (this.parent.activeOnLayer){  // in case layer was changed and event needs to be removed
             this.resetHelpers();
         }
-
-
 
         // subscribe to any changes of the array:
         /**
@@ -121,20 +122,26 @@ if (node) {
     };
 
     proto.resetHelpers = function(){
-        this._fillBuildQueue(this.buildQueueIds());
-        this._fillDueAndStartedTimes();
-        //if (this.parent.embedded()) {
-        //    this._checkQueue();
-        //}
+        if (this.parent.embedded()) {
+            this._fillBuildQueue(this.buildQueueIds());
+            this._resetResourceRequests();
+            this._fillDueAndStartedTimes();
+        }
     };
 
     proto.addEventToQueue = function (evt) {
         if (this.startedTime()==0){
+            // if this building is completely new
+            console.log("initialize lastUpdateTime");
             this.startedTime(evt.startedTime);
+            this.lastUpdateTime(evt.startedTime);
         }
         this.buildQueueIds.push(evt._id);
+
         this._fillBuildQueue(this.buildQueueIds());
+        this._resetResourceRequests();
         this._fillDueAndStartedTimes();
+
         if (this.parent.embedded()) {
             this._checkQueue();
         }
@@ -143,8 +150,6 @@ if (node) {
     proto.removeItemFromQueue = function (idx) {
         this.buildQueueIds.splice(idx, 1);
         this.buildQueue.splice(idx, 1);
-        this.startedTimes.splice(idx, 1);
-        this.dueTimes.splice(idx, 1);
         if  (this.buildQueueIds().length>0){
             return false;
         }
@@ -163,11 +168,11 @@ if (node) {
     };
 
     proto._fillDueAndStartedTimes = function () {
-        this.startedTimes = [];
-        this.dueTimes = [];
         var len=this.buildQueue.length;
-        for (var idx = 0;idx < len; idx++) {
-            var evt = this.buildQueue[idx];
+
+        if (len > 0) {
+            var evt = this.buildQueue[0];
+
             // if update comes in first time for running event update all events that are already in cue
             // get building time
             if (evt.type == "BuildUpgradeEvent") {
@@ -189,23 +194,106 @@ if (node) {
             else if (evt.type=="DisplaceObjectEvent"){
                 var buildTime =this.parent.blocks.Unit.deployTime;
             }
-            if (idx == 0) {
-                // update current running event due time in production
-                if (this.startedTime()) {
-                    this.startedTimes[0] = this.startedTime();
+
+            var newBuildTime = (1-this.lastPercentageBuild())*buildTime/this.lastEffectivity();
+
+            this.dueTime = this.lastUpdateTime()+newBuildTime;
+        }
+        else {
+            this.dueTime = Infinity;
+        }
+
+        this.getMap().timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
+        console.log("replace user due time to : " + this.dueTime);
+    };
+
+
+
+    proto._removeRequestsObjects = function() {
+
+        // first remove all previous requests:
+        for (var i = 0, len = this.requestObjects.length; i < len; i++) {
+            if (this.requestObjects[i].requestObj) {
+                this.requestObjects[i].requestObj.remove();
+            }
+        }
+        this.requestObjects = [];
+    };
+
+
+    proto._resetResourceRequests = function() {
+
+        // first remove all previous requests:
+        this._removeRequestsObjects();
+
+        // calculate required resources:
+        var buildTime = this.parent.buildTime;
+        var resIds = this.parent.objType.requiredResourceIds;
+
+
+            if (resIds && resIds.length > 0){
+                // initialize array for request objects
+                for (var i = 0; i<resIds.length; i++){
+                    var amountPerHour = this.parent.objType.requiredResourceAmount[i]/buildTime*1000*60*60
+                    this.requestObjects.push({
+                        id: resIds[i],
+                        amountPerHour: amountPerHour,
+                        requestObj: null
+                    });
                 }
-                else {
-                    this.startedTimes[0] = evt.startedTime;
-                }
-                this.dueTimes[0] = this.startedTimes[0] + buildTime;
-                this.getMap().timeScheduler.setDueTime(this.timeCallbackId, this.dueTimes[0]);
+
+                var self = this;
+                this.requestObjects.forEach(function(element) {
+                    var reqChangesPerHour = element.amountPerHour;
+                    var requestObj = element.requestObj;
+                    if (!requestObj){
+                        var onUpdateEffective = function(effChangePerHour, id, reqObj){
+                            console.log("effChangePerHour:"+effChangePerHour);
+                            element.requestObj = reqObj;
+                            self._updatedResourceInputs();
+                            self._fillDueAndStartedTimes();
+                        };
+                        self.parent.blocks.ResourceManager.reqChangePerHour(element.id, -reqChangesPerHour, onUpdateEffective);
+                    }
+                });
+            }
+            else {
+                this.lastEffectivity(1);
+                this._updatedResourceInputs();
             }
 
-            else {
-                this.startedTimes[idx] = (this.dueTimes[idx - 1]);
-                this.dueTimes[idx] = (this.startedTimes[idx] + buildTime);
-            }
-            console.log("replace user due time to : " + this.dueTimes[idx]);
+
+    };
+
+    proto._updatedResourceInputs = function () {
+
+        var buildTime = this.parent.buildTime;
+        // var requiredResourceIds = this.parent.objType.requiredResourceIds;
+        // var requiredResourceAmount = this.parent.objType.requiredResourceAmount;
+        var currentTime = this.getMap().currentTime;
+        var timePassed = currentTime-this.lastUpdateTime();
+
+        var addInProductionSinceLastTime = (timePassed  / buildTime) * this.lastEffectivity();
+
+        var newPercentageBuild = this.lastPercentageBuild() + addInProductionSinceLastTime;
+        this.lastUpdateTime(currentTime);
+        console.log(newPercentageBuild);
+        this.lastPercentageBuild(newPercentageBuild);
+
+        if (this.requestObjects.length > 0) {
+            var allEffectivity = [];
+            this.requestObjects.forEach(function (element) {
+                if (element.requestObj) {
+                    allEffectivity.push(-element.requestObj.effChangePerHour / element.amountPerHour);
+                }
+                else {
+                    allEffectivity.push(0);
+                }
+            });
+            this.lastEffectivity(Math.min.apply(null, allEffectivity));
+        }
+        else {
+            this.lastEffectivity(1);
         }
     };
 
@@ -254,7 +342,7 @@ if (node) {
     proto._finishedCallback = function() {
 
         var evt = this.buildQueue[0];
-        var dueTime = this.dueTimes[0];
+        var dueTime = this.dueTime;
 
         // building upgrade
         if (evt.type=="BuildUpgradeEvent"){
@@ -306,9 +394,11 @@ if (node) {
         var queueIsEmpty = this.removeItemFromQueue(0);
         if (queueIsEmpty){
             this.startedTime(0);
+            this._removeRequestsObjects();
             return Infinity;
         }
-        else{
+    else{
+            this._removeRequestsObjects();
             this._fillDueAndStartedTimes();  // update Time scheduler
             this._checkQueue();
             return false;
@@ -318,11 +408,10 @@ if (node) {
 
 
     proto.progress= function(){
-        var totalTimeNeeded = this.dueTimes[0] -this.startedTimes[0];
         var currentTime  = Date.now();
-        var timeLeft =  this.dueTimes[0] -currentTime;
-        var percent = (timeLeft/totalTimeNeeded)*100;
-        return 100-percent
+        var newBuild = (currentTime - this.lastUpdateTime()) * this.lastEffectivity() / this.parent.buildTime;
+        var percent = (this.lastPercentageBuild() + newBuild) * 100;
+        return percent;
     };
 
 

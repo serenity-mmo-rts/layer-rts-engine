@@ -71,6 +71,7 @@ if (node) {
     };
 
     proto.changeHubSystemId = function(hubSystemId) {
+        console.log("hubSystemId = "+hubSystemId);
         var hubSystem = this.getMap().blocks.HubSystemManager.hubList.get(hubSystemId);
         this.hubSystem = hubSystem;
         this.resList.each(function(res){

@@ -14,7 +14,6 @@ if (node) {
         blocks: {},
         allowOnMapTypeId: null,
         requiredTechnologies: null,
-        requiredRessources: null,
         initWidth: null,
         initHeight: null,
         spritesheetId: null,
@@ -29,6 +28,8 @@ if (node) {
         PlanetSizesMean : null, // in 2 pow n
         PlanetSizesStd : null,
         className: null,
+        requiredResourceIds :null,
+        requiredResourceAmount: null,
 
         init: function (arg1, initObj) {
 
@@ -45,7 +46,6 @@ if (node) {
             o.a2 = [this.blocks,
                 this.allowOnMapTypeId,
                 this.requiredTechnologies,
-                this.requiredRessources,
                 this.initWidth,
                 this.initHeight,
                 this.spritesheetId,
@@ -61,7 +61,9 @@ if (node) {
                 this.PlanetAmountStd,
                 this.PlanetSizesMean,
                 this.PlanetSizesStd,
-                this.className
+                this.className,
+                this.requiredResourceIds,
+                this.requiredResourceAmount
             ];
 
 
@@ -76,23 +78,24 @@ if (node) {
                 this.blocks = o.a2[0];
                 this.allowOnMapTypeId = o.a2[1];
                 this.requiredTechnologies = o.a2[2];
-                this.requiredRessources = o.a2[3];
-                this.initWidth = o.a2[4];
-                this.initHeight = o.a2[5];
-                this.spritesheetId = o.a2[6];
-                this.spriteFrame = o.a2[7];
-                this.hasChildMapTypeId = o.a2[8];
-                this.className = o.a2[9];
-                this.spriteAnimation = o.a2[10];
-                this.StarSizesMean= o.a2[11];
-                this.StarSizesStd= o.a2[12];
-                this.StarHeatMean= o.a2[13];
-                this.StarHeatStd= o.a2[14];
-                this.PlanetAmountMean= o.a2[15];
-                this.PlanetAmountStd= o.a2[16];
-                this.PlanetSizesMean= o.a2[17];
-                this.PlanetSizesStd= o.a2[18];
-                this.className= o.a2[19];
+                this.initWidth = o.a2[3];
+                this.initHeight = o.a2[4];
+                this.spritesheetId = o.a2[5];
+                this.spriteFrame = o.a2[6];
+                this.hasChildMapTypeId = o.a2[7];
+                this.className = o.a2[8];
+                this.spriteAnimation = o.a2[9];
+                this.StarSizesMean= o.a2[10];
+                this.StarSizesStd= o.a2[11];
+                this.StarHeatMean= o.a2[12];
+                this.StarHeatStd= o.a2[13];
+                this.PlanetAmountMean= o.a2[14];
+                this.PlanetAmountStd= o.a2[15];
+                this.PlanetSizesMean= o.a2[16];
+                this.PlanetSizesStd= o.a2[17];
+                this.className= o.a2[18];
+                this.requiredResourceIds= o.a2[19];
+                this.requiredResourceAmount= o.a2[20];
             }
 
             else {
