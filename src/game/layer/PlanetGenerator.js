@@ -34,14 +34,34 @@ if (node) {
         var height = Math.pow(2,this.initDepth);
 
         this.mapHeight = [];
-
         this.mapHeight[0] = new DiamondSquareMap();
         this.mapHeight[0].initSeed(this.seed,this.roughness);
+
+        /*
+        this.mapTemp = [];
+        this.mapTemp[0] = new DiamondSquareMap();
+        this.mapTemp[0].initSeed(this.seed,this.roughness);
+
+        this.mapHumidity = [];
+        this.mapHumidity[0] = new DiamondSquareMap();
+        this.mapHumidity[0].initSeed(this.seed,this.roughness);
+        */
 
         for (var iter = 1; iter <= this.initDepth; iter++) {
             this.mapHeight[iter] = new DiamondSquareMap();
             this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
             this.mapHeight[iter].run(xpos,ypos,width,height,this.initDepth);
+
+            /*
+            this.mapTemp[iter] = new DiamondSquareMap();
+            this.mapTemp[iter].initNextIter(this.mapTemp[iter-1]);
+            this.mapTemp[iter].run(xpos,ypos,width,height,this.initDepth);
+
+            this.mapHumidity[iter] = new DiamondSquareMap();
+            this.mapHumidity[iter].initNextIter(this.mapHumidity[iter-1]);
+            this.mapHumidity[iter].run(xpos,ypos,width,height,this.initDepth);
+            */
+
             this.currIteration = iter;
         }
 
@@ -136,6 +156,7 @@ if (node) {
         return  this.currIteration;
     };
 
+    /*
     PlanetGenerator.prototype.randomUint32 = function(seedArray) {
         // cf. http://jsperf.com/native-and-non-native-random-numbers/5
         var seed1 = seedArray[0];
@@ -163,7 +184,7 @@ if (node) {
         randnum /= (1 << 30); // convert to number between 0 and 1
         //console.log( randnum );
         return randnum;
-    };
+    };*/
 
     PlanetGenerator.prototype.getHeightVal = function(x, y) {
         var sizeX = this.sizeX;
