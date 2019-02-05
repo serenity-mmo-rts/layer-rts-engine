@@ -1,6 +1,7 @@
 var node = !(typeof exports === 'undefined');
 if (node) {
     var DiamondSquareMap = require('./DiamondSquareMap').DiamondSquareMap;
+    var PlanetMapping = require('./PlanetMapping').PlanetMapping;
 }
 
 (function (exports) {
@@ -21,8 +22,16 @@ if (node) {
         this.currIteration = 0;
 
         this.mapHeight = [];
+        this.mapTemp = [];
+        this.mapHumidity = [];
+
+        this.mappingResolution = 1000;
+        this.mappings = {};
+
         this.debugLog = false;
         this.isInitialized = false;
+
+        this.planetMapping = null;
 
     };
 
@@ -35,24 +44,21 @@ if (node) {
 
         this.mapHeight = [];
         this.mapHeight[0] = new DiamondSquareMap();
-        this.mapHeight[0].initSeed(this.seed,this.roughness);
+        this.mapHeight[0].initSeed(this.seed+34,this.roughness*0.5);
 
-        /*
         this.mapTemp = [];
         this.mapTemp[0] = new DiamondSquareMap();
-        this.mapTemp[0].initSeed(this.seed,this.roughness);
+        this.mapTemp[0].initSeed(this.seed+43,this.roughness*0.5);
 
         this.mapHumidity = [];
         this.mapHumidity[0] = new DiamondSquareMap();
-        this.mapHumidity[0].initSeed(this.seed,this.roughness);
-        */
+        this.mapHumidity[0].initSeed(this.seed+49,this.roughness*0.5);
 
         for (var iter = 1; iter <= this.initDepth; iter++) {
             this.mapHeight[iter] = new DiamondSquareMap();
             this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
             this.mapHeight[iter].run(xpos,ypos,width,height,this.initDepth);
 
-            /*
             this.mapTemp[iter] = new DiamondSquareMap();
             this.mapTemp[iter].initNextIter(this.mapTemp[iter-1]);
             this.mapTemp[iter].run(xpos,ypos,width,height,this.initDepth);
@@ -60,13 +66,16 @@ if (node) {
             this.mapHumidity[iter] = new DiamondSquareMap();
             this.mapHumidity[iter].initNextIter(this.mapHumidity[iter-1]);
             this.mapHumidity[iter].run(xpos,ypos,width,height,this.initDepth);
-            */
 
             this.currIteration = iter;
         }
 
-    };
+        this.planetMapping = new PlanetMapping(this.layer);
+        this.planetMapping.init();
 
+        this.isInitialized = true;
+
+    };
 
     PlanetGenerator.prototype.getSeededCopy = function(iter) {
 
@@ -77,8 +86,16 @@ if (node) {
         var iter = iter || this.currIteration;
 
         var planetGen = new PlanetGenerator(this.layer);
-        planetGen.mapHeight[iter] = this.mapHeight[iter];
-        planetGen.currIteration = this.currIteration;
+        for (var i=0; i<=iter; i++) {
+            planetGen.mapHeight[i] = this.mapHeight[i];
+            planetGen.mapTemp[i] = this.mapTemp[i];
+            planetGen.mapHumidity[i] = this.mapHumidity[i];
+        }
+        planetGen.mappingResolution = this.mappingResolution;
+        planetGen.planetMapping = this.planetMapping;
+        planetGen.isInitialized = this.isInitialized;
+        planetGen.mappingMinVal = this.mappingMinVal;
+        planetGen.mappingMaxVal = this.mappingMaxVal;
         return planetGen;
 
     };
@@ -87,9 +104,9 @@ if (node) {
         return [];
     };
 
-    PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,n,type,skipRows) {
+    PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,depth,type,skipRows) {
 
-        var targetSizeTotal = Math.pow(2, n);
+        var targetSizeTotal = Math.pow(2, depth);
         if (xPos<0){
             var outOfBoundsX = Math.ceil(-xPos/targetSizeTotal);
             xPos += outOfBoundsX*targetSizeTotal;
@@ -98,21 +115,27 @@ if (node) {
             var outOfBoundsY = Math.ceil(-yPos/targetSizeTotal);
             yPos += outOfBoundsY*targetSizeTotal;
         }
+
+        this.calcMaps(xPos,yPos,width,height,depth,skipRows);
+
         switch (type) {
-
-
-            case "roughness":
-                break;
             case "height":
-                return this.getHeight(xPos,yPos,width,height,n,skipRows);
+                return this.mapHeight[depth];
                 break;
             case "temp":
+                return this.mapTemp[depth];
                 break;
-            case "vegetation":
+            case "humidity":
+                return this.mapHumidity[depth];
+                break;
+            case "linearMappingOfHeight":
+                return this.getRGB(xPos,yPos,width,height,depth,skipRows);
+                break;
+            case "vegetationByHeightRanges":
+                return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows);
                 break;
             case "rgb":
-                this.getHeight(xPos,yPos,width,height,n,skipRows);
-                return this.getRGB(xPos,yPos,width,height,n,skipRows);
+                return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows);
                 break;
             case "water":
                 break;
@@ -121,22 +144,30 @@ if (node) {
     };
 
 
-    PlanetGenerator.prototype.getHeight = function(xpos,ypos,width,height,depth,skipRows) {
+    PlanetGenerator.prototype.calcMaps = function(xpos, ypos, width, height, depth, skipRows) {
 
         for (var iter = this.currIteration+1; iter <= depth; iter++) {
             this.mapHeight[iter] = new DiamondSquareMap();
+            this.mapTemp[iter] = new DiamondSquareMap();
+            this.mapHumidity[iter] = new DiamondSquareMap();
+
             this.mapHeight[iter].initNextIter(this.mapHeight[iter-1]);
+            this.mapTemp[iter].initNextIter(this.mapTemp[iter-1]);
+            this.mapHumidity[iter].initNextIter(this.mapHumidity[iter-1]);
 
             if (skipRows&&(iter==depth)){
                 this.mapHeight[iter].run(xpos,ypos,width,height,depth,true);
+                this.mapTemp[iter].run(xpos,ypos,width,height,depth,true);
+                this.mapHumidity[iter].run(xpos,ypos,width,height,depth,true);
             }
             else {
                 this.mapHeight[iter].run(xpos,ypos,width,height,depth,false);
+                this.mapTemp[iter].run(xpos,ypos,width,height,depth,false);
+                this.mapHumidity[iter].run(xpos,ypos,width,height,depth,false);
             }
 
             this.currIteration = iter;
         }
-        return this.mapHeight[depth];
 
     };
 
@@ -190,6 +221,45 @@ if (node) {
         var sizeX = this.sizeX;
         var sizeY = this.sizeY;
         return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
+    };
+
+    PlanetGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows) {
+
+        var sizeX = this.mapHeight[n].sizeX;
+        var sizeY = this.mapHeight[n].sizeY;
+
+        var mapR = new Uint8Array(sizeX*sizeY);
+        var mapG = new Uint8Array(sizeX*sizeY);
+        var mapB = new Uint8Array(sizeX*sizeY);
+
+        var currMapHeight = this.mapHeight[n].map;
+        var currMapTemp = this.mapTemp[n].map;
+        var currMapHumidity = this.mapHumidity[n].map;
+
+        var minVal = this.mapHeight[n].minVal;
+        var range = this.mapHeight[n].maxVal - minVal;
+
+        var yIncrement = 1;
+        if (skipRows) {
+            yIncrement=2;
+        }
+        for (var y = 0;y<sizeY;y+=yIncrement){
+            var rowIdx = sizeX*y;
+            for (var x = 0;x<sizeX;x++){
+                var heightScaled = (currMapHeight[x+rowIdx] - minVal) / range;
+                var tempScaled = (currMapTemp[x+rowIdx] - minVal) / range;
+                var humidityScaled = (currMapHumidity[x+rowIdx] - minVal) / range;
+
+                var rgb = this.planetMapping.convertToRgb(heightScaled, tempScaled, humidityScaled);
+
+                mapR[x+rowIdx] = rgb.r;
+                mapG[x+rowIdx] = rgb.g;
+                mapB[x+rowIdx] = rgb.b;
+            }
+        }
+
+        return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
+
     };
 
     PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n,skipRows) {

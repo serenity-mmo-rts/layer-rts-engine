@@ -17,7 +17,7 @@ if (node) {
         this.mapsCropsLeft = 0;
         this.lowResMap = null;
         this.seed = seed;
-        this.roughness =roughness;
+        this.roughness = roughness;
         this.scale = 1;
         this.reshaped = false;
         this.minVal = 0;
