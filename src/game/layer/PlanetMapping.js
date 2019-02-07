@@ -17,6 +17,8 @@ if (node) {
         this.mappingMaxVal = (1 << 31) >>> 0;
         this.mapNames = ["red", "green", "blue", "iron"];
 
+        this.interpMethod = 12;
+
         // will be internally generated:
         this.vegetationSpecs = [];
         this.mappings = {};
@@ -34,8 +36,67 @@ if (node) {
         // define rectangles in which the circular plateaus are randomly generated:
         this.vegetationSpecs = [
             {
+                heightName: "debug interpolation",
+                maxHeight: 0.001,
+                regions: [
+                    {
+                        name: "white",
+                        num_plateaus: 1,
+                        temp: 0.2,
+                        humidity: 0.2,
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            iron: 1
+                        }
+                    },
+                    {
+                        name: "red",
+                        num_plateaus: 1,
+                        temp: 0.8,
+                        humidity: 0.2,
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: 255,
+                            green: 0,
+                            blue: 0,
+                            iron: 1
+                        }
+                    },
+                    {
+                        name: "green",
+                        num_plateaus: 1,
+                        temp: 0.2,
+                        humidity: 0.8,
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: 1,
+                            green: 255,
+                            blue: 1,
+                            iron: 1
+                        }
+                    },
+                    {
+                        name: "blue",
+                        num_plateaus: 1,
+                        temp: 0.8,//[0.2, 1],
+                        humidity: 0.8,//[0.6, 1],
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: 1,//[35, 45],
+                            green: 1,//[190, 210],
+                            blue: 255,//[190, 210],
+                            iron: 1
+                        }
+                    }
+                ],
+                plateaus: []
+            },
+            {
                 heightName: "water",
-                maxHeight: 0.33,
+                maxHeight: 0.45,
                 regions: [
                     {
                         name: "waterice",
@@ -79,13 +140,13 @@ if (node) {
                     {
                         name: "water_turquoise",
                         num_plateaus: 1,
-                        temp: [0.2, 1],
-                        humidity: [0.6, 1],
+                        temp: 0.8,//[0.2, 1],
+                        humidity: 0.8,//[0.6, 1],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [35, 45],
-                            green: [190, 210],
-                            blue: [190, 210],
+                            red: 1,//[35, 45],
+                            green: 1,//[190, 210],
+                            blue: 255,//[190, 210],
                             iron: 1
                         }
                     }
@@ -94,11 +155,11 @@ if (node) {
             },
             {
                 heightName: "lowland",
-                maxHeight: 0.66,
+                maxHeight: 0.75,
                 regions: [
                     {
                         name: "ice",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0, 0.2],
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -111,7 +172,7 @@ if (node) {
                     },
                     {
                         name: "tundra",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.2, 0.3],
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -124,7 +185,7 @@ if (node) {
                     },
                     {
                         name: "taiga",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.3, 0.4],
                         humidity: [0.4, 1],
                         radius: [0, 0.01],
@@ -137,7 +198,7 @@ if (node) {
                     },
                     {
                         name: "temperate_grassland_and_desert",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.3, 0.7],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
@@ -150,7 +211,7 @@ if (node) {
                     },
                     {
                         name: "subtropical_desert",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.3, 1],
                         humidity: [0, 0.2],
                         radius: [0, 0.01],
@@ -163,7 +224,7 @@ if (node) {
                     },
                     {
                         name: "temperate_deciduous_forest",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.4, 0.7],
                         humidity: [0.4, 0.7],
                         radius: [0, 0.01],
@@ -176,7 +237,7 @@ if (node) {
                     },
                     {
                         name: "temperate_rain_forest",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.4, 0.7],
                         humidity: [0.7, 1],
                         radius: [0, 0.01],
@@ -189,7 +250,7 @@ if (node) {
                     },
                     {
                         name: "savanna",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.7, 1],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
@@ -202,7 +263,7 @@ if (node) {
                     },
                     {
                         name: "tropical_seasonal_forest",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.7, 1],
                         humidity: [0.4, 0.6],
                         radius: [0, 0.01],
@@ -215,7 +276,7 @@ if (node) {
                     },
                     {
                         name: "tropical_rain_forest",
-                        num_plateaus: 1,
+                        num_plateaus: 10,
                         temp: [0.7, 1],
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
@@ -266,10 +327,10 @@ if (node) {
                         humidity: [0.4, 0.43],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [20, 40],
-                            green: [20, 40],
-                            blue: [20, 40],
-                            iron: [30, 60]
+                            red: [60, 60],
+                            green: [60, 60],
+                            blue: [60, 60],
+                            iron: [60, 60]
                         }
                     },
                     {
@@ -292,7 +353,7 @@ if (node) {
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [150, 200],
+                            red: [100, 130],
                             green: [30, 50],
                             blue: [1, 10],
                             iron: [30, 60]
@@ -353,7 +414,8 @@ if (node) {
                 var radius = this.getRandomInRange(region.radius, this.mappingResolution);
 
                 var plateau_specs = {};
-                for (var name in region.plateau_specs) {
+                for (var m=0; m<this.mapNames.length; m++) {
+                    var name = this.mapNames[m];
                     if (region.plateau_specs.hasOwnProperty(name)) {
                         plateau_specs[name] = this.getRandomInRange(region.plateau_specs[name], 1);
                     }
@@ -410,43 +472,146 @@ if (node) {
                 for (var h = 0; h < this.mappingResolution; h++) {
                     var lin_idx = t * this.mappingResolution + h;
                     if (curOutputMap[lin_idx] == 0) {
-                        // find the two plateaous that are the closest:
-                        var closestDist1 = Infinity;
-                        var closestDist2 = Infinity;
-                        var closestIdx1 = null;
-                        var closestIdx2 = null;
-                        for (var p = 0; p < plateaus.length; p++) {
-                            var plateau = plateaus[p];
-                            var temp = plateau.temp;
-                            var humidity = plateau.humidity;
-                            var radius = plateau.radius;
 
-                            var t_diff = t - temp;
-                            var h_diff = h - humidity;
-                            var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
+                        if (this.interpMethod<10) {
+                            // find the three plateaous that are the closest:
+                            var closestDist1 = Infinity;
+                            var closestDist2 = Infinity;
+                            var closestDist3 = Infinity;
+                            var closestIdx1 = null;
+                            var closestIdx2 = null;
+                            var closestIdx3 = null;
+                            for (var p = 0; p < plateaus.length; p++) {
+                                var plateau = plateaus[p];
+                                var temp = plateau.temp;
+                                var humidity = plateau.humidity;
+                                var radius = plateau.radius;
 
-                            if (dist < closestDist1) {
-                                closestDist2 = closestDist1;
-                                closestIdx2 = closestIdx1;
-                                closestDist1 = dist;
-                                closestIdx1 = p;
+                                var t_diff = t - temp;
+                                var h_diff = h - humidity;
+                                var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
+
+                                if (dist < closestDist1) {
+                                    closestDist3 = closestDist2;
+                                    closestIdx3 = closestIdx2;
+                                    closestDist2 = closestDist1;
+                                    closestIdx2 = closestIdx1;
+                                    closestDist1 = dist;
+                                    closestIdx1 = p;
+                                }
+                                else if (dist < closestDist2) {
+                                    closestDist3 = closestDist2;
+                                    closestIdx3 = closestIdx2;
+                                    closestDist2 = dist;
+                                    closestIdx2 = p;
+                                }
+                                else if (dist < closestDist3) {
+                                    closestDist3 = dist;
+                                    closestIdx3 = p;
+                                }
                             }
-                            else if (dist < closestDist2) {
-                                closestDist2 = dist;
-                                closestIdx2 = p;
+
+                            var plateau1 = plateaus[closestIdx1];
+                            var plateau2 = plateaus[closestIdx2];
+                            var plateau3 = plateaus[closestIdx3];
+
+                            var v1 = plateau1.plateau_specs[map_name];
+                            var v2 = plateau2.plateau_specs[map_name];
+                            var v3 = plateau3.plateau_specs[map_name];
+
+                            if (this.interpMethod == 1) {
+                                var interp1 = closestDist1 / (closestDist1 + closestDist2);
+                                var interp2 = 1 - interp1;
+                                curOutputMap[lin_idx] = interp2 * v1 + interp1 * v2;
+                            }
+                            else if (this.interpMethod == 2) {
+                                // calculate distance to the three interconnecting lines:
+
+                                var t1 = plateau1.temp;
+                                var t2 = plateau2.temp;
+                                var t3 = plateau3.temp;
+                                var h1 = plateau1.humidity;
+                                var h2 = plateau2.humidity;
+                                var h3 = plateau3.humidity;
+
+                                var weight1 = this.calcDistPointToLine(t, t2, t3, h, h2, h3);
+                                var weight2 = this.calcDistPointToLine(t, t1, t3, h, h1, h3);
+                                var weight3 = this.calcDistPointToLine(t, t1, t2, h, h1, h2);
+
+                                var total_weight = weight1 + weight2 + weight3;
+                                weight1 /= total_weight;
+                                weight2 /= total_weight;
+                                weight3 /= total_weight;
+
+                                curOutputMap[lin_idx] = weight1 * v1 + weight2 * v2 + weight3 * v3;
+                            }
+                            else if (this.interpMethod == 3) {
+                                // inverse distance weighting:
+                                var t1 = t - plateau1.temp;
+                                var t2 = t - plateau2.temp;
+                                var t3 = t - plateau3.temp;
+
+                                var h1 = h - plateau1.humidity;
+                                var h2 = h - plateau2.humidity;
+                                var h3 = h - plateau3.humidity;
+
+                                var weight1 = 1 / Math.sqrt(t1 * t1 + h1 * h1);
+                                var weight2 = 1 / Math.sqrt(t2 * t2 + h2 * h2);
+                                var weight3 = 1 / Math.sqrt(t3 * t3 + h3 * h3);
+
+                                weight1 *= weight1;
+                                weight2 *= weight2;
+                                weight3 *= weight3;
+
+                                var total_weight = weight1 + weight2 + weight3;
+
+                                weight1 /= total_weight;
+                                weight2 /= total_weight;
+                                weight3 /= total_weight;
+
+                                curOutputMap[lin_idx] = weight1 * v1 + weight2 * v2 + weight3 * v3;
                             }
                         }
-                        var plateau1 = plateaus[closestIdx1];
-                        var plateau2 = plateaus[closestIdx2];
-                        var v1 = plateau1.plateau_specs[map_name];
-                        var v2 = plateau2.plateau_specs[map_name];
-                        var interp1 = closestDist1 / (closestDist1 + closestDist2);
-                        var interp2 = 1 - interp1;
-                        curOutputMap[lin_idx] = interp2 * v1 + interp1 * v2;
+                        else {
+                            // calculateWeighting to all plateaous:
+                            var weighted_sum = 0;
+                            var total_weight = 0;
+                            for (var p = 0; p < plateaus.length; p++) {
+                                var plateau = plateaus[p];
+                                var temp = plateau.temp;
+                                var humidity = plateau.humidity;
+                                var radius = plateau.radius;
+
+                                var t_diff = t - temp;
+                                var h_diff = h - humidity;
+                                var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
+
+                                dist += 1;
+
+                                var weight = 1 / dist;
+                                weight *= weight;
+                                weight *= weight;
+
+                                total_weight += weight;
+                                weighted_sum += weight * plateau.plateau_specs[map_name];
+                            }
+                            curOutputMap[lin_idx] = weighted_sum / total_weight;
+
+                        }
                     }
                 }
             }
         }
+    };
+
+
+    PlanetMapping.prototype.calcDistPointToLine = function(x0,x1,x2,y0,y1,y2) {
+        // calculate distance between (x0,y0) to the line between P1=(x1,y1) and P2(x2,y2):
+        var x_diff = x2-x1;
+        var y_diff = y2-y1;
+        var numerator = Math.abs(y_diff*x0 - x_diff*y0 + x2*y1 - y2*x1);
+        var denominator = Math.sqrt(x_diff*x_diff + y_diff*y_diff);
+        return numerator/denominator;
     };
 
     PlanetMapping.prototype.getBitmap = function(heightName, mapName) {
@@ -485,6 +650,25 @@ if (node) {
     };
 
     PlanetMapping.prototype.convertToRgb = function(heightScaled, tempScaled, humidityScaled) {
+
+        if (heightScaled < 0.01) {
+            heightScaled = 0.01;
+        }
+        if (heightScaled > 0.99) {
+            heightScaled = 0.99;
+        }
+        if (tempScaled < 0.01) {
+            tempScaled = 0.01;
+        }
+        if (tempScaled > 0.99) {
+            tempScaled = 0.99;
+        }
+        if (humidityScaled < 0.01) {
+            humidityScaled = 0.01;
+        }
+        if (humidityScaled > 0.99) {
+            humidityScaled = 0.99;
+        }
 
         var i = 0;
         while (i < this.vegetationSpecs.length - 1 && this.vegetationSpecs[i].maxHeight < heightScaled) {

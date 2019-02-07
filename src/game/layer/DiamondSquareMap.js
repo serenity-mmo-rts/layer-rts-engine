@@ -10,14 +10,21 @@ if (node) {
     };
 
 
-    DiamondSquareMap.prototype.initSeed = function(seed,roughness) {
+    /**
+     * if roughness is an array, then the first entry corresponds to the current iteration, the last entry will be repeated for finer resolutions
+     * @param seed some random number
+     * @param initRoughness either array or scalar
+     */
+    DiamondSquareMap.prototype.initSeed = function(seed, initRoughness) {
 
         this.currIteration = 0;
         this.mapsCropsTop = 0;
         this.mapsCropsLeft = 0;
         this.lowResMap = null;
         this.seed = seed;
-        this.roughness = roughness;
+        this.initRoughness = null;
+        this.roughness = null;
+        this.setInitRoughness(initRoughness);
         this.scale = 1;
         this.reshaped = false;
         this.minVal = 0;
@@ -36,12 +43,34 @@ if (node) {
         this.lowResMap = lowResMap;
         this.scale = lowResMap.scale / 2;
         this.seed = lowResMap.seed;
-        this.roughness = lowResMap.roughness;
+        this.setInitRoughness(lowResMap.initRoughness);
         this.reshaped = lowResMap.reshaped;
         this.minVal = lowResMap.minVal;
         this.maxVal = lowResMap.maxVal;
         this.currIteration = lowResMap.currIteration + 1;
 
+    };
+
+    DiamondSquareMap.prototype.setInitRoughness = function(initRoughness) {
+        if (initRoughness instanceof Array) {
+            if (initRoughness.length>1) {
+                // copy and remove first element from array
+                var initRoughnessCopy = initRoughness.slice();
+                initRoughnessCopy.shift();
+                this.initRoughness = initRoughnessCopy;
+                this.roughness = initRoughness[0];
+            }
+            else {
+                // no more array values for finer resolutions, therefore convert to scalar parameter:
+                this.initRoughness = initRoughness[0];
+                this.roughness = this.initRoughness;
+            }
+        }
+        else {
+            // just keep using the same scalar parameter:
+            this.initRoughness = initRoughness;
+            this.roughness = initRoughness;
+        }
     };
 
     DiamondSquareMap.prototype.run = function(xPos,yPos,width,height,finalIteration,skipRows) {
@@ -147,21 +176,23 @@ if (node) {
 
     DiamondSquareMap.prototype.runDiamondSquarePart = function(reqX1,reqX2,reqY1,reqY2) {
 
+        var scaling = this.roughness*this.scale;
+
         // square
         for(var y=(reqY1-3)+(reqY1%2);y<=(reqY2+3);y+=2 ){
             for(var x=(reqX1-3)+(reqX1%2);x<=(reqX2+3);x+=2 ){
-                this.square(x, y, this.roughness*this.scale);
+                this.square(x, y, scaling);
             }
         }
 
         // diamond
         for(var y=reqY1-2;y<=reqY2+2;y+=2 ){
             for(var x=(reqX1-2)+(reqX1+reqY1+1)%2;x<=(reqX2+2);x+=2 ){
-                this.diamond(x, y, this.roughness*this.scale);
+                this.diamond(x, y, scaling);
             }
             if (y+1<=reqY2+2 && !this.skipRows){
                 for(var x=(reqX1-2)+(reqX1+reqY1+2)%2;x<=(reqX2+2);x+=2 ){
-                    this.diamond(x, y+1, this.roughness*this.scale);
+                    this.diamond(x, y+1, scaling);
                 }
             }
         }

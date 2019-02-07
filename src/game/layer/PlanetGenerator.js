@@ -42,17 +42,43 @@ if (node) {
         var width = Math.pow(2,this.initDepth);
         var height = Math.pow(2,this.initDepth);
 
+        // slowly increase roughness over scales:
+        var roughnessArrHeight = [];
+        roughnessArrHeight.push(0.001*this.roughness);
+        roughnessArrHeight.push(0.01*this.roughness);
+        roughnessArrHeight.push(0.1*this.roughness);
+        roughnessArrHeight.push(0.1*this.roughness);
+        roughnessArrHeight.push(1*this.roughness);
+
         this.mapHeight = [];
         this.mapHeight[0] = new DiamondSquareMap();
-        this.mapHeight[0].initSeed(this.seed+34,this.roughness*0.5);
+        this.mapHeight[0].initSeed(this.seed+75, roughnessArrHeight);
+
+
+        // slowly increase roughness over scales:
+        var roughnessArrTemp = [];
+        roughnessArrTemp.push(0.001*this.roughness);
+        roughnessArrTemp.push(0.001*this.roughness);
+        roughnessArrTemp.push(0.01*this.roughness);
+        roughnessArrTemp.push(0.01*this.roughness);
+        roughnessArrTemp.push(1.5*this.roughness);
 
         this.mapTemp = [];
         this.mapTemp[0] = new DiamondSquareMap();
-        this.mapTemp[0].initSeed(this.seed+43,this.roughness*0.5);
+        this.mapTemp[0].initSeed(this.seed+43, roughnessArrTemp);
+
+
+        // slowly increase roughness over scales:
+        var roughnessArrHumidity = [];
+        roughnessArrHumidity.push(0.001*this.roughness);
+        roughnessArrHumidity.push(0.001*this.roughness);
+        roughnessArrHumidity.push(0.01*this.roughness);
+        roughnessArrHumidity.push(0.01*this.roughness);
+        roughnessArrHumidity.push(1.5*this.roughness);
 
         this.mapHumidity = [];
         this.mapHumidity[0] = new DiamondSquareMap();
-        this.mapHumidity[0].initSeed(this.seed+49,this.roughness*0.5);
+        this.mapHumidity[0].initSeed(this.seed+49, roughnessArrHumidity);
 
         for (var iter = 1; iter <= this.initDepth; iter++) {
             this.mapHeight[iter] = new DiamondSquareMap();
@@ -119,14 +145,14 @@ if (node) {
         this.calcMaps(xPos,yPos,width,height,depth,skipRows);
 
         switch (type) {
-            case "height":
-                return this.mapHeight[depth];
+            case "heightGrayscale":
+                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapHeight);
                 break;
-            case "temp":
-                return this.mapTemp[depth];
+            case "tempGrayscale":
+                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapTemp);
                 break;
-            case "humidity":
-                return this.mapHumidity[depth];
+            case "humidityGrayscale":
+                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapHumidity);
                 break;
             case "linearMappingOfHeight":
                 return this.getRGB(xPos,yPos,width,height,depth,skipRows);
@@ -246,20 +272,53 @@ if (node) {
         for (var y = 0;y<sizeY;y+=yIncrement){
             var rowIdx = sizeX*y;
             for (var x = 0;x<sizeX;x++){
-                var heightScaled = (currMapHeight[x+rowIdx] - minVal) / range;
-                var tempScaled = (currMapTemp[x+rowIdx] - minVal) / range;
-                var humidityScaled = (currMapHumidity[x+rowIdx] - minVal) / range;
+                var linIdx = x+rowIdx;
+
+                var heightScaled = (currMapHeight[linIdx] - minVal) / range;
+                var tempScaled = (currMapTemp[linIdx] - minVal) / range;
+                var humidityScaled = (currMapHumidity[linIdx] - minVal) / range;
 
                 var rgb = this.planetMapping.convertToRgb(heightScaled, tempScaled, humidityScaled);
 
-                mapR[x+rowIdx] = rgb.r;
-                mapG[x+rowIdx] = rgb.g;
-                mapB[x+rowIdx] = rgb.b;
+                mapR[linIdx] = rgb.r;
+                mapG[linIdx] = rgb.g;
+                mapB[linIdx] = rgb.b;
             }
         }
 
         return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
 
+    };
+
+    PlanetGenerator.prototype.getGrayscaleRGBfromMap = function(xPos,yPos,width,height,n,skipRows,mapArray) {
+
+        var sizeX = mapArray[n].sizeX;
+        var sizeY = mapArray[n].sizeY;
+
+        var mapR = new Uint8Array(sizeX*sizeY);
+        var mapG = new Uint8Array(sizeX*sizeY);
+        var mapB = new Uint8Array(sizeX*sizeY);
+
+        var currMap = mapArray[n].map;
+        var minVal = mapArray[n].minVal;
+        var range = mapArray[n].maxVal - mapArray[n].minVal;
+
+        var yIncrement = 1;
+        if (skipRows) {
+            yIncrement=2;
+        }
+        for (var y = 0;y<sizeY;y+=yIncrement){
+            var rowIdx = sizeX*y;
+            for (var x = 0;x<sizeX;x++){
+                var val = currMap[x+rowIdx];
+                var valScaled = (val - minVal) / range;
+                mapR[x+rowIdx] = Math.round(valScaled*255);
+                mapG[x+rowIdx] = Math.round(valScaled*255);
+                mapB[x+rowIdx] = Math.round(valScaled*255);
+            }
+        }
+
+        return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
     };
 
     PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n,skipRows) {
