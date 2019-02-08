@@ -73,6 +73,20 @@ if (node) {
         }
     };
 
+    /**
+     * run this iteration (this.currIteration) of the diamond square algorithm, which fills in the corresponding pixels
+     * within the current map at the current depth. The first four parameters are supplied in a coordinate system which
+     * is based on the 5th parameter finalIteration. That coordinate system has a total width and height given by
+     * targetSizeTotal=Math.pow(2,finalIteration)
+     *
+     * @param xPos {number} - is the integer starting position in the coordinates of the finalIteration
+     * @param yPos {number} - is the integer starting position in the coordinates of the finalIteration
+     * @param width {number} - is the integer width in the coordinates of the finalIteration
+     * @param height {number} - is the integer height in the coordinates of the finalIteration
+     * @param finalIteration {number} - the iteration index in which the above coordinates are calculated
+     * @param skipRows {boolean} - if each second row should be skipped (for the displayed map, in the highest
+     *                              resolution, we need only every second row, because of orthographic projection.)
+     */
     DiamondSquareMap.prototype.run = function(xPos,yPos,width,height,finalIteration,skipRows) {
 
         var targetSizeTotal = Math.pow(2,finalIteration);
@@ -89,10 +103,10 @@ if (node) {
             this.sizeY = oldsizeY*2;
 
             // get x and y position, and size of requested area
-            var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.lowResMap.mapsCropsLeft)+currSizeTotal)%currSizeTotal;
-            var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) / targetSizeTotal - this.lowResMap.mapsCropsLeft)+currSizeTotal)%currSizeTotal;
-            var reqY1 = (Math.floor(currSizeTotal * yPos / targetSizeTotal - this.lowResMap.mapsCropsTop)+currSizeTotal)%currSizeTotal;
-            var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) / targetSizeTotal - this.lowResMap.mapsCropsTop)+currSizeTotal)%currSizeTotal;
+            var reqX1 = (Math.floor(currSizeTotal * xPos / targetSizeTotal - this.lowResMap.mapsCropsLeft*2)+currSizeTotal)%currSizeTotal;
+            var reqX2 = (Math.ceil(currSizeTotal * (xPos+width) / targetSizeTotal - this.lowResMap.mapsCropsLeft*2)+currSizeTotal)%currSizeTotal;
+            var reqY1 = (Math.floor(currSizeTotal * yPos / targetSizeTotal - this.lowResMap.mapsCropsTop*2)+currSizeTotal)%currSizeTotal;
+            var reqY2 = (Math.ceil(currSizeTotal * (yPos+height) / targetSizeTotal - this.lowResMap.mapsCropsTop*2)+currSizeTotal)%currSizeTotal;
 
         }
         else{ // if still quadratic
@@ -201,8 +215,8 @@ if (node) {
         this.crop(reqX1-2,reqX2+2,reqY1-2,reqY2+2);
 
         // calculate top left position in global integer values
-        this.mapsCropsTop = (((this.lowResMap.mapsCropsTop+reqY1-2)+this.currSizeTotal)%this.currSizeTotal)*2;
-        this.mapsCropsLeft =(((this.lowResMap.mapsCropsLeft+reqX1-2)+this.currSizeTotal)%this.currSizeTotal)*2;
+        this.mapsCropsTop = (((this.lowResMap.mapsCropsTop*2+reqY1-2)+this.currSizeTotal)%this.currSizeTotal);
+        this.mapsCropsLeft =(((this.lowResMap.mapsCropsLeft*2+reqX1-2)+this.currSizeTotal)%this.currSizeTotal);
         this.reshaped = true;
 
     };

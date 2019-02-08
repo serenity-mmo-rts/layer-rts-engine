@@ -100,7 +100,7 @@ if (node) {
                 regions: [
                     {
                         name: "waterice",
-                        num_plateaus: 1,
+                        num_plateaus: 3,
                         temp: [0, 0.2],
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -112,13 +112,39 @@ if (node) {
                         }
                     },
                     {
+                        name: "waterice_boundary",
+                        num_plateaus: 20,
+                        temp: 0.2,
+                        humidity: [0, 1],
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: [210, 250],
+                            green: [210, 250],
+                            blue: [210, 250],
+                            iron: 1
+                        }
+                    },
+                    {
+                        name: "waterice_boundary_blue",
+                        num_plateaus: 20,
+                        temp: 0.23,
+                        humidity: [0, 1],
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: [35, 45],
+                            green: [105, 115],
+                            blue: [185, 210],
+                            iron: 1
+                        }
+                    },
+                    {
                         name: "water_dark_blue",
-                        num_plateaus: 1,
+                        num_plateaus: 3,
                         temp: [0.2, 1],
                         humidity: [0, 0.4],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [44, 52],
+                            red: [20, 30],
                             green: [15, 25],
                             blue: [110, 130],
                             iron: 1
@@ -126,7 +152,7 @@ if (node) {
                     },
                     {
                         name: "water_blue",
-                        num_plateaus: 1,
+                        num_plateaus: 3,
                         temp: [0.2, 1],
                         humidity: [0.3, 0.7],
                         radius: [0, 0.01],
@@ -139,7 +165,7 @@ if (node) {
                     },
                     {
                         name: "water_turquoise",
-                        num_plateaus: 1,
+                        num_plateaus: 3,
                         temp: 0.8,//[0.2, 1],
                         humidity: 0.8,//[0.6, 1],
                         radius: [0, 0.01],
@@ -203,8 +229,8 @@ if (node) {
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [240, 255],
-                            green: [210, 230],
+                            red: [190, 210],
+                            green: [170, 190],
                             blue: [1, 10],
                             iron: 1
                         }
@@ -281,9 +307,9 @@ if (node) {
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
                         plateau_specs: {
-                            red: [1, 10],
-                            green: [230, 255],
-                            blue: [40, 60],
+                            red: [1, 15],
+                            green: [80, 120],
+                            blue: [25, 40],
                             iron: 1
                         }
                     }
@@ -296,9 +322,35 @@ if (node) {
                 regions: [
                     {
                         name: "mountain_ice",
-                        num_plateaus: 10,
-                        temp: [0, 0.4],
-                        humidity: [0, 1],
+                        num_plateaus: 7,
+                        temp: [0, 0.25],
+                        humidity: [0.5, 1],
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: [220, 250],
+                            green: [220, 240],
+                            blue: [220, 240],
+                            iron: [1, 30]
+                        }
+                    },
+                    {
+                        name: "mountain_ice_boundary",
+                        num_plateaus: 7,
+                        temp: 0.27,
+                        humidity: [0.5, 1],
+                        radius: [0, 0.01],
+                        plateau_specs: {
+                            red: [220, 250],
+                            green: [220, 240],
+                            blue: [220, 240],
+                            iron: [1, 30]
+                        }
+                    },
+                    {
+                        name: "mountain_ice_boundary",
+                        num_plateaus: 7,
+                        temp: [0, 0.25],
+                        humidity: 0.47,
                         radius: [0, 0.01],
                         plateau_specs: {
                             red: [220, 250],
@@ -310,8 +362,8 @@ if (node) {
                     {
                         name: "mountain_region_gray",
                         num_plateaus: 10,
-                        temp: [0.3, 0.7],
-                        humidity: [0, 1],
+                        temp: [0, 0.4],
+                        humidity: [0.42, 0.45],
                         radius: [0, 0.01],
                         plateau_specs: {
                             red: [80, 110],
@@ -321,10 +373,10 @@ if (node) {
                         }
                     },
                     {
-                        name: "mountain_region_black",
-                        num_plateaus: 4,
+                        name: "mountain_region_dark",
+                        num_plateaus: 7,
                         temp: [0.25, 0.27],
-                        humidity: [0.4, 0.43],
+                        humidity: [0.6, 1],
                         radius: [0, 0.01],
                         plateau_specs: {
                             red: [60, 60],
@@ -356,6 +408,19 @@ if (node) {
                             red: [100, 130],
                             green: [30, 50],
                             blue: [1, 10],
+                            iron: [30, 60]
+                        }
+                    },
+                    {
+                        name: "mountain_region_green_spots",
+                        num_plateaus: 5,
+                        temp: [0.6, 0.8],
+                        humidity: [0.6, 0.8],
+                        radius: [0, 0.001],
+                        plateau_specs: {
+                            red: [1, 10],
+                            green: [120, 150],
+                            blue: [60, 100],
                             iron: [30, 60]
                         }
                     }

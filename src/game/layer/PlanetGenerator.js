@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var DiamondSquareMap = require('./DiamondSquareMap').DiamondSquareMap;
     var PlanetMapping = require('./PlanetMapping').PlanetMapping;
+    var PlanetMappingSimple = require('./PlanetMappingSimple').PlanetMappingSimple;
 }
 
 (function (exports) {
@@ -17,6 +18,7 @@ if (node) {
         this.depthAtNormalZoom = this.mapGeneratorParams[2];
         this.waterlevel = this.mapGeneratorParams[3];
         this.temperature = this.mapGeneratorParams[4];
+        this.latituteInterp = 0.9; // TODO: add this as map parameter...
         this.initDepth = 5;
 
         this.currIteration = 0;
@@ -26,12 +28,12 @@ if (node) {
         this.mapHumidity = [];
 
         this.mappingResolution = 1000;
-        this.mappings = {};
 
         this.debugLog = false;
         this.isInitialized = false;
 
         this.planetMapping = null;
+        this.planetMappingSimple = null;
 
     };
 
@@ -99,6 +101,9 @@ if (node) {
         this.planetMapping = new PlanetMapping(this.layer);
         this.planetMapping.init();
 
+        this.planetMappingSimple = new PlanetMappingSimple(this.layer);
+        this.planetMappingSimple.init();
+
         this.isInitialized = true;
 
     };
@@ -119,6 +124,7 @@ if (node) {
         }
         planetGen.mappingResolution = this.mappingResolution;
         planetGen.planetMapping = this.planetMapping;
+        planetGen.planetMappingSimple = this.planetMappingSimple;
         planetGen.isInitialized = this.isInitialized;
         planetGen.mappingMinVal = this.mappingMinVal;
         planetGen.mappingMaxVal = this.mappingMaxVal;
@@ -133,42 +139,26 @@ if (node) {
     PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,depth,type,skipRows) {
 
         var targetSizeTotal = Math.pow(2, depth);
-        if (xPos<0){
-            var outOfBoundsX = Math.ceil(-xPos/targetSizeTotal);
-            xPos += outOfBoundsX*targetSizeTotal;
-        }
-        if (yPos<0){
-            var outOfBoundsY = Math.ceil(-yPos/targetSizeTotal);
-            yPos += outOfBoundsY*targetSizeTotal;
-        }
+
+        xPos = this.wrapOutOfBounds(xPos, targetSizeTotal);
+        yPos = this.wrapOutOfBounds(yPos, targetSizeTotal);
 
         this.calcMaps(xPos,yPos,width,height,depth,skipRows);
 
-        switch (type) {
-            case "heightGrayscale":
-                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapHeight);
-                break;
-            case "tempGrayscale":
-                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapTemp);
-                break;
-            case "humidityGrayscale":
-                return this.getGrayscaleRGBfromMap(xPos,yPos,width,height,depth,skipRows,this.mapHumidity);
-                break;
-            case "linearMappingOfHeight":
-                return this.getRGB(xPos,yPos,width,height,depth,skipRows);
-                break;
-            case "vegetationByHeightRanges":
-                return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows);
-                break;
-            case "rgb":
-                return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows);
-                break;
-            case "water":
-                break;
-        }
-
+        return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows,type);
     };
 
+    PlanetGenerator.prototype.wrapOutOfBounds = function(pos, totalSize) {
+        if (pos<0){
+            var outOfBoundsX = Math.ceil(-pos/totalSize);
+            pos += outOfBoundsX*totalSize;
+        }
+        if (pos>=totalSize){
+            var outOfBoundsX = Math.floor(pos/totalSize);
+            pos -= outOfBoundsX*totalSize;
+        }
+        return pos;
+    };
 
     PlanetGenerator.prototype.calcMaps = function(xpos, ypos, width, height, depth, skipRows) {
 
@@ -197,96 +187,98 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.getDepthAtNormalZoom =function(){
-        return this.depthAtNormalZoom;
-    };
+    PlanetGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows,type) {
 
-    PlanetGenerator.prototype.getEdgeLength =function(n){
-        return  Math.pow(2,n)
-    };
+        var targetSizeTotal = Math.pow(2, n);
 
-    PlanetGenerator.prototype.getZoomLevel =function(n){
-        return  Math.pow(2,n-this.depthAtNormalZoom);
-    };
+        var targetSizeX = width;
+        var targetSizeY = height;
+        if (skipRows) {
+            targetSizeY /= 2;
+        }
 
-    PlanetGenerator.prototype.getCurrentDepth =function(){
-        return  this.currIteration;
-    };
+        var mapR = new Uint8Array(targetSizeX*targetSizeY);
+        var mapG = new Uint8Array(targetSizeX*targetSizeY);
+        var mapB = new Uint8Array(targetSizeX*targetSizeY);
 
-    /*
-    PlanetGenerator.prototype.randomUint32 = function(seedArray) {
-        // cf. http://jsperf.com/native-and-non-native-random-numbers/5
-        var seed1 = seedArray[0];
-        var seed2 = seedArray[1];
-        var seed3 = seedArray[2];
-        var seed4 = seedArray[3];
+        var sourceSizeX = this.mapHeight[n].sizeX;
+        var sourceSizeY = this.mapHeight[n].sizeY;
 
-        var numShift1 = seed1 & 15; //this is the same as seed1 % 16;
-        var numShift2 = seed2 & 15;
-        var numShift3 = seed3 & 15;
-        var numShift4 = seed4 & 15;
+        var sourceStartIdxX = xPos - this.mapHeight[n].mapsCropsLeft;
+        var sourceStartIdxY = yPos - this.mapHeight[n].mapsCropsTop;
 
-        var shifted1 = seed1 >> (numShift2+1);
-        var shifted2 = seed2 << (numShift3+2);
-        var shifted3 = seed3 << (numShift4+3);
-        var shifted4 = seed4 >> (numShift1+4);
-
-        var newVal = shifted1 ^ shifted2 ^ shifted3 ^ shifted4;
-
-        return newVal;
-    };
-
-    PlanetGenerator.prototype.random = function (seedArray) {
-        var randnum = this.randomUint32(seedArray);
-        randnum /= (1 << 30); // convert to number between 0 and 1
-        //console.log( randnum );
-        return randnum;
-    };*/
-
-    PlanetGenerator.prototype.getHeightVal = function(x, y) {
-        var sizeX = this.sizeX;
-        var sizeY = this.sizeY;
-        return this.mapHeight[this.currIteration][((y+sizeY)%sizeY)*sizeX + ((x+sizeX)%sizeX)];
-    };
-
-    PlanetGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows) {
-
-        var sizeX = this.mapHeight[n].sizeX;
-        var sizeY = this.mapHeight[n].sizeY;
-
-        var mapR = new Uint8Array(sizeX*sizeY);
-        var mapG = new Uint8Array(sizeX*sizeY);
-        var mapB = new Uint8Array(sizeX*sizeY);
+        sourceStartIdxX = this.wrapOutOfBounds(sourceStartIdxX, targetSizeTotal);
+        sourceStartIdxY = this.wrapOutOfBounds(sourceStartIdxY, targetSizeTotal);
 
         var currMapHeight = this.mapHeight[n].map;
         var currMapTemp = this.mapTemp[n].map;
         var currMapHumidity = this.mapHumidity[n].map;
 
         var minVal = this.mapHeight[n].minVal;
-        var range = this.mapHeight[n].maxVal - minVal;
+        var maxVal = this.mapHeight[n].maxVal;
+        var range = maxVal - minVal;
 
-        var yIncrement = 1;
+        var ySourceIncrement = 1;
         if (skipRows) {
-            yIncrement=2;
+            ySourceIncrement = 2;
         }
-        for (var y = 0;y<sizeY;y+=yIncrement){
-            var rowIdx = sizeX*y;
-            for (var x = 0;x<sizeX;x++){
-                var linIdx = x+rowIdx;
 
-                var heightScaled = (currMapHeight[linIdx] - minVal) / range;
-                var tempScaled = (currMapTemp[linIdx] - minVal) / range;
-                var humidityScaled = (currMapHumidity[linIdx] - minVal) / range;
+        for (var yTarget = 0, ySource=sourceStartIdxY; yTarget<targetSizeY; yTarget++, ySource+=ySourceIncrement) {
+            var startOfRowTarget = targetSizeX * yTarget;
+            var startOfRowSource = sourceSizeX * ySource;
 
-                var rgb = this.planetMapping.convertToRgb(heightScaled, tempScaled, humidityScaled);
+            // calculate global y coordinate for latitude interpolation (scaled between 0 and 1):
+            var yBetween0And1 = (yPos + ySource) / targetSizeTotal;
+            var distFromPoles = 1 - Math.abs(yBetween0And1 - 0.5) * 2;
 
-                mapR[linIdx] = rgb.r;
-                mapG[linIdx] = rgb.g;
-                mapB[linIdx] = rgb.b;
+            for (var xTarget = 0, xSource=sourceStartIdxX; xTarget<targetSizeX; xTarget++, xSource++) {
+                var startOfPixelTarget = (startOfRowTarget + xTarget);
+                var startOfPixelSource = (startOfRowSource + xSource);
+
+                var heightScaled = (currMapHeight[startOfPixelSource] - minVal) / range;
+                var tempScaled = (currMapTemp[startOfPixelSource] - minVal) / range;
+                var humidityScaled = (currMapHumidity[startOfPixelSource] - minVal) / range;
+
+                if (this.latituteInterp) {
+                    tempScaled = tempScaled * (1 - this.latituteInterp) + distFromPoles * this.latituteInterp;
+                }
+
+                switch (type) {
+                    case "heightGrayscale":
+                        heightScaled = Math.round(heightScaled*255);
+                        mapR[startOfPixelTarget] = heightScaled;
+                        mapG[startOfPixelTarget] = heightScaled;
+                        mapB[startOfPixelTarget] = heightScaled;
+                        break;
+                    case "tempGrayscale":
+                        tempScaled = Math.round(tempScaled*255);
+                        mapR[startOfPixelTarget] = tempScaled;
+                        mapG[startOfPixelTarget] = tempScaled;
+                        mapB[startOfPixelTarget] = tempScaled;
+                        break;
+                    case "humidityGrayscale":
+                        humidityScaled = Math.round(humidityScaled*255);
+                        mapR[startOfPixelTarget] = humidityScaled;
+                        mapG[startOfPixelTarget] = humidityScaled;
+                        mapB[startOfPixelTarget] = humidityScaled;
+                        break;
+                    case "linearMappingOfHeight":
+                        var rgb = this.planetMappingSimple.convertToRgb(heightScaled, tempScaled, humidityScaled);
+                        mapR[startOfPixelTarget] = rgb.r;
+                        mapG[startOfPixelTarget] = rgb.g;
+                        mapB[startOfPixelTarget] = rgb.b;
+                        break;
+                    case "vegetationByHeightRanges":
+                        var rgb = this.planetMapping.convertToRgb(heightScaled, tempScaled, humidityScaled);
+                        mapR[startOfPixelTarget] = rgb.r;
+                        mapG[startOfPixelTarget] = rgb.g;
+                        mapB[startOfPixelTarget] = rgb.b;
+                        break;
+                }
             }
         }
 
-        return {r: mapR, g: mapG, b: mapB, sizeX: sizeX, sizeY: sizeY};
+        return {r: mapR, g: mapG, b: mapB, sizeX: targetSizeX, sizeY: targetSizeY};
 
     };
 
@@ -324,92 +316,6 @@ if (node) {
     PlanetGenerator.prototype.getRGB = function(xPos,yPos,width,height,n,skipRows) {
 
         var self = this;
-
-        var convertToLandscape = (function(){
-            var noiseLevel = 0;
-
-            var deepwaterSize = 15 * self.waterlevel;
-            var coastwaterSize = 16 * self.waterlevel;
-            var beachSize = 2 * (1 - self.waterlevel);
-            var valleySize = 5 * (1 - self.waterlevel);
-            var greenSize = 5 * (1 - self.waterlevel);
-            var mountainSize = 5 * (1 - self.waterlevel);
-            var halficeSize = 20 * (1 - self.waterlevel);
-            var iceSize = 30 * (1 - self.waterlevel);
-
-            // normalization constant:
-            var sumSize = deepwaterSize + coastwaterSize + beachSize + valleySize + greenSize + mountainSize + iceSize;
-
-            var landscape = [];
-            if (self.temperature < -10) {
-                // ice planet:
-                landscape.push({maxV: deepwaterSize / sumSize,                                         c1: {r: 120, g: 120, b: 255}, c2: {r: 0, g: 0, b: 150}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "deepwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + coastwaterSize / sumSize, c1: {r: 0, g: 0, b: 150}, c2: {r: 56, g: 200, b: 200}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "coastwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + beachSize / sumSize,      c1: {r: 255, g: 255, b: 255}, c2: {r: 200, g: 120, b: 20}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "beach"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + valleySize / sumSize,     c1: {r: 200, g: 200, b: 200}, c2: {r: 50, g: 150, b: 50}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "valley"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 170, g: 170, b: 170}, c2: {r: 153, g: 76, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "green"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + mountainSize / sumSize,   c1: {r: 220, g: 220, b: 220}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "mountain"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + halficeSize / sumSize,   c1: {r: 210, g: 210, b: 210}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "halfice"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + iceSize / sumSize,        c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "ice"});
-            }
-            else if (self.temperature > 30) {
-                // desert planet:
-                landscape.push({maxV: deepwaterSize / sumSize,                                         c1: {r: 0, g: 0, b: 150}, c2: {r: 0, g: 0, b: 150}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "deepwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + coastwaterSize / sumSize, c1: {r: 0, g: 0, b: 150}, c2: {r: 56, g: 200, b: 200}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "coastwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + beachSize / sumSize,      c1: {r: 255, g: 255, b: 153}, c2: {r: 200, g: 120, b: 20}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "beach"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + valleySize / sumSize,     c1: {r: 200, g: 120, b: 20}, c2: {r: 150, g: 150, b: 50}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "valley"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 150, g: 150, b: 50}, c2: {r: 253, g: 76, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "green"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + mountainSize / sumSize,   c1: {r: 253, g: 76, b: 0}, c2: {r: 202, g: 51, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "mountain"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + halficeSize / sumSize,   c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "halfice"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + iceSize / sumSize,        c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "ice"});
-            }
-            else {
-                // earth like planet:
-                landscape.push({maxV: deepwaterSize / sumSize,                                         c1: {r: 0, g: 0, b: 150}, c2: {r: 0, g: 0, b: 150}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "deepwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + coastwaterSize / sumSize, c1: {r: 0, g: 0, b: 150}, c2: {r: 56, g: 200, b: 200}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "coastwater"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + beachSize / sumSize,      c1: {r: 255, g: 255, b: 153}, c2: {r: 200, g: 120, b: 20}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "beach"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + valleySize / sumSize,     c1: {r: 200, g: 120, b: 20}, c2: {r: 50, g: 150, b: 50}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "valley"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + greenSize / sumSize,      c1: {r: 50, g: 150, b: 50}, c2: {r: 153, g: 76, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "green"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + mountainSize / sumSize,   c1: {r: 153, g: 76, b: 0}, c2: {r: 102, g: 51, b: 0}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "mountain"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + halficeSize / sumSize,   c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "halfice"});
-                landscape.push({maxV: landscape[landscape.length - 1].maxV + iceSize / sumSize,        c1: {r: 255, g: 255, b: 255}, c2: {r: 255, g: 255, b: 255}, cnoise: {r: 0, g: 0, b: 0, vol: 0}, name: "ice"});
-            }
-
-
-            var convertToLandscape = function(resDataScaled){
-                var resDataScaled = 1-1/(1+resDataScaled);
-                var c = {r: 1, g: 1, b: 1};
-
-                var i = 0;
-                while (i < landscape.length - 1 && landscape[i].maxV < resDataScaled) {
-                    i++;
-                }
-                var minV = (i == 0 ? 0 : landscape[i - 1].maxV);
-                var a = (resDataScaled - minV) / (landscape[i].maxV - minV);
-                c.r = landscape[i].c1.r * (1 - a) + landscape[i].c2.r * (a);
-                c.g = landscape[i].c1.g * (1 - a) + landscape[i].c2.g * (a);
-                c.b = landscape[i].c1.b * (1 - a) + landscape[i].c2.b * (a);
-
-                if (landscape[i].cnoise.vol != 0) {
-                    //Add Noise
-                    var curNoiseLevel = Math.min(1,Math.max(0, Math.exp( - Math.random() / landscape[i].cnoise.vol )));
-                    c.r = c.r * (1 - curNoiseLevel) + landscape[i].cnoise.r * curNoiseLevel;
-                    c.g = c.g * (1 - curNoiseLevel) + landscape[i].cnoise.g * curNoiseLevel;
-                    c.b = c.b * (1 - curNoiseLevel) + landscape[i].cnoise.b * curNoiseLevel;
-                }
-
-                if (noiseLevel) {
-                    //Add Noise
-                    c.r += noiseLevel * Math.random();
-                    c.g += noiseLevel * Math.random();
-                    c.b += noiseLevel * Math.random();
-                }
-
-                return c;
-            };
-            return convertToLandscape
-
-        })();
 
         var sizeX = this.mapHeight[n].sizeX;
         var sizeY = this.mapHeight[n].sizeY;
