@@ -45,6 +45,7 @@ if (node) {
                         temp: 0.2,
                         humidity: 0.2,
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: 255,
                             green: 255,
@@ -58,6 +59,7 @@ if (node) {
                         temp: 0.8,
                         humidity: 0.2,
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: 255,
                             green: 0,
@@ -71,6 +73,7 @@ if (node) {
                         temp: 0.2,
                         humidity: 0.8,
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: 1,
                             green: 255,
@@ -84,6 +87,7 @@ if (node) {
                         temp: 0.8,//[0.2, 1],
                         humidity: 0.8,//[0.6, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: 1,//[35, 45],
                             green: 1,//[190, 210],
@@ -104,6 +108,7 @@ if (node) {
                         temp: [0, 0.2],
                         humidity: [0, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [210, 250],
                             green: [210, 250],
@@ -117,6 +122,7 @@ if (node) {
                         temp: 0.2,
                         humidity: [0, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [210, 250],
                             green: [210, 250],
@@ -130,6 +136,7 @@ if (node) {
                         temp: 0.23,
                         humidity: [0, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [35, 45],
                             green: [105, 115],
@@ -143,6 +150,7 @@ if (node) {
                         temp: [0.2, 1],
                         humidity: [0, 0.4],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [20, 30],
                             green: [15, 25],
@@ -156,6 +164,7 @@ if (node) {
                         temp: [0.2, 1],
                         humidity: [0.3, 0.7],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [35, 45],
                             green: [105, 115],
@@ -169,6 +178,7 @@ if (node) {
                         temp: 0.8,//[0.2, 1],
                         humidity: 0.8,//[0.6, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: 1,//[35, 45],
                             green: 1,//[190, 210],
@@ -189,6 +199,7 @@ if (node) {
                         temp: [0, 0.2],
                         humidity: [0, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [220, 250],
                             green: [220, 250],
@@ -202,6 +213,7 @@ if (node) {
                         temp: [0.2, 0.3],
                         humidity: [0, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [85, 95],
                             green: [230, 240],
@@ -215,6 +227,7 @@ if (node) {
                         temp: [0.3, 0.4],
                         humidity: [0.4, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [1, 15],
                             green: [80, 120],
@@ -228,6 +241,7 @@ if (node) {
                         temp: [0.3, 0.7],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [190, 210],
                             green: [170, 190],
@@ -241,6 +255,7 @@ if (node) {
                         temp: [0.3, 1],
                         humidity: [0, 0.2],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [240, 255],
                             green: [140, 160],
@@ -254,6 +269,7 @@ if (node) {
                         temp: [0.4, 0.7],
                         humidity: [0.4, 0.7],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [40, 60],
                             green: [170, 190],
@@ -267,6 +283,7 @@ if (node) {
                         temp: [0.4, 0.7],
                         humidity: [0.7, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [1, 10],
                             green: [240, 255],
@@ -280,6 +297,7 @@ if (node) {
                         temp: [0.7, 1],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [140, 170],
                             green: [210, 240],
@@ -293,6 +311,7 @@ if (node) {
                         temp: [0.7, 1],
                         humidity: [0.4, 0.6],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [140, 170],
                             green: [210, 240],
@@ -306,6 +325,7 @@ if (node) {
                         temp: [0.7, 1],
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [1, 15],
                             green: [80, 120],
@@ -326,6 +346,7 @@ if (node) {
                         temp: [0, 0.25],
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [220, 250],
                             green: [220, 240],
@@ -339,6 +360,7 @@ if (node) {
                         temp: 0.27,
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [220, 250],
                             green: [220, 240],
@@ -352,6 +374,7 @@ if (node) {
                         temp: [0, 0.25],
                         humidity: 0.47,
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [220, 250],
                             green: [220, 240],
@@ -365,6 +388,7 @@ if (node) {
                         temp: [0, 0.4],
                         humidity: [0.42, 0.45],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [80, 110],
                             green: [80, 110],
@@ -378,6 +402,7 @@ if (node) {
                         temp: [0.25, 0.27],
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [60, 60],
                             green: [60, 60],
@@ -391,6 +416,7 @@ if (node) {
                         temp: [0.4, 1],
                         humidity: [0, 0.6],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [80, 100],
                             green: [30, 50],
@@ -404,6 +430,7 @@ if (node) {
                         temp: [0.5, 1],
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
+                        isInterp: true,
                         plateau_specs: {
                             red: [100, 130],
                             green: [30, 50],
@@ -414,13 +441,42 @@ if (node) {
                     {
                         name: "mountain_region_green_spots",
                         num_plateaus: 5,
-                        temp: [0.6, 0.8],
-                        humidity: [0.6, 0.8],
+                        temp: [0.8, 1],
+                        humidity: [0.8, 1],
                         radius: [0, 0.001],
+                        isInterp: true,
                         plateau_specs: {
-                            red: [1, 10],
-                            green: [120, 150],
-                            blue: [60, 100],
+                            red: [1, 15],
+                            green: [80, 120],
+                            blue: [25, 40],
+                            iron: [30, 60]
+                        }
+                    },
+                    {
+                        name: "mountain_region_black_spots_with_interp",
+                        num_plateaus: 2,
+                        temp: [0.5, 1],
+                        humidity: [0, 0.5],
+                        radius: [0.01, 0.03],
+                        isInterp: true,
+                        plateau_specs: {
+                            red: 15,
+                            green: 15,
+                            blue: 15,
+                            iron: [30, 60]
+                        }
+                    },
+                    {
+                        name: "mountain_region_black_spots_no_interp",
+                        num_plateaus: 5,
+                        temp: [0.5, 1],
+                        humidity: [0, 0.5],
+                        radius: [0.01, 0.03],
+                        isInterp: false,
+                        plateau_specs: {
+                            red: 15,
+                            green: 15,
+                            blue: 15,
                             iron: [30, 60]
                         }
                     }
@@ -490,6 +546,7 @@ if (node) {
                     temp: temp,
                     humidity: humidity,
                     radius: radius,
+                    isInterp: region.isInterp,
                     plateau_specs: plateau_specs
                 });
             }
@@ -548,31 +605,33 @@ if (node) {
                             var closestIdx3 = null;
                             for (var p = 0; p < plateaus.length; p++) {
                                 var plateau = plateaus[p];
-                                var temp = plateau.temp;
-                                var humidity = plateau.humidity;
-                                var radius = plateau.radius;
+                                if (plateau.isInterp) {
+                                    var temp = plateau.temp;
+                                    var humidity = plateau.humidity;
+                                    var radius = plateau.radius;
 
-                                var t_diff = t - temp;
-                                var h_diff = h - humidity;
-                                var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
+                                    var t_diff = t - temp;
+                                    var h_diff = h - humidity;
+                                    var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
 
-                                if (dist < closestDist1) {
-                                    closestDist3 = closestDist2;
-                                    closestIdx3 = closestIdx2;
-                                    closestDist2 = closestDist1;
-                                    closestIdx2 = closestIdx1;
-                                    closestDist1 = dist;
-                                    closestIdx1 = p;
-                                }
-                                else if (dist < closestDist2) {
-                                    closestDist3 = closestDist2;
-                                    closestIdx3 = closestIdx2;
-                                    closestDist2 = dist;
-                                    closestIdx2 = p;
-                                }
-                                else if (dist < closestDist3) {
-                                    closestDist3 = dist;
-                                    closestIdx3 = p;
+                                    if (dist < closestDist1) {
+                                        closestDist3 = closestDist2;
+                                        closestIdx3 = closestIdx2;
+                                        closestDist2 = closestDist1;
+                                        closestIdx2 = closestIdx1;
+                                        closestDist1 = dist;
+                                        closestIdx1 = p;
+                                    }
+                                    else if (dist < closestDist2) {
+                                        closestDist3 = closestDist2;
+                                        closestIdx3 = closestIdx2;
+                                        closestDist2 = dist;
+                                        closestIdx2 = p;
+                                    }
+                                    else if (dist < closestDist3) {
+                                        closestDist3 = dist;
+                                        closestIdx3 = p;
+                                    }
                                 }
                             }
 
@@ -643,22 +702,24 @@ if (node) {
                             var total_weight = 0;
                             for (var p = 0; p < plateaus.length; p++) {
                                 var plateau = plateaus[p];
-                                var temp = plateau.temp;
-                                var humidity = plateau.humidity;
-                                var radius = plateau.radius;
+                                if (plateau.isInterp) {
+                                    var temp = plateau.temp;
+                                    var humidity = plateau.humidity;
+                                    var radius = plateau.radius;
 
-                                var t_diff = t - temp;
-                                var h_diff = h - humidity;
-                                var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
+                                    var t_diff = t - temp;
+                                    var h_diff = h - humidity;
+                                    var dist = Math.max(Math.sqrt(t_diff * t_diff + h_diff * h_diff) - radius, 0);
 
-                                dist += 1;
+                                    dist += 1;
 
-                                var weight = 1 / dist;
-                                weight *= weight;
-                                weight *= weight;
+                                    var weight = 1 / dist;
+                                    weight *= weight;
+                                    weight *= weight;
 
-                                total_weight += weight;
-                                weighted_sum += weight * plateau.plateau_specs[map_name];
+                                    total_weight += weight;
+                                    weighted_sum += weight * plateau.plateau_specs[map_name];
+                                }
                             }
                             curOutputMap[lin_idx] = weighted_sum / total_weight;
 
