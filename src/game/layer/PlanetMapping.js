@@ -118,7 +118,7 @@ if (node) {
                     },
                     {
                         name: "waterice_boundary",
-                        num_plateaus: 20,
+                        num_plateaus: 3,
                         temp: 0.2,
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -132,7 +132,7 @@ if (node) {
                     },
                     {
                         name: "waterice_boundary_blue",
-                        num_plateaus: 20,
+                        num_plateaus: 3,
                         temp: 0.23,
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -195,7 +195,7 @@ if (node) {
                 regions: [
                     {
                         name: "ice",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0, 0.2],
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -209,7 +209,7 @@ if (node) {
                     },
                     {
                         name: "tundra",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.2, 0.3],
                         humidity: [0, 1],
                         radius: [0, 0.01],
@@ -223,7 +223,7 @@ if (node) {
                     },
                     {
                         name: "taiga",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.3, 0.4],
                         humidity: [0.4, 1],
                         radius: [0, 0.01],
@@ -237,7 +237,7 @@ if (node) {
                     },
                     {
                         name: "temperate_grassland_and_desert",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.3, 0.7],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
@@ -251,7 +251,7 @@ if (node) {
                     },
                     {
                         name: "subtropical_desert",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.3, 1],
                         humidity: [0, 0.2],
                         radius: [0, 0.01],
@@ -265,7 +265,7 @@ if (node) {
                     },
                     {
                         name: "temperate_deciduous_forest",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.4, 0.7],
                         humidity: [0.4, 0.7],
                         radius: [0, 0.01],
@@ -279,7 +279,7 @@ if (node) {
                     },
                     {
                         name: "temperate_rain_forest",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.4, 0.7],
                         humidity: [0.7, 1],
                         radius: [0, 0.01],
@@ -293,7 +293,7 @@ if (node) {
                     },
                     {
                         name: "savanna",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.7, 1],
                         humidity: [0.2, 0.4],
                         radius: [0, 0.01],
@@ -307,7 +307,7 @@ if (node) {
                     },
                     {
                         name: "tropical_seasonal_forest",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.7, 1],
                         humidity: [0.4, 0.6],
                         radius: [0, 0.01],
@@ -321,7 +321,7 @@ if (node) {
                     },
                     {
                         name: "tropical_rain_forest",
-                        num_plateaus: 10,
+                        num_plateaus: 3,
                         temp: [0.7, 1],
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
@@ -342,7 +342,7 @@ if (node) {
                 regions: [
                     {
                         name: "mountain_ice",
-                        num_plateaus: 7,
+                        num_plateaus: 4,
                         temp: [0, 0.25],
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
@@ -356,7 +356,7 @@ if (node) {
                     },
                     {
                         name: "mountain_ice_boundary",
-                        num_plateaus: 7,
+                        num_plateaus: 4,
                         temp: 0.27,
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
@@ -370,7 +370,7 @@ if (node) {
                     },
                     {
                         name: "mountain_ice_boundary",
-                        num_plateaus: 7,
+                        num_plateaus: 4,
                         temp: [0, 0.25],
                         humidity: 0.47,
                         radius: [0, 0.01],
@@ -384,7 +384,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_gray",
-                        num_plateaus: 10,
+                        num_plateaus: 4,
                         temp: [0, 0.4],
                         humidity: [0.42, 0.45],
                         radius: [0, 0.01],
@@ -398,7 +398,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_dark",
-                        num_plateaus: 7,
+                        num_plateaus: 4,
                         temp: [0.25, 0.27],
                         humidity: [0.6, 1],
                         radius: [0, 0.01],
@@ -412,7 +412,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_brown",
-                        num_plateaus: 20,
+                        num_plateaus: 4,
                         temp: [0.4, 1],
                         humidity: [0, 0.6],
                         radius: [0, 0.01],
@@ -426,7 +426,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_red",
-                        num_plateaus: 20,
+                        num_plateaus: 4,
                         temp: [0.5, 1],
                         humidity: [0.5, 1],
                         radius: [0, 0.01],
@@ -440,7 +440,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_green_spots",
-                        num_plateaus: 5,
+                        num_plateaus: 4,
                         temp: [0.8, 1],
                         humidity: [0.8, 1],
                         radius: [0, 0.001],
@@ -468,7 +468,7 @@ if (node) {
                     },
                     {
                         name: "mountain_region_black_spots_no_interp",
-                        num_plateaus: 5,
+                        num_plateaus: 3,
                         temp: [0.5, 1],
                         humidity: [0, 0.5],
                         radius: [0.01, 0.03],
