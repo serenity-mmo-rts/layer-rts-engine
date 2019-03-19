@@ -12,6 +12,8 @@ if (node) {
         this.layer = layer;
         this.gameData = layer.gameData;
 
+        this.rgbMapName = "linearMappingOfHeight";
+
         this.mapGeneratorParams = layer.mapGeneratorParams();
         this.seed = this.mapGeneratorParams[0];
         this.roughness = this.mapGeneratorParams[1];
@@ -34,6 +36,22 @@ if (node) {
 
         this.planetMapping = null;
         this.planetMappingSimple = null;
+
+    };
+
+    PlanetGenerator.prototype.setRgbMapName = function(type) {
+        this.rgbMapName = type;
+
+        this.planetMapping = null;
+        if (type=="vegetationByHeightRanges" && !this.planetMapping) {
+            this.planetMapping = new PlanetMapping(this.layer);
+            this.planetMapping.init();
+        }
+        this.planetMappingSimple = null;
+        if (type=="linearMappingOfHeight" && !this.planetMapping) {
+            this.planetMappingSimple = new PlanetMappingSimple(this.layer);
+            this.planetMappingSimple.init();
+        }
 
     };
 
@@ -98,11 +116,7 @@ if (node) {
             this.currIteration = iter;
         }
 
-        this.planetMapping = new PlanetMapping(this.layer);
-        this.planetMapping.init();
-
-        this.planetMappingSimple = new PlanetMappingSimple(this.layer);
-        this.planetMappingSimple.init();
+        this.setRgbMapName(this.rgbMapName);
 
         this.isInitialized = true;
 
@@ -128,6 +142,7 @@ if (node) {
         planetGen.isInitialized = this.isInitialized;
         planetGen.mappingMinVal = this.mappingMinVal;
         planetGen.mappingMaxVal = this.mappingMaxVal;
+        planetGen.rgbMapName = this.rgbMapName;
         return planetGen;
 
     };
@@ -138,6 +153,7 @@ if (node) {
 
     PlanetGenerator.prototype.getMatrix = function(xPos,yPos,width,height,depth,type,skipRows) {
 
+        var type = this.rgbMapName;
         var targetSizeTotal = Math.pow(2, depth);
 
         xPos = this.wrapOutOfBounds(xPos, targetSizeTotal);
