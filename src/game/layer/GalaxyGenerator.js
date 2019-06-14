@@ -18,11 +18,14 @@ if (node) {
         this.distributionofStarTypes = [0.3,0,0.5,0.1,0.1];
         this.worldObjects = [];
         // this.generateGalaxy();
+
+        this.isInitialized = false;
     };
 
 
     GalaxyGenerator.prototype.init = function () {
         this.generateGalaxy();
+        this.isInitialized = true;
     };
 
 

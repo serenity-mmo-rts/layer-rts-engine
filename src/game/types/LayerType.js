@@ -14,6 +14,7 @@
         this.groundImageScaling = null;
         this.groundDragScaling = 1;
         this.buildCategories = [];  // = [ {name: 'Productions'; objectTypeIds: [1, 5, 7, 2]},  ]
+        this.isPeriodic = false;
 
 
         if (arg1.constructor.name === "GameData"){
@@ -42,7 +43,8 @@
                     this.groundImage,
                     this.groundImageScaling,
                     this.groundDragScaling,
-                    this.buildCategories]};
+                    this.buildCategories,
+                    this.isPeriodic]};
             return o;
         },
 
@@ -58,6 +60,7 @@
                 this.groundImageScaling = o.a[6];
                 this.groundDragScaling = o.a[7];
                 this.buildCategories = o.a[8];
+                this.isPeriodic = o.a[9];
             }
             else {
                 for (var key in o) {

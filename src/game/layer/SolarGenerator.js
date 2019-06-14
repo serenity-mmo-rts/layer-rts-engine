@@ -19,10 +19,13 @@ if (node) {
         this.planetSizeStd = layer.mapGeneratorParams[5];
         RandomNumber.setSeed(this.seed);
         this.worldObjects = [];
+
+        this.isInitialized = false;
     };
 
     SolarGenerator.prototype.init = function () {
 
+        this.isInitialized = true;
     };
 
 
