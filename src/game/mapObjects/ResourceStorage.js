@@ -72,7 +72,7 @@ if (node) {
             {totalPullEffectivityDenominator: 0},
             {totalPushEffectivityNominator: 0},
             {totalPushEffectivityDenominator: 0},
-            {hubEffective: 0},
+            {hubEffective: 0}, // hubEffective is positive if resource is flowing toward hub and negative if resource is flowing from hub to object.
             {capacity: 0}
         ];
     };
@@ -113,6 +113,8 @@ if (node) {
 
     proto.resetHelpers = function() {
 
+        this.logline = "In ResourceStorage of "+this.mapObj.objType.className+" for ressource "+this._id()+":";
+
         // make sure to set the timer correctly, given the current states.
         this._updateChangePerHour(this.changePerHour());
 
@@ -139,6 +141,7 @@ if (node) {
 
     proto.updateHubEffective = function(totalChangePerHour) {
 
+        console.log(this.logline + " setting hubEffective to "+totalChangePerHour);
         this.hubEffective(totalChangePerHour);
         this._recalcRessourceInOut();
 
@@ -164,16 +167,19 @@ if (node) {
             // to prevent cheating, the user looses slightly by using ceil:
             storedAmount -= Math.ceil(-changePerHour * (currentTime - lastUpdated) / ResourceStorage.millisecondToHour);
         }
-        lastUpdated = currentTime;
 
         // remove amount if above capacity:
         if (storedAmount > this.capacity()) {
             storedAmount = this.capacity();
         }
 
+        if (storedAmount < -50) {
+            throw new Error("stored Amount should not be negative");
+        }
+
         // sanity check:
         if (storedAmount < 0) {
-            throw new Error("stored Amount should not be negative");
+            storedAmount = 0;
         }
 
         return storedAmount;
@@ -219,6 +225,9 @@ if (node) {
         var storedAmount = this.storedAmount();
         var capacity = this.capacity();
 
+
+        console.log(this.logline + " recalcRessourceInOut with targetAmount="+targetAmount + " storedAmount="+storedAmount + " capacity="+capacity);
+
         /*********************************
          * calculate hub system requests:
          *////////////////////////////////
@@ -238,15 +247,25 @@ if (node) {
 
             if (totalDesiredPull > totalDesiredPush) {
                 if (storedAmount == 0) {
-                    // request more resources from hub system with priority 1:
-                    reqPullPerHour = totalDesiredPull - totalDesiredPush;
+                    // request more resources from hub system with priority 1: (maybe change priority=?)
+                    reqPullPerHour = Math.min(maxConnectionBandwidth, totalDesiredPull - totalDesiredPush);
+                    reqPullPriority = 1;
+                }
+                else {
+                    // request more resources from hub system with priority 1: (maybe change priority=?)
+                    reqPullPerHour = Math.min(maxConnectionBandwidth, totalDesiredPull - totalDesiredPush);
                     reqPullPriority = 1;
                 }
             }
             else if (totalDesiredPull < totalDesiredPush) {
                 if (storedAmount == capacity) {
-                    // request to push more resources to hub system with priority 1:
-                    reqPushPerHour = totalDesiredPush - totalDesiredPull;
+                    // request to push more resources to hub system with priority 1: (maybe change priority=?)
+                    reqPushPerHour = Math.min(maxConnectionBandwidth, totalDesiredPush - totalDesiredPull);
+                    reqPushPriority = 1;
+                }
+                else {
+                    // request to push more resources to hub system with priority 1: (maybe change priority=?)
+                    reqPushPerHour = Math.min(maxConnectionBandwidth, totalDesiredPush - totalDesiredPull);
                     reqPushPriority = 1;
                 }
             }
@@ -294,6 +313,8 @@ if (node) {
                 }
             }
 
+            console.log(this.logline + " in recalcRessourceInOut hubSystemResource.setRequest with reqPullPerHour="+reqPullPerHour+ " canPullPerHour="+canPullPerHour+" reqPushPerHour="+reqPushPerHour+" canPushPerHour="+canPushPerHour);
+
             this.hubSystemResource.setRequest(
                 this.mapObj._id(),
                 reqPullPerHour,
@@ -313,12 +334,20 @@ if (node) {
 
         var hubEffective = this.hubEffective();
         if (hubEffective>0) {
-            // hub is pulling from this mapObj
+
+            // resource is flowing towards hub system:
             totalDesiredPull += hubEffective;
+
+            console.log(this.logline + " in recalcRessourceInOut hubEffective="+hubEffective+ " therefore increase totalDesiredPull to "+totalDesiredPull);
+
         }
         else if (hubEffective<0) {
-            // hub is pushing to this mapObj
+
+            // resource is flowing from hub system to this mapObject:
             totalDesiredPush -= hubEffective;
+
+            console.log(this.logline + " in recalcRessourceInOut hubEffective="+hubEffective+ " therefore increase totalDesiredPush to "+totalDesiredPush);
+
         }
 
         /*****************

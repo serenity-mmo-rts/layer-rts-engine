@@ -36,9 +36,9 @@ if (node) {
         var requests = this.resStorage.requests;
         var idx = requests.indexOf(this);
         if (idx != -1) {
-            return requests.splice(idx, 1);
+            requests.splice(idx, 1);
+            this.resStorage._recalcRessourceInOut();
         }
-        this.resStorage._recalcRessourceInOut();
     };
 
     exports.ResourceRequest = ResourceRequest

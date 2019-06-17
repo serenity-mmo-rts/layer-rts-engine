@@ -204,7 +204,7 @@ if (node) {
         }
 
         this.getMap().timeScheduler.setDueTime(this.timeCallbackId, this.dueTime);
-        console.log("replace user due time to : " + this.dueTime);
+        console.log("in UpgradeProduction of mapObject "+this.parent.objType.className+" replace user due time to : " + this.dueTime);
     };
 
 
@@ -230,37 +230,36 @@ if (node) {
         var buildTime = this.parent.buildTime;
         var resIds = this.parent.objType.requiredResourceIds;
 
-
-            if (resIds && resIds.length > 0){
-                // initialize array for request objects
-                for (var i = 0; i<resIds.length; i++){
-                    var amountPerHour = this.parent.objType.requiredResourceAmount[i]/buildTime*1000*60*60
-                    this.requestObjects.push({
-                        id: resIds[i],
-                        amountPerHour: amountPerHour,
-                        requestObj: null
-                    });
-                }
-
-                var self = this;
-                this.requestObjects.forEach(function(element) {
-                    var reqChangesPerHour = element.amountPerHour;
-                    var requestObj = element.requestObj;
-                    if (!requestObj){
-                        var onUpdateEffective = function(effChangePerHour, id, reqObj){
-                            console.log("effChangePerHour:"+effChangePerHour);
-                            element.requestObj = reqObj;
-                            self._updatedResourceInputs();
-                            self._fillDueAndStartedTimes();
-                        };
-                        self.parent.blocks.ResourceManager.reqChangePerHour(element.id, -reqChangesPerHour, onUpdateEffective);
-                    }
+        if (resIds && resIds.length > 0){
+            // initialize array for request objects
+            for (var i = 0; i<resIds.length; i++){
+                var amountPerHour = this.parent.objType.requiredResourceAmount[i]/buildTime*1000*60*60
+                this.requestObjects.push({
+                    id: resIds[i],
+                    amountPerHour: amountPerHour,
+                    requestObj: null
                 });
             }
-            else {
-                this.lastEffectivity(1);
-                this._updatedResourceInputs();
-            }
+
+            var self = this;
+            this.requestObjects.forEach(function(element) {
+                var reqChangesPerHour = element.amountPerHour;
+                var requestObj = element.requestObj;
+                if (!requestObj){
+                    var onUpdateEffective = function(effChangePerHour, id, reqObj){
+                        console.log("effChangePerHour:"+effChangePerHour);
+                        element.requestObj = reqObj;
+                        self._updatedResourceInputs();
+                        self._fillDueAndStartedTimes();
+                    };
+                    self.parent.blocks.ResourceManager.reqChangePerHour(element.id, -reqChangesPerHour, onUpdateEffective);
+                }
+            });
+        }
+        else {
+            this.lastEffectivity(1);
+            this._updatedResourceInputs();
+        }
 
 
     };
@@ -341,8 +340,11 @@ if (node) {
 
     proto._finishedCallback = function() {
 
+
         var evt = this.buildQueue[0];
         var dueTime = this.dueTime;
+
+        console.log("in UpgradeProduction of mapObject "+this.parent.objType.className+" finished building "+evt.type);
 
         // building upgrade
         if (evt.type=="BuildUpgradeEvent"){
@@ -391,21 +393,18 @@ if (node) {
         evt.setFinished();
         // the new started time is the old due time:
         this.startedTime(dueTime);
+        this._removeRequestsObjects();
         var queueIsEmpty = this.removeItemFromQueue(0);
         if (queueIsEmpty){
             this.startedTime(0);
-            this._removeRequestsObjects();
             return Infinity;
         }
-    else{
-            this._removeRequestsObjects();
+        else {
             this._fillDueAndStartedTimes();  // update Time scheduler
             this._checkQueue();
             return false;
         }
-
     };
-
 
     proto.progress= function(){
         var currentTime  = Date.now();

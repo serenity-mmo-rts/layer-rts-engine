@@ -253,11 +253,14 @@ if (node) {
             reqAmountThisPool = reqPullPerPriority[priority];
             if (reqAmountThisPool > pullToFill) {
                 // reduce effective accordingly:
+                var totalAmountFilled = 0;
                 for (var i= 0,len=reqArr.length; i<len; i++) {
                     // TODO: change this to work without rounding by giving some objects more and some less, but first make sure that ordering is deterministic:
-                    reqArr[i].reqPullEffective(Math.floor( (reqArr[i].reqPullPerHour() * pullToFill) / reqAmountThisPool ));
+                    var reqPullEffective = Math.floor( (reqArr[i].reqPullPerHour() * pullToFill) / reqAmountThisPool )
+                    reqArr[i].reqPullEffective(reqPullEffective);
+                    totalAmountFilled += reqPullEffective;
                 }
-                pullToFill -= reqAmountThisPool;
+                pullToFill -= totalAmountFilled;
             }
             else {
                 // fill the full amount requested:
@@ -272,11 +275,14 @@ if (node) {
             reqAmountThisPool = reqPushPerPriority[priority];
             if (reqAmountThisPool > pushToFill) {
                 // reduce effective accordingly:
+                var totalAmountFilled = 0;
                 for (var i= 0,len=reqArr.length; i<len; i++) {
                     // TODO: change this to work without rounding by giving some objects more and some less, but first make sure that ordering is deterministic:
-                    reqArr[i].reqPushEffective(Math.ceil( (reqArr[i].reqPushPerHour() * pushToFill) / reqAmountThisPool ));
+                    var reqPushEffective = Math.ceil( (reqArr[i].reqPushPerHour() * pushToFill) / reqAmountThisPool )
+                    reqArr[i].reqPushEffective(reqPushEffective);
+                    totalAmountFilled += reqPushEffective;
                 }
-                pushToFill -= reqAmountThisPool;
+                pushToFill -= totalAmountFilled;
             }
             else {
                 // fill the full amount requested:

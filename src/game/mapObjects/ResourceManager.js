@@ -96,11 +96,13 @@ if (node) {
     };
 
     proto.reqChangePerHour = function(resTypeId, reqChangePerHour, onUpdatedEffective ) {
+
+        console.log("in mapObject of type "+this.parent.type.className + " there is an internal request for resTypeId="+resTypeId+ " with reqChangePerHour="+reqChangePerHour)
         var resStorage = this.resList.get(resTypeId);
         if (!resStorage) {
             resStorage = new ResourceStorage(this.resList,null);
             resStorage._id(resTypeId);
-            resStorage.capacity = this.ressourceCapacity[i];
+            resStorage.setCapacity(0);
             this.resList.add(resStorage);
         }
 

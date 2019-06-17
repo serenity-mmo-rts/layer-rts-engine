@@ -2,6 +2,7 @@ var node = !(typeof exports === 'undefined');
 if (node) {
     var AbstractBlock = require('../AbstractBlock').AbstractBlock;
     var HubSystemResource = require('./HubSystemResource').HubSystemResource;
+    var MapObject = require('../MapObject').MapObject;
     var GameList = require('../GameList').GameList;
     ko = require('../../client/lib/knockout-3.3.0.debug.js');
 }
@@ -20,7 +21,7 @@ if (node) {
         AbstractBlock.call(this, parent, type);
 
         // Define helper member variables:
-        this.mapObjects = []; // all map objects that are connected to the hub system and have a resourceManager.
+        this.mapObjects = new GameList(this.getGameData(), MapObject, false, false, this, 'mapObjects'); // all map objects that are connected to the hub system and have a resourceManager.
 
         // manually serialized list of hub resources:
         this.resList = new GameList(this.getGameData(), HubSystemResource, false, false, this, 'resList');
@@ -72,8 +73,18 @@ if (node) {
      * add a new mapObject to the hub system
      * @param objId
      */
-    proto.addToHubSystem = function (objId) {
-        this.mapObjects.push(objId);
+    proto.addToHubSystem = function (mapObj) {
+        console.log("adding mapObj "+mapObj._id()+" to hubSystem "+this._id());
+        this.mapObjects.add(mapObj);
+    };
+
+    /**
+     * add a new mapObject to the hub system
+     * @param objId
+     */
+    proto.removeFromHubSystem = function (mapObj) {
+        console.log("removing mapObj "+mapObj._id()+" from hubSystem "+this._id());
+        this.mapObjects.delete(mapObj);
     };
 
 

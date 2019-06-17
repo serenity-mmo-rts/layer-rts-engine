@@ -52,13 +52,19 @@ if (node) {
 
     proto.changeHubSystemId = function(hubSystemId) {
         if (this.hubSystemId() != hubSystemId) {
+
+            var mapData = this.getMap().mapData;
+            if (this.hubSystemId()) {
+                mapData.layer.blocks.HubSystemManager.hubList.get(this.hubSystemId()).removeFromHubSystem(this.parent);
+            }
+            mapData.layer.blocks.HubSystemManager.hubList.get(hubSystemId).addToHubSystem(this.parent);
+
             this.hubSystemId(hubSystemId);
             if (this.parent.blocks.hasOwnProperty('ResourceManager')) {
                 this.parent.blocks.ResourceManager.changeHubSystemId(hubSystemId);
             }
 
             // change all connected Objects to the same hubSystemId recursively:
-            var mapData = this.getMap().mapData;
             var connectionIds = this.connectionIds();
             for (var i= 0, len=connectionIds.length; i<len; i++) {
                 mapData.mapObjects.get(connectionIds[i]).blocks.Connection.changeHubSystemId(hubSystemId);
@@ -66,6 +72,15 @@ if (node) {
         }
     };
 
+    proto.resetHelpers = function(){
+        if (this.parent.embedded() && this.hubSystemId()) {
+            var mapData = this.getMap().mapData;
+            var hubSystem = mapData.layer.blocks.HubSystemManager.hubList.get(this.hubSystemId());
+            if (hubSystem) {
+                hubSystem.addToHubSystem(this.parent);
+            }
+        }
+    };
 
     /**
      * Returns the number of free ports

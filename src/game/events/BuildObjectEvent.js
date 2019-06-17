@@ -229,6 +229,7 @@ if (node) {
                 var obj = this.map.mapData.mapObjects.get(this.connectedTo);
                 hub.blocks.HubConnectivity.connectionIds.push(this.mapObjId);
                 obj.blocks.HubConnectivity.connectionIds.push(this.mapObjId);
+                // TODO: first check which hub system contains less mapObjects... then add smaller parts to larger...?
                 obj.blocks.HubConnectivity.changeHubSystemId(hub.blocks.HubConnectivity.hubSystemId());
             }
 
