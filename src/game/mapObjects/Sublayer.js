@@ -32,7 +32,7 @@ if (node) {
      */
     proto.defineTypeVars = function () {
         return {
-
+            subLayerType: null
         };
     };
 
@@ -46,6 +46,40 @@ if (node) {
             {subLayerMapId: null},
             {mapGeneratorParams: null}
         ];
+    };
+
+    /**
+     * this method is called after this block was build (or after the mapObject was build).
+     * @returns {*}
+     */
+    proto.afterFinishedBuilding = function () {
+
+        if (node) {
+
+            var gameData = this.getGameData();
+            var parentMap = this.getMap();
+
+            var mapGeneratorParams = parentMap.mapGeneratorParams().slice();
+            mapGeneratorParams.push(gameData.objectTypes.get(this.parent.objTypeId()).initHeight);
+
+            var sublayerParams = {
+                _id: this.parent.sublayerId(),
+                parentObjId: this.parent._id(),
+                xPos: this.parent.x(),
+                yPos: this.parent.y(),
+                width: parentMap.width,
+                height: parentMap.height,
+                mapTypeId: this.subLayerType,
+                parentMapId: parentMap._id(),
+                mapGeneratorParams: mapGeneratorParams
+            };
+
+            parentMap.createSublayer(sublayerParams);
+        }
+
+        // Also call the super method.
+        AbstractBlock.prototype.afterFinishedBuilding.call(this);
+
     };
 
     /**

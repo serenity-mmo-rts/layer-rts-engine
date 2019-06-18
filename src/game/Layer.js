@@ -26,6 +26,9 @@ if (node) {
     var DisplaceObjectEvent = require('./events//DisplaceObjectEvent').DisplaceObjectEvent;
     var ResearchEvent = require('./events//ResearchEvent').ResearchEvent;
     var MoveItemEvent = require('./events//MoveItemEvent').MoveItemEvent;
+
+    // other:
+    var dbUpdating = require('../server/dbUpdating');
 }
 
 (function (exports) {
@@ -266,19 +269,12 @@ if (node) {
     };
     */
 
-    proto.createSublayer = function (x, y, sublayerId, parentObjId) {
-
-        var newCityMap = new Layer(this.gameData.layers, {
-            _id: sublayerId,
-            parentObjId: parentObjId,
-            width: 10000,
-            height: 10000,
-            mapTypeId: "cityMapType01",
-            parentMapId: this._id,
-            mapGeneratorParams: this.mapData.mapObjects.get(parentObjId).blocks.Sublayer.mapGeneratorParams
-        });
-
-        this.gameData.layers.add(newCityMap);
+    proto.createSublayer = function (sublayerParams) {
+        if (node) {
+            var newLayer = new Layer(this.gameData.layers, sublayerParams);
+            this.gameData.layers.add(newLayer);
+            dbUpdating.reflectLayerToDb(this.gameData, newLayer);
+        }
     };
 
 

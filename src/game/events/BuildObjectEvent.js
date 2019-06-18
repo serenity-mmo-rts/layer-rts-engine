@@ -210,12 +210,6 @@ if (node) {
 
             this.isValid();
 
-            if (this.mapObj.blocks.hasOwnProperty("Sublayer")){ // in case map object is Sublayer Object add layer below
-                if (node) {
-                    this.map.createSublayer(this.x, this.y, this.sublayerId, this.mapObjId);
-                }
-            }
-
             if (this.mapObj.blocks.hasOwnProperty("HubNode")){
                 this.map.blocks.HubSystemManager.createNewHubSystem(this.hubSystemId);
                 this.mapObj.blocks.HubConnectivity.changeHubSystemId(this.hubSystemId);

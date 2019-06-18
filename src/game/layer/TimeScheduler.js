@@ -120,6 +120,9 @@ if (node) {
             var numActiveCallbacksBefore = this.sortedDueTimes.length;
             var numCallbacksTriggered = 0;
             var index = this.sortedCallbackIds.length-1;
+            if (index>=0 && this.sortedDueTimes[index] <= time) {
+                console.log("start executing timeScheduler callbacks...")
+            }
             while(index>=0 && this.sortedDueTimes[index] <= time) {
                 var curId = this.sortedCallbackIds[index];
                 var curDueTime = this.sortedDueTimes[index];

@@ -230,6 +230,15 @@ if (node) {
         this.notifyChange();
     };
 
+    proto.afterFinishedBuilding = function() {
+        for (var blockName in this.blocks) {
+            this.blocks[blockName].afterFinishedBuilding();
+        }
+
+        // Also call the super method.
+        AbstractBlock.prototype.afterFinishedBuilding.call(this);
+    };
+
     proto.notifyChange = function() {
         for (var key in this.onChangeCallback){
             this.onChangeCallback[key]();

@@ -122,7 +122,7 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.getSeededCopy = function(iter) {
+    PlanetGenerator.prototype.getSeededCopy = function(iter, planetGen) {
 
         if (!this.isInitialized){
             this.init();
@@ -130,7 +130,9 @@ if (node) {
 
         var iter = iter || this.currIteration;
 
-        var planetGen = new PlanetGenerator(this.layer);
+        if (!planetGen) {
+            planetGen = new PlanetGenerator(this.layer);
+        }
         for (var i=0; i<=iter; i++) {
             planetGen.mapHeight[i] = this.mapHeight[i];
             planetGen.mapTemp[i] = this.mapTemp[i];

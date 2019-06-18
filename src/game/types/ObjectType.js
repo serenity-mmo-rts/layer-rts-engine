@@ -30,6 +30,7 @@ if (node) {
         className: null,
         requiredResourceIds :null,
         requiredResourceAmount: null,
+        spriteScaling: null,
 
         init: function (arg1, initObj) {
 
@@ -63,7 +64,8 @@ if (node) {
                 this.PlanetSizesStd,
                 this.className,
                 this.requiredResourceIds,
-                this.requiredResourceAmount
+                this.requiredResourceAmount,
+                this.spriteScaling
             ];
 
 
@@ -96,6 +98,7 @@ if (node) {
                 this.className= o.a2[18];
                 this.requiredResourceIds= o.a2[19];
                 this.requiredResourceAmount= o.a2[20];
+                this.spriteScaling= o.a2[21];
             }
 
             else {

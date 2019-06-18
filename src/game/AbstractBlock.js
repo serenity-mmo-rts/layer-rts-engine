@@ -454,6 +454,14 @@ ko.extenders.stateVar = function (target, options) {
     };
 
     /**
+     * this method is called after this block was build (or after the mapObject was build).
+     * @returns {*}
+     */
+    proto.afterFinishedBuilding = function () {
+
+    };
+
+    /**
      * get the map
      * @returns {*}
      */

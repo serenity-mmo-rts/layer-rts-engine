@@ -367,6 +367,7 @@ if (node) {
         // building map object
         else if (evt.type=="BuildObjectEvent"){
             this.parent.setState(State.NORMAL);
+            this.parent.afterFinishedBuilding();
             console.log("I finished building a " + this.parent.objTypeId() + " at coordinates ("+ this.parent.x()+","+this.parent.y()+")");
         }
         // place map Object
