@@ -344,6 +344,12 @@ if (node) {
         var evt = this.buildQueue[0];
         var dueTime = this.dueTime;
 
+        if (!evt) {
+            this._removeRequestsObjects();
+            this.startedTime(0);
+            return Infinity;
+        }
+
         console.log("in UpgradeProduction of mapObject "+this.parent.objType.className+" finished building "+evt.type);
 
         // building upgrade

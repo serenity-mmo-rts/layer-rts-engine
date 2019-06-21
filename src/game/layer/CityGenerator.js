@@ -13,6 +13,9 @@ if (node) {
 
         this.cityRadius = this.mapGeneratorParams[5];
 
+        this.cityPosX_renderCoord = this.layer.mapType.scale * (this.layer.xPos() - this.layer.yPos());
+        this.cityPosY_renderCoord = this.layer.mapType.scale * (this.layer.xPos() + this.layer.yPos());
+
     };
 
 
@@ -41,11 +44,8 @@ if (node) {
         // xPos and width are all in coordinates in which the total planet map is spanned from 0 to targetSizeTotal
         // now calc city position and radius in the coordinates of this pixel map at depth n:
 
-        var cityPosX_tmp = this.layer.mapType.scale * (this.layer.xPos() - this.layer.yPos()) + this.layer.width() / 2;
-        var cityPosY_tmp = this.layer.mapType.scale * (this.layer.xPos() + this.layer.yPos()) + this.layer.height() / 2;
-
-        var cityPosX = targetSizeTotal * cityPosX_tmp / this.layer.width();
-        var cityPosY = targetSizeTotal * cityPosY_tmp / this.layer.height();
+        var cityPosX = targetSizeTotal * (this.cityPosX_renderCoord + this.layer.width() / 2) / this.layer.width();
+        var cityPosY = targetSizeTotal * (this.cityPosY_renderCoord + this.layer.height() / 2) / this.layer.height();
 
         var cityRadius = targetSizeTotal * this.cityRadius / this.layer.height();
         var cityRadiusSquared = cityRadius * cityRadius;
