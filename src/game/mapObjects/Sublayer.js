@@ -59,8 +59,9 @@ if (node) {
             var gameData = this.getGameData();
             var parentMap = this.getMap();
 
-            var mapGeneratorParams = parentMap.mapGeneratorParams().slice();
-            mapGeneratorParams.push(gameData.objectTypes.get(this.parent.objTypeId()).initHeight);
+            var mapGeneratorParams2 = parentMap.mapGeneratorParams().slice();
+            mapGeneratorParams2.push(gameData.objectTypes.get(this.parent.objTypeId()).initHeight);
+            var mapGeneratorParams = this.parent.mapGeneratorParams();
 
             var sublayerParams = {
                 _id: this.parent.sublayerId(),
