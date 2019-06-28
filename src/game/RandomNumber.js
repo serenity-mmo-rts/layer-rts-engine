@@ -7,29 +7,27 @@ if (node) {
 (function (exports) {
 
     //Webkit2's crazy invertible mapping generator
-    var RandomNumber = (function() {
-        var max = Math.pow(2, 32),
-            seed;
-        return {
-            setSeed : function(val) {
-                seed = val || Math.round(Math.random() * max);
-            },
-            getSeed : function() {
-                return seed;
-            },
-            rand : function() {
-                // creates randomness...somehow...
-                seed += (seed * seed) | 5;
-                // Shift off bits, discarding the sign. Discarding the sign is
-                // important because OR w/ 5 can give us + or - numbers.
-                return (seed >>> 32) / max;
-            },
+    var RandomNumber = function() {
+        this.max = Math.pow(2, 32);
+        this.seed = null;
+    };
 
-            randn: function () {
-            return ((this.rand() + this.rand() + this.rand() + this.rand() + this.rand() + this.rand()) - 3) / 3;
-            }
-        };
-    }());
+    RandomNumber.prototype.setSeed = function(val) {
+        this.seed = val || Math.round(Math.random() * this.max);
+    };
+    RandomNumber.prototype.getSeed = function() {
+        return this.seed;
+    };
+    RandomNumber.prototype.rand = function() {
+        // creates randomness...somehow...
+        this.seed += (this.seed * this.seed) | 5;
+        // Shift off bits, discarding the sign. Discarding the sign is
+        // important because OR w/ 5 can give us + or - numbers.
+        return (this.seed >>> 32) / this.max;
+    };
+    RandomNumber.prototype.randn = function() {
+        return ((this.rand() + this.rand() + this.rand() + this.rand() + this.rand() + this.rand()) - 3) / 3;
+    };
 
     exports.RandomNumber = RandomNumber;
 

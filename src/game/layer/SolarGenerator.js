@@ -19,7 +19,6 @@ if (node) {
         this.planetAmount = this.mapGeneratorParams[3];
         this.planetSizeMean = this.mapGeneratorParams[4];
         this.planetSizeStd = this.mapGeneratorParams[5];
-        RandomNumber.setSeed(this.seed);
         this.worldObjects = [];
 
         this.isInitialized = false;
@@ -36,6 +35,9 @@ if (node) {
         var layer = this.gameData.layers.get(this.layer._id());
         var mapData = layer.mapData;
 
+        var rng = new RandomNumber();
+        rng.setSeed(this.seed);
+
         this.planetDistanceMean = 100/(this.planetAmount+1);
         this.planetDistanceStd = this.planetDistanceMean/2;
         this.planetSizeLinearIncrease = 1/15; // with distance from sun
@@ -46,19 +48,19 @@ if (node) {
 
         for (var i= 0; i<this.planetAmount;i++) {
             // calc planet Radius
-            var distToCoM = (this.planetDistanceMean * (i + 1)) + (RandomNumber.randn() * this.planetDistanceStd);
+            var distToCoM = (this.planetDistanceMean * (i + 1)) + (rng.randn() * this.planetDistanceStd);
             if (i==0) {
                 // for now just set the sun in CoM
                 distToCoM = 0;
             }
             // calc planet Angle
-            var planetAnlge = RandomNumber.rand() * (2 * Math.PI);
+            var planetAnlge = rng.rand() * (2 * Math.PI);
             // calc X and Y position from radius and angle
             var planetXPos = distToCoM * Math.cos(planetAnlge)*100;
             var planetYPos = distToCoM * Math.sin(planetAnlge)*100;
 
             // calc planet Size
-            var planetSize = Math.round((this.planetSizeMean) + (RandomNumber.randn()*this.planetSizeStd) + (distToCoM*this.planetSizeLinearIncrease));
+            var planetSize = Math.round((this.planetSizeMean) + (rng.randn()*this.planetSizeStd) + (distToCoM*this.planetSizeLinearIncrease));
             if (planetSize < this.planetMinSize) {
                 planetSize = this.planetMinSize;
             }
@@ -72,10 +74,10 @@ if (node) {
             this.planetTemperatures.push(avgTemperature);
 
             // random seed for sublayer
-            var subLayerSeed = 170000000 + Math.round(10000*RandomNumber.rand());
+            var subLayerSeed = 170000000 + Math.round(10000*rng.rand());
 
             // type
-            var subLayerTypeSelection = RandomNumber.rand();
+            var subLayerTypeSelection = rng.rand();
             var objTypeId = null;
             if (i==0) {
                 objTypeId = "sunPlanet";
@@ -93,7 +95,7 @@ if (node) {
             }
 
             // water level: (between 0.2 and 0.8)
-            var waterLevel = 0.5 + 0.25 * RandomNumber.randn();
+            var waterLevel = 0.5 + 0.25 * rng.randn();
             if (waterLevel<0) {
                 waterLevel=0;
             }
@@ -102,7 +104,7 @@ if (node) {
             }
 
             // roughness: make sure to only vary slightly from 10000
-            var roughness = 10000 + Math.round(1000 * RandomNumber.randn());
+            var roughness = 10000 + Math.round(1000 * rng.randn());
             if (roughness<0) {
                 roughness=0;
             }
