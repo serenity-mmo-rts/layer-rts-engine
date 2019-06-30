@@ -37,6 +37,10 @@ if (node) {
         return matrix;
     };
 
+    CityGenerator.prototype.renderBgObjects = function () {
+
+    };
+
     CityGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows,type) {
 
         var targetSizeTotal = Math.pow(2, n);

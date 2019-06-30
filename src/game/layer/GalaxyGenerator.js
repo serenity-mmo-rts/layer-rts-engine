@@ -41,7 +41,6 @@ if (node) {
         var stdInArm = 0.2; // between 0 and 1
         for (var i = 1; i < this.nrOfSolarSystems; i++) {
             var starType = rng.rand();
-            console.log("starType="+starType)
             var usedStar = null;
             if (starType <= this.distributionofStarTypes[0]) {
                 usedStar = this.gameData.objectTypes.get(this.starTypes[0]);
@@ -99,6 +98,10 @@ if (node) {
                 mapObj.afterFinishedBuilding();
             }
         }
+    };
+
+    GalaxyGenerator.prototype.renderBgObjects = function () {
+
     };
 
     GalaxyGenerator.prototype.getWorldObjects = function () {

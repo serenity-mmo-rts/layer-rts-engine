@@ -367,6 +367,10 @@ if (node) {
 
     };
 
+    PlanetGenerator.prototype.renderBgObjects = function () {
+
+    };
+
     exports.PlanetGenerator = PlanetGenerator;
 
 })(node ? exports : window);

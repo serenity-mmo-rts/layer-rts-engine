@@ -20,6 +20,7 @@ if (node) {
         this.planetSizeMean = this.mapGeneratorParams[4];
         this.planetSizeStd = this.mapGeneratorParams[5];
         this.worldObjects = [];
+        this.orbitRads = [];
 
         this.isInitialized = false;
     };
@@ -53,6 +54,8 @@ if (node) {
                 // for now just set the sun in CoM
                 distToCoM = 0;
             }
+            this.orbitRads.push(distToCoM);
+
             // calc planet Angle
             var planetAnlge = rng.rand() * (2 * Math.PI);
             // calc X and Y position from radius and angle
@@ -141,6 +144,23 @@ if (node) {
 
         //this.worldObjects.push(sun);
 
+    };
+
+    SolarGenerator.prototype.renderBgObjects = function (objBgContainer) {
+        for (var i= 0; i<this.planetAmount;i++) {
+            var orbit = new createjs.Graphics();
+            orbit.setStrokeStyle(10);
+            orbit.beginStroke("#959a0c");
+
+            var w = 566 * this.orbitRads[i];
+            var h = 283 * this.orbitRads[i];
+            orbit.drawEllipse( -w/2, -h/2, w, h );
+
+            var backgroundShape = new createjs.Shape(orbit);
+            backgroundShape.x = 0;
+            backgroundShape.y = 0;
+            objBgContainer.addChild(backgroundShape);
+        }
     };
 
     SolarGenerator.prototype.getWorldObjects = function () {

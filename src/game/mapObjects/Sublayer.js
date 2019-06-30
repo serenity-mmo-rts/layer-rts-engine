@@ -59,9 +59,15 @@ if (node) {
             var gameData = this.getGameData();
             var parentMap = this.getMap();
 
-            var mapGeneratorParams2 = parentMap.mapGeneratorParams().slice();
-            mapGeneratorParams2.push(gameData.objectTypes.get(this.parent.objTypeId()).initHeight);
             var mapGeneratorParams = this.parent.mapGeneratorParams();
+            if (!mapGeneratorParams) {
+                // this is a new user object:
+                if (this.subLayerType == "cityMapType01") {
+                    // cities are initialized with the planet parameters, plus the city size:
+                    mapGeneratorParams = parentMap.mapGeneratorParams().slice();
+                    mapGeneratorParams.push(gameData.objectTypes.get(this.parent.objTypeId()).initHeight);
+                }
+            }
 
             var sublayerParams = {
                 _id: this.parent.sublayerId(),
