@@ -77,11 +77,15 @@ if (node) {
             height = this.gameData.objectTypes.get(mapObject.objTypeId()).initHeight;
         }
 
+        var scale = this.layer.scale;
+
+        // TODO: apply periodic boundary condition to mapObject.x and y
+
         var treeItem = new Bounds().initRectByCenter(
             mapObject.x(),
             mapObject.y(),
-            width,
-            height,
+            width / scale,
+            height / scale,
             mapObject.ori());
         treeItem.obj = mapObject;
         treeItem.type = MapData.COLLISION_OBJ;
