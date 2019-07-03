@@ -209,6 +209,31 @@ if (node) {
     };
 
 
+    proto.mod = function(a, n) {
+        return ((a%n)+n)%n;
+    };
+
+    proto.applyBoundaryToGameCoords = function (gameX, gameY) {
+        var renderX = this.mapType.scale * this.ratioWidthHeight * (gameX - gameY);
+        var renderY = this.mapType.scale * (gameX + gameY);
+
+        if (this.type.isPeriodic) {
+            // apply periodic boundary
+            var layerWidth = this.width();
+            renderX += layerWidth / 2;
+            renderX = this.mod(renderX, layerWidth);
+            renderX -= layerWidth / 2;
+
+            var layerHeight = this.height();
+            renderY += layerHeight / 2;
+            renderY = this.mod(renderY, layerHeight);
+            renderY -= layerHeight / 2;
+        }
+
+        var x = (renderY + renderX/this.mapType.ratioWidthHeight) / (2*this.mapType.scale);
+        var y = (renderY - renderX/this.mapType.ratioWidthHeight) / (2*this.mapType.scale);
+        return {x: x, y: y};
+    };
 
     proto.initialize = function () {
         // now call setPointers() for everything

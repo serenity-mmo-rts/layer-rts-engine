@@ -79,11 +79,18 @@ if (node) {
 
         var scale = this.layer.scale;
 
-        // TODO: apply periodic boundary condition to mapObject.x and y
+        var gameX = mapObject.x();
+        var gameY = mapObject.y();
+
+        if (this.layer.type.isPeriodic) {
+            var tmp = this.layer.applyBoundaryToGameCoords(gameX, gameY);
+            gameX = tmp.x;
+            gameY = tmp.y;
+        }
 
         var treeItem = new Bounds().initRectByCenter(
-            mapObject.x(),
-            mapObject.y(),
+            gameX,
+            gameY,
             width / scale,
             height / scale,
             mapObject.ori());
