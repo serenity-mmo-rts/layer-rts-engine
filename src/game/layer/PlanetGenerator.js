@@ -158,15 +158,15 @@ if (node) {
         var type = this.rgbMapName;
         var targetSizeTotal = Math.pow(2, depth);
 
-        xPos = this.wrapOutOfBounds(xPos, targetSizeTotal);
-        yPos = this.wrapOutOfBounds(yPos, targetSizeTotal);
+        xPos = PlanetGenerator.wrapOutOfBounds(xPos, targetSizeTotal);
+        yPos = PlanetGenerator.wrapOutOfBounds(yPos, targetSizeTotal);
 
         this.calcMaps(xPos,yPos,width,height,depth,skipRows);
 
         return this.getVegetationRGB(xPos,yPos,width,height,depth,skipRows,type);
     };
 
-    PlanetGenerator.prototype.wrapOutOfBounds = function(pos, totalSize) {
+    PlanetGenerator.wrapOutOfBounds = function(pos, totalSize) {
         if (pos<0){
             var outOfBoundsX = Math.ceil(-pos/totalSize);
             pos += outOfBoundsX*totalSize;
@@ -205,7 +205,7 @@ if (node) {
 
     };
 
-    PlanetGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows,type) {
+    PlanetGenerator.prototype.getVegetationRGB = function(xPos,yPos,width,height,n,skipRows,type, colorFilterFcn) {
 
         var targetSizeTotal = Math.pow(2, n);
 
@@ -225,8 +225,8 @@ if (node) {
         var sourceStartIdxX = xPos - this.mapHeight[n].mapsCropsLeft;
         var sourceStartIdxY = yPos - this.mapHeight[n].mapsCropsTop;
 
-        sourceStartIdxX = this.wrapOutOfBounds(sourceStartIdxX, targetSizeTotal);
-        sourceStartIdxY = this.wrapOutOfBounds(sourceStartIdxY, targetSizeTotal);
+        sourceStartIdxX = PlanetGenerator.wrapOutOfBounds(sourceStartIdxX, targetSizeTotal);
+        sourceStartIdxY = PlanetGenerator.wrapOutOfBounds(sourceStartIdxY, targetSizeTotal);
 
         var currMapHeight = this.mapHeight[n].map;
         var currMapTemp = this.mapTemp[n].map;
@@ -292,6 +292,10 @@ if (node) {
                         mapG[startOfPixelTarget] = rgb.g;
                         mapB[startOfPixelTarget] = rgb.b;
                         break;
+                }
+
+                if (colorFilterFcn) {
+                    colorFilterFcn(xSource, ySource, mapR, mapG, mapB, startOfPixelTarget);
                 }
             }
         }
