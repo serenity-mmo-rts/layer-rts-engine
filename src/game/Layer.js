@@ -219,7 +219,7 @@ if (node) {
 
         if (this.type.isPeriodic) {
             // apply periodic boundary
-            var layerWidth = this.width();
+            var layerWidth = this.width() * this.mapType.ratioWidthHeight;
             renderX += layerWidth / 2;
             renderX = this.mod(renderX, layerWidth);
             renderX -= layerWidth / 2;
